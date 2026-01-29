@@ -4,6 +4,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
+import { GenreSection } from "@/components/GenreSection";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTopManga } from "@/hooks/useAnimeData";
@@ -22,22 +23,29 @@ export default function MangaPage() {
       <Navbar />
 
       {/* Hero */}
-      <section className="pt-32 pb-16">
+      <section className="pt-28 sm:pt-32 pb-12 sm:pb-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center">
-                <BookOpen className="w-8 h-8 text-accent-foreground" />
+            <div className="flex items-center justify-center gap-3 mb-4 sm:mb-6">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl glass-button flex items-center justify-center">
+                <BookOpen className="w-6 h-6 sm:w-8 sm:h-8" />
               </div>
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">
-              <span className="gradient-text">Discover Manga</span>
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4">
+              Discover Manga
             </h1>
-            <p className="font-jp text-xl text-muted-foreground mb-2">漫画を発見</p>
-            <p className="text-muted-foreground text-lg">
+            <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-2">漫画を発見</p>
+            <p className="text-muted-foreground text-sm sm:text-lg px-4">
               Explore manga, manhwa, and manhua from around the world.
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Genres */}
+      <section className="py-8">
+        <div className="container mx-auto px-4">
+          <GenreSection type="manga" />
         </div>
       </section>
 
@@ -47,13 +55,13 @@ export default function MangaPage() {
           <HorizontalScroll title="Top Manhwa" titleJp="韓国漫画">
             {manhwaLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-44">
+                <div key={i} className="flex-shrink-0 w-36 sm:w-44">
                   <Skeleton className="aspect-[2/3] rounded-2xl" />
                 </div>
               ))
             ) : (
               manhwa?.slice(0, 12).map((manga, index) => (
-                <div key={manga.mal_id} className="flex-shrink-0 w-44">
+                <div key={manga.mal_id} className="flex-shrink-0 w-36 sm:w-44">
                   <MangaCard manga={manga} index={index} />
                 </div>
               ))
@@ -68,13 +76,13 @@ export default function MangaPage() {
           <HorizontalScroll title="Top Manhua" titleJp="中国漫画">
             {manhuaLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-44">
+                <div key={i} className="flex-shrink-0 w-36 sm:w-44">
                   <Skeleton className="aspect-[2/3] rounded-2xl" />
                 </div>
               ))
             ) : (
               manhua?.slice(0, 12).map((manga, index) => (
-                <div key={manga.mal_id} className="flex-shrink-0 w-44">
+                <div key={manga.mal_id} className="flex-shrink-0 w-36 sm:w-44">
                   <MangaCard manga={manga} index={index} />
                 </div>
               ))
@@ -86,24 +94,26 @@ export default function MangaPage() {
       {/* Filters */}
       <section className="py-8">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Type:</span>
               </div>
               
-              {([undefined, 'manga', 'manhwa', 'manhua'] as const).map((f) => (
-                <Button
-                  key={f || 'all'}
-                  variant={filter === f ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setFilter(f)}
-                  className="rounded-full capitalize"
-                >
-                  {f === undefined ? "All" : f}
-                </Button>
-              ))}
+              <div className="flex flex-wrap gap-2">
+                {([undefined, 'manga', 'manhwa', 'manhua'] as const).map((f) => (
+                  <Button
+                    key={f || 'all'}
+                    variant={filter === f ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setFilter(f)}
+                    className="rounded-full capitalize text-xs sm:text-sm"
+                  >
+                    {f === undefined ? "All" : f}
+                  </Button>
+                ))}
+              </div>
             </div>
 
             <div className="flex items-center gap-2">
@@ -131,15 +141,15 @@ export default function MangaPage() {
       {/* All Manga Grid */}
       <section className="py-8 pb-24">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold mb-6">
             Top {filter ? filter.charAt(0).toUpperCase() + filter.slice(1) : "Manga"}
           </h2>
           
           {topLoading ? (
             <div className={cn(
-              "grid gap-6",
+              "grid gap-4 sm:gap-6",
               viewMode === "grid" 
-                ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" 
+                ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" 
                 : "grid-cols-1"
             )}>
               {Array.from({ length: 20 }).map((_, i) => (
@@ -148,9 +158,9 @@ export default function MangaPage() {
             </div>
           ) : (
             <div className={cn(
-              "grid gap-6",
+              "grid gap-4 sm:gap-6",
               viewMode === "grid" 
-                ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" 
+                ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" 
                 : "grid-cols-1"
             )}>
               {topManga?.map((manga, index) => (

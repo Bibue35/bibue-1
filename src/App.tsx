@@ -10,6 +10,7 @@ import AnimeDetail from "./pages/AnimeDetail";
 import MangaDetail from "./pages/MangaDetail";
 import Rankings from "./pages/Rankings";
 import NewsPage from "./pages/NewsPage";
+import CommunityPage from "./pages/CommunityPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/manga/:id" element={<MangaDetail />} />
           <Route path="/rankings" element={<Rankings />} />
           <Route path="/news" element={<NewsPage />} />
+          <Route path="/community" element={<CommunityPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
