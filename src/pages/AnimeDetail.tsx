@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Play, Star, Clock, Heart, Bookmark, ChevronLeft, ChevronRight, MessageCircle, Send, User, X, Maximize2, Minimize2 } from "lucide-react";
+import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, Search, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,30 +10,33 @@ import { cn } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export default function AnimeDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: anime, isLoading, error } = useAnimeDetails(Number(id));
   const [selectedEpisode, setSelectedEpisode] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showLogo, setShowLogo] = useState(true);
+  const [showControls, setShowControls] = useState(true);
   const [newComment, setNewComment] = useState("");
+  const [episodePage, setEpisodePage] = useState(0);
   const queryClient = useQueryClient();
+  const episodesPerPage = 4;
 
-  // Hide logo after 3 seconds of inactivity
+  // Hide controls after 3 seconds of inactivity
   useEffect(() => {
     let timeout: NodeJS.Timeout;
     const handleMouseMove = () => {
-      setShowLogo(true);
+      setShowControls(true);
       clearTimeout(timeout);
-      timeout = setTimeout(() => setShowLogo(false), 3000);
+      timeout = setTimeout(() => setShowControls(false), 3000);
     };
     
     if (isFullscreen) {
       window.addEventListener("mousemove", handleMouseMove);
-      timeout = setTimeout(() => setShowLogo(false), 3000);
+      timeout = setTimeout(() => setShowControls(false), 3000);
     } else {
-      setShowLogo(true);
+      setShowControls(true);
     }
     
     return () => {
@@ -42,7 +45,7 @@ export default function AnimeDetailPage() {
     };
   }, [isFullscreen]);
 
-  // Comments query - simplified without join since there's no FK
+  // Comments query
   const { data: comments, isLoading: commentsLoading } = useQuery({
     queryKey: ["episode-comments", Number(id), selectedEpisode],
     queryFn: async () => {
@@ -88,7 +91,7 @@ export default function AnimeDetailPage() {
     }
   };
 
-  // Generate mock episode data
+  // Generate mock episode data with thumbnails
   const generateEpisodes = (count: number) => {
     const aired = anime?.aired?.from ? new Date(anime.aired.from) : new Date();
     return Array.from({ length: Math.min(count, 24) }, (_, i) => {
@@ -97,7 +100,9 @@ export default function AnimeDetailPage() {
       return {
         number: i + 1,
         title: `Episode ${i + 1}`,
+        description: i === 0 ? anime?.synopsis?.slice(0, 100) + "..." : `The story continues in episode ${i + 1}...`,
         aired: episodeDate.toISOString(),
+        thumbnail: anime?.images?.webp?.large_image_url,
       };
     });
   };
@@ -117,6 +122,8 @@ export default function AnimeDetailPage() {
   }
 
   const episodes = anime ? generateEpisodes(anime.episodes || 12) : [];
+  const totalPages = Math.ceil(episodes.length / episodesPerPage);
+  const visibleEpisodes = episodes.slice(episodePage * episodesPerPage, (episodePage + 1) * episodesPerPage);
 
   return (
     <div className="min-h-screen bg-background">
@@ -136,7 +143,7 @@ export default function AnimeDetailPage() {
               to="/"
               className={cn(
                 "absolute top-4 left-4 z-50 transition-all duration-500",
-                showLogo ? "opacity-100" : "opacity-0 pointer-events-none"
+                showControls ? "opacity-100" : "opacity-0 pointer-events-none"
               )}
             >
               <span className="text-2xl font-sacred font-semibold text-white drop-shadow-lg hover:text-primary transition-colors">
@@ -149,7 +156,7 @@ export default function AnimeDetailPage() {
               onClick={() => setIsFullscreen(!isFullscreen)}
               className={cn(
                 "absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-all duration-500",
-                showLogo ? "opacity-100" : "opacity-0 pointer-events-none"
+                showControls ? "opacity-100" : "opacity-0 pointer-events-none"
               )}
             >
               {isFullscreen ? (
@@ -183,73 +190,103 @@ export default function AnimeDetailPage() {
               )}
             </div>
 
-            {/* Bottom controls overlay */}
+            {/* Bottom Episode Bar */}
             <div className={cn(
-              "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4 sm:p-6 transition-all duration-500",
-              showLogo ? "opacity-100" : "opacity-0 pointer-events-none"
+              "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent transition-all duration-500",
+              showControls ? "opacity-100" : "opacity-0 pointer-events-none"
             )}>
-              <div className="container mx-auto">
-                {/* Title and episode info */}
-                <div className="mb-4">
-                  <h1 className="text-xl sm:text-2xl font-sacred font-bold text-white mb-1">{anime?.title}</h1>
-                  <p className="text-white/70 text-sm">Episode {selectedEpisode} of {episodes.length}</p>
-                </div>
-
-                {/* Episode selector */}
-                <div className="flex items-center gap-3 mb-4">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 text-white"
-                    disabled={selectedEpisode <= 1}
-                    onClick={() => setSelectedEpisode(prev => Math.max(1, prev - 1))}
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </Button>
-                  
-                  <div className="flex-1 overflow-x-auto hide-scrollbar">
-                    <div className="flex gap-2">
-                      {episodes.map((ep) => (
-                        <button
-                          key={ep.number}
-                          onClick={() => setSelectedEpisode(ep.number)}
-                          className={cn(
-                            "flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium transition-all",
-                            selectedEpisode === ep.number
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-white/10 text-white hover:bg-white/20"
-                          )}
-                        >
-                          {ep.number}
-                        </button>
-                      ))}
-                    </div>
+              {/* Episode title bar */}
+              <div className="px-4 sm:px-6 pt-6 pb-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-white/60 text-sm">E{selectedEpisode}</span>
+                    <h2 className="text-white font-medium">{anime?.title}</h2>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" className="h-9 w-9 text-white/70 hover:text-white hover:bg-white/10">
+                      <Bookmark className="w-5 h-5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-9 w-9 text-white/70 hover:text-white hover:bg-white/10">
+                      <Heart className="w-5 h-5" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
 
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 text-white"
-                    disabled={selectedEpisode >= episodes.length}
-                    onClick={() => setSelectedEpisode(prev => Math.min(episodes.length, prev + 1))}
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </Button>
+              {/* Episodes row */}
+              <div className="px-4 sm:px-6 pb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-white font-medium text-sm">EPISODES</span>
+                    <button className="p-1.5 rounded-md hover:bg-white/10 text-white/60 hover:text-white">
+                      <Search className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white/60 text-xs">{episodePage * episodesPerPage + 1}-{Math.min((episodePage + 1) * episodesPerPage, episodes.length)}</span>
+                    <button 
+                      onClick={() => setEpisodePage(prev => Math.max(0, prev - 1))}
+                      disabled={episodePage === 0}
+                      className="p-1.5 rounded-md hover:bg-white/10 text-white/60 hover:text-white disabled:opacity-30"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => setEpisodePage(prev => Math.min(totalPages - 1, prev + 1))}
+                      disabled={episodePage >= totalPages - 1}
+                      className="p-1.5 rounded-md hover:bg-white/10 text-white/60 hover:text-white disabled:opacity-30"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
-                {/* Action buttons */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button variant="primary" className="gap-2">
-                    <Play className="w-4 h-4" />
-                    Play Episode {selectedEpisode}
-                  </Button>
-                  <Button variant="outline" className="gap-2 bg-white/10 border-white/20 text-white hover:bg-white/20">
-                    <Bookmark className="w-4 h-4" />
-                    Add to List
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 text-white">
-                    <Heart className="w-5 h-5" />
-                  </Button>
+                {/* Episode cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {visibleEpisodes.map((ep) => (
+                    <button
+                      key={ep.number}
+                      onClick={() => setSelectedEpisode(ep.number)}
+                      className={cn(
+                        "relative group text-left rounded-lg overflow-hidden transition-all",
+                        selectedEpisode === ep.number 
+                          ? "ring-2 ring-primary" 
+                          : "hover:ring-1 hover:ring-white/30"
+                      )}
+                    >
+                      {/* Thumbnail */}
+                      <div className="aspect-video relative">
+                        <img
+                          src={ep.thumbnail}
+                          alt={ep.title}
+                          className="w-full h-full object-cover"
+                        />
+                        {/* Episode number badge */}
+                        <div className="absolute top-2 right-2 bg-black/70 px-1.5 py-0.5 rounded text-xs text-white font-medium">
+                          E{ep.number}
+                        </div>
+                        {/* Watched indicator */}
+                        {ep.number < selectedEpisode && (
+                          <div className="absolute top-2 left-2 p-1 rounded-full bg-black/70">
+                            <Eye className="w-3 h-3 text-white/70" />
+                          </div>
+                        )}
+                        {/* Hover overlay */}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Play className="w-8 h-8 text-white" />
+                        </div>
+                      </div>
+                      {/* Info */}
+                      <div className="p-2 bg-black/60">
+                        <p className="text-white text-xs font-medium line-clamp-1">
+                          {ep.number}. {ep.title}
+                        </p>
+                        <p className="text-white/50 text-xs line-clamp-2 mt-0.5">
+                          {ep.description}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -257,81 +294,8 @@ export default function AnimeDetailPage() {
         )}
       </section>
 
-      {/* ============ SECTION 2: COMMENTS (Scroll Down) ============ */}
-      <section className="py-12 sm:py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center gap-3 mb-6">
-              <MessageCircle className="w-5 h-5" />
-              <h2 className="text-xl sm:text-2xl font-bold font-sacred">Episode {selectedEpisode} Discussion</h2>
-              {comments && (
-                <span className="text-sm text-muted-foreground">({comments.length})</span>
-              )}
-            </div>
-            
-            <div className="liquid-glass rounded-2xl p-4 sm:p-6">
-              {/* Comment Form */}
-              <form onSubmit={handleSubmit} className="mb-6">
-                <Textarea
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Share your thoughts on this episode... (Sign in to comment)"
-                  className="mb-3 liquid-glass-subtle border-foreground/10 resize-none"
-                  rows={3}
-                />
-                <Button 
-                  type="submit" 
-                  disabled={!newComment.trim() || addCommentMutation.isPending}
-                  className="gap-2"
-                >
-                  <Send className="w-4 h-4" />
-                  Post Comment
-                </Button>
-              </form>
-
-              {/* Comments List */}
-              <div className="space-y-4">
-                {commentsLoading ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    Loading comments...
-                  </div>
-                ) : comments && comments.length > 0 ? (
-                  comments.map((comment) => (
-                    <div 
-                      key={comment.id} 
-                      className="liquid-glass-subtle rounded-xl p-4"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0">
-                          <User className="w-4 h-4 text-muted-foreground" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-sm">User</span>
-                            <span className="text-xs text-muted-foreground">
-                              {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
-                            </span>
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            {comment.content}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No comments yet. Be the first to share your thoughts!
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============ SECTION 3: SYNOPSIS, GENRES, STUDIO, INFO (All in One Box) ============ */}
-      <section className="py-12 sm:py-16 border-t border-border/30">
+      {/* ============ SECTION 2: SYNOPSIS, GENRES, STUDIO, INFO ============ */}
+      <section className="py-12 sm:py-16 border-b border-border/30">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="liquid-glass rounded-2xl p-5 sm:p-8">
@@ -438,6 +402,79 @@ export default function AnimeDetailPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ SECTION 3: COMMENTS ============ */}
+      <section className="py-12 sm:py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center gap-3 mb-6">
+              <MessageCircle className="w-5 h-5" />
+              <h2 className="text-xl sm:text-2xl font-bold font-sacred">Episode {selectedEpisode} Discussion</h2>
+              {comments && (
+                <span className="text-sm text-muted-foreground">({comments.length})</span>
+              )}
+            </div>
+            
+            <div className="liquid-glass rounded-2xl p-4 sm:p-6">
+              {/* Comment Form */}
+              <form onSubmit={handleSubmit} className="mb-6">
+                <Textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Share your thoughts on this episode... (Sign in to comment)"
+                  className="mb-3 liquid-glass-subtle border-foreground/10 resize-none"
+                  rows={3}
+                />
+                <Button 
+                  type="submit" 
+                  disabled={!newComment.trim() || addCommentMutation.isPending}
+                  className="gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  Post Comment
+                </Button>
+              </form>
+
+              {/* Comments List */}
+              <div className="space-y-4">
+                {commentsLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Loading comments...
+                  </div>
+                ) : comments && comments.length > 0 ? (
+                  comments.map((comment) => (
+                    <div 
+                      key={comment.id} 
+                      className="liquid-glass-subtle rounded-xl p-4"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0">
+                          <User className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium text-sm">User</span>
+                            <span className="text-xs text-muted-foreground">
+                              {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {comment.content}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No comments yet. Be the first to share your thoughts!
+                  </div>
+                )}
               </div>
             </div>
           </div>
