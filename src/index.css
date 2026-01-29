@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -154,70 +155,75 @@
     --sidebar-ring: 220 20% 78%;
   }
 
-  /* Divine Theme - Biblical Heavenly (Sacred Light) */
-  /* A third theme: pure, sacred, transcendent - white clouds, golden halos, holy radiance */
+  /* Divine Theme - Biblical Heavenly (Sacred Transcendence) */
+  /* Pure, sacred, transcendent - clouds of glory, golden halos, holy radiance, heaven's gates */
+  /* Distinct from Sunlight: more ethereal whites, celestial pale blues, transcendent golds */
   .divine {
-    /* Sacred white with subtle warmth - like heaven's light */
-    --background: 40 30% 98%;
-    --foreground: 35 30% 12%;
+    /* Heavenly white - pure, untouched, like clouds of glory */
+    --background: 210 30% 99%;
+    --foreground: 220 25% 15%;
 
-    --card: 45 50% 99%;
-    --card-foreground: 35 30% 12%;
+    --card: 200 40% 99%;
+    --card-foreground: 220 25% 15%;
 
-    --popover: 45 50% 99%;
-    --popover-foreground: 35 30% 12%;
+    --popover: 200 40% 99%;
+    --popover-foreground: 220 25% 15%;
 
-    /* Sacred gold - holy radiance */
-    --primary: 42 85% 55%;
-    --primary-foreground: 40 30% 98%;
+    /* Sacred gold with celestial undertones - holy radiance */
+    --primary: 45 90% 50%;
+    --primary-foreground: 220 25% 12%;
 
-    --secondary: 40 40% 95%;
-    --secondary-foreground: 35 30% 12%;
+    --secondary: 200 25% 96%;
+    --secondary-foreground: 220 25% 15%;
 
-    --muted: 38 25% 93%;
-    --muted-foreground: 35 20% 40%;
+    --muted: 210 20% 94%;
+    --muted-foreground: 220 15% 45%;
 
-    --accent: 42 60% 90%;
-    --accent-foreground: 35 30% 12%;
+    --accent: 45 50% 92%;
+    --accent-foreground: 220 25% 15%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 35% 88%;
-    --input: 40 35% 88%;
-    --ring: 42 85% 55%;
+    --border: 210 30% 90%;
+    --input: 210 30% 90%;
+    --ring: 45 90% 50%;
 
-    /* Divine Liquid Glass - Heavenly clouds with golden halo */
-    --glass-bg: 45 60% 99% / 0.85;
-    --glass-border: 42 80% 90% / 0.6;
-    --glass-highlight: 45 100% 98% / 0.98;
-    --glass-shadow: 42 50% 50% / 0.08;
-    --glass-blur: 48px;
-    --glass-refraction: 42 90% 95% / 0.5;
+    /* Divine Liquid Glass - Clouds of glory with golden halos */
+    --glass-bg: 200 50% 99% / 0.92;
+    --glass-border: 45 60% 88% / 0.5;
+    --glass-highlight: 200 100% 99% / 0.98;
+    --glass-shadow: 220 30% 40% / 0.06;
+    --glass-blur: 56px;
+    --glass-refraction: 45 80% 95% / 0.4;
 
-    /* Sacred specular - holy golden glow */
-    --specular-color: 42 100% 75% / 0.5;
-    --specular-inner: 45 80% 95% / 0.9;
+    /* Sacred specular - holy golden halo glow */
+    --specular-color: 45 100% 70% / 0.6;
+    --specular-inner: 200 60% 97% / 0.95;
 
-    /* Divine reflection gradient - heaven's light */
-    --reflection-start: 45 100% 99% / 0.95;
-    --reflection-mid: 42 90% 95% / 0.6;
-    --reflection-end: 40 50% 90% / 0.1;
+    /* Divine reflection gradient - heaven's light rays */
+    --reflection-start: 200 100% 99% / 0.98;
+    --reflection-mid: 45 80% 95% / 0.5;
+    --reflection-end: 210 40% 92% / 0.15;
 
-    /* Divine glow effects - Biblical radiance */
-    --divine-glow: 42 100% 65% / 0.4;
-    --divine-radiance: 45 100% 75% / 0.6;
-    --divine-halo: 40 100% 85% / 0.5;
+    /* Divine glow effects - Biblical radiance, halos, glory */
+    --divine-glow: 45 100% 60% / 0.5;
+    --divine-radiance: 45 100% 70% / 0.7;
+    --divine-halo: 45 100% 80% / 0.6;
+
+    /* Celestial accent - subtle heavenly blue undertone */
+    --celestial-glow: 210 80% 85% / 0.3;
+    --celestial-radiance: 200 70% 90% / 0.4;
 
     /* Sidebar */
-    --sidebar-background: 40 30% 98%;
-    --sidebar-foreground: 35 30% 12%;
-    --sidebar-primary: 42 85% 55%;
-    --sidebar-primary-foreground: 40 30% 98%;
-    --sidebar-accent: 40 40% 95%;
-    --sidebar-accent-foreground: 35 30% 12%;
-    --sidebar-border: 40 35% 88%;
-    --sidebar-ring: 42 85% 55%;
+    --sidebar-background: 210 30% 99%;
+    --sidebar-foreground: 220 25% 15%;
+    --sidebar-primary: 45 90% 50%;
+    --sidebar-primary-foreground: 220 25% 12%;
+    --sidebar-accent: 200 25% 96%;
+    --sidebar-accent-foreground: 220 25% 15%;
+    --sidebar-border: 210 30% 90%;
+    --sidebar-ring: 45 90% 50%;
   }
 }
 
@@ -451,6 +457,115 @@
     box-shadow: 
       0 20px 48px hsl(var(--glass-shadow)),
       0 0 40px hsl(var(--divine-glow));
+  }
+
+  /* Divine theme specific - Sacred halo ring effect */
+  .divine .halo-effect {
+    position: relative;
+  }
+
+  .divine .halo-effect::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      hsl(45 100% 70% / 0.4),
+      hsl(45 100% 85% / 0.6),
+      hsl(45 100% 70% / 0.4),
+      hsl(45 100% 85% / 0.6),
+      hsl(45 100% 70% / 0.4)
+    );
+    filter: blur(12px);
+    opacity: 0.8;
+    animation: halo-rotate 8s linear infinite;
+    z-index: -1;
+  }
+
+  @keyframes halo-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Divine theme - Light rays emanating from cards */
+  .divine .light-rays {
+    position: relative;
+    overflow: visible;
+  }
+
+  .divine .light-rays::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(
+      from 90deg at 50% 100%,
+      transparent 0deg,
+      hsl(45 100% 80% / 0.15) 15deg,
+      transparent 30deg,
+      hsl(45 100% 80% / 0.1) 45deg,
+      transparent 60deg,
+      hsl(45 100% 80% / 0.15) 75deg,
+      transparent 90deg
+    );
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .divine .light-rays:hover::before {
+    opacity: 1;
+  }
+
+  /* Divine theme - Sacred text styling */
+  .divine .sacred-text {
+    font-family: 'Cinzel', Georgia, serif;
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 20px hsl(45 100% 70% / 0.3);
+  }
+
+  /* Divine theme - Heavenly gradient backgrounds */
+  .divine .heavenly-bg {
+    background: linear-gradient(
+      180deg,
+      hsl(200 40% 99%) 0%,
+      hsl(210 30% 98%) 30%,
+      hsl(45 50% 96%) 70%,
+      hsl(45 60% 94%) 100%
+    );
+  }
+
+  /* Divine theme - Glory shimmer on primary elements */
+  .divine .glory-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .divine .glory-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(45 100% 90% / 0.6),
+      transparent
+    );
+    animation: glory-shine 3s ease-in-out infinite;
+  }
+
+  @keyframes glory-shine {
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: 100%; }
   }
 
   /* Sunbeam hover effect (legacy/light mode) */

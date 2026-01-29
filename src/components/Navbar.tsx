@@ -60,7 +60,7 @@ export function Navbar() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2">
-              <span className="text-2xl font-semibold tracking-tight">
+              <span className="text-2xl font-semibold tracking-tight divine:font-sacred divine:tracking-wider">
                 Bibue
               </span>
             </Link>
