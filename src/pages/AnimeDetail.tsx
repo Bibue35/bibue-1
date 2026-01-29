@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, ChevronDown, ChevronUp, Eye } from "lucide-react";
+import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,7 +19,6 @@ export default function AnimeDetailPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [newComment, setNewComment] = useState("");
-  const [showEpisodes, setShowEpisodes] = useState(false);
   const queryClient = useQueryClient();
 
   // Hide controls after 3 seconds of inactivity
@@ -196,106 +195,82 @@ export default function AnimeDetailPage() {
               )}
             </div>
 
-            {/* Bottom Episode Bar - AnimerRealms Style */}
+            {/* Bottom Episode Grid - AnimeRealms Style */}
             <div className={cn(
               "absolute bottom-0 left-0 right-0 transition-all duration-500",
               showControls ? "opacity-100" : "opacity-0 pointer-events-none"
             )}>
-              {/* Episode Info Bar */}
-              <div className="bg-gradient-to-t from-black via-black/95 to-transparent pt-12">
-                <div className="px-4 sm:px-6">
-                  {/* Current Episode Info */}
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-primary font-bold text-sm">E{selectedEpisode}</span>
-                        <span className="text-white/40">•</span>
-                        <span className="text-white font-medium text-sm truncate">{anime?.title}</span>
-                      </div>
-                      <p className="text-white/50 text-xs line-clamp-1">
-                        {currentEpisode?.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Episodes Toggle */}
-                  <button
-                    onClick={() => setShowEpisodes(!showEpisodes)}
-                    className="w-full flex items-center justify-center gap-2 py-2 text-white/60 hover:text-white transition-colors"
-                  >
-                    <span className="text-xs font-medium uppercase tracking-wider">
-                      {showEpisodes ? "Hide Episodes" : "Show Episodes"}
-                    </span>
-                    {showEpisodes ? (
-                      <ChevronDown className="w-4 h-4" />
-                    ) : (
-                      <ChevronUp className="w-4 h-4" />
-                    )}
-                  </button>
+              <div className="bg-gradient-to-t from-black via-black/90 to-transparent pt-16 pb-6 px-4 sm:px-8">
+                {/* EPISODES Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-white font-bold text-sm uppercase tracking-wider">Episodes</h3>
+                  <span className="text-white/50 text-xs">{episodes.length} Episodes</span>
                 </div>
-
-                {/* Episodes Horizontal Scroll */}
-                {showEpisodes && (
-                  <div className="pb-4">
-                    <ScrollArea className="w-full whitespace-nowrap">
-                      <div className="flex gap-2 px-4 sm:px-6 py-2">
-                        {episodes.map((ep) => (
-                          <button
-                            key={ep.number}
-                            onClick={() => {
-                              setSelectedEpisode(ep.number);
-                              setShowEpisodes(false);
-                            }}
-                            className={cn(
-                              "relative flex-shrink-0 w-48 group text-left rounded-lg overflow-hidden transition-all",
-                              selectedEpisode === ep.number 
-                                ? "ring-2 ring-primary" 
-                                : "hover:ring-1 hover:ring-white/30"
-                            )}
-                          >
-                            {/* Thumbnail */}
-                            <div className="aspect-video relative">
-                              <img
-                                src={ep.thumbnail}
-                                alt={ep.title}
-                                className="w-full h-full object-cover"
-                              />
-                              {/* Episode number badge */}
-                              <div className="absolute top-1.5 right-1.5 bg-black/80 px-1.5 py-0.5 rounded text-[10px] text-white font-bold">
-                                E{ep.number}
-                              </div>
-                              {/* Watched indicator */}
-                              {ep.number < selectedEpisode && (
-                                <div className="absolute top-1.5 left-1.5 p-1 rounded-full bg-primary/80">
-                                  <Eye className="w-2.5 h-2.5 text-white" />
-                                </div>
-                              )}
-                              {/* Now Playing indicator */}
-                              {ep.number === selectedEpisode && (
-                                <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                                  <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded">
-                                    NOW PLAYING
-                                  </span>
-                                </div>
-                              )}
-                              {/* Hover overlay */}
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <Play className="w-8 h-8 text-white" />
+                
+                {/* Episode Grid */}
+                <ScrollArea className="w-full">
+                  <div className="flex gap-3 pb-2">
+                    {episodes.map((ep) => (
+                      <button
+                        key={ep.number}
+                        onClick={() => setSelectedEpisode(ep.number)}
+                        className={cn(
+                          "relative flex-shrink-0 w-56 sm:w-64 group text-left rounded-xl overflow-hidden transition-all",
+                          selectedEpisode === ep.number 
+                            ? "ring-2 ring-primary scale-[1.02]" 
+                            : "hover:ring-1 hover:ring-white/40 hover:scale-[1.01]"
+                        )}
+                      >
+                        {/* Thumbnail */}
+                        <div className="aspect-video relative bg-black/50">
+                          <img
+                            src={ep.thumbnail}
+                            alt={ep.title}
+                            className="w-full h-full object-cover"
+                          />
+                          {/* Now Playing overlay */}
+                          {selectedEpisode === ep.number && (
+                            <div className="absolute inset-0 bg-primary/30 flex items-center justify-center">
+                              <div className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                                <Play className="w-3 h-3 fill-current" />
+                                NOW PLAYING
                               </div>
                             </div>
-                            {/* Info */}
-                            <div className="p-2 bg-black/80">
-                              <p className="text-white text-xs font-medium line-clamp-1">
-                                {ep.title}
-                              </p>
+                          )}
+                          {/* Play overlay on hover */}
+                          {selectedEpisode !== ep.number && (
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                <Play className="w-5 h-5 text-white fill-white" />
+                              </div>
                             </div>
-                          </button>
-                        ))}
-                      </div>
-                      <ScrollBar orientation="horizontal" className="bg-white/10" />
-                    </ScrollArea>
+                          )}
+                          {/* Watched indicator */}
+                          {ep.number < selectedEpisode && (
+                            <div className="absolute top-2 left-2 p-1 rounded-full bg-primary">
+                              <Eye className="w-3 h-3 text-white" />
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Episode Info - Always visible */}
+                        <div className="p-3 bg-black/80 backdrop-blur-sm">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={cn(
+                              "text-xs font-bold",
+                              selectedEpisode === ep.number ? "text-primary" : "text-white/60"
+                            )}>
+                              E{ep.number}
+                            </span>
+                            <span className="text-white font-medium text-sm truncate">{ep.title}</span>
+                          </div>
+                          <p className="text-white/50 text-xs line-clamp-2">{ep.description}</p>
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                )}
+                  <ScrollBar orientation="horizontal" className="bg-white/20 h-1.5" />
+                </ScrollArea>
               </div>
             </div>
           </>
