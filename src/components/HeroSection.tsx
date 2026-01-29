@@ -14,16 +14,16 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
 
   if (isLoading || !featured) {
     return (
-      <section className="relative min-h-[70vh] flex items-center pt-20">
+      <section className="relative min-h-[60vh] sm:min-h-[70vh] flex items-center pt-20">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl animate-pulse">
             <div className="h-4 w-24 bg-muted rounded-full mb-6" />
-            <div className="h-12 w-3/4 bg-muted rounded-2xl mb-4" />
+            <div className="h-10 sm:h-12 w-3/4 bg-muted rounded-2xl mb-4" />
             <div className="h-6 w-1/2 bg-muted rounded-xl mb-6" />
-            <div className="h-20 w-full bg-muted rounded-xl mb-8" />
+            <div className="h-16 sm:h-20 w-full bg-muted rounded-xl mb-8" />
             <div className="flex gap-3">
-              <div className="h-12 w-32 bg-muted rounded-full" />
-              <div className="h-12 w-32 bg-muted rounded-full" />
+              <div className="h-10 sm:h-12 w-28 sm:w-32 bg-muted rounded-full" />
+              <div className="h-10 sm:h-12 w-28 sm:w-32 bg-muted rounded-full" />
             </div>
           </div>
         </div>
@@ -32,7 +32,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
   }
 
   return (
-    <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+    <section className="relative min-h-[75vh] sm:min-h-[85vh] flex items-center overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img
@@ -48,14 +48,14 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
       <div className="container mx-auto px-4 relative z-10 pt-20">
         <div className="max-w-2xl">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full liquid-glass-subtle text-sm mb-6 animate-fade-up">
-            <Star className="w-4 h-4 text-primary fill-primary" />
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full liquid-glass-subtle text-xs sm:text-sm mb-4 sm:mb-6 animate-fade-up">
+            <Star className="w-3 h-3 sm:w-4 sm:h-4 text-foreground fill-foreground" />
             <span className="font-medium">{formatScore(featured.score)} Rating</span>
           </div>
 
           {/* Title */}
           <h1 
-            className="text-4xl md:text-6xl lg:text-7xl font-bold mb-3 tracking-tight animate-fade-up"
+            className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-2 sm:mb-3 tracking-tight animate-fade-up"
             style={{ animationDelay: "0.1s" }}
           >
             {featured.title}
@@ -64,7 +64,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
           {/* Japanese title */}
           {featured.title_japanese && (
             <p 
-              className="font-jp text-lg md:text-xl text-muted-foreground mb-6 animate-fade-up"
+              className="font-jp text-base sm:text-lg md:text-xl text-muted-foreground mb-4 sm:mb-6 animate-fade-up"
               style={{ animationDelay: "0.15s" }}
             >
               {featured.title_japanese}
@@ -74,13 +74,13 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
           {/* Genres */}
           {featured.genres && featured.genres.length > 0 && (
             <div 
-              className="flex flex-wrap gap-2 mb-6 animate-fade-up"
+              className="flex flex-wrap gap-2 mb-4 sm:mb-6 animate-fade-up"
               style={{ animationDelay: "0.2s" }}
             >
               {featured.genres.slice(0, 4).map((genre) => (
                 <span
                   key={genre.mal_id}
-                  className="px-3 py-1 rounded-full liquid-glass-subtle text-sm font-medium"
+                  className="px-2 sm:px-3 py-1 rounded-full liquid-glass-subtle text-xs sm:text-sm font-medium"
                 >
                   {genre.name}
                 </span>
@@ -90,7 +90,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
 
           {/* Synopsis */}
           <p 
-            className="text-muted-foreground leading-relaxed max-w-xl mb-8 line-clamp-3 animate-fade-up"
+            className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-xl mb-6 sm:mb-8 line-clamp-2 sm:line-clamp-3 animate-fade-up"
             style={{ animationDelay: "0.25s" }}
           >
             {featured.synopsis}
@@ -101,14 +101,13 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
             className="flex flex-wrap items-center gap-3 animate-fade-up"
             style={{ animationDelay: "0.3s" }}
           >
-            <Button size="lg" className="rounded-full gap-2 px-6">
+            <Button size="lg" className="gap-2">
               <Play className="w-4 h-4" />
               Watch Now
             </Button>
             <Button 
               variant="outline" 
               size="lg" 
-              className="rounded-full px-6"
               asChild
             >
               <Link to={`/anime/${featured.mal_id}`}>
@@ -120,12 +119,12 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
       </div>
 
       {/* Floating preview cards */}
-      <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-4">
+      <div className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-4">
         {featuredAnime?.slice(1, 4).map((anime, index) => (
           <Link
             key={anime.mal_id}
             to={`/anime/${anime.mal_id}`}
-            className="w-32 aspect-[2/3] rounded-2xl overflow-hidden liquid-glass hover-lift animate-fade-up"
+            className="w-24 sm:w-32 aspect-[2/3] rounded-2xl overflow-hidden liquid-glass hover-lift animate-fade-up"
             style={{ 
               animationDelay: `${0.4 + index * 0.1}s`,
               transform: index === 1 ? 'translateX(2rem)' : undefined

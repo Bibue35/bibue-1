@@ -81,7 +81,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
                 activeTab === "anime"
-                  ? "bg-primary text-primary-foreground"
+                  ? "bg-foreground text-background"
                   : "liquid-glass-subtle text-muted-foreground hover:text-foreground"
               )}
             >
@@ -93,7 +93,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
                 activeTab === "manga"
-                  ? "bg-accent text-accent-foreground"
+                  ? "bg-foreground text-background"
                   : "liquid-glass-subtle text-muted-foreground hover:text-foreground"
               )}
             >
@@ -126,7 +126,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         className="w-12 h-16 object-cover rounded-lg"
                       />
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium truncate group-hover:text-primary transition-colors">
+                        <h3 className="font-medium truncate group-hover:text-foreground/80 transition-colors">
                           {item.title}
                         </h3>
                         <p className="text-sm text-muted-foreground truncate">
@@ -134,7 +134,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           {item.score && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-foreground/10 text-foreground">
                               ★ {item.score}
                             </span>
                           )}

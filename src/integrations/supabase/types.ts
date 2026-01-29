@@ -14,7 +14,134 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      discussion_replies: {
+        Row: {
+          content: string
+          created_at: string
+          discussion_id: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          discussion_id: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          discussion_id?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discussion_replies_discussion_id_fkey"
+            columns: ["discussion_id"]
+            isOneToOne: false
+            referencedRelation: "discussions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      discussions: {
+        Row: {
+          anime_id: number | null
+          category: string
+          content: string
+          created_at: string
+          id: string
+          manga_id: number | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          anime_id?: number | null
+          category?: string
+          content: string
+          created_at?: string
+          id?: string
+          manga_id?: number | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          anime_id?: number | null
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          manga_id?: number | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      episode_comments: {
+        Row: {
+          anime_id: number
+          content: string
+          created_at: string
+          episode_number: number
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          anime_id: number
+          content: string
+          created_at?: string
+          episode_number: number
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          anime_id?: number
+          content?: string
+          created_at?: string
+          episode_number?: number
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

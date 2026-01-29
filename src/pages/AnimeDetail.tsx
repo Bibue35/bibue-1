@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Play, Star, Calendar, Clock, Users, Heart, Share2, Bookmark, ExternalLink } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { EpisodeComments } from "@/components/EpisodeComments";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnimeDetails } from "@/hooks/useAnimeData";
@@ -13,12 +14,13 @@ export default function AnimeDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: anime, isLoading, error } = useAnimeDetails(Number(id));
   const [activeTab, setActiveTab] = useState<"overview" | "episodes" | "characters" | "reviews">("overview");
+  const [selectedEpisode, setSelectedEpisode] = useState(1);
 
   if (error) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">Error Loading Anime</h1>
+        <div className="text-center px-4">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-4">Error Loading Anime</h1>
           <p className="text-muted-foreground mb-6">Something went wrong. Please try again.</p>
           <Link to="/">
             <Button variant="outline">
@@ -36,7 +38,7 @@ export default function AnimeDetailPage() {
       <Navbar />
 
       {/* Hero Banner */}
-      <section className="relative min-h-[70vh] pt-20">
+      <section className="relative min-h-[60vh] sm:min-h-[70vh] pt-20">
         {isLoading ? (
           <Skeleton className="absolute inset-0" />
         ) : (
@@ -53,19 +55,19 @@ export default function AnimeDetailPage() {
             </div>
 
             {/* Content */}
-            <div className="relative z-10 container mx-auto px-4 pt-20 pb-12">
+            <div className="relative z-10 container mx-auto px-4 pt-16 sm:pt-20 pb-12">
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
+                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 sm:mb-8 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm">Back</span>
               </Link>
 
-              <div className="flex flex-col lg:flex-row gap-8">
+              <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
                 {/* Poster */}
-                <div className="flex-shrink-0">
-                  <div className="w-64 aspect-[2/3] rounded-2xl overflow-hidden shadow-lg animate-scale-in">
+                <div className="flex-shrink-0 flex justify-center lg:justify-start">
+                  <div className="w-48 sm:w-64 aspect-[2/3] rounded-2xl overflow-hidden liquid-glass animate-scale-in">
                     <img
                       src={anime?.images.webp.large_image_url}
                       alt={anime?.title}
@@ -75,9 +77,9 @@ export default function AnimeDetailPage() {
                 </div>
 
                 {/* Info */}
-                <div className="flex-1 min-w-0 animate-fade-up">
+                <div className="flex-1 min-w-0 animate-fade-up text-center lg:text-left">
                   {/* Tags */}
-                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-4">
                     {anime?.genres?.slice(0, 4).map((genre) => (
                       <span
                         key={genre.mal_id}
@@ -89,49 +91,42 @@ export default function AnimeDetailPage() {
                   </div>
 
                   {/* Title */}
-                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-2">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2">
                     {anime?.title}
                   </h1>
-                  <p className="font-jp text-xl text-muted-foreground mb-6">
+                  <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-4 sm:mb-6">
                     {anime?.title_japanese}
                   </p>
 
                   {/* Stats */}
-                  <div className="flex flex-wrap items-center gap-4 mb-6">
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4 mb-4 sm:mb-6">
                     {anime?.score && (
-                      <div className="flex items-center gap-2 px-4 py-2 rounded-xl liquid-glass-subtle">
-                        <Star className="w-5 h-5 text-primary fill-primary" />
-                        <span className="font-bold text-lg">{formatScore(anime.score)}</span>
-                        <span className="text-muted-foreground text-sm">({formatNumber(anime.scored_by)} votes)</span>
+                      <div className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl liquid-glass-subtle">
+                        <Star className="w-4 sm:w-5 h-4 sm:h-5 text-foreground fill-foreground" />
+                        <span className="font-bold text-base sm:text-lg">{formatScore(anime.score)}</span>
+                        <span className="text-muted-foreground text-xs sm:text-sm hidden sm:inline">({formatNumber(anime.scored_by)} votes)</span>
                       </div>
                     )}
                     {anime?.rank && (
-                      <div className="flex items-center gap-2 px-4 py-2 rounded-xl liquid-glass-subtle">
-                        <span className="font-bold text-lg">#{anime.rank}</span>
-                        <span className="text-muted-foreground text-sm">Ranked</span>
+                      <div className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl liquid-glass-subtle">
+                        <span className="font-bold text-base sm:text-lg">#{anime.rank}</span>
+                        <span className="text-muted-foreground text-xs sm:text-sm">Ranked</span>
                       </div>
                     )}
                     {anime?.popularity && (
-                      <div className="flex items-center gap-2 px-4 py-2 rounded-xl liquid-glass-subtle">
-                        <Users className="w-5 h-5 text-accent" />
-                        <span className="font-bold">{formatNumber(anime.members)}</span>
-                        <span className="text-muted-foreground text-sm">Members</span>
+                      <div className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl liquid-glass-subtle">
+                        <Users className="w-4 sm:w-5 h-4 sm:h-5" />
+                        <span className="font-bold text-sm sm:text-base">{formatNumber(anime.members)}</span>
                       </div>
                     )}
                   </div>
 
                   {/* Meta info */}
-                  <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground mb-8">
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground mb-6 sm:mb-8">
                     {anime?.episodes && (
                       <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4" />
                         <span>{anime.episodes} Episodes</span>
-                      </div>
-                    )}
-                    {anime?.duration && (
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        <span>{anime.duration}</span>
                       </div>
                     )}
                     {anime?.season && anime?.year && (
@@ -148,12 +143,12 @@ export default function AnimeDetailPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex flex-wrap items-center gap-4">
-                    <Button size="lg" className="rounded-full gap-2">
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4">
+                    <Button size="lg" className="gap-2">
                       <Play className="w-5 h-5" />
                       Watch Now
                     </Button>
-                    <Button size="lg" variant="outline" className="rounded-full gap-2">
+                    <Button size="lg" variant="outline" className="gap-2">
                       <Bookmark className="w-5 h-5" />
                       Add to List
                     </Button>
@@ -172,18 +167,18 @@ export default function AnimeDetailPage() {
       </section>
 
       {/* Content Tabs */}
-      <section className="py-12 relative z-10">
+      <section className="py-8 sm:py-12 relative z-10">
         <div className="container mx-auto px-4">
           {/* Tab navigation */}
-          <div className="flex items-center gap-1 p-1 rounded-xl liquid-glass w-fit mb-8">
+          <div className="flex items-center gap-1 p-1 rounded-xl liquid-glass w-fit mb-6 sm:mb-8 overflow-x-auto">
             {(["overview", "episodes", "characters", "reviews"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  "px-6 py-3 rounded-lg text-sm font-medium capitalize transition-all duration-300",
+                  "px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium capitalize transition-all duration-300 whitespace-nowrap",
                   activeTab === tab
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-foreground text-background"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -194,20 +189,20 @@ export default function AnimeDetailPage() {
 
           {/* Tab content */}
           {activeTab === "overview" && anime && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 animate-fade-in">
               {/* Synopsis */}
-              <div className="lg:col-span-2 space-y-8">
-                <div className="liquid-glass rounded-2xl p-6">
-                  <h3 className="text-xl font-bold mb-4">Synopsis</h3>
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+              <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+                <div className="liquid-glass rounded-2xl p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Synopsis</h3>
+                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed whitespace-pre-line">
                     {anime.synopsis || "No synopsis available."}
                   </p>
                 </div>
 
                 {/* Trailer */}
                 {anime.trailer?.youtube_id && (
-                  <div className="liquid-glass rounded-2xl p-6">
-                    <h3 className="text-xl font-bold mb-4">Trailer</h3>
+                  <div className="liquid-glass rounded-2xl p-4 sm:p-6">
+                    <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Trailer</h3>
                     <div className="aspect-video rounded-xl overflow-hidden">
                       <iframe
                         src={`https://www.youtube.com/embed/${anime.trailer.youtube_id}`}
@@ -221,10 +216,10 @@ export default function AnimeDetailPage() {
               </div>
 
               {/* Sidebar info */}
-              <div className="space-y-6">
-                <div className="liquid-glass rounded-2xl p-6">
-                  <h3 className="text-lg font-bold mb-4">Information</h3>
-                  <dl className="space-y-3 text-sm">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="liquid-glass rounded-2xl p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">Information</h3>
+                  <dl className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Type</dt>
                       <dd className="font-medium">{anime.source || "N/A"}</dd>
@@ -239,7 +234,7 @@ export default function AnimeDetailPage() {
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Aired</dt>
-                      <dd className="font-medium">{anime.aired?.string || "N/A"}</dd>
+                      <dd className="font-medium text-right">{anime.aired?.string || "N/A"}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Rating</dt>
@@ -249,25 +244,25 @@ export default function AnimeDetailPage() {
                 </div>
 
                 {/* External links */}
-                <div className="liquid-glass rounded-2xl p-6">
-                  <h3 className="text-lg font-bold mb-4">External Links</h3>
+                <div className="liquid-glass rounded-2xl p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">External Links</h3>
                   <div className="space-y-2">
                     <a
                       href={`https://myanimelist.net/anime/${anime.mal_id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between p-3 rounded-xl border border-border hover:border-primary/50 transition-colors"
+                      className="flex items-center justify-between p-3 rounded-xl border border-border/50 hover:border-foreground/30 transition-colors"
                     >
-                      <span className="text-sm">MyAnimeList</span>
+                      <span className="text-xs sm:text-sm">MyAnimeList</span>
                       <ExternalLink className="w-4 h-4" />
                     </a>
                     <a
                       href={`https://anilist.co/search/anime?search=${encodeURIComponent(anime.title)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between p-3 rounded-xl border border-border hover:border-primary/50 transition-colors"
+                      className="flex items-center justify-between p-3 rounded-xl border border-border/50 hover:border-foreground/30 transition-colors"
                     >
-                      <span className="text-sm">AniList</span>
+                      <span className="text-xs sm:text-sm">AniList</span>
                       <ExternalLink className="w-4 h-4" />
                     </a>
                   </div>
@@ -276,12 +271,45 @@ export default function AnimeDetailPage() {
             </div>
           )}
 
-          {activeTab !== "overview" && (
-            <div className="liquid-glass rounded-2xl p-12 text-center animate-fade-in">
-              <p className="text-muted-foreground text-lg">
+          {activeTab === "episodes" && anime && (
+            <div className="space-y-6 animate-fade-in">
+              {/* Episode selector */}
+              <div className="liquid-glass rounded-2xl p-4 sm:p-6">
+                <h3 className="text-lg font-bold mb-4">Select Episode</h3>
+                <div className="flex flex-wrap gap-2">
+                  {Array.from({ length: Math.min(anime.episodes || 12, 24) }, (_, i) => i + 1).map((ep) => (
+                    <button
+                      key={ep}
+                      onClick={() => setSelectedEpisode(ep)}
+                      className={cn(
+                        "w-10 h-10 rounded-lg text-sm font-medium transition-all",
+                        selectedEpisode === ep
+                          ? "bg-foreground text-background"
+                          : "glass-button hover:scale-105"
+                      )}
+                    >
+                      {ep}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Episode comments */}
+              <div className="liquid-glass rounded-2xl p-4 sm:p-6">
+                <EpisodeComments 
+                  animeId={anime.mal_id} 
+                  episodeNumber={selectedEpisode} 
+                />
+              </div>
+            </div>
+          )}
+
+          {(activeTab === "characters" || activeTab === "reviews") && (
+            <div className="liquid-glass rounded-2xl p-8 sm:p-12 text-center animate-fade-in">
+              <p className="text-muted-foreground text-base sm:text-lg">
                 Coming Soon
               </p>
-              <p className="text-sm text-muted-foreground mt-2 font-jp">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2 font-jp">
                 この機能は開発中です
               </p>
             </div>
