@@ -165,7 +165,7 @@ export default function AnimeDetailPage() {
 
                   {/* Actions */}
                   <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4">
-                    <Button size="lg" className="gap-2">
+                    <Button size="lg" variant="divine" className="gap-2">
                       <Play className="w-5 h-5" />
                       Watch Now
                     </Button>
