@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Film, Filter, Grid, List } from "lucide-react";
+import { Filter, Grid, List } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
@@ -42,22 +42,19 @@ export default function AnimePage() {
     <div className="min-h-screen bg-background">
       <CollapsibleNavbar />
 
-      {/* Hero */}
+      {/* Hero - Clean text-only design */}
       <section className="pt-28 sm:pt-32 pb-12 sm:pb-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <div className="flex items-center justify-center gap-3 mb-4 sm:mb-6">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl liquid-glass flex items-center justify-center sunbeam-hover">
-                <Film className="w-6 h-6 sm:w-8 sm:h-8" />
-              </div>
-            </div>
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 divine:font-sacred">
               Discover Anime
             </h1>
             <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-2">アニメを発見</p>
             <p className="text-muted-foreground text-sm sm:text-lg px-4">
               Explore the best anime from every season, genre, and era.
             </p>
+            {/* Decorative underline */}
+            <div className="mt-6 mx-auto w-24 h-1 rounded-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           </div>
         </div>
       </section>

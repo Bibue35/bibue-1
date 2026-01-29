@@ -27,7 +27,11 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
     return (
       <Link
         to={`/anime/${anime.mal_id}`}
-        className="flex items-center gap-3 sm:gap-4 p-3 rounded-xl liquid-glass-subtle hover:bg-foreground/5 transition-all group"
+        className={cn(
+          "flex items-center gap-3 sm:gap-4 p-3 rounded-xl transition-all group",
+          "liquid-glass-subtle hover:bg-foreground/5",
+          "sun-glow moon-glow seraphim-glow" // Theme-specific effects
+        )}
       >
         <img
           src={anime.images.webp.image_url}
@@ -74,8 +78,11 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
       )}
       style={{ animationDelay: `${index * 0.05}s` }}
     >
-      {/* Image only - clean card */}
-      <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-2 divine-card">
+      {/* Image with theme-specific hover effects */}
+      <div className={cn(
+        "relative aspect-[2/3] rounded-2xl overflow-hidden mb-2",
+        "divine-card sun-glow moon-glow seraphim-glow sun-rays-hover moon-reflection heaven-gates"
+      )}>
         <img
           src={anime.images.webp.image_url}
           alt={anime.title}

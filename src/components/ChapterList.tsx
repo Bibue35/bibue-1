@@ -1,4 +1,4 @@
-import { Star, Calendar, BookOpen } from "lucide-react";
+import { Star, Calendar, BookOpen, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Chapter {
@@ -18,33 +18,43 @@ interface ChapterListProps {
 
 export function ChapterList({ chapters, selectedChapter, onSelectChapter, mangaTitle }: ChapterListProps) {
   return (
-    <div className="space-y-3">
-      {chapters.map((chapter) => (
-        <button
-          key={chapter.number}
-          onClick={() => onSelectChapter(chapter.number)}
-          className={cn(
-            "episode-card w-full text-left group cursor-pointer",
-            selectedChapter === chapter.number && "ring-2 ring-primary/50"
-          )}
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-center gap-4 flex-1 min-w-0">
-              {/* Chapter number badge */}
+    <div className="space-y-2">
+      {chapters.map((chapter) => {
+        const isSelected = selectedChapter === chapter.number;
+        
+        return (
+          <button
+            key={chapter.number}
+            onClick={() => onSelectChapter(chapter.number)}
+            className={cn(
+              "w-full text-left group cursor-pointer rounded-xl p-3 transition-all duration-300",
+              "liquid-glass-subtle hover:bg-foreground/5",
+              "sun-glow moon-glow seraphim-glow", // Theme-specific effects
+              isSelected && "ring-2 ring-primary bg-primary/5"
+            )}
+          >
+            <div className="flex items-center gap-3">
+              {/* Chapter number badge with theme effects */}
               <div className={cn(
-                "flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg transition-all",
-                selectedChapter === chapter.number
-                  ? "bg-primary text-primary-foreground"
-                  : "liquid-glass-subtle group-hover:bg-primary/20"
+                "flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center font-bold text-base transition-all relative",
+                "sun-corona moon-phase-hover sacred-hover",
+                isSelected
+                  ? "bg-primary text-primary-foreground shadow-lg"
+                  : "bg-muted/50 group-hover:bg-primary/20"
               )}>
-                {chapter.number}
+                <span className="relative z-10">{chapter.number}</span>
               </div>
               
+              {/* Chapter info */}
               <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-sm truncate group-hover:text-primary transition-colors">
+                <h4 className={cn(
+                  "font-medium text-sm truncate transition-colors",
+                  isSelected ? "text-primary" : "group-hover:text-primary"
+                )}>
                   {chapter.title || `Chapter ${chapter.number}`}
                 </h4>
                 
+                {/* Metadata row */}
                 <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                   {chapter.released && (
                     <div className="flex items-center gap-1">
@@ -54,8 +64,8 @@ export function ChapterList({ chapters, selectedChapter, onSelectChapter, mangaT
                   )}
                   {chapter.score && chapter.score > 0 && (
                     <div className="flex items-center gap-1">
-                      <Star className="w-3 h-3 fill-current" />
-                      <span>{chapter.score.toFixed(1)}</span>
+                      <Star className="w-3 h-3 fill-current text-primary" />
+                      <span className="font-medium">{chapter.score.toFixed(1)}</span>
                     </div>
                   )}
                   {chapter.pages && (
@@ -65,17 +75,24 @@ export function ChapterList({ chapters, selectedChapter, onSelectChapter, mangaT
                   )}
                 </div>
               </div>
-            </div>
-            
-            {/* Read indicator */}
-            <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="w-10 h-10 rounded-full liquid-glass-subtle flex items-center justify-center">
-                <BookOpen className="w-4 h-4" />
+              
+              {/* Read/Select indicator */}
+              <div className={cn(
+                "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all",
+                isSelected 
+                  ? "bg-primary text-primary-foreground" 
+                  : "bg-muted/30 opacity-0 group-hover:opacity-100"
+              )}>
+                {isSelected ? (
+                  <BookOpen className="w-3.5 h-3.5" />
+                ) : (
+                  <ChevronRight className="w-4 h-4" />
+                )}
               </div>
             </div>
-          </div>
-        </button>
-      ))}
+          </button>
+        );
+      })}
     </div>
   );
 }

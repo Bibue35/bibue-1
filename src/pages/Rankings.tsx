@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Film, BookOpen, TrendingUp, Filter } from "lucide-react";
+import { Filter, Crown, Medal, Award } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
@@ -29,56 +29,81 @@ export default function RankingsPage() {
   const data = activeType === "anime" ? animeData : mangaData;
   const isLoading = activeType === "anime" ? animeLoading : mangaLoading;
 
+  // Get rank badge styling
+  const getRankBadge = (index: number) => {
+    if (index === 0) {
+      return {
+        className: "rank-gold",
+        icon: <Crown className="w-4 h-4" />,
+        size: "w-12 h-12 text-base"
+      };
+    }
+    if (index === 1) {
+      return {
+        className: "rank-silver",
+        icon: <Medal className="w-4 h-4" />,
+        size: "w-11 h-11 text-sm"
+      };
+    }
+    if (index === 2) {
+      return {
+        className: "rank-bronze",
+        icon: <Award className="w-4 h-4" />,
+        size: "w-11 h-11 text-sm"
+      };
+    }
+    return {
+      className: "rank-badge",
+      icon: null,
+      size: "w-10 h-10 text-sm"
+    };
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <CollapsibleNavbar />
 
-      {/* Hero */}
+      {/* Hero - Clean text-only design */}
       <section className="pt-32 pb-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="w-16 h-16 rounded-2xl liquid-glass flex items-center justify-center sunbeam-hover">
-                <TrendingUp className="w-8 h-8" />
-              </div>
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">
+            <h1 className="text-5xl md:text-6xl font-bold mb-4 divine:font-sacred">
               Top Rankings
             </h1>
             <p className="font-jp text-xl text-muted-foreground mb-2">ランキング</p>
             <p className="text-muted-foreground text-lg">
               Discover the highest-rated anime and manga as voted by millions of fans worldwide.
             </p>
+            {/* Decorative underline */}
+            <div className="mt-6 mx-auto w-24 h-1 rounded-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           </div>
         </div>
       </section>
 
-      {/* Type Toggle */}
+      {/* Type Toggle - Text only, no icons */}
       <section className="pb-8">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center gap-2 p-1 rounded-xl liquid-glass w-fit mx-auto">
             <button
               onClick={() => setActiveType("anime")}
               className={cn(
-                "flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300",
+                "px-8 py-3 rounded-lg text-sm font-medium transition-all duration-300",
                 activeType === "anime"
                   ? "bg-foreground text-background"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <Film className="w-4 h-4" />
               Anime
             </button>
             <button
               onClick={() => setActiveType("manga")}
               className={cn(
-                "flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300",
+                "px-8 py-3 rounded-lg text-sm font-medium transition-all duration-300",
                 activeType === "manga"
                   ? "bg-foreground text-background"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <BookOpen className="w-4 h-4" />
               Manga
             </button>
           </div>
@@ -133,7 +158,7 @@ export default function RankingsPage() {
         </div>
       </section>
 
-      {/* Rankings Grid */}
+      {/* Rankings Grid with enhanced visibility */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           {isLoading ? (
@@ -146,26 +171,47 @@ export default function RankingsPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {data?.map((item, index) => (
-                <div key={item.mal_id} className="relative">
-                  {/* Rank badge */}
-                  <div className={cn(
-                    "absolute -top-3 -left-3 z-20 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-lg",
-                    index === 0 && "bg-foreground text-background",
-                    index === 1 && "bg-muted text-foreground",
-                    index === 2 && "bg-accent text-accent-foreground",
-                    index > 2 && "bg-card text-muted-foreground border border-border"
-                  )}>
-                    {index + 1}
+              {data?.map((item, index) => {
+                const rankStyle = getRankBadge(index);
+                const isTop3 = index < 3;
+                
+                return (
+                  <div 
+                    key={item.mal_id} 
+                    className={cn(
+                      "relative",
+                      isTop3 && "transform scale-[1.02]"
+                    )}
+                  >
+                    {/* Enhanced rank badge */}
+                    <div className={cn(
+                      "absolute -top-3 -left-3 z-20 rounded-full flex items-center justify-center font-bold shadow-lg",
+                      rankStyle.size,
+                      rankStyle.className
+                    )}>
+                      {rankStyle.icon ? (
+                        <div className="flex flex-col items-center">
+                          {rankStyle.icon}
+                          <span className="text-[10px] mt-0.5">{index + 1}</span>
+                        </div>
+                      ) : (
+                        index + 1
+                      )}
+                    </div>
+                    
+                    {/* Card with theme effects */}
+                    <div className={cn(
+                      isTop3 && "sun-glow moon-glow seraphim-glow"
+                    )}>
+                      {activeType === "anime" ? (
+                        <AnimeCard anime={item as any} index={index} />
+                      ) : (
+                        <MangaCard manga={item as any} index={index} />
+                      )}
+                    </div>
                   </div>
-                  
-                  {activeType === "anime" ? (
-                    <AnimeCard anime={item as any} index={index} />
-                  ) : (
-                    <MangaCard manga={item as any} index={index} />
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
