@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Menu, X, Sparkles } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
+import { ThemeToggle } from "./ThemeToggle";
 
 const navLinks = [
-  { href: "/", label: "Home", jp: "ホーム" },
-  { href: "/anime", label: "Anime", jp: "アニメ" },
-  { href: "/manga", label: "Manga", jp: "漫画" },
-  { href: "/rankings", label: "Rankings", jp: "ランキング" },
-  { href: "/news", label: "News", jp: "ニュース" },
+  { href: "/", label: "Home" },
+  { href: "/anime", label: "Anime" },
+  { href: "/manga", label: "Manga" },
+  { href: "/rankings", label: "Rankings" },
 ];
 
 export function Navbar() {
@@ -38,70 +38,54 @@ export function Navbar() {
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
           isScrolled
-            ? "glass-strong py-3"
-            : "bg-transparent py-6"
+            ? "liquid-glass-strong py-3"
+            : "bg-transparent py-5"
         )}
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link
-              to="/"
-              className="flex items-center gap-2 group"
-            >
-              <div className="relative">
-                <Sparkles className="w-8 h-8 text-primary animate-pulse-glow" />
-                <div className="absolute inset-0 blur-xl bg-primary/30 animate-pulse" />
-              </div>
-              <span className="font-display text-2xl font-bold gradient-text">
-                AnimeVerse
-              </span>
-              <span className="font-jp text-xs text-muted-foreground hidden sm:block">
-                アニメバース
+            <Link to="/" className="flex items-center gap-2">
+              <span className="text-2xl font-semibold tracking-tight">
+                Bibue
               </span>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-1">
+            <div className="hidden md:flex items-center gap-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
                   className={cn(
-                    "relative px-4 py-2 font-display text-sm uppercase tracking-wider transition-all duration-300 group",
+                    "relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-300",
                     location.pathname === link.href
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )}
                 >
-                  <span className="relative z-10">{link.label}</span>
-                  <span className="absolute inset-x-0 -bottom-px h-[2px] bg-gradient-anime scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
-                  {location.pathname === link.href && (
-                    <span className="absolute inset-x-0 -bottom-px h-[2px] bg-gradient-anime" />
-                  )}
+                  {link.label}
                 </Link>
               ))}
             </div>
 
             {/* Right side */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsSearchOpen(true)}
-                className="hover:bg-primary/10 hover:text-primary"
+                className="rounded-full hover:bg-muted/50"
               >
                 <Search className="w-5 h-5" />
               </Button>
 
-              <Button variant="neon" size="sm" className="hidden sm:flex">
-                Connect
-              </Button>
+              <ThemeToggle />
 
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden"
+                className="md:hidden rounded-full"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
                 {isMobileMenuOpen ? (
@@ -117,33 +101,25 @@ export function Navbar() {
         {/* Mobile Menu */}
         <div
           className={cn(
-            "lg:hidden absolute top-full left-0 right-0 glass-strong border-t border-border overflow-hidden transition-all duration-300",
-            isMobileMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+            "md:hidden absolute top-full left-0 right-0 liquid-glass-strong border-t border-border/50 overflow-hidden transition-all duration-300",
+            isMobileMenuOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
           )}
         >
-          <div className="container mx-auto px-4 py-4 space-y-2">
-            {navLinks.map((link, index) => (
+          <div className="container mx-auto px-4 py-4 space-y-1">
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
                 className={cn(
-                  "block px-4 py-3 rounded-lg font-display uppercase tracking-wider transition-all duration-300",
+                  "block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300",
                   location.pathname === link.href
-                    ? "bg-primary/20 text-primary"
-                    : "text-muted-foreground hover:bg-primary/10 hover:text-foreground",
-                  "animate-slide-right"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                 )}
-                style={{ animationDelay: `${index * 50}ms` }}
               >
-                <span className="flex items-center justify-between">
-                  {link.label}
-                  <span className="font-jp text-xs opacity-60">{link.jp}</span>
-                </span>
+                {link.label}
               </Link>
             ))}
-            <Button variant="neon" className="w-full mt-4">
-              Connect with AniList
-            </Button>
           </div>
         </div>
       </nav>

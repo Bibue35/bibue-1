@@ -1,7 +1,6 @@
 import { Newspaper, Calendar, ExternalLink, User } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { ParticleBackground } from "@/components/ParticleBackground";
 import { Button } from "@/components/ui/button";
 
 // Mock news data since Jikan news endpoint requires specific anime IDs
@@ -11,7 +10,7 @@ const mockNews = [
     title: "Winter 2024 Anime Season Highlights",
     excerpt: "The most anticipated anime of the winter season are finally here. From action-packed sequels to heartwarming originals, here's what you need to watch.",
     date: "2024-01-15",
-    author: "AnimeVerse Staff",
+    author: "Bibue Staff",
     category: "Seasonal",
     image: "https://cdn.myanimelist.net/images/anime/1015/138006l.jpg"
   },
@@ -65,19 +64,18 @@ const mockNews = [
 export default function NewsPage() {
   return (
     <div className="min-h-screen bg-background">
-      <ParticleBackground />
       <Navbar />
 
       {/* Hero */}
-      <section className="pt-32 pb-16 relative z-10">
+      <section className="pt-32 pb-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-anime flex items-center justify-center shadow-neon animate-floating">
+              <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center">
                 <Newspaper className="w-8 h-8 text-primary-foreground" />
               </div>
             </div>
-            <h1 className="font-display text-5xl md:text-6xl font-bold mb-4">
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">
               <span className="gradient-text">Latest News</span>
             </h1>
             <p className="font-jp text-xl text-muted-foreground mb-2">最新ニュース</p>
@@ -89,7 +87,7 @@ export default function NewsPage() {
       </section>
 
       {/* Featured News */}
-      <section className="py-8 relative z-10">
+      <section className="py-8">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Main featured */}
@@ -101,10 +99,10 @@ export default function NewsPage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                <span className="inline-block px-3 py-1 rounded-full glass text-sm font-display text-primary mb-3">
+                <span className="inline-block px-3 py-1 rounded-full liquid-glass-subtle text-sm text-primary mb-3">
                   {mockNews[0].category}
                 </span>
-                <h2 className="font-display text-2xl md:text-3xl font-bold mb-3 group-hover:text-primary transition-colors">
+                <h2 className="text-2xl md:text-3xl font-bold mb-3 group-hover:text-primary transition-colors">
                   {mockNews[0].title}
                 </h2>
                 <p className="text-muted-foreground mb-4 line-clamp-2">
@@ -136,10 +134,10 @@ export default function NewsPage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <span className="inline-block px-3 py-1 rounded-full glass text-xs font-display text-secondary mb-2">
+                  <span className="inline-block px-3 py-1 rounded-full liquid-glass-subtle text-xs text-accent mb-2">
                     {news.category}
                   </span>
-                  <h3 className="font-display text-lg font-bold mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                  <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors line-clamp-2">
                     {news.title}
                   </h3>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -154,15 +152,15 @@ export default function NewsPage() {
       </section>
 
       {/* News List */}
-      <section className="py-16 relative z-10">
+      <section className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="font-display text-2xl font-bold mb-8">More News</h2>
+          <h2 className="text-2xl font-bold mb-8">More News</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mockNews.slice(3).map((news, index) => (
               <article
                 key={news.id}
-                className="group glass rounded-2xl overflow-hidden hover:shadow-neon transition-shadow animate-fade-in"
+                className="group liquid-glass rounded-2xl overflow-hidden hover-lift animate-fade-up"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className="aspect-[16/9] relative overflow-hidden">
@@ -171,12 +169,12 @@ export default function NewsPage() {
                     alt={news.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <span className="absolute top-4 left-4 px-3 py-1 rounded-full glass text-xs font-display">
+                  <span className="absolute top-4 left-4 px-3 py-1 rounded-full liquid-glass-strong text-xs font-medium">
                     {news.category}
                   </span>
                 </div>
                 <div className="p-6">
-                  <h3 className="font-display text-lg font-bold mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                  <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors line-clamp-2">
                     {news.title}
                   </h3>
                   <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
@@ -192,7 +190,7 @@ export default function NewsPage() {
           </div>
           
           <div className="text-center mt-12">
-            <Button variant="outline" size="lg">
+            <Button variant="outline" size="lg" className="rounded-full">
               Load More News
               <ExternalLink className="w-4 h-4 ml-2" />
             </Button>

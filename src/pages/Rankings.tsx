@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Film, BookOpen, TrendingUp, Star, Filter } from "lucide-react";
+import { Film, BookOpen, TrendingUp, Filter } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { ParticleBackground } from "@/components/ParticleBackground";
 import { AnimeCard } from "@/components/AnimeCard";
 import { MangaCard } from "@/components/MangaCard";
 import { Button } from "@/components/ui/button";
@@ -23,19 +22,18 @@ export default function RankingsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <ParticleBackground />
       <Navbar />
 
       {/* Hero */}
-      <section className="pt-32 pb-16 relative z-10">
+      <section className="pt-32 pb-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-anime flex items-center justify-center shadow-neon animate-floating">
+              <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center">
                 <TrendingUp className="w-8 h-8 text-primary-foreground" />
               </div>
             </div>
-            <h1 className="font-display text-5xl md:text-6xl font-bold mb-4">
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">
               <span className="gradient-text">Top Rankings</span>
             </h1>
             <p className="font-jp text-xl text-muted-foreground mb-2">ランキング</p>
@@ -47,15 +45,15 @@ export default function RankingsPage() {
       </section>
 
       {/* Type Toggle */}
-      <section className="pb-8 relative z-10">
+      <section className="pb-8">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-2 p-1 rounded-xl glass w-fit mx-auto">
+          <div className="flex items-center justify-center gap-2 p-1 rounded-xl liquid-glass w-fit mx-auto">
             <button
               onClick={() => setActiveType("anime")}
               className={cn(
-                "flex items-center gap-2 px-6 py-3 rounded-lg font-display text-sm uppercase tracking-wider transition-all duration-300",
+                "flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300",
                 activeType === "anime"
-                  ? "bg-gradient-anime text-primary-foreground shadow-neon"
+                  ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -65,9 +63,9 @@ export default function RankingsPage() {
             <button
               onClick={() => setActiveType("manga")}
               className={cn(
-                "flex items-center gap-2 px-6 py-3 rounded-lg font-display text-sm uppercase tracking-wider transition-all duration-300",
+                "flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300",
                 activeType === "manga"
-                  ? "bg-gradient-manga text-primary-foreground shadow-neon-pink"
+                  ? "bg-accent text-accent-foreground"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -79,12 +77,12 @@ export default function RankingsPage() {
       </section>
 
       {/* Filters */}
-      <section className="pb-8 relative z-10">
+      <section className="pb-8">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground font-display uppercase tracking-wider">Filter:</span>
+              <span className="text-sm text-muted-foreground">Filter:</span>
             </div>
             
             {activeType === "anime" ? (
@@ -92,10 +90,10 @@ export default function RankingsPage() {
                 {([undefined, 'airing', 'upcoming', 'bypopularity', 'favorite'] as const).map((filter) => (
                   <Button
                     key={filter || 'all'}
-                    variant={animeFilter === filter ? "glow" : "ghost"}
+                    variant={animeFilter === filter ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setAnimeFilter(filter)}
-                    className="font-display uppercase tracking-wider"
+                    className="rounded-full capitalize"
                   >
                     {filter === undefined ? "All" : filter === 'bypopularity' ? "Popular" : filter}
                   </Button>
@@ -106,10 +104,10 @@ export default function RankingsPage() {
                 {([undefined, 'manga', 'manhwa', 'manhua'] as const).map((filter) => (
                   <Button
                     key={filter || 'all'}
-                    variant={mangaFilter === filter ? "manga" : "ghost"}
+                    variant={mangaFilter === filter ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setMangaFilter(filter)}
-                    className="font-display uppercase tracking-wider"
+                    className="rounded-full capitalize"
                   >
                     {filter === undefined ? "All" : filter}
                   </Button>
@@ -121,13 +119,13 @@ export default function RankingsPage() {
       </section>
 
       {/* Rankings Grid */}
-      <section className="py-16 relative z-10">
+      <section className="py-16">
         <div className="container mx-auto px-4">
           {isLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {Array.from({ length: 25 }).map((_, i) => (
                 <div key={i} className="space-y-4">
-                  <Skeleton className="aspect-[2/3] rounded-xl" />
+                  <Skeleton className="aspect-[2/3] rounded-2xl" />
                 </div>
               ))}
             </div>
@@ -137,8 +135,8 @@ export default function RankingsPage() {
                 <div key={item.mal_id} className="relative">
                   {/* Rank badge */}
                   <div className={cn(
-                    "absolute -top-3 -left-3 z-20 w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-sm shadow-lg",
-                    index === 0 && "bg-gradient-anime text-primary-foreground shadow-neon",
+                    "absolute -top-3 -left-3 z-20 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-lg",
+                    index === 0 && "bg-primary text-primary-foreground",
                     index === 1 && "bg-muted text-foreground",
                     index === 2 && "bg-accent text-accent-foreground",
                     index > 2 && "bg-card text-muted-foreground border border-border"

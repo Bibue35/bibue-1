@@ -57,36 +57,36 @@ export function HorizontalScroll({
       {/* Header */}
       {title && (
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <h2 className="font-display text-2xl md:text-3xl font-bold">
+          <div>
+            <h2 className="text-2xl font-semibold tracking-tight">
               {title}
             </h2>
             {titleJp && (
-              <span className="font-jp text-lg text-muted-foreground hidden sm:block">
+              <span className="font-jp text-sm text-muted-foreground">
                 {titleJp}
               </span>
             )}
           </div>
           
           {showArrows && (
-            <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-1">
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => scroll("left")}
                 disabled={!canScrollLeft}
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                className="rounded-full h-8 w-8"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-4 h-4" />
               </Button>
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => scroll("right")}
                 disabled={!canScrollRight}
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                className="rounded-full h-8 w-8"
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
           )}
@@ -98,7 +98,7 @@ export function HorizontalScroll({
         {/* Left fade */}
         <div
           className={cn(
-            "absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none transition-opacity duration-300",
+            "absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none transition-opacity duration-300",
             canScrollLeft ? "opacity-100" : "opacity-0"
           )}
         />
@@ -106,7 +106,7 @@ export function HorizontalScroll({
         {/* Right fade */}
         <div
           className={cn(
-            "absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none transition-opacity duration-300",
+            "absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none transition-opacity duration-300",
             canScrollRight ? "opacity-100" : "opacity-0"
           )}
         />

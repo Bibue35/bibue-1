@@ -3,25 +3,20 @@ import { HeroSection } from "@/components/HeroSection";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { AnimeCard } from "@/components/AnimeCard";
 import { MangaCard } from "@/components/MangaCard";
-import { RankingList } from "@/components/RankingList";
-import { ScheduleSection } from "@/components/ScheduleSection";
 import { Footer } from "@/components/Footer";
-import { ParticleBackground } from "@/components/ParticleBackground";
 import { useTopAnime, useSeasonalAnime, useTopManga } from "@/hooks/useAnimeData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
-import { Film, BookOpen, TrendingUp, Newspaper, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { data: topAnime, isLoading: topAnimeLoading } = useTopAnime(1);
   const { data: seasonalAnime, isLoading: seasonalLoading } = useSeasonalAnime();
   const { data: topManga, isLoading: topMangaLoading } = useTopManga(1);
-  const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
-      <ParticleBackground />
+    <div className="min-h-screen bg-background">
       <Navbar />
       
       {/* Hero Section */}
@@ -30,47 +25,30 @@ const Index = () => {
         isLoading={seasonalLoading} 
       />
 
-      {/* Quick Stats */}
-      <section className="py-16 relative z-10">
+      {/* This Season */}
+      <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { icon: Film, label: "Anime", value: "25,000+", color: "primary" },
-              { icon: BookOpen, label: "Manga", value: "60,000+", color: "accent" },
-              { icon: TrendingUp, label: "Rankings", value: "Live", color: "secondary" },
-              { icon: Newspaper, label: "News", value: "Daily", color: "primary" },
-            ].map((stat, index) => (
-              <div
-                key={stat.label}
-                className="glass rounded-2xl p-6 text-center hover:shadow-neon transition-shadow animate-scale-in"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <stat.icon className={`w-8 h-8 mx-auto mb-3 text-${stat.color}`} />
-                <p className="font-display text-2xl md:text-3xl font-bold gradient-text">
-                  {stat.value}
-                </p>
-                <p className="text-muted-foreground font-display uppercase tracking-wider text-sm">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight">This Season</h2>
+              <p className="font-jp text-sm text-muted-foreground mt-0.5">今季のアニメ</p>
+            </div>
+            <Button variant="ghost" size="sm" className="rounded-full gap-1" asChild>
+              <Link to="/anime">
+                View All <ArrowRight className="w-4 h-4" />
+              </Link>
+            </Button>
           </div>
-        </div>
-      </section>
-
-      {/* Seasonal Anime */}
-      <section className="py-16 relative z-10">
-        <div className="container mx-auto px-4">
-          <HorizontalScroll title="This Season" titleJp="今季のアニメ">
+          <HorizontalScroll title="" titleJp="">
             {seasonalLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-48">
-                  <Skeleton className="aspect-[2/3] rounded-xl" />
+                <div key={i} className="flex-shrink-0 w-44">
+                  <Skeleton className="aspect-[2/3] rounded-2xl" />
                 </div>
               ))
             ) : (
-              seasonalAnime?.slice(0, 15).map((anime, index) => (
-                <div key={anime.mal_id} className="flex-shrink-0 w-48">
+              seasonalAnime?.slice(0, 12).map((anime, index) => (
+                <div key={anime.mal_id} className="flex-shrink-0 w-44">
                   <AnimeCard anime={anime} index={index} />
                 </div>
               ))
@@ -79,47 +57,30 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Top Anime & Manga Rankings */}
-      <section className="py-16 relative z-10">
+      {/* Trending */}
+      <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {topAnimeLoading ? (
-              <Skeleton className="h-[600px] rounded-2xl" />
-            ) : (
-              <RankingList
-                items={topAnime || []}
-                type="anime"
-                title="Top Anime"
-                titleJp="人気アニメ"
-              />
-            )}
-            {topMangaLoading ? (
-              <Skeleton className="h-[600px] rounded-2xl" />
-            ) : (
-              <RankingList
-                items={topManga || []}
-                type="manga"
-                title="Top Manga"
-                titleJp="人気漫画"
-              />
-            )}
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight">Trending Now</h2>
+              <p className="font-jp text-sm text-muted-foreground mt-0.5">トレンド</p>
+            </div>
+            <Button variant="ghost" size="sm" className="rounded-full gap-1" asChild>
+              <Link to="/rankings">
+                Rankings <ArrowRight className="w-4 h-4" />
+              </Link>
+            </Button>
           </div>
-        </div>
-      </section>
-
-      {/* Trending Anime */}
-      <section className="py-16 relative z-10">
-        <div className="container mx-auto px-4">
-          <HorizontalScroll title="Trending Now" titleJp="トレンド">
+          <HorizontalScroll title="" titleJp="">
             {topAnimeLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-48">
-                  <Skeleton className="aspect-[2/3] rounded-xl" />
+                <div key={i} className="flex-shrink-0 w-44">
+                  <Skeleton className="aspect-[2/3] rounded-2xl" />
                 </div>
               ))
             ) : (
-              topAnime?.slice(0, 15).map((anime, index) => (
-                <div key={anime.mal_id} className="flex-shrink-0 w-48">
+              topAnime?.slice(0, 12).map((anime, index) => (
+                <div key={anime.mal_id} className="flex-shrink-0 w-44">
                   <AnimeCard anime={anime} index={index} />
                 </div>
               ))
@@ -128,43 +89,30 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Schedule Section */}
-      <ScheduleSection />
-
-      {/* Manga Section */}
-      <section className="py-16 relative z-10">
+      {/* Popular Manga */}
+      <section className="py-16">
         <div className="container mx-auto px-4">
-          <HorizontalScroll title="Popular Manga" titleJp="人気漫画">
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight">Popular Manga</h2>
+              <p className="font-jp text-sm text-muted-foreground mt-0.5">人気漫画</p>
+            </div>
+            <Button variant="ghost" size="sm" className="rounded-full gap-1" asChild>
+              <Link to="/manga">
+                Explore <ArrowRight className="w-4 h-4" />
+              </Link>
+            </Button>
+          </div>
+          <HorizontalScroll title="" titleJp="">
             {topMangaLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-48">
-                  <Skeleton className="aspect-[2/3] rounded-xl" />
+                <div key={i} className="flex-shrink-0 w-44">
+                  <Skeleton className="aspect-[2/3] rounded-2xl" />
                 </div>
               ))
             ) : (
-              topManga?.slice(0, 15).map((manga, index) => (
-                <div key={manga.mal_id} className="flex-shrink-0 w-48">
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
-        </div>
-      </section>
-
-      {/* Manhwa Section */}
-      <section className="py-16 relative z-10">
-        <div className="container mx-auto px-4">
-          <HorizontalScroll title="Popular Manhwa" titleJp="人気韓国漫画">
-            {manhwaLoading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-48">
-                  <Skeleton className="aspect-[2/3] rounded-xl" />
-                </div>
-              ))
-            ) : (
-              manhwa?.slice(0, 15).map((manga, index) => (
-                <div key={manga.mal_id} className="flex-shrink-0 w-48">
+              topManga?.slice(0, 12).map((manga, index) => (
+                <div key={manga.mal_id} className="flex-shrink-0 w-44">
                   <MangaCard manga={manga} index={index} />
                 </div>
               ))
@@ -174,31 +122,22 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 relative z-10">
+      <section className="py-24">
         <div className="container mx-auto px-4">
-          <div className="relative glass rounded-3xl p-12 md:p-16 overflow-hidden">
-            {/* Background effects */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute -top-20 -left-20 w-80 h-80 bg-primary/20 rounded-full blur-3xl" />
-              <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/20 rounded-full blur-3xl" />
-            </div>
-            
-            <div className="relative z-10 text-center max-w-3xl mx-auto">
-              <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
-                <span className="gradient-text">Join the Community</span>
+          <div className="relative liquid-glass rounded-3xl p-12 md:p-16 overflow-hidden text-center">
+            <div className="max-w-xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Track Your Journey
               </h2>
-              <p className="font-jp text-xl text-muted-foreground mb-2">コミュニティに参加</p>
-              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                Connect your AniList or MyAnimeList account to track your anime and manga,
-                get personalized recommendations, and join discussions with millions of fans.
+              <p className="text-muted-foreground mb-8">
+                Connect your AniList or MyAnimeList account to sync your watchlist and get personalized recommendations.
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-4">
-                <Button size="xl" variant="glow">
-                  Connect AniList
-                  <ArrowRight className="w-5 h-5" />
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <Button size="lg" className="rounded-full px-8">
+                  Connect Account
                 </Button>
-                <Button size="xl" variant="outline">
-                  Connect MAL
+                <Button variant="outline" size="lg" className="rounded-full px-8">
+                  Learn More
                 </Button>
               </div>
             </div>
