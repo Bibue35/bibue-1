@@ -422,7 +422,7 @@
 
   /* Episode/Chapter card with special hover */
   .episode-card {
-    @apply liquid-glass-subtle rounded-xl p-4 transition-all duration-400;
+    @apply liquid-glass-subtle rounded-xl p-4 transition-all duration-300;
     position: relative;
   }
 
