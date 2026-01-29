@@ -49,25 +49,24 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       />
 
       {/* Modal */}
-      <div className="relative z-10 flex flex-col items-center pt-[10vh] px-4 animate-slide-down">
+      <div className="relative z-10 flex flex-col items-center pt-[10vh] px-4 animate-fade-up">
         <div className="w-full max-w-2xl">
           {/* Search Input */}
-          <div className="relative group">
-            <div className="absolute -inset-[2px] bg-gradient-anime rounded-2xl opacity-75 blur group-focus-within:opacity-100 transition-opacity" />
-            <div className="relative glass-strong rounded-2xl">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground" />
+          <div className="relative">
+            <div className="liquid-glass-strong rounded-2xl">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search anime, manga, manhwa..."
+                placeholder="Search anime, manga..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 autoFocus
-                className="w-full h-16 pl-14 pr-14 bg-transparent text-xl font-body placeholder:text-muted-foreground focus:outline-none"
+                className="w-full h-14 pl-14 pr-14 bg-transparent text-lg placeholder:text-muted-foreground focus:outline-none"
               />
               {query && (
                 <button
                   onClick={() => setQuery("")}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 p-1 hover:bg-primary/20 rounded-full transition-colors"
+                  className="absolute right-5 top-1/2 -translate-y-1/2 p-1 hover:bg-muted/50 rounded-full transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -80,10 +79,10 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             <button
               onClick={() => setActiveTab("anime")}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg font-display text-sm uppercase tracking-wider transition-all duration-300",
+                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
                 activeTab === "anime"
-                  ? "bg-gradient-anime text-primary-foreground shadow-neon"
-                  : "glass text-muted-foreground hover:text-foreground"
+                  ? "bg-primary text-primary-foreground"
+                  : "liquid-glass-subtle text-muted-foreground hover:text-foreground"
               )}
             >
               <Film className="w-4 h-4" />
@@ -92,10 +91,10 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             <button
               onClick={() => setActiveTab("manga")}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg font-display text-sm uppercase tracking-wider transition-all duration-300",
+                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
                 activeTab === "manga"
-                  ? "bg-gradient-manga text-primary-foreground shadow-neon-pink"
-                  : "glass text-muted-foreground hover:text-foreground"
+                  ? "bg-accent text-accent-foreground"
+                  : "liquid-glass-subtle text-muted-foreground hover:text-foreground"
               )}
             >
               <BookOpen className="w-4 h-4" />
@@ -105,30 +104,29 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
           {/* Results */}
           {query.length > 2 && (
-            <div className="mt-4 glass-strong rounded-2xl max-h-[50vh] overflow-y-auto custom-scrollbar">
+            <div className="mt-4 liquid-glass-strong rounded-2xl max-h-[50vh] overflow-y-auto custom-scrollbar">
               {isLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-8 h-8 animate-spin text-primary" />
                 </div>
               ) : results && results.length > 0 ? (
-                <div className="p-2 stagger-children">
-                  {results.slice(0, 8).map((item, index) => (
+                <div className="p-2">
+                  {results.slice(0, 8).map((item) => (
                     <button
                       key={item.mal_id}
                       onClick={() => {
                         navigate(`/${activeTab}/${item.mal_id}`);
                         onClose();
                       }}
-                      className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-primary/10 transition-all duration-300 text-left animate-slide-up group"
-                      style={{ animationDelay: `${index * 50}ms` }}
+                      className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-all duration-300 text-left group"
                     >
                       <img
                         src={item.images.webp.image_url}
                         alt={item.title}
-                        className="w-14 h-20 object-cover rounded-lg group-hover:shadow-neon transition-shadow"
+                        className="w-12 h-16 object-cover rounded-lg"
                       />
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-display font-semibold truncate group-hover:text-primary transition-colors">
+                        <h3 className="font-medium truncate group-hover:text-primary transition-colors">
                           {item.title}
                         </h3>
                         <p className="text-sm text-muted-foreground truncate">
@@ -136,7 +134,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           {item.score && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-display">
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
                               ★ {item.score}
                             </span>
                           )}
