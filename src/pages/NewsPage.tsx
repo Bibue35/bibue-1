@@ -1,5 +1,5 @@
 import { Newspaper, Calendar, ExternalLink, User } from "lucide-react";
-import { Navbar } from "@/components/Navbar";
+import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 
@@ -64,19 +64,19 @@ const mockNews = [
 export default function NewsPage() {
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <CollapsibleNavbar />
 
       {/* Hero */}
       <section className="pt-32 pb-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center">
-                <Newspaper className="w-8 h-8 text-primary-foreground" />
+              <div className="w-16 h-16 rounded-2xl liquid-glass flex items-center justify-center sunbeam-hover">
+                <Newspaper className="w-8 h-8" />
               </div>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-4">
-              <span className="gradient-text">Latest News</span>
+              Latest News
             </h1>
             <p className="font-jp text-xl text-muted-foreground mb-2">最新ニュース</p>
             <p className="text-muted-foreground text-lg">

@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { BookOpen, Filter, Grid, List } from "lucide-react";
-import { Navbar } from "@/components/Navbar";
+import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
@@ -11,8 +12,23 @@ import { useTopManga } from "@/hooks/useAnimeData";
 import { cn } from "@/lib/utils";
 
 export default function MangaPage() {
-  const [filter, setFilter] = useState<'manga' | 'manhwa' | 'manhua' | undefined>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialFilter = searchParams.get("filter") as 'manga' | 'manhwa' | 'manhua' | 'bypopularity' | undefined;
+  const genreId = searchParams.get("genre");
+  
+  const [filter, setFilter] = useState<'manga' | 'manhwa' | 'manhua' | undefined>(
+    initialFilter === 'bypopularity' ? undefined : initialFilter as 'manga' | 'manhwa' | 'manhua' | undefined
+  );
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  // Update URL when filter changes
+  const handleFilterChange = (newFilter: typeof filter) => {
+    setFilter(newFilter);
+    const params = new URLSearchParams();
+    if (newFilter) params.set("filter", newFilter);
+    if (genreId) params.set("genre", genreId);
+    setSearchParams(params);
+  };
 
   const { data: topManga, isLoading: topLoading } = useTopManga(1, filter);
   const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
@@ -20,14 +36,14 @@ export default function MangaPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <CollapsibleNavbar />
 
       {/* Hero */}
       <section className="pt-28 sm:pt-32 pb-12 sm:pb-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <div className="flex items-center justify-center gap-3 mb-4 sm:mb-6">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl glass-button flex items-center justify-center">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl liquid-glass flex items-center justify-center sunbeam-hover">
                 <BookOpen className="w-6 h-6 sm:w-8 sm:h-8" />
               </div>
             </div>
@@ -107,8 +123,11 @@ export default function MangaPage() {
                     key={f || 'all'}
                     variant={filter === f ? "default" : "ghost"}
                     size="sm"
-                    onClick={() => setFilter(f)}
-                    className="rounded-full capitalize text-xs sm:text-sm"
+                    onClick={() => handleFilterChange(f)}
+                    className={cn(
+                      "rounded-full capitalize text-xs sm:text-sm",
+                      filter !== f && "glass-button"
+                    )}
                   >
                     {f === undefined ? "All" : f}
                   </Button>
@@ -143,6 +162,7 @@ export default function MangaPage() {
         <div className="container mx-auto px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">
             Top {filter ? filter.charAt(0).toUpperCase() + filter.slice(1) : "Manga"}
+            {genreId && <span className="text-muted-foreground font-normal ml-2">(filtered by genre)</span>}
           </h2>
           
           {topLoading ? (

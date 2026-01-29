@@ -1,40 +1,42 @@
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { Sparkles, Flame, Heart, Skull, Wand2, Swords, Ghost, Mountain, Laugh, Rocket, Drama, Leaf } from "lucide-react";
 
 interface Genre {
   id: number;
   name: string;
-  icon?: string;
+  icon: React.ReactNode;
+  gradient: string;
 }
 
 const animeGenres: Genre[] = [
-  { id: 1, name: "Action" },
-  { id: 2, name: "Adventure" },
-  { id: 4, name: "Comedy" },
-  { id: 8, name: "Drama" },
-  { id: 10, name: "Fantasy" },
-  { id: 14, name: "Horror" },
-  { id: 7, name: "Mystery" },
-  { id: 22, name: "Romance" },
-  { id: 24, name: "Sci-Fi" },
-  { id: 36, name: "Slice of Life" },
-  { id: 30, name: "Sports" },
-  { id: 37, name: "Supernatural" },
+  { id: 1, name: "Action", icon: <Swords className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 2, name: "Adventure", icon: <Mountain className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 4, name: "Comedy", icon: <Laugh className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 8, name: "Drama", icon: <Drama className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 10, name: "Fantasy", icon: <Wand2 className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 14, name: "Horror", icon: <Skull className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 7, name: "Mystery", icon: <Ghost className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 22, name: "Romance", icon: <Heart className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 24, name: "Sci-Fi", icon: <Rocket className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 36, name: "Slice of Life", icon: <Leaf className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 30, name: "Sports", icon: <Flame className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 37, name: "Supernatural", icon: <Sparkles className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
 ];
 
 const mangaGenres: Genre[] = [
-  { id: 1, name: "Action" },
-  { id: 2, name: "Adventure" },
-  { id: 4, name: "Comedy" },
-  { id: 8, name: "Drama" },
-  { id: 10, name: "Fantasy" },
-  { id: 14, name: "Horror" },
-  { id: 22, name: "Romance" },
-  { id: 36, name: "Slice of Life" },
-  { id: 41, name: "Isekai" },
-  { id: 25, name: "Shoujo" },
-  { id: 27, name: "Shounen" },
-  { id: 42, name: "Josei" },
+  { id: 1, name: "Action", icon: <Swords className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 2, name: "Adventure", icon: <Mountain className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 4, name: "Comedy", icon: <Laugh className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 8, name: "Drama", icon: <Drama className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 10, name: "Fantasy", icon: <Wand2 className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 14, name: "Horror", icon: <Skull className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 22, name: "Romance", icon: <Heart className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 36, name: "Slice of Life", icon: <Leaf className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 41, name: "Isekai", icon: <Sparkles className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 25, name: "Shoujo", icon: <Heart className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 27, name: "Shounen", icon: <Flame className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
+  { id: 42, name: "Josei", icon: <Drama className="w-4 h-4" />, gradient: "from-accent/50 to-accent/20" },
 ];
 
 interface GenreSectionProps {
@@ -55,14 +57,21 @@ export function GenreSection({ type, className }: GenreSectionProps) {
         </p>
       </div>
       
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {genres.map((genre) => (
           <Link
             key={genre.id}
             to={`${basePath}?genre=${genre.id}`}
-            className="glass-button px-4 py-2 rounded-full text-sm font-medium transition-all hover:scale-105"
+            className={cn(
+              "genre-pill group flex items-center justify-center gap-2 py-3",
+              "bg-gradient-to-br",
+              genre.gradient
+            )}
           >
-            {genre.name}
+            <span className="opacity-70 group-hover:opacity-100 transition-opacity">
+              {genre.icon}
+            </span>
+            <span>{genre.name}</span>
           </Link>
         ))}
       </div>

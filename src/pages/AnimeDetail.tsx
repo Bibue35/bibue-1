@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Play, Star, Calendar, Clock, Users, Heart, Share2, Bookmark, ExternalLink } from "lucide-react";
-import { Navbar } from "@/components/Navbar";
+import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { EpisodeComments } from "@/components/EpisodeComments";
+import { EpisodeList } from "@/components/EpisodeList";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnimeDetails } from "@/hooks/useAnimeData";
@@ -15,6 +16,23 @@ export default function AnimeDetailPage() {
   const { data: anime, isLoading, error } = useAnimeDetails(Number(id));
   const [activeTab, setActiveTab] = useState<"overview" | "episodes" | "characters" | "reviews">("overview");
   const [selectedEpisode, setSelectedEpisode] = useState(1);
+
+  // Generate mock episode data with dates and scores
+  const generateEpisodes = (count: number) => {
+    const aired = anime?.aired?.from ? new Date(anime.aired.from) : new Date();
+    return Array.from({ length: Math.min(count, 24) }, (_, i) => {
+      const episodeDate = new Date(aired);
+      episodeDate.setDate(episodeDate.getDate() + (i * 7)); // Weekly episodes
+      return {
+        number: i + 1,
+        title: `Episode ${i + 1}`,
+        aired: episodeDate.toISOString(),
+        score: 7.5 + (Math.random() * 2), // Mock score between 7.5-9.5
+        filler: i === 5 || i === 12, // Mock filler episodes
+        recap: i === 0,
+      };
+    });
+  };
 
   if (error) {
     return (
@@ -33,9 +51,11 @@ export default function AnimeDetailPage() {
     );
   }
 
+  const episodes = anime ? generateEpisodes(anime.episodes || 12) : [];
+
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <CollapsibleNavbar />
 
       {/* Hero Banner */}
       <section className="relative min-h-[60vh] sm:min-h-[70vh] pt-20">
@@ -67,7 +87,7 @@ export default function AnimeDetailPage() {
               <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
                 {/* Poster */}
                 <div className="flex-shrink-0 flex justify-center lg:justify-start">
-                  <div className="w-48 sm:w-64 aspect-[2/3] rounded-2xl overflow-hidden liquid-glass animate-scale-in">
+                  <div className="w-48 sm:w-64 aspect-[2/3] rounded-2xl overflow-hidden liquid-glass animate-scale-in sunbeam-hover">
                     <img
                       src={anime?.images.webp.large_image_url}
                       alt={anime?.title}
@@ -81,12 +101,13 @@ export default function AnimeDetailPage() {
                   {/* Tags */}
                   <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-4">
                     {anime?.genres?.slice(0, 4).map((genre) => (
-                      <span
+                      <Link
                         key={genre.mal_id}
-                        className="px-3 py-1 rounded-full liquid-glass-subtle text-sm font-medium"
+                        to={`/anime?genre=${genre.mal_id}`}
+                        className="px-3 py-1 rounded-full liquid-glass-subtle text-sm font-medium hover:scale-105 transition-transform"
                       >
                         {genre.name}
-                      </span>
+                      </Link>
                     ))}
                   </div>
 
@@ -272,25 +293,17 @@ export default function AnimeDetailPage() {
           )}
 
           {activeTab === "episodes" && anime && (
-            <div className="space-y-6 animate-fade-in">
-              {/* Episode selector */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
+              {/* Episode list with hover effects */}
               <div className="liquid-glass rounded-2xl p-4 sm:p-6">
-                <h3 className="text-lg font-bold mb-4">Select Episode</h3>
-                <div className="flex flex-wrap gap-2">
-                  {Array.from({ length: Math.min(anime.episodes || 12, 24) }, (_, i) => i + 1).map((ep) => (
-                    <button
-                      key={ep}
-                      onClick={() => setSelectedEpisode(ep)}
-                      className={cn(
-                        "w-10 h-10 rounded-lg text-sm font-medium transition-all",
-                        selectedEpisode === ep
-                          ? "bg-foreground text-background"
-                          : "glass-button hover:scale-105"
-                      )}
-                    >
-                      {ep}
-                    </button>
-                  ))}
+                <h3 className="text-lg font-bold mb-4">Episodes</h3>
+                <div className="max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
+                  <EpisodeList
+                    episodes={episodes}
+                    selectedEpisode={selectedEpisode}
+                    onSelectEpisode={setSelectedEpisode}
+                    animeTitle={anime.title}
+                  />
                 </div>
               </div>
 
