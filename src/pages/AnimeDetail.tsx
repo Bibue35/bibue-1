@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, Search, ChevronLeft, ChevronRight, Eye } from "lucide-react";
+import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, ChevronDown, ChevronUp, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,9 +19,8 @@ export default function AnimeDetailPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [newComment, setNewComment] = useState("");
-  const [episodePage, setEpisodePage] = useState(0);
+  const [showEpisodes, setShowEpisodes] = useState(false);
   const queryClient = useQueryClient();
-  const episodesPerPage = 4;
 
   // Hide controls after 3 seconds of inactivity
   useEffect(() => {
@@ -122,8 +121,7 @@ export default function AnimeDetailPage() {
   }
 
   const episodes = anime ? generateEpisodes(anime.episodes || 12) : [];
-  const totalPages = Math.ceil(episodes.length / episodesPerPage);
-  const visibleEpisodes = episodes.slice(episodePage * episodesPerPage, (episodePage + 1) * episodesPerPage);
+  const currentEpisode = episodes.find(ep => ep.number === selectedEpisode);
 
   return (
     <div className="min-h-screen bg-background">
@@ -151,20 +149,28 @@ export default function AnimeDetailPage() {
               </span>
             </Link>
 
-            {/* Fullscreen toggle */}
-            <button
-              onClick={() => setIsFullscreen(!isFullscreen)}
-              className={cn(
-                "absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-all duration-500",
-                showControls ? "opacity-100" : "opacity-0 pointer-events-none"
-              )}
-            >
-              {isFullscreen ? (
-                <Minimize2 className="w-5 h-5 text-white" />
-              ) : (
-                <Maximize2 className="w-5 h-5 text-white" />
-              )}
-            </button>
+            {/* Top Right Controls */}
+            <div className={cn(
+              "absolute top-4 right-4 z-50 flex items-center gap-2 transition-all duration-500",
+              showControls ? "opacity-100" : "opacity-0 pointer-events-none"
+            )}>
+              <Button variant="ghost" size="icon" className="h-9 w-9 text-white/70 hover:text-white hover:bg-white/10">
+                <Bookmark className="w-5 h-5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-9 w-9 text-white/70 hover:text-white hover:bg-white/10">
+                <Heart className="w-5 h-5" />
+              </Button>
+              <button
+                onClick={() => setIsFullscreen(!isFullscreen)}
+                className="p-2 rounded-full bg-black/50 hover:bg-black/70 transition-all text-white/70 hover:text-white"
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="w-5 h-5" />
+                ) : (
+                  <Maximize2 className="w-5 h-5" />
+                )}
+              </button>
+            </div>
 
             {/* Video Player */}
             <div className="w-full h-full">
@@ -190,104 +196,106 @@ export default function AnimeDetailPage() {
               )}
             </div>
 
-            {/* Bottom Episode Bar */}
+            {/* Bottom Episode Bar - AnimerRealms Style */}
             <div className={cn(
-              "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent transition-all duration-500",
+              "absolute bottom-0 left-0 right-0 transition-all duration-500",
               showControls ? "opacity-100" : "opacity-0 pointer-events-none"
             )}>
-              {/* Episode title bar */}
-              <div className="px-4 sm:px-6 pt-6 pb-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-white/60 text-sm">E{selectedEpisode}</span>
-                    <h2 className="text-white font-medium">{anime?.title}</h2>
+              {/* Episode Info Bar */}
+              <div className="bg-gradient-to-t from-black via-black/95 to-transparent pt-12">
+                <div className="px-4 sm:px-6">
+                  {/* Current Episode Info */}
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-primary font-bold text-sm">E{selectedEpisode}</span>
+                        <span className="text-white/40">•</span>
+                        <span className="text-white font-medium text-sm truncate">{anime?.title}</span>
+                      </div>
+                      <p className="text-white/50 text-xs line-clamp-1">
+                        {currentEpisode?.description}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="h-9 w-9 text-white/70 hover:text-white hover:bg-white/10">
-                      <Bookmark className="w-5 h-5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-9 w-9 text-white/70 hover:text-white hover:bg-white/10">
-                      <Heart className="w-5 h-5" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
 
-              {/* Episodes row */}
-              <div className="px-4 sm:px-6 pb-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-medium text-sm">EPISODES</span>
-                    <button className="p-1.5 rounded-md hover:bg-white/10 text-white/60 hover:text-white">
-                      <Search className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-white/60 text-xs">{episodePage * episodesPerPage + 1}-{Math.min((episodePage + 1) * episodesPerPage, episodes.length)}</span>
-                    <button 
-                      onClick={() => setEpisodePage(prev => Math.max(0, prev - 1))}
-                      disabled={episodePage === 0}
-                      className="p-1.5 rounded-md hover:bg-white/10 text-white/60 hover:text-white disabled:opacity-30"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={() => setEpisodePage(prev => Math.min(totalPages - 1, prev + 1))}
-                      disabled={episodePage >= totalPages - 1}
-                      className="p-1.5 rounded-md hover:bg-white/10 text-white/60 hover:text-white disabled:opacity-30"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
+                  {/* Episodes Toggle */}
+                  <button
+                    onClick={() => setShowEpisodes(!showEpisodes)}
+                    className="w-full flex items-center justify-center gap-2 py-2 text-white/60 hover:text-white transition-colors"
+                  >
+                    <span className="text-xs font-medium uppercase tracking-wider">
+                      {showEpisodes ? "Hide Episodes" : "Show Episodes"}
+                    </span>
+                    {showEpisodes ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronUp className="w-4 h-4" />
+                    )}
+                  </button>
                 </div>
 
-                {/* Episode cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {visibleEpisodes.map((ep) => (
-                    <button
-                      key={ep.number}
-                      onClick={() => setSelectedEpisode(ep.number)}
-                      className={cn(
-                        "relative group text-left rounded-lg overflow-hidden transition-all",
-                        selectedEpisode === ep.number 
-                          ? "ring-2 ring-primary" 
-                          : "hover:ring-1 hover:ring-white/30"
-                      )}
-                    >
-                      {/* Thumbnail */}
-                      <div className="aspect-video relative">
-                        <img
-                          src={ep.thumbnail}
-                          alt={ep.title}
-                          className="w-full h-full object-cover"
-                        />
-                        {/* Episode number badge */}
-                        <div className="absolute top-2 right-2 bg-black/70 px-1.5 py-0.5 rounded text-xs text-white font-medium">
-                          E{ep.number}
-                        </div>
-                        {/* Watched indicator */}
-                        {ep.number < selectedEpisode && (
-                          <div className="absolute top-2 left-2 p-1 rounded-full bg-black/70">
-                            <Eye className="w-3 h-3 text-white/70" />
-                          </div>
-                        )}
-                        {/* Hover overlay */}
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <Play className="w-8 h-8 text-white" />
-                        </div>
+                {/* Episodes Horizontal Scroll */}
+                {showEpisodes && (
+                  <div className="pb-4">
+                    <ScrollArea className="w-full whitespace-nowrap">
+                      <div className="flex gap-2 px-4 sm:px-6 py-2">
+                        {episodes.map((ep) => (
+                          <button
+                            key={ep.number}
+                            onClick={() => {
+                              setSelectedEpisode(ep.number);
+                              setShowEpisodes(false);
+                            }}
+                            className={cn(
+                              "relative flex-shrink-0 w-48 group text-left rounded-lg overflow-hidden transition-all",
+                              selectedEpisode === ep.number 
+                                ? "ring-2 ring-primary" 
+                                : "hover:ring-1 hover:ring-white/30"
+                            )}
+                          >
+                            {/* Thumbnail */}
+                            <div className="aspect-video relative">
+                              <img
+                                src={ep.thumbnail}
+                                alt={ep.title}
+                                className="w-full h-full object-cover"
+                              />
+                              {/* Episode number badge */}
+                              <div className="absolute top-1.5 right-1.5 bg-black/80 px-1.5 py-0.5 rounded text-[10px] text-white font-bold">
+                                E{ep.number}
+                              </div>
+                              {/* Watched indicator */}
+                              {ep.number < selectedEpisode && (
+                                <div className="absolute top-1.5 left-1.5 p-1 rounded-full bg-primary/80">
+                                  <Eye className="w-2.5 h-2.5 text-white" />
+                                </div>
+                              )}
+                              {/* Now Playing indicator */}
+                              {ep.number === selectedEpisode && (
+                                <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                                  <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded">
+                                    NOW PLAYING
+                                  </span>
+                                </div>
+                              )}
+                              {/* Hover overlay */}
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <Play className="w-8 h-8 text-white" />
+                              </div>
+                            </div>
+                            {/* Info */}
+                            <div className="p-2 bg-black/80">
+                              <p className="text-white text-xs font-medium line-clamp-1">
+                                {ep.title}
+                              </p>
+                            </div>
+                          </button>
+                        ))}
                       </div>
-                      {/* Info */}
-                      <div className="p-2 bg-black/60">
-                        <p className="text-white text-xs font-medium line-clamp-1">
-                          {ep.number}. {ep.title}
-                        </p>
-                        <p className="text-white/50 text-xs line-clamp-2 mt-0.5">
-                          {ep.description}
-                        </p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
+                      <ScrollBar orientation="horizontal" className="bg-white/10" />
+                    </ScrollArea>
+                  </div>
+                )}
               </div>
             </div>
           </>
