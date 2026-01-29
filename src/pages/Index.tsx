@@ -148,7 +148,7 @@ const Index = () => {
                 Connect your AniList or MyAnimeList account to sync your watchlist and get personalized recommendations.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Button size="lg">
+                <Button size="lg" variant="primary">
                   Connect Account
                 </Button>
                 <Button variant="outline" size="lg">

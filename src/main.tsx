@@ -7,6 +7,7 @@ createRoot(document.getElementById("root")!).render(
   <ThemeProvider
     attribute="class"
     defaultTheme="dark"
+    themes={["light", "dark", "divine"]}
     enableSystem={false}
     disableTransitionOnChange
     storageKey="bibue-theme"
