@@ -662,12 +662,13 @@
   /* === SUNLIGHT THEME EFFECTS (Light Mode Only) === */
   /* Warm, radiant effects evoking golden warmth and daylight */
   /* Only active when NOT in .dark or .divine modes */
+  /* Using html element which is where next-themes applies the class */
   
-  :root:not(.dark):not(.divine) .sun-glow {
+  html:not(.dark):not(.divine) .sun-glow {
     position: relative;
   }
 
-  :root:not(.dark):not(.divine) .sun-glow::before {
+  html:not(.dark):not(.divine) .sun-glow::before {
     content: '';
     position: absolute;
     inset: -8px;
@@ -685,15 +686,15 @@
     pointer-events: none;
   }
 
-  :root:not(.dark):not(.divine) .sun-glow:hover::before {
+  html:not(.dark):not(.divine) .sun-glow:hover::before {
     opacity: 1;
   }
 
-  :root:not(.dark):not(.divine) .sun-corona {
+  html:not(.dark):not(.divine) .sun-corona {
     position: relative;
   }
 
-  :root:not(.dark):not(.divine) .sun-corona::after {
+  html:not(.dark):not(.divine) .sun-corona::after {
     content: '';
     position: absolute;
     inset: -4px;
@@ -719,16 +720,16 @@
     to { transform: rotate(360deg); }
   }
 
-  :root:not(.dark):not(.divine) .sun-corona:hover::after {
+  html:not(.dark):not(.divine) .sun-corona:hover::after {
     opacity: 0.8;
   }
 
-  :root:not(.dark):not(.divine) .sun-rays-hover {
+  html:not(.dark):not(.divine) .sun-rays-hover {
     position: relative;
     overflow: visible;
   }
 
-  :root:not(.dark):not(.divine) .sun-rays-hover::before {
+  html:not(.dark):not(.divine) .sun-rays-hover::before {
     content: '';
     position: absolute;
     top: -50%;
@@ -754,24 +755,24 @@
     z-index: -1;
   }
 
-  :root:not(.dark):not(.divine) .sun-rays-hover:hover::before {
+  html:not(.dark):not(.divine) .sun-rays-hover:hover::before {
     opacity: 1;
   }
 
   /* Sunlight subtle ambient glow - always visible */
-  :root:not(.dark):not(.divine) .divine-card {
+  html:not(.dark):not(.divine) .divine-card {
     box-shadow: 
       0 4px 24px hsl(45 70% 50% / 0.15),
       0 1px 4px hsl(45 60% 45% / 0.1);
   }
 
-  :root:not(.dark):not(.divine) .divine-card:hover {
+  html:not(.dark):not(.divine) .divine-card:hover {
     box-shadow: 
       0 8px 40px hsl(45 80% 55% / 0.3),
       0 0 30px hsl(48 90% 60% / 0.2);
   }
 
-  :root:not(.dark):not(.divine) .sunburst-button {
+  html:not(.dark):not(.divine) .sunburst-button {
     background: linear-gradient(
       135deg,
       hsl(48 65% 94%) 0%,
@@ -784,7 +785,7 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  :root:not(.dark):not(.divine) .sunburst-button:hover {
+  html:not(.dark):not(.divine) .sunburst-button:hover {
     box-shadow: 
       0 6px 24px hsl(45 80% 50% / 0.45),
       0 0 32px hsl(48 90% 60% / 0.35),
