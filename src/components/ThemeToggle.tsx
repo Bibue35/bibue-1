@@ -1,10 +1,16 @@
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, Sparkles } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -19,19 +25,51 @@ export function ThemeToggle() {
     );
   }
 
+  const getIcon = () => {
+    if (theme === "divine") {
+      return <Sparkles className="h-5 w-5" />;
+    }
+    if (resolvedTheme === "dark") {
+      return <Moon className="h-5 w-5" />;
+    }
+    return <Sun className="h-5 w-5" />;
+  };
+
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      className="rounded-full hover:bg-primary/10 transition-colors"
-    >
-      {resolvedTheme === "dark" ? (
-        <Sun className="h-5 w-5 transition-transform hover:rotate-45" />
-      ) : (
-        <Moon className="h-5 w-5 transition-transform hover:-rotate-12" />
-      )}
-      <span className="sr-only">Toggle theme</span>
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full hover:bg-accent transition-colors"
+        >
+          {getIcon()}
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-[140px]">
+        <DropdownMenuItem 
+          onClick={() => setTheme("light")}
+          className="gap-2 cursor-pointer"
+        >
+          <Sun className="h-4 w-4" />
+          <span>Sunlight</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem 
+          onClick={() => setTheme("dark")}
+          className="gap-2 cursor-pointer"
+        >
+          <Moon className="h-4 w-4" />
+          <span>Moonlight</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem 
+          onClick={() => setTheme("divine")}
+          className="gap-2 cursor-pointer"
+        >
+          <Sparkles className="h-4 w-4" />
+          <span>Divine</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

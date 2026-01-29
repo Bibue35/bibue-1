@@ -153,6 +153,72 @@
     --sidebar-border: 225 15% 16%;
     --sidebar-ring: 220 20% 78%;
   }
+
+  /* Divine Theme - Biblical Heavenly (Sacred Light) */
+  /* A third theme: pure, sacred, transcendent - white clouds, golden halos, holy radiance */
+  .divine {
+    /* Sacred white with subtle warmth - like heaven's light */
+    --background: 40 30% 98%;
+    --foreground: 35 30% 12%;
+
+    --card: 45 50% 99%;
+    --card-foreground: 35 30% 12%;
+
+    --popover: 45 50% 99%;
+    --popover-foreground: 35 30% 12%;
+
+    /* Sacred gold - holy radiance */
+    --primary: 42 85% 55%;
+    --primary-foreground: 40 30% 98%;
+
+    --secondary: 40 40% 95%;
+    --secondary-foreground: 35 30% 12%;
+
+    --muted: 38 25% 93%;
+    --muted-foreground: 35 20% 40%;
+
+    --accent: 42 60% 90%;
+    --accent-foreground: 35 30% 12%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 40 35% 88%;
+    --input: 40 35% 88%;
+    --ring: 42 85% 55%;
+
+    /* Divine Liquid Glass - Heavenly clouds with golden halo */
+    --glass-bg: 45 60% 99% / 0.85;
+    --glass-border: 42 80% 90% / 0.6;
+    --glass-highlight: 45 100% 98% / 0.98;
+    --glass-shadow: 42 50% 50% / 0.08;
+    --glass-blur: 48px;
+    --glass-refraction: 42 90% 95% / 0.5;
+
+    /* Sacred specular - holy golden glow */
+    --specular-color: 42 100% 75% / 0.5;
+    --specular-inner: 45 80% 95% / 0.9;
+
+    /* Divine reflection gradient - heaven's light */
+    --reflection-start: 45 100% 99% / 0.95;
+    --reflection-mid: 42 90% 95% / 0.6;
+    --reflection-end: 40 50% 90% / 0.1;
+
+    /* Divine glow effects - Biblical radiance */
+    --divine-glow: 42 100% 65% / 0.4;
+    --divine-radiance: 45 100% 75% / 0.6;
+    --divine-halo: 40 100% 85% / 0.5;
+
+    /* Sidebar */
+    --sidebar-background: 40 30% 98%;
+    --sidebar-foreground: 35 30% 12%;
+    --sidebar-primary: 42 85% 55%;
+    --sidebar-primary-foreground: 40 30% 98%;
+    --sidebar-accent: 40 40% 95%;
+    --sidebar-accent-foreground: 35 30% 12%;
+    --sidebar-border: 40 35% 88%;
+    --sidebar-ring: 42 85% 55%;
+  }
 }
 
 @layer base {
