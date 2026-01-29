@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Star } from "lucide-react";
+import { Star, Calendar, Play } from "lucide-react";
 import { Anime, formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +10,19 @@ interface AnimeCardProps {
 }
 
 export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardProps) {
+  // Format aired date
+  const getAiredInfo = () => {
+    if (anime.aired?.from) {
+      const date = new Date(anime.aired.from);
+      return date.getFullYear().toString();
+    }
+    if (anime.year) return anime.year.toString();
+    return null;
+  };
+
+  const airedYear = getAiredInfo();
+  const episodeCount = anime.episodes;
+
   if (variant === "compact") {
     return (
       <Link
@@ -28,12 +41,26 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
           <p className="text-xs sm:text-sm text-muted-foreground truncate">
             {anime.genres?.slice(0, 2).map(g => g.name).join(", ")}
           </p>
-          {anime.score && (
-            <div className="flex items-center gap-1 mt-1">
-              <Star className="w-3 h-3 text-foreground fill-foreground" />
-              <span className="text-xs sm:text-sm font-medium">{formatScore(anime.score)}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-3 mt-1 flex-wrap">
+            {anime.score && (
+              <div className="flex items-center gap-1">
+                <Star className="w-3 h-3 text-foreground fill-foreground" />
+                <span className="text-xs sm:text-sm font-medium">{formatScore(anime.score)}</span>
+              </div>
+            )}
+            {airedYear && (
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <Calendar className="w-3 h-3" />
+                <span className="text-xs">{airedYear}</span>
+              </div>
+            )}
+            {episodeCount && (
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <Play className="w-3 h-3" />
+                <span className="text-xs">{episodeCount} ep</span>
+              </div>
+            )}
+          </div>
         </div>
       </Link>
     );
@@ -47,17 +74,14 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
       )}
       style={{ animationDelay: `${index * 0.05}s` }}
     >
-      <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-2 sm:mb-3 liquid-glass">
+      <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-2 sm:mb-3 divine-card">
         <img
           src={anime.images.webp.image_url}
           alt={anime.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
-        {/* Score badge */}
+        {/* Score badge - always visible */}
         {anime.score && (
           <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full liquid-glass-strong text-xs font-medium">
             <Star className="w-3 h-3 text-foreground fill-foreground" />
@@ -65,11 +89,26 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
           </div>
         )}
 
-        {/* Bottom info on hover */}
-        <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-          <p className="text-xs text-muted-foreground line-clamp-2">
-            {anime.genres?.slice(0, 3).map(g => g.name).join(" • ")}
-          </p>
+        {/* Year badge - always visible */}
+        {airedYear && (
+          <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded-full liquid-glass-strong text-xs">
+            {airedYear}
+          </div>
+        )}
+
+        {/* Bottom info bar - always visible */}
+        <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 bg-gradient-to-t from-background/90 via-background/60 to-transparent">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span className="truncate max-w-[60%]">
+              {anime.genres?.slice(0, 2).map(g => g.name).join(" • ")}
+            </span>
+            {episodeCount && (
+              <span className="flex items-center gap-1">
+                <Play className="w-3 h-3" />
+                {episodeCount} ep
+              </span>
+            )}
+          </div>
         </div>
       </div>
 

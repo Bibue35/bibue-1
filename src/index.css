@@ -4,63 +4,69 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Bibue Design System - Apple Liquid Glass */
-/* Light Mode: Sunlight warmth | Dark Mode: Moonlight cool */
+/* Bibue Design System - Divine Liquid Glass */
+/* Light Mode: Sunlight (Divine Radiance) | Dark Mode: Moonlight (Heavenly Glow) */
+/* Inspired by the name "Bibue" - Biblical divine aesthetics with celestial light */
 
 @layer base {
   :root {
-    /* Sunlight Mode - Warm golden light */
-    --background: 40 30% 98%;
-    --foreground: 30 10% 10%;
+    /* Sunlight Mode - Divine Radiance (Golden Heaven) */
+    --background: 45 35% 97%;
+    --foreground: 30 15% 8%;
 
-    --card: 40 40% 100%;
-    --card-foreground: 30 10% 10%;
+    --card: 48 45% 99%;
+    --card-foreground: 30 15% 8%;
 
-    --popover: 40 40% 100%;
-    --popover-foreground: 30 10% 10%;
+    --popover: 48 45% 99%;
+    --popover-foreground: 30 15% 8%;
 
-    /* Warm neutral tones with golden hint */
-    --primary: 35 15% 18%;
-    --primary-foreground: 40 30% 98%;
+    /* Warm divine gold tones */
+    --primary: 38 25% 15%;
+    --primary-foreground: 48 50% 98%;
 
-    --secondary: 35 20% 95%;
-    --secondary-foreground: 30 10% 10%;
+    --secondary: 42 30% 94%;
+    --secondary-foreground: 30 15% 8%;
 
-    --muted: 35 15% 94%;
-    --muted-foreground: 30 8% 40%;
+    --muted: 40 20% 92%;
+    --muted-foreground: 30 12% 38%;
 
-    --accent: 38 25% 90%;
-    --accent-foreground: 30 10% 10%;
+    --accent: 45 35% 88%;
+    --accent-foreground: 30 15% 8%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 15% 88%;
-    --input: 35 15% 88%;
-    --ring: 35 15% 18%;
+    --border: 42 25% 85%;
+    --input: 42 25% 85%;
+    --ring: 38 25% 15%;
 
     --radius: 1rem;
 
-    /* Sunlight Liquid Glass - Warm golden refraction */
-    --glass-bg: 45 50% 100% / 0.68;
-    --glass-border: 45 80% 95% / 0.7;
-    --glass-highlight: 45 100% 98% / 0.95;
-    --glass-shadow: 35 30% 20% / 0.08;
-    --glass-blur: 40px;
-    --glass-refraction: 45 80% 100% / 0.35;
+    /* Divine Sunlight Liquid Glass - Golden radiance with celestial glow */
+    --glass-bg: 48 60% 99% / 0.75;
+    --glass-border: 45 70% 92% / 0.8;
+    --glass-highlight: 48 100% 97% / 0.98;
+    --glass-shadow: 38 40% 15% / 0.12;
+    --glass-blur: 44px;
+    --glass-refraction: 50 90% 98% / 0.45;
 
-    /* Sunlight specular - warm glow */
-    --specular-color: 45 100% 90% / 0.6;
-    --specular-inner: 40 60% 98% / 0.9;
+    /* Divine specular - heavenly golden glow */
+    --specular-color: 48 100% 88% / 0.7;
+    --specular-inner: 45 70% 96% / 0.95;
 
-    /* Sunlight reflection gradient */
-    --reflection-start: 45 100% 100% / 0.85;
-    --reflection-mid: 40 80% 98% / 0.4;
-    --reflection-end: 35 30% 90% / 0.05;
+    /* Sunlight divine reflection gradient */
+    --reflection-start: 48 100% 99% / 0.92;
+    --reflection-mid: 45 85% 96% / 0.5;
+    --reflection-end: 40 35% 88% / 0.08;
 
-    /* Sunbeam glow for hover effects */
-    --sunbeam-glow: 42 100% 75% / 0.25;
-    --sunbeam-highlight: 45 100% 85% / 0.5;
+    /* Divine radiance glow effects - Biblical sunbeam */
+    --divine-glow: 45 95% 70% / 0.35;
+    --divine-radiance: 48 100% 82% / 0.55;
+    --divine-halo: 50 100% 90% / 0.4;
+
+    /* Legacy sunbeam for compatibility */
+    --sunbeam-glow: 45 95% 70% / 0.35;
+    --sunbeam-highlight: 48 100% 82% / 0.6;
 
     /* Chart colors - warm earth tones */
     --chart-1: 30 25% 25%;
@@ -70,77 +76,82 @@
     --chart-5: 20 35% 50%;
 
     /* Sidebar */
-    --sidebar-background: 40 30% 98%;
-    --sidebar-foreground: 30 10% 10%;
-    --sidebar-primary: 35 15% 18%;
-    --sidebar-primary-foreground: 40 30% 98%;
-    --sidebar-accent: 35 20% 95%;
-    --sidebar-accent-foreground: 30 10% 10%;
-    --sidebar-border: 35 15% 88%;
-    --sidebar-ring: 35 15% 18%;
+    --sidebar-background: 45 35% 97%;
+    --sidebar-foreground: 30 15% 8%;
+    --sidebar-primary: 38 25% 15%;
+    --sidebar-primary-foreground: 48 50% 98%;
+    --sidebar-accent: 42 30% 94%;
+    --sidebar-accent-foreground: 30 15% 8%;
+    --sidebar-border: 42 25% 85%;
+    --sidebar-ring: 38 25% 15%;
   }
 
   .dark {
-    /* Moonlight Mode - Cool silvery light */
-    --background: 220 15% 5%;
-    --foreground: 210 20% 93%;
+    /* Moonlight Mode - Heavenly Glow (Celestial Night) */
+    --background: 225 20% 4%;
+    --foreground: 220 25% 94%;
 
-    --card: 220 15% 8%;
-    --card-foreground: 210 20% 93%;
+    --card: 225 18% 7%;
+    --card-foreground: 220 25% 94%;
 
-    --popover: 220 15% 8%;
-    --popover-foreground: 210 20% 93%;
+    --popover: 225 18% 7%;
+    --popover-foreground: 220 25% 94%;
 
-    /* Cool silvery neutral tones */
-    --primary: 210 15% 88%;
-    --primary-foreground: 220 15% 5%;
+    /* Cool celestial silver tones */
+    --primary: 220 20% 90%;
+    --primary-foreground: 225 20% 4%;
 
-    --secondary: 220 12% 14%;
-    --secondary-foreground: 210 20% 93%;
+    --secondary: 225 15% 12%;
+    --secondary-foreground: 220 25% 94%;
 
-    --muted: 220 12% 14%;
-    --muted-foreground: 210 10% 50%;
+    --muted: 225 15% 12%;
+    --muted-foreground: 220 12% 48%;
 
-    --accent: 220 15% 18%;
-    --accent-foreground: 210 20% 93%;
+    --accent: 225 18% 16%;
+    --accent-foreground: 220 25% 94%;
 
     --destructive: 0 72% 51%;
-    --destructive-foreground: 210 20% 93%;
+    --destructive-foreground: 220 25% 94%;
 
-    --border: 220 12% 18%;
-    --input: 220 12% 18%;
-    --ring: 210 15% 75%;
+    --border: 225 15% 16%;
+    --input: 225 15% 16%;
+    --ring: 220 20% 78%;
 
-    /* Moonlight Liquid Glass - Cool shadow depth */
-    --glass-bg: 220 20% 10% / 0.72;
-    --glass-border: 220 15% 25% / 0.35;
-    --glass-highlight: 210 30% 95% / 0.06;
-    --glass-shadow: 220 50% 3% / 0.6;
-    --glass-blur: 48px;
-    --glass-refraction: 210 30% 90% / 0.04;
+    /* Moonlight Liquid Glass - Celestial depth with divine glow */
+    --glass-bg: 225 22% 8% / 0.78;
+    --glass-border: 220 18% 22% / 0.4;
+    --glass-highlight: 220 35% 92% / 0.08;
+    --glass-shadow: 225 55% 2% / 0.65;
+    --glass-blur: 52px;
+    --glass-refraction: 220 35% 88% / 0.06;
 
-    /* Moonlight specular - subtle silver edge */
-    --specular-color: 210 40% 70% / 0.12;
-    --specular-inner: 220 20% 50% / 0.08;
+    /* Moonlight specular - ethereal silver edge */
+    --specular-color: 220 45% 68% / 0.15;
+    --specular-inner: 225 22% 48% / 0.1;
 
     /* Moonlight shadow gradient */
-    --reflection-start: 210 30% 95% / 0.1;
-    --reflection-mid: 220 20% 50% / 0.03;
-    --reflection-end: 220 50% 5% / 0.4;
+    --reflection-start: 220 35% 92% / 0.12;
+    --reflection-mid: 225 22% 48% / 0.04;
+    --reflection-end: 225 55% 4% / 0.45;
 
-    /* Moonbeam glow for hover effects */
-    --moonbeam-glow: 210 50% 60% / 0.15;
-    --moonbeam-highlight: 210 40% 80% / 0.2;
+    /* Divine moonlight glow effects - Heavenly luminance */
+    --divine-glow: 220 55% 58% / 0.2;
+    --divine-radiance: 215 50% 75% / 0.25;
+    --divine-halo: 225 45% 82% / 0.18;
+
+    /* Legacy moonbeam for compatibility */
+    --moonbeam-glow: 220 55% 58% / 0.2;
+    --moonbeam-highlight: 215 50% 75% / 0.25;
 
     /* Sidebar */
-    --sidebar-background: 220 15% 5%;
-    --sidebar-foreground: 210 20% 93%;
-    --sidebar-primary: 210 15% 88%;
-    --sidebar-primary-foreground: 220 15% 5%;
-    --sidebar-accent: 220 12% 14%;
-    --sidebar-accent-foreground: 210 20% 93%;
-    --sidebar-border: 220 12% 18%;
-    --sidebar-ring: 210 15% 75%;
+    --sidebar-background: 225 20% 4%;
+    --sidebar-foreground: 220 25% 94%;
+    --sidebar-primary: 220 20% 90%;
+    --sidebar-primary-foreground: 225 20% 4%;
+    --sidebar-accent: 225 15% 12%;
+    --sidebar-accent-foreground: 220 25% 94%;
+    --sidebar-border: 225 15% 16%;
+    --sidebar-ring: 220 20% 78%;
   }
 }
 
@@ -325,7 +336,58 @@
     opacity: 0.8;
   }
 
-  /* Sunbeam hover effect (light mode) */
+  /* Divine radiance hover effect - Celestial glow inspired by Bibue */
+  .divine-hover {
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .divine-hover::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    background: radial-gradient(
+      ellipse at 50% 0%,
+      hsl(var(--divine-radiance)),
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .divine-hover::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(
+      180deg,
+      hsl(var(--divine-halo)),
+      transparent 50%,
+      hsl(var(--divine-glow)) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .divine-hover:hover::before,
+  .divine-hover:hover::after {
+    opacity: 1;
+  }
+
+  .divine-hover:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+      0 20px 48px hsl(var(--glass-shadow)),
+      0 0 40px hsl(var(--divine-glow));
+  }
+
+  /* Sunbeam hover effect (legacy/light mode) */
   .sunbeam-hover {
     position: relative;
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -338,9 +400,9 @@
     border-radius: inherit;
     background: linear-gradient(
       135deg,
-      hsl(var(--sunbeam-highlight, var(--moonbeam-highlight))),
+      hsl(var(--divine-radiance, var(--sunbeam-highlight))),
       transparent 50%,
-      hsl(var(--sunbeam-glow, var(--moonbeam-glow))) 100%
+      hsl(var(--divine-glow, var(--sunbeam-glow))) 100%
     );
     opacity: 0;
     transition: opacity 0.4s ease;
@@ -356,16 +418,16 @@
     transform: translateY(-4px) scale(1.02);
     box-shadow: 
       0 20px 48px hsl(var(--glass-shadow)),
-      0 0 30px hsl(var(--sunbeam-glow, var(--moonbeam-glow)));
+      0 0 30px hsl(var(--divine-glow, var(--sunbeam-glow)));
   }
 
   /* Moonbeam hover effect (dark mode only) */
   .dark .moonbeam-hover::after {
     background: linear-gradient(
       135deg,
-      hsl(var(--moonbeam-highlight)),
+      hsl(var(--divine-radiance, var(--moonbeam-highlight))),
       transparent 50%,
-      hsl(var(--moonbeam-glow)) 100%
+      hsl(var(--divine-glow, var(--moonbeam-glow))) 100%
     );
   }
 
@@ -377,7 +439,9 @@
 
   .hover-lift:hover {
     transform: translateY(-4px) scale(1.01);
-    box-shadow: 0 20px 48px hsl(var(--glass-shadow));
+    box-shadow: 
+      0 20px 48px hsl(var(--glass-shadow)),
+      0 0 24px hsl(var(--divine-glow));
   }
 
   /* Custom scrollbar */
@@ -411,7 +475,7 @@
 }
 
 @layer components {
-  /* Content card with glass */
+  /* Content card with divine glass */
   .content-card {
     @apply liquid-glass rounded-2xl overflow-hidden transition-all duration-500;
   }
@@ -420,10 +484,62 @@
     @apply hover-lift;
   }
 
-  /* Episode/Chapter card with special hover */
+  /* Divine card - content with celestial hover effect */
+  .divine-card {
+    @apply liquid-glass rounded-2xl overflow-hidden transition-all duration-500;
+    position: relative;
+  }
+
+  .divine-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--divine-radiance)),
+      transparent
+    );
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .divine-card:hover::before {
+    opacity: 1;
+  }
+
+  .divine-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+      0 20px 48px hsl(var(--glass-shadow)),
+      0 0 40px hsl(var(--divine-glow));
+  }
+
+  /* Episode/Chapter card with divine hover */
   .episode-card {
     @apply liquid-glass-subtle rounded-xl p-4 transition-all duration-300;
     position: relative;
+  }
+
+  .episode-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 25%;
+    right: 25%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--divine-radiance)),
+      transparent
+    );
+    opacity: 0;
+    transition: opacity 0.4s ease;
   }
 
   .episode-card::after {
@@ -431,12 +547,15 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: linear-gradient(
-      135deg,
-      hsl(var(--sunbeam-highlight, var(--moonbeam-highlight))) 0%,
-      transparent 40%,
-      transparent 60%,
-      hsl(var(--sunbeam-glow, var(--moonbeam-glow))) 100%
+    background: radial-gradient(
+      ellipse at 50% -20%,
+      hsl(var(--divine-radiance)) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 50% 120%,
+      hsl(var(--divine-glow)) 0%,
+      transparent 50%
     );
     opacity: 0;
     transition: opacity 0.5s ease;
@@ -447,30 +566,15 @@
     transform: translateY(-2px) scale(1.01);
     box-shadow: 
       0 12px 32px hsl(var(--glass-shadow)),
-      0 0 24px hsl(var(--sunbeam-glow, var(--moonbeam-glow)));
+      0 0 32px hsl(var(--divine-glow));
   }
 
+  .episode-card:hover::before,
   .episode-card:hover::after {
     opacity: 1;
   }
 
-  .dark .episode-card::after {
-    background: linear-gradient(
-      135deg,
-      hsl(var(--moonbeam-highlight)) 0%,
-      transparent 40%,
-      transparent 60%,
-      hsl(var(--moonbeam-glow)) 100%
-    );
-  }
-
-  .dark .episode-card:hover {
-    box-shadow: 
-      0 12px 32px hsl(var(--glass-shadow)),
-      0 0 24px hsl(var(--moonbeam-glow));
-  }
-
-  /* Genre pill with glass */
+  /* Genre pill with divine glass */
   .genre-pill {
     @apply glass-button px-4 py-2 rounded-full text-sm font-medium;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -478,6 +582,7 @@
 
   .genre-pill:hover {
     transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 24px hsl(var(--divine-glow));
   }
 
   /* Smooth animations */
