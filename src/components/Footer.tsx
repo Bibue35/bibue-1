@@ -18,13 +18,6 @@ const footerLinks = [
       { label: "Discord", href: "#" },
     ],
   },
-  {
-    title: "Legal",
-    links: [
-      { label: "Privacy", href: "#" },
-      { label: "Terms", href: "#" },
-    ],
-  },
 ];
 
 export function Footer() {
