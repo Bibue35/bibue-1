@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, BookOpen, Star, Calendar, Users, Heart, Share2, Bookmark, ExternalLink, User } from "lucide-react";
+import { ArrowLeft, BookOpen, Star, Calendar, Users, Heart, Share2, Bookmark, User } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { ChapterList } from "@/components/ChapterList";
+import { ChapterComments } from "@/components/ChapterComments";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMangaDetails } from "@/hooks/useAnimeData";
@@ -261,39 +262,16 @@ export default function MangaDetailPage() {
                   </dl>
                 </div>
 
-                {/* External links */}
-                <div className="liquid-glass rounded-2xl p-6">
-                  <h3 className="text-lg font-bold mb-4">External Links</h3>
-                  <div className="space-y-2">
-                    <a
-                      href={`https://myanimelist.net/manga/${manga.mal_id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-3 rounded-xl border border-border hover:border-foreground/50 transition-colors"
-                    >
-                      <span className="text-sm">MyAnimeList</span>
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                    <a
-                      href={`https://anilist.co/search/manga?search=${encodeURIComponent(manga.title)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-3 rounded-xl border border-border hover:border-foreground/50 transition-colors"
-                    >
-                      <span className="text-sm">AniList</span>
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  </div>
-                </div>
               </div>
             </div>
           )}
 
           {activeTab === "chapters" && manga && (
-            <div className="animate-fade-in">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
+              {/* Chapter list */}
               <div className="liquid-glass rounded-2xl p-4 sm:p-6">
                 <h3 className="text-lg font-bold mb-4">Chapters</h3>
-                <div className="max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
+                <div className="max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
                   <ChapterList
                     chapters={chapters}
                     selectedChapter={selectedChapter}
@@ -301,6 +279,14 @@ export default function MangaDetailPage() {
                     mangaTitle={manga.title}
                   />
                 </div>
+              </div>
+
+              {/* Chapter comments */}
+              <div className="liquid-glass rounded-2xl p-4 sm:p-6">
+                <ChapterComments
+                  mangaId={manga.mal_id}
+                  chapterNumber={selectedChapter}
+                />
               </div>
             </div>
           )}

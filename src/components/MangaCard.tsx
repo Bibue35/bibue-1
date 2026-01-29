@@ -74,54 +74,49 @@ export function MangaCard({ manga, index = 0, variant = "default" }: MangaCardPr
       )}
       style={{ animationDelay: `${index * 0.05}s` }}
     >
-      <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-2 sm:mb-3 divine-card">
+      {/* Image only - clean card */}
+      <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-2 divine-card">
         <img
           src={manga.images.webp.image_url}
           alt={manga.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        
-        {/* Score badge - always visible */}
-        {manga.score && (
-          <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full liquid-glass-strong text-xs font-medium">
-            <Star className="w-3 h-3 text-foreground fill-foreground" />
-            {formatScore(manga.score)}
-          </div>
-        )}
-
-        {/* Year badge - always visible */}
-        {publishedYear && (
-          <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded-full liquid-glass-strong text-xs">
-            {publishedYear}
-          </div>
-        )}
-
-        {/* Bottom info bar - always visible */}
-        <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 bg-gradient-to-t from-background/90 via-background/60 to-transparent">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="truncate max-w-[60%]">
-              {manga.genres?.slice(0, 2).map(g => g.name).join(" • ")}
-            </span>
-            <span className="flex items-center gap-1">
-              {chapterCount ? (
-                <>
-                  <BookOpen className="w-3 h-3" />
-                  {chapterCount} ch
-                </>
-              ) : volumeCount ? (
-                <>
-                  <BookOpen className="w-3 h-3" />
-                  {volumeCount} vol
-                </>
-              ) : null}
-            </span>
-          </div>
-        </div>
       </div>
 
-      <h3 className="font-medium text-xs sm:text-sm line-clamp-2 group-hover:text-foreground/80 transition-colors">
+      {/* Title underneath */}
+      <h3 className="font-medium text-xs sm:text-sm line-clamp-2 mb-1 group-hover:text-foreground/80 transition-colors">
         {manga.title}
       </h3>
+
+      {/* Metadata underneath - always visible */}
+      <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
+        {manga.score && (
+          <span className="flex items-center gap-1">
+            <Star className="w-3 h-3 text-foreground fill-foreground" />
+            {formatScore(manga.score)}
+          </span>
+        )}
+        {publishedYear && (
+          <span className="flex items-center gap-1">
+            <Calendar className="w-3 h-3" />
+            {publishedYear}
+          </span>
+        )}
+        {chapterCount ? (
+          <span className="flex items-center gap-1">
+            <BookOpen className="w-3 h-3" />
+            {chapterCount} ch
+          </span>
+        ) : volumeCount ? (
+          <span className="flex items-center gap-1">
+            <BookOpen className="w-3 h-3" />
+            {volumeCount} vol
+          </span>
+        ) : null}
+        {manga.status === "Publishing" && (
+          <span className="text-primary font-medium">Ongoing</span>
+        )}
+      </div>
     </Link>
   );
 }

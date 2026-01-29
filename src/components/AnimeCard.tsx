@@ -74,47 +74,44 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
       )}
       style={{ animationDelay: `${index * 0.05}s` }}
     >
-      <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-2 sm:mb-3 divine-card">
+      {/* Image only - clean card */}
+      <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-2 divine-card">
         <img
           src={anime.images.webp.image_url}
           alt={anime.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        
-        {/* Score badge - always visible */}
-        {anime.score && (
-          <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full liquid-glass-strong text-xs font-medium">
-            <Star className="w-3 h-3 text-foreground fill-foreground" />
-            {formatScore(anime.score)}
-          </div>
-        )}
-
-        {/* Year badge - always visible */}
-        {airedYear && (
-          <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded-full liquid-glass-strong text-xs">
-            {airedYear}
-          </div>
-        )}
-
-        {/* Bottom info bar - always visible */}
-        <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 bg-gradient-to-t from-background/90 via-background/60 to-transparent">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="truncate max-w-[60%]">
-              {anime.genres?.slice(0, 2).map(g => g.name).join(" • ")}
-            </span>
-            {episodeCount && (
-              <span className="flex items-center gap-1">
-                <Play className="w-3 h-3" />
-                {episodeCount} ep
-              </span>
-            )}
-          </div>
-        </div>
       </div>
 
-      <h3 className="font-medium text-xs sm:text-sm line-clamp-2 group-hover:text-foreground/80 transition-colors">
+      {/* Title underneath */}
+      <h3 className="font-medium text-xs sm:text-sm line-clamp-2 mb-1 group-hover:text-foreground/80 transition-colors">
         {anime.title}
       </h3>
+
+      {/* Metadata underneath - always visible */}
+      <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
+        {anime.score && (
+          <span className="flex items-center gap-1">
+            <Star className="w-3 h-3 text-foreground fill-foreground" />
+            {formatScore(anime.score)}
+          </span>
+        )}
+        {airedYear && (
+          <span className="flex items-center gap-1">
+            <Calendar className="w-3 h-3" />
+            {airedYear}
+          </span>
+        )}
+        {episodeCount && (
+          <span className="flex items-center gap-1">
+            <Play className="w-3 h-3" />
+            {episodeCount} ep
+          </span>
+        )}
+        {anime.status === "Currently Airing" && (
+          <span className="text-primary font-medium">Airing</span>
+        )}
+      </div>
     </Link>
   );
 }

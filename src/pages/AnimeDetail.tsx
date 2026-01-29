@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Play, Star, Calendar, Clock, Users, Heart, Share2, Bookmark, ExternalLink } from "lucide-react";
+import { ArrowLeft, Play, Star, Calendar, Clock, Users, Heart, Share2, Bookmark } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { EpisodeComments } from "@/components/EpisodeComments";
@@ -264,30 +264,6 @@ export default function AnimeDetailPage() {
                   </dl>
                 </div>
 
-                {/* External links */}
-                <div className="liquid-glass rounded-2xl p-4 sm:p-6">
-                  <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">External Links</h3>
-                  <div className="space-y-2">
-                    <a
-                      href={`https://myanimelist.net/anime/${anime.mal_id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-3 rounded-xl border border-border/50 hover:border-foreground/30 transition-colors"
-                    >
-                      <span className="text-xs sm:text-sm">MyAnimeList</span>
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                    <a
-                      href={`https://anilist.co/search/anime?search=${encodeURIComponent(anime.title)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-3 rounded-xl border border-border/50 hover:border-foreground/30 transition-colors"
-                    >
-                      <span className="text-xs sm:text-sm">AniList</span>
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  </div>
-                </div>
               </div>
             </div>
           )}
