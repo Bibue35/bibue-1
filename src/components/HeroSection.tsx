@@ -55,7 +55,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
 
           {/* Title */}
           <h1 
-            className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-2 sm:mb-3 tracking-tight animate-fade-up divine:font-sacred divine:tracking-wide"
+            className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold font-sacred mb-2 sm:mb-3 tracking-wide animate-fade-up"
             style={{ animationDelay: "0.1s" }}
           >
             {featured.title}

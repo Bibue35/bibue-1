@@ -77,6 +77,16 @@ export function CollapsibleNavbar() {
 
   return (
     <>
+      {/* Fixed Logo - Always Visible */}
+      <Link 
+        to="/" 
+        className="fixed top-4 left-4 z-[60] flex items-center gap-2"
+      >
+        <span className="text-2xl font-sacred font-semibold tracking-wide">
+          Bibue
+        </span>
+      </Link>
+
       <nav
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out",
@@ -90,12 +100,8 @@ export function CollapsibleNavbar() {
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
-            {/* Logo - Always visible */}
-            <Link to="/" className="flex items-center gap-2 z-10">
-              <span className="text-2xl font-semibold tracking-tight">
-                Bibue
-              </span>
-            </Link>
+            {/* Spacer for logo */}
+            <div className="w-20" />
 
             {/* Desktop Navigation - Collapsible */}
             <Collapsible
