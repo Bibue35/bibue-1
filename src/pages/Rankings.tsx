@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Film, BookOpen, TrendingUp, Filter } from "lucide-react";
-import { Navbar } from "@/components/Navbar";
+import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
 import { MangaCard } from "@/components/MangaCard";
@@ -10,9 +11,17 @@ import { useTopAnime, useTopManga } from "@/hooks/useAnimeData";
 import { cn } from "@/lib/utils";
 
 export default function RankingsPage() {
-  const [activeType, setActiveType] = useState<"anime" | "manga">("anime");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialType = (searchParams.get("type") as "anime" | "manga") || "anime";
+  
+  const [activeType, setActiveType] = useState<"anime" | "manga">(initialType);
   const [animeFilter, setAnimeFilter] = useState<'airing' | 'upcoming' | 'bypopularity' | 'favorite' | undefined>();
   const [mangaFilter, setMangaFilter] = useState<'manga' | 'manhwa' | 'manhua' | undefined>();
+
+  // Sync URL with state
+  useEffect(() => {
+    setSearchParams({ type: activeType });
+  }, [activeType, setSearchParams]);
 
   const { data: animeData, isLoading: animeLoading } = useTopAnime(1, animeFilter);
   const { data: mangaData, isLoading: mangaLoading } = useTopManga(1, mangaFilter);
@@ -22,19 +31,19 @@ export default function RankingsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <CollapsibleNavbar />
 
       {/* Hero */}
       <section className="pt-32 pb-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center">
-                <TrendingUp className="w-8 h-8 text-primary-foreground" />
+              <div className="w-16 h-16 rounded-2xl liquid-glass flex items-center justify-center sunbeam-hover">
+                <TrendingUp className="w-8 h-8" />
               </div>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-4">
-              <span className="gradient-text">Top Rankings</span>
+              Top Rankings
             </h1>
             <p className="font-jp text-xl text-muted-foreground mb-2">ランキング</p>
             <p className="text-muted-foreground text-lg">
@@ -53,7 +62,7 @@ export default function RankingsPage() {
               className={cn(
                 "flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300",
                 activeType === "anime"
-                  ? "bg-primary text-primary-foreground"
+                  ? "bg-foreground text-background"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -65,7 +74,7 @@ export default function RankingsPage() {
               className={cn(
                 "flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300",
                 activeType === "manga"
-                  ? "bg-accent text-accent-foreground"
+                  ? "bg-foreground text-background"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -82,7 +91,7 @@ export default function RankingsPage() {
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Filter:</span>
+              <span className="text-sm text-muted-foreground">Sort by:</span>
             </div>
             
             {activeType === "anime" ? (
@@ -93,9 +102,12 @@ export default function RankingsPage() {
                     variant={animeFilter === filter ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setAnimeFilter(filter)}
-                    className="rounded-full capitalize"
+                    className={cn(
+                      "rounded-full capitalize",
+                      animeFilter !== filter && "glass-button"
+                    )}
                   >
-                    {filter === undefined ? "All" : filter === 'bypopularity' ? "Popular" : filter}
+                    {filter === undefined ? "Score" : filter === 'bypopularity' ? "Popular" : filter}
                   </Button>
                 ))}
               </>
@@ -107,7 +119,10 @@ export default function RankingsPage() {
                     variant={mangaFilter === filter ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setMangaFilter(filter)}
-                    className="rounded-full capitalize"
+                    className={cn(
+                      "rounded-full capitalize",
+                      mangaFilter !== filter && "glass-button"
+                    )}
                   >
                     {filter === undefined ? "All" : filter}
                   </Button>
@@ -136,7 +151,7 @@ export default function RankingsPage() {
                   {/* Rank badge */}
                   <div className={cn(
                     "absolute -top-3 -left-3 z-20 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-lg",
-                    index === 0 && "bg-primary text-primary-foreground",
+                    index === 0 && "bg-foreground text-background",
                     index === 1 && "bg-muted text-foreground",
                     index === 2 && "bg-accent text-accent-foreground",
                     index > 2 && "bg-card text-muted-foreground border border-border"

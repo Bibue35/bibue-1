@@ -1,4 +1,4 @@
-import { Navbar } from "@/components/Navbar";
+import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { HeroSection } from "@/components/HeroSection";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { AnimeCard } from "@/components/AnimeCard";
@@ -18,7 +18,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <CollapsibleNavbar />
       
       {/* Hero Section */}
       <HeroSection 
@@ -34,8 +34,8 @@ const Index = () => {
               <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">This Season</h2>
               <p className="font-jp text-xs sm:text-sm text-muted-foreground mt-0.5">今季のアニメ</p>
             </div>
-            <Button variant="ghost" size="sm" className="gap-1" asChild>
-              <Link to="/anime">
+            <Button variant="ghost" size="sm" className="gap-1 glass-button" asChild>
+              <Link to="/anime?filter=seasonal">
                 View All <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
@@ -73,8 +73,8 @@ const Index = () => {
               <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">Trending Now</h2>
               <p className="font-jp text-xs sm:text-sm text-muted-foreground mt-0.5">トレンド</p>
             </div>
-            <Button variant="ghost" size="sm" className="gap-1" asChild>
-              <Link to="/rankings">
+            <Button variant="ghost" size="sm" className="gap-1 glass-button" asChild>
+              <Link to="/rankings?type=anime">
                 Rankings <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
@@ -105,8 +105,8 @@ const Index = () => {
               <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">Popular Manga</h2>
               <p className="font-jp text-xs sm:text-sm text-muted-foreground mt-0.5">人気漫画</p>
             </div>
-            <Button variant="ghost" size="sm" className="gap-1" asChild>
-              <Link to="/manga">
+            <Button variant="ghost" size="sm" className="gap-1 glass-button" asChild>
+              <Link to="/manga?filter=bypopularity">
                 Explore <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
