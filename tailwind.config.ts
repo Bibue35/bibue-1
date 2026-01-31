@@ -92,9 +92,5 @@ export default {
   },
   plugins: [
     require("tailwindcss-animate"),
-    // Custom divine variant plugin
-    function({ addVariant }: { addVariant: (name: string, selector: string) => void }) {
-      addVariant('divine', '.divine &');
-    }
   ],
 } satisfies Config;

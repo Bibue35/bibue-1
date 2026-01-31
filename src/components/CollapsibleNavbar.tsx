@@ -177,30 +177,30 @@ export function CollapsibleNavbar() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        <div
-          className={cn(
-            "md:hidden absolute top-full left-0 right-0 liquid-glass-strong border-t border-border/30 overflow-hidden transition-all duration-300",
-            isMobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-          )}
-        >
-          <div className="container mx-auto px-4 py-4 space-y-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className={cn(
-                  "block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300",
-                  location.pathname === link.href
-                    ? "bg-foreground/10 text-foreground"
-                    : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+        {/* Mobile Menu - Fixed positioning to prevent overlap */}
+        {isMobileMenuOpen && (
+          <div
+            className="md:hidden fixed top-16 left-0 right-0 z-[55] liquid-glass-strong border-t border-border/30 animate-fade-in"
+          >
+            <div className="container mx-auto px-4 py-4 space-y-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={cn(
+                    "block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300",
+                    location.pathname === link.href
+                      ? "bg-foreground/10 text-foreground"
+                      : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+                  )}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </nav>
 
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />

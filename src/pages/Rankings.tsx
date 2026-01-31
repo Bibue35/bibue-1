@@ -67,7 +67,7 @@ export default function RankingsPage() {
       <section className="pt-32 pb-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4 divine:font-sacred">
+            <h1 className="text-5xl md:text-6xl font-bold mb-4 font-sacred">
               Top Rankings
             </h1>
             <p className="font-jp text-xl text-muted-foreground mb-2">ランキング</p>
@@ -201,7 +201,7 @@ export default function RankingsPage() {
                     
                     {/* Card with theme effects */}
                     <div className={cn(
-                      isTop3 && "sun-glow moon-glow seraphim-glow"
+                      isTop3 && "sun-glow moon-glow"
                     )}>
                       {activeType === "anime" ? (
                         <AnimeCard anime={item as any} index={index} />

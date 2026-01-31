@@ -29,15 +29,15 @@ export function ChapterList({ chapters, selectedChapter, onSelectChapter, mangaT
             className={cn(
               "w-full text-left group cursor-pointer rounded-xl p-3 transition-all duration-300",
               "liquid-glass-subtle hover:bg-foreground/5",
-              "sun-glow moon-glow seraphim-glow", // Theme-specific effects
+              "sun-glow moon-glow",
               isSelected && "ring-2 ring-primary bg-primary/5"
             )}
           >
             <div className="flex items-center gap-3">
-              {/* Chapter number badge with theme effects */}
+              {/* Chapter number badge */}
               <div className={cn(
                 "flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center font-bold text-base transition-all relative",
-                "sun-corona moon-phase-hover sacred-hover",
+                "sun-corona moon-phase-hover",
                 isSelected
                   ? "bg-primary text-primary-foreground shadow-lg"
                   : "bg-muted/50 group-hover:bg-primary/20"
