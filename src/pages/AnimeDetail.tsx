@@ -134,22 +134,17 @@ export default function AnimeDetailPage() {
           </div>
         ) : (
           <>
-            {/* Bibue Logo - Click to exit */}
+            {/* Top Right Exit Button - Always visible */}
             <Link
               to="/"
-              className={cn(
-                "absolute top-6 left-6 z-50 transition-all duration-500",
-                showControls ? "opacity-100" : "opacity-0 pointer-events-none"
-              )}
+              className="absolute top-6 right-6 z-50 text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors drop-shadow-lg"
             >
-              <span className="text-2xl font-sacred font-semibold text-white drop-shadow-lg hover:text-primary transition-colors">
-                Bibue
-              </span>
+              Bibue
             </Link>
 
-            {/* Top Right Controls */}
+            {/* Top Left Controls */}
             <div className={cn(
-              "absolute top-6 right-6 z-50 flex items-center gap-3 transition-all duration-500",
+              "absolute top-6 left-6 z-40 flex items-center gap-3 transition-all duration-500",
               showControls ? "opacity-100" : "opacity-0 pointer-events-none"
             )}>
               <Button variant="ghost" size="icon" className="h-10 w-10 text-white/70 hover:text-white hover:bg-white/10 rounded-full">
