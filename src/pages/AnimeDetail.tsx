@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, Eye } from "lucide-react";
+import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export default function AnimeDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -124,7 +123,7 @@ export default function AnimeDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* ============ SECTION 1: FULLSCREEN VIDEO PLAYER ============ */}
+      {/* ============ SECTION 1: FULLSCREEN VIDEO PLAYER - AnimeRealms Style ============ */}
       <section className={cn(
         "relative bg-black transition-all duration-300",
         isFullscreen ? "fixed inset-0 z-50" : "h-screen"
@@ -139,7 +138,7 @@ export default function AnimeDetailPage() {
             <Link
               to="/"
               className={cn(
-                "absolute top-4 left-4 z-50 transition-all duration-500",
+                "absolute top-6 left-6 z-50 transition-all duration-500",
                 showControls ? "opacity-100" : "opacity-0 pointer-events-none"
               )}
             >
@@ -150,18 +149,18 @@ export default function AnimeDetailPage() {
 
             {/* Top Right Controls */}
             <div className={cn(
-              "absolute top-4 right-4 z-50 flex items-center gap-2 transition-all duration-500",
+              "absolute top-6 right-6 z-50 flex items-center gap-3 transition-all duration-500",
               showControls ? "opacity-100" : "opacity-0 pointer-events-none"
             )}>
-              <Button variant="ghost" size="icon" className="h-9 w-9 text-white/70 hover:text-white hover:bg-white/10">
+              <Button variant="ghost" size="icon" className="h-10 w-10 text-white/70 hover:text-white hover:bg-white/10 rounded-full">
                 <Bookmark className="w-5 h-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-9 w-9 text-white/70 hover:text-white hover:bg-white/10">
+              <Button variant="ghost" size="icon" className="h-10 w-10 text-white/70 hover:text-white hover:bg-white/10 rounded-full">
                 <Heart className="w-5 h-5" />
               </Button>
               <button
                 onClick={() => setIsFullscreen(!isFullscreen)}
-                className="p-2 rounded-full bg-black/50 hover:bg-black/70 transition-all text-white/70 hover:text-white"
+                className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white/70 hover:text-white"
               >
                 {isFullscreen ? (
                   <Minimize2 className="w-5 h-5" />
@@ -171,7 +170,7 @@ export default function AnimeDetailPage() {
               </button>
             </div>
 
-            {/* Video Player */}
+            {/* Video Player Area */}
             <div className="w-full h-full">
               {anime?.trailer?.youtube_id ? (
                 <iframe
@@ -195,82 +194,128 @@ export default function AnimeDetailPage() {
               )}
             </div>
 
-            {/* Bottom Episode Grid - AnimeRealms Style */}
+            {/* Bottom Episode Carousel - AnimeRealms Style */}
             <div className={cn(
               "absolute bottom-0 left-0 right-0 transition-all duration-500",
-              showControls ? "opacity-100" : "opacity-0 pointer-events-none"
+              showControls ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
             )}>
-              <div className="bg-gradient-to-t from-black via-black/90 to-transparent pt-16 pb-6 px-4 sm:px-8">
-                {/* EPISODES Header */}
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-white font-bold text-sm uppercase tracking-wider">Episodes</h3>
-                  <span className="text-white/50 text-xs">{episodes.length} Episodes</span>
-                </div>
-                
-                {/* Episode Grid */}
-                <ScrollArea className="w-full">
-                  <div className="flex gap-3 pb-2">
-                    {episodes.map((ep) => (
-                      <button
-                        key={ep.number}
-                        onClick={() => setSelectedEpisode(ep.number)}
-                        className={cn(
-                          "relative flex-shrink-0 w-56 sm:w-64 group text-left rounded-xl overflow-hidden transition-all",
-                          selectedEpisode === ep.number 
-                            ? "ring-2 ring-primary scale-[1.02]" 
-                            : "hover:ring-1 hover:ring-white/40 hover:scale-[1.01]"
-                        )}
-                      >
-                        {/* Thumbnail */}
-                        <div className="aspect-video relative bg-black/50">
-                          <img
-                            src={ep.thumbnail}
-                            alt={ep.title}
-                            className="w-full h-full object-cover"
-                          />
-                          {/* Now Playing overlay */}
-                          {selectedEpisode === ep.number && (
-                            <div className="absolute inset-0 bg-primary/30 flex items-center justify-center">
-                              <div className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
-                                <Play className="w-3 h-3 fill-current" />
-                                NOW PLAYING
-                              </div>
-                            </div>
-                          )}
-                          {/* Play overlay on hover */}
-                          {selectedEpisode !== ep.number && (
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                <Play className="w-5 h-5 text-white fill-white" />
-                              </div>
-                            </div>
-                          )}
-                          {/* Watched indicator */}
-                          {ep.number < selectedEpisode && (
-                            <div className="absolute top-2 left-2 p-1 rounded-full bg-primary">
-                              <Eye className="w-3 h-3 text-white" />
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Episode Info - Always visible */}
-                        <div className="p-3 bg-black/80 backdrop-blur-sm">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className={cn(
-                              "text-xs font-bold",
-                              selectedEpisode === ep.number ? "text-primary" : "text-white/60"
-                            )}>
-                              E{ep.number}
-                            </span>
-                            <span className="text-white font-medium text-sm truncate">{ep.title}</span>
-                          </div>
-                          <p className="text-white/50 text-xs line-clamp-2">{ep.description}</p>
-                        </div>
-                      </button>
-                    ))}
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none" />
+              
+              <div className="relative px-4 sm:px-8 pb-6 pt-20">
+                {/* Currently Playing Info */}
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="flex-1">
+                    <h2 className="text-white font-bold text-lg sm:text-xl truncate">{anime?.title}</h2>
+                    <p className="text-white/60 text-sm">Episode {selectedEpisode} • {currentEpisode?.title}</p>
                   </div>
-                  <ScrollBar orientation="horizontal" className="bg-white/20 h-1.5" />
-                </ScrollArea>
+                  <div className="flex items-center gap-2 text-white/60 text-sm">
+                    <span>EP {selectedEpisode}/{episodes.length}</span>
+                  </div>
+                </div>
+
+                {/* Episode Carousel */}
+                <div className="relative group">
+                  {/* Scroll Left Button */}
+                  <button 
+                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/80 hover:bg-black rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2"
+                    onClick={() => {
+                      const container = document.getElementById('episode-carousel');
+                      if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
+                    }}
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+
+                  {/* Episodes */}
+                  <div 
+                    id="episode-carousel"
+                    className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  >
+                    {episodes.map((ep) => {
+                      const isPlaying = selectedEpisode === ep.number;
+                      const isWatched = ep.number < selectedEpisode;
+                      
+                      return (
+                        <button
+                          key={ep.number}
+                          onClick={() => setSelectedEpisode(ep.number)}
+                          className={cn(
+                            "flex-shrink-0 w-40 sm:w-48 group/card text-left rounded-lg overflow-hidden transition-all duration-200",
+                            isPlaying 
+                              ? "ring-2 ring-primary scale-105" 
+                              : "hover:scale-102 hover:ring-1 hover:ring-white/30"
+                          )}
+                        >
+                          {/* Thumbnail */}
+                          <div className="relative aspect-video bg-black/50">
+                            <img
+                              src={ep.thumbnail}
+                              alt={ep.title}
+                              className={cn(
+                                "w-full h-full object-cover transition-all",
+                                isWatched && "opacity-60"
+                              )}
+                            />
+                            
+                            {/* Now Playing Badge */}
+                            {isPlaying && (
+                              <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                                <div className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1">
+                                  <Play className="w-3 h-3 fill-current" />
+                                  NOW PLAYING
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Play overlay on hover */}
+                            {!isPlaying && (
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/card:opacity-100 transition-opacity flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                  <Play className="w-4 h-4 text-white fill-white" />
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Watched indicator */}
+                            {isWatched && (
+                              <div className="absolute top-1.5 left-1.5 p-1 rounded-full bg-primary/80">
+                                <Eye className="w-2.5 h-2.5 text-white" />
+                              </div>
+                            )}
+                            
+                            {/* Episode number badge */}
+                            <div className="absolute bottom-1.5 right-1.5 bg-black/70 text-white text-xs font-bold px-1.5 py-0.5 rounded">
+                              E{ep.number}
+                            </div>
+                          </div>
+                          
+                          {/* Episode title */}
+                          <div className="p-2 bg-black/60">
+                            <p className={cn(
+                              "text-xs font-medium truncate",
+                              isPlaying ? "text-primary" : "text-white/80"
+                            )}>
+                              {ep.title}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Scroll Right Button */}
+                  <button 
+                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/80 hover:bg-black rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity translate-x-2"
+                    onClick={() => {
+                      const container = document.getElementById('episode-carousel');
+                      if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
+                    }}
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             </div>
           </>
@@ -409,7 +454,7 @@ export default function AnimeDetailPage() {
                 <Textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Share your thoughts on this episode... (Sign in to comment)"
+                  placeholder="Share your thoughts on this episode..."
                   className="mb-3 liquid-glass-subtle border-foreground/10 resize-none"
                   rows={3}
                 />
@@ -441,7 +486,7 @@ export default function AnimeDetailPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-sm">User</span>
+                            <span className="font-medium text-sm">Anonymous</span>
                             <span className="text-xs text-muted-foreground">
                               {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
                             </span>
