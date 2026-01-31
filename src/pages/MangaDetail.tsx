@@ -95,29 +95,23 @@ export default function MangaDetailPage() {
     return (
       <div className="fixed inset-0 z-50 bg-black">
         {/* Top Controls */}
+        {/* Top Right Exit Button - Always visible */}
+        <button
+          onClick={() => setIsReading(false)}
+          className="absolute top-4 right-4 z-50 text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors"
+        >
+          Bibue
+        </button>
+
+        {/* Top Controls */}
         <div className={cn(
-          "absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/90 to-transparent transition-all duration-500",
+          "absolute top-0 left-0 right-0 z-40 bg-gradient-to-b from-black/90 to-transparent transition-all duration-500",
           showControls ? "opacity-100" : "opacity-0 pointer-events-none"
         )}>
           <div className="flex items-center justify-between p-4">
-            <button
-              onClick={() => setIsReading(false)}
-              className="text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors"
-            >
-              Bibue
-            </button>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-white/70 text-sm">
-                Chapter {selectedChapter} • {currentChapter?.pages || 20} pages
-              </span>
-              <button
-                onClick={() => setIsReading(false)}
-                className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white"
-              >
-                <Minimize2 className="w-5 h-5" />
-              </button>
-            </div>
+            <span className="text-white/70 text-sm">
+              Chapter {selectedChapter} • {currentChapter?.pages || 20} pages
+            </span>
           </div>
         </div>
 
