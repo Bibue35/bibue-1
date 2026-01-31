@@ -189,15 +189,15 @@ export default function AnimeDetailPage() {
           </div>
         ) : (
           <>
-            {/* Top Left - Bibue Logo */}
+            {/* Top Left - Bibue Logo (Always visible, never fades) */}
             <Link
               to="/"
-              className="absolute top-6 left-6 z-50 text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors drop-shadow-lg"
+              className="absolute top-6 left-6 z-[60] text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors drop-shadow-lg"
             >
               Bibue
             </Link>
 
-            {/* Top Right Controls */}
+            {/* Top Right Controls (fade with showControls) */}
             <div className={cn(
               "absolute top-6 right-6 z-40 flex items-center gap-3 transition-all duration-500",
               showControls ? "opacity-100" : "opacity-0 pointer-events-none"
