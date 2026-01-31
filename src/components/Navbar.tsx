@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Menu, X, MessageCircle } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeToggle } from "./ThemeToggle";
+import { UserMenu } from "./UserMenu";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -95,6 +96,8 @@ export function Navbar() {
               </Button>
 
               <ThemeToggle />
+              
+              <UserMenu />
 
               <Button
                 variant="ghost"

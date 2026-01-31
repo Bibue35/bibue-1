@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, Eye, ChevronLeft, ChevronRight, ThumbsUp, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AnimeDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -18,7 +20,10 @@ export default function AnimeDetailPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [newComment, setNewComment] = useState("");
+  const [sortBy, setSortBy] = useState<"latest" | "likes">("latest");
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   // Hide controls after 3 seconds of inactivity
   useEffect(() => {
@@ -42,16 +47,19 @@ export default function AnimeDetailPage() {
     };
   }, [isFullscreen]);
 
-  // Comments query
+  // Comments query with sorting
   const { data: comments, isLoading: commentsLoading } = useQuery({
-    queryKey: ["episode-comments", Number(id), selectedEpisode],
+    queryKey: ["episode-comments", Number(id), selectedEpisode, sortBy],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("episode_comments")
-        .select("*")
+        .select(`
+          *,
+          profiles:user_id (username, avatar_url)
+        `)
         .eq("anime_id", Number(id))
         .eq("episode_number", selectedEpisode)
-        .order("created_at", { ascending: false });
+        .order(sortBy === "likes" ? "likes" : "created_at", { ascending: false });
       
       if (error) throw error;
       return data;
@@ -59,9 +67,23 @@ export default function AnimeDetailPage() {
     enabled: !!id,
   });
 
+  // Check if user has liked a comment
+  const { data: userLikes } = useQuery({
+    queryKey: ["user-likes", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("comment_likes")
+        .select("comment_id")
+        .eq("user_id", user.id);
+      if (error) throw error;
+      return data.map(l => l.comment_id);
+    },
+    enabled: !!user,
+  });
+
   const addCommentMutation = useMutation({
     mutationFn: async (content: string) => {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Please sign in to comment");
 
       const { error } = await supabase
@@ -77,7 +99,40 @@ export default function AnimeDetailPage() {
     },
     onSuccess: () => {
       setNewComment("");
-      queryClient.invalidateQueries({ queryKey: ["episode-comments", Number(id), selectedEpisode] });
+      queryClient.invalidateQueries({ queryKey: ["episode-comments", Number(id), selectedEpisode, sortBy] });
+      toast({ title: "Comment posted!" });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const likeMutation = useMutation({
+    mutationFn: async (commentId: string) => {
+      if (!user) throw new Error("Please sign in to like");
+      
+      const hasLiked = userLikes?.includes(commentId);
+      
+      if (hasLiked) {
+        const { error } = await supabase
+          .from("comment_likes")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("comment_id", commentId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("comment_likes")
+          .insert({ user_id: user.id, comment_id: commentId });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["episode-comments", Number(id), selectedEpisode, sortBy] });
+      queryClient.invalidateQueries({ queryKey: ["user-likes", user?.id] });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     },
   });
 
@@ -435,12 +490,36 @@ export default function AnimeDetailPage() {
       <section className="py-12 sm:py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <div className="flex items-center gap-3 mb-6">
-              <MessageCircle className="w-5 h-5" />
-              <h2 className="text-xl sm:text-2xl font-bold font-sacred">Comment Section</h2>
-              {comments && (
-                <span className="text-sm text-muted-foreground">({comments.length})</span>
-              )}
+            <div className="flex items-center justify-between gap-3 mb-6">
+              <div className="flex items-center gap-3">
+                <MessageCircle className="w-5 h-5" />
+                <h2 className="text-xl sm:text-2xl font-bold font-sacred">Comment Section</h2>
+                {comments && (
+                  <span className="text-sm text-muted-foreground">({comments.length})</span>
+                )}
+              </div>
+              
+              {/* Sort Buttons */}
+              <div className="flex items-center gap-1">
+                <Button
+                  variant={sortBy === "latest" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setSortBy("latest")}
+                  className="gap-1.5 text-xs"
+                >
+                  <ArrowUpDown className="w-3 h-3" />
+                  Latest
+                </Button>
+                <Button
+                  variant={sortBy === "likes" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setSortBy("likes")}
+                  className="gap-1.5 text-xs"
+                >
+                  <ThumbsUp className="w-3 h-3" />
+                  Top
+                </Button>
+              </div>
             </div>
             
             <div className="liquid-glass rounded-2xl p-4 sm:p-6">
@@ -449,17 +528,18 @@ export default function AnimeDetailPage() {
                 <Textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Share your thoughts on this episode..."
+                  placeholder={user ? "Share your thoughts on this episode..." : "Sign in to comment..."}
                   className="mb-3 liquid-glass-subtle border-foreground/10 resize-none"
                   rows={3}
+                  disabled={!user}
                 />
                 <Button 
                   type="submit" 
-                  disabled={!newComment.trim() || addCommentMutation.isPending}
+                  disabled={!user || !newComment.trim() || addCommentMutation.isPending}
                   className="gap-2"
                 >
                   <Send className="w-4 h-4" />
-                  Post Comment
+                  {user ? "Post Comment" : "Sign in to Comment"}
                 </Button>
               </form>
 
@@ -470,29 +550,49 @@ export default function AnimeDetailPage() {
                     Loading comments...
                   </div>
                 ) : comments && comments.length > 0 ? (
-                  comments.map((comment) => (
-                    <div 
-                      key={comment.id} 
-                      className="liquid-glass-subtle rounded-xl p-4"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0">
-                          <User className="w-4 h-4 text-muted-foreground" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-sm">Anonymous</span>
-                            <span className="text-xs text-muted-foreground">
-                              {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
-                            </span>
+                  comments.map((comment) => {
+                    const hasLiked = userLikes?.includes(comment.id);
+                    return (
+                      <div 
+                        key={comment.id} 
+                        className="liquid-glass-subtle rounded-xl p-4"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0">
+                            <User className="w-4 h-4 text-muted-foreground" />
                           </div>
-                          <p className="text-sm text-muted-foreground">
-                            {comment.content}
-                          </p>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-sm">
+                                {(comment.profiles as any)?.username || "Anonymous"}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                              </span>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              {comment.content}
+                            </p>
+                            
+                            {/* Like button */}
+                            <button
+                              onClick={() => likeMutation.mutate(comment.id)}
+                              disabled={!user || likeMutation.isPending}
+                              className={cn(
+                                "flex items-center gap-1.5 text-xs transition-colors",
+                                hasLiked 
+                                  ? "text-primary" 
+                                  : "text-muted-foreground hover:text-foreground"
+                              )}
+                            >
+                              <ThumbsUp className={cn("w-3.5 h-3.5", hasLiked && "fill-current")} />
+                              <span>{comment.likes || 0}</span>
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
                     No comments yet. Be the first to share your thoughts!

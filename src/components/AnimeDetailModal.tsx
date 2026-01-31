@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Play, X, Star, Copy, Share2, Plus, Eye, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -151,12 +151,14 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
             {anime?.genres && anime.genres.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-4">
                 {anime.genres.map((genre) => (
-                  <span
+                  <Link
                     key={genre.mal_id}
-                    className="px-3 py-1 rounded-full bg-muted text-muted-foreground text-sm"
+                    to={`/anime?genre=${genre.mal_id}`}
+                    onClick={() => onOpenChange(false)}
+                    className="px-3 py-1 rounded-full bg-muted text-muted-foreground text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     {genre.name}
-                  </span>
+                  </Link>
                 ))}
               </div>
             )}

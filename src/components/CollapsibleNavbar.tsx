@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeToggle } from "./ThemeToggle";
+import { UserMenu } from "./UserMenu";
 import {
   Collapsible,
   CollapsibleContent,
@@ -160,6 +161,8 @@ export function CollapsibleNavbar() {
               </Button>
 
               <ThemeToggle />
+              
+              <UserMenu />
 
               <Button
                 variant="ghost"

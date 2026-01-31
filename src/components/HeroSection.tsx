@@ -101,9 +101,11 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
             className="flex flex-wrap items-center gap-3 animate-fade-up"
             style={{ animationDelay: "0.3s" }}
           >
-            <Button size="lg" variant="primary" className="gap-2">
-              <Play className="w-4 h-4" />
-              Watch Now
+            <Button size="lg" variant="primary" className="gap-2" asChild>
+              <Link to={`/anime/${featured.mal_id}`}>
+                <Play className="w-4 h-4" />
+                Watch Now
+              </Link>
             </Button>
             <Button 
               variant="outline" 
