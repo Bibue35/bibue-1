@@ -134,17 +134,17 @@ export default function AnimeDetailPage() {
           </div>
         ) : (
           <>
-            {/* Top Right Exit Button - Always visible */}
+            {/* Top Left - Bibue Logo */}
             <Link
               to="/"
-              className="absolute top-6 right-6 z-50 text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors drop-shadow-lg"
+              className="absolute top-6 left-6 z-50 text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors drop-shadow-lg"
             >
               Bibue
             </Link>
 
-            {/* Top Left Controls */}
+            {/* Top Right Controls */}
             <div className={cn(
-              "absolute top-6 left-6 z-40 flex items-center gap-3 transition-all duration-500",
+              "absolute top-6 right-6 z-40 flex items-center gap-3 transition-all duration-500",
               showControls ? "opacity-100" : "opacity-0 pointer-events-none"
             )}>
               <Button variant="ghost" size="icon" className="h-10 w-10 text-white/70 hover:text-white hover:bg-white/10 rounded-full">
@@ -437,7 +437,7 @@ export default function AnimeDetailPage() {
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-3 mb-6">
               <MessageCircle className="w-5 h-5" />
-              <h2 className="text-xl sm:text-2xl font-bold font-sacred">Episode {selectedEpisode} Discussion</h2>
+              <h2 className="text-xl sm:text-2xl font-bold font-sacred">Comment Section</h2>
               {comments && (
                 <span className="text-sm text-muted-foreground">({comments.length})</span>
               )}

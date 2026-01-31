@@ -103,10 +103,10 @@ export default function MangaDetailPage() {
   if (isReading) {
     return (
       <div className="fixed inset-0 z-50 bg-black">
-        {/* Top Right Exit Button - Always visible */}
+        {/* Top Left - Bibue Logo */}
         <button
           onClick={() => setIsReading(false)}
-          className="absolute top-4 right-4 z-50 text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors"
+          className="absolute top-4 left-4 z-50 text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors"
         >
           Bibue
         </button>
@@ -435,7 +435,7 @@ export default function MangaDetailPage() {
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-3 mb-6">
               <MessageCircle className="w-5 h-5" />
-              <h2 className="text-xl sm:text-2xl font-bold font-sacred">Discussion</h2>
+              <h2 className="text-xl sm:text-2xl font-bold font-sacred">Comment Section</h2>
             </div>
             
             <div className="liquid-glass rounded-2xl p-4 sm:p-6">
