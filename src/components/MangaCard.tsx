@@ -34,7 +34,7 @@ export function MangaCard({ manga, index = 0, variant = "default" }: MangaCardPr
           className={cn(
             "flex items-center gap-3 sm:gap-4 p-3 rounded-xl transition-all group text-left w-full",
             "liquid-glass-subtle hover:bg-foreground/5",
-            "sun-glow moon-glow seraphim-glow"
+            "sun-glow moon-glow"
           )}
         >
           <img
@@ -93,7 +93,7 @@ export function MangaCard({ manga, index = 0, variant = "default" }: MangaCardPr
         {/* Image with theme-specific hover effects */}
         <div className={cn(
           "relative aspect-[2/3] rounded-2xl overflow-hidden mb-2",
-          "divine-card sun-glow moon-glow seraphim-glow sun-rays-hover moon-reflection heaven-gates"
+          "divine-card sun-glow moon-glow sun-rays-hover moon-reflection"
         )}>
           <img
             src={manga.images.webp.image_url}

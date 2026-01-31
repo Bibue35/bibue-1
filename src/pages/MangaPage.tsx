@@ -42,7 +42,7 @@ export default function MangaPage() {
       <section className="pt-28 sm:pt-32 pb-12 sm:pb-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 divine:font-sacred">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
               Discover Manga
             </h1>
             <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-2">漫画を発見</p>

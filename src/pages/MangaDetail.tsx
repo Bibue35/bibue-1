@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { BookOpen, Star, Heart, Bookmark, ChevronLeft, ChevronRight, MessageCircle, Send, User, Maximize2, Minimize2, Eye, Clock } from "lucide-react";
+import { BookOpen, Star, Heart, Bookmark, ChevronLeft, ChevronRight, MessageCircle, Send, User, Maximize2, Minimize2, Eye, Clock, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -88,13 +88,21 @@ export default function MangaDetailPage() {
   }
 
   const chapters = manga ? generateChapters(manga.chapters || 50) : [];
+  const totalChapters = chapters.length;
+  const firstChapter = chapters[chapters.length - 1]?.number || 1;
+  const lastChapter = chapters[0]?.number || totalChapters;
   const currentChapter = chapters.find(ch => ch.number === selectedChapter);
+
+  // Navigation helpers
+  const goToFirstChapter = () => setSelectedChapter(firstChapter);
+  const goToLastChapter = () => setSelectedChapter(lastChapter);
+  const goToPrevChapter = () => setSelectedChapter(prev => Math.max(firstChapter, prev - 1));
+  const goToNextChapter = () => setSelectedChapter(prev => Math.min(lastChapter, prev + 1));
 
   // Reading Mode View
   if (isReading) {
     return (
       <div className="fixed inset-0 z-50 bg-black">
-        {/* Top Controls */}
         {/* Top Right Exit Button - Always visible */}
         <button
           onClick={() => setIsReading(false)}
@@ -112,6 +120,9 @@ export default function MangaDetailPage() {
             <span className="text-white/70 text-sm">
               Chapter {selectedChapter} • {currentChapter?.pages || 20} pages
             </span>
+            <span className="text-white/50 text-sm">
+              {selectedChapter - firstChapter + 1} / {totalChapters}
+            </span>
           </div>
         </div>
 
@@ -127,36 +138,63 @@ export default function MangaDetailPage() {
           </div>
         </div>
 
-        {/* Bottom Chapter Navigation */}
+        {/* Bottom Chapter Navigation - Enhanced */}
         <div className={cn(
           "absolute bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-black/90 to-transparent transition-all duration-500",
           showControls ? "opacity-100" : "opacity-0 pointer-events-none"
         )}>
-          <div className="flex items-center justify-center gap-4 p-6">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 text-white"
-              disabled={selectedChapter >= chapters.length}
-              onClick={() => setSelectedChapter(prev => Math.min(chapters.length, prev + 1))}
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </Button>
-            
-            <div className="text-center">
-              <p className="text-white font-medium">Chapter {selectedChapter}</p>
-              <p className="text-white/50 text-sm">{currentChapter?.title}</p>
+          <div className="flex flex-col items-center gap-3 p-4 sm:p-6">
+            {/* Quick Jump Buttons */}
+            <div className="flex items-center gap-2 mb-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-3 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs"
+                disabled={selectedChapter === firstChapter}
+                onClick={goToFirstChapter}
+              >
+                <ChevronsLeft className="w-4 h-4 mr-1" />
+                First
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-3 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs"
+                disabled={selectedChapter === lastChapter}
+                onClick={goToLastChapter}
+              >
+                Latest
+                <ChevronsRight className="w-4 h-4 ml-1" />
+              </Button>
             </div>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 text-white"
-              disabled={selectedChapter <= 1}
-              onClick={() => setSelectedChapter(prev => Math.max(1, prev - 1))}
-            >
-              <ChevronRight className="w-6 h-6" />
-            </Button>
+            {/* Main Navigation */}
+            <div className="flex items-center justify-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 text-white"
+                disabled={selectedChapter === firstChapter}
+                onClick={goToPrevChapter}
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </Button>
+              
+              <div className="text-center min-w-[120px]">
+                <p className="text-white font-medium">Chapter {selectedChapter}</p>
+                <p className="text-white/50 text-sm">{currentChapter?.title}</p>
+              </div>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 text-white"
+                disabled={selectedChapter === lastChapter}
+                onClick={goToNextChapter}
+              >
+                <ChevronRight className="w-6 h-6" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -201,19 +239,45 @@ export default function MangaDetailPage() {
                     )}
                   </div>
 
-                  {/* Action Buttons */}
+                  {/* Action Buttons - Enhanced */}
                   <div className="space-y-2">
                     <Button 
-                      variant="primary" 
+                      variant="default" 
                       className="w-full gap-2"
                       onClick={() => {
-                        setSelectedChapter(1);
+                        setSelectedChapter(firstChapter);
                         setIsReading(true);
                       }}
                     >
                       <BookOpen className="w-4 h-4" />
-                      Read First Chapter
+                      Start Reading
                     </Button>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="gap-1 text-xs"
+                        onClick={() => {
+                          setSelectedChapter(firstChapter);
+                          setIsReading(true);
+                        }}
+                      >
+                        <ChevronsLeft className="w-3 h-3" />
+                        Ch. 1
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="gap-1 text-xs"
+                        onClick={() => {
+                          setSelectedChapter(lastChapter);
+                          setIsReading(true);
+                        }}
+                      >
+                        Ch. {lastChapter}
+                        <ChevronsRight className="w-3 h-3" />
+                      </Button>
+                    </div>
                     <Button variant="outline" className="w-full gap-2">
                       <Bookmark className="w-4 h-4" />
                       Bookmark
