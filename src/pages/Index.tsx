@@ -5,6 +5,7 @@ import { AnimeCard } from "@/components/AnimeCard";
 import { MangaCard } from "@/components/MangaCard";
 import { GenreSection } from "@/components/GenreSection";
 import { Footer } from "@/components/Footer";
+import { AdUnit } from "@/components/AdUnit";
 import { useTopAnime, useSeasonalAnime, useTopManga } from "@/hooks/useAnimeData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
@@ -54,9 +55,14 @@ const Index = () => {
                 </div>
               ))
             )}
-          </HorizontalScroll>
+        </HorizontalScroll>
         </div>
       </section>
+
+      {/* Ad Unit - After This Season */}
+      <div className="container mx-auto px-4">
+        <AdUnit slot="1234567890" format="horizontal" className="my-8" />
+      </div>
 
       {/* Anime Genres */}
       <section className="py-12 sm:py-16">
@@ -93,9 +99,14 @@ const Index = () => {
                 </div>
               ))
             )}
-          </HorizontalScroll>
+        </HorizontalScroll>
         </div>
       </section>
+
+      {/* Ad Unit - After Trending */}
+      <div className="container mx-auto px-4">
+        <AdUnit slot="2345678901" format="horizontal" className="my-8" />
+      </div>
 
       {/* Popular Manga */}
       <section className="py-12 sm:py-16">
@@ -125,9 +136,14 @@ const Index = () => {
                 </div>
               ))
             )}
-          </HorizontalScroll>
+        </HorizontalScroll>
         </div>
       </section>
+
+      {/* Ad Unit - After Popular Manga */}
+      <div className="container mx-auto px-4">
+        <AdUnit slot="3456789012" format="horizontal" className="my-8" />
+      </div>
 
       {/* Manga Genres */}
       <section className="py-12 sm:py-16">
