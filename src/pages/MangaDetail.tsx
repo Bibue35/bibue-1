@@ -166,6 +166,20 @@ export default function MangaDetailPage() {
   // DemonicScans Style Layout
   return (
     <div className="min-h-screen bg-background">
+      {/* Top Navigation Bar */}
+      <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border/30">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <Link to="/" className="text-2xl font-sacred font-semibold text-foreground hover:text-primary transition-colors">
+            Bibue
+          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/manga" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Browse Manga
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* ============ SECTION 1: MANGA INFO - DemonicScans Style ============ */}
       <section className="py-8 sm:py-12">
         <div className="container mx-auto px-4">
