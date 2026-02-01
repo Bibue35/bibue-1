@@ -46,11 +46,11 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       <div className="absolute inset-0 bg-background/80 backdrop-blur-xl animate-fade-in" />
 
       {/* Modal */}
-      <div 
-        className="relative z-10 flex flex-col items-center pt-[10vh] px-4 animate-fade-up"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="w-full max-w-2xl">
+      <div className="relative z-10 flex flex-col items-center pt-[10vh] px-4 animate-fade-up pointer-events-none">
+        <div 
+          className="w-full max-w-2xl pointer-events-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Search Input */}
           <div className="relative">
             <div className="liquid-glass-strong rounded-2xl">
