@@ -13,6 +13,7 @@ import MangaDetail from "./pages/MangaDetail";
 import Rankings from "./pages/Rankings";
 import NewsPage from "./pages/NewsPage";
 import CommunityPage from "./pages/CommunityPage";
+import WatchlistPage from "./pages/WatchlistPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="/rankings" element={<Rankings />} />
               <Route path="/news" element={<NewsPage />} />
               <Route path="/community" element={<CommunityPage />} />
+              <Route path="/watchlist" element={<WatchlistPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

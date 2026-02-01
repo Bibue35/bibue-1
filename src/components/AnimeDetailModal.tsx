@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Play, X, Star, Copy, Share2, Plus, Eye, Search, ChevronLeft, ChevronRight, MessageCircle, Send, User, ThumbsUp, ArrowUpDown } from "lucide-react";
+import { Play, X, Star, Copy, Share2, Eye, Search, ChevronLeft, ChevronRight, MessageCircle, Send, User, ThumbsUp, ArrowUpDown } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { validateComment } from "@/lib/validation";
+import { WatchlistButton } from "./WatchlistButton";
 
 interface AnimeDetailModalProps {
   animeId: number;
@@ -197,10 +198,15 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                 <Share2 className="w-4 h-4" />
               </Button>
             </div>
-            <Button variant="outline" className="gap-2">
-              Add To List
-              <Plus className="w-4 h-4" />
-            </Button>
+            <WatchlistButton
+              mal_id={animeId}
+              media_type="anime"
+              title={anime?.title || ""}
+              title_japanese={anime?.title_japanese}
+              image_url={anime?.images?.webp?.large_image_url}
+              score={anime?.score}
+              variant="full"
+            />
           </div>
 
           {/* Synopsis */}

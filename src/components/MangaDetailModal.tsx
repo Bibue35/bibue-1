@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { BookOpen, X, Star, Copy, Share2, Plus, ChevronLeft, ChevronRight, MessageCircle, Send, User, ArrowUpDown, ThumbsUp } from "lucide-react";
+import { BookOpen, X, Star, Copy, Share2, ChevronLeft, ChevronRight, MessageCircle, Send, User, ArrowUpDown, ThumbsUp } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -16,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { validateComment } from "@/lib/validation";
+import { WatchlistButton } from "./WatchlistButton";
 
 interface MangaDetailModalProps {
   mangaId: number;
@@ -194,10 +195,15 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                 <Share2 className="w-4 h-4" />
               </Button>
             </div>
-            <Button variant="outline" className="gap-2">
-              Add To List
-              <Plus className="w-4 h-4" />
-            </Button>
+            <WatchlistButton
+              mal_id={mangaId}
+              media_type="manga"
+              title={manga?.title || ""}
+              title_japanese={manga?.title_japanese}
+              image_url={manga?.images?.webp?.large_image_url}
+              score={manga?.score}
+              variant="full"
+            />
           </div>
 
           {/* Synopsis */}
