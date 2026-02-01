@@ -7,10 +7,9 @@ import { AnimeCard } from "@/components/AnimeCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { GenreSection } from "@/components/GenreSection";
 import { SearchDropdown } from "@/components/SearchDropdown";
-import { SearchRecommendations } from "@/components/SearchRecommendations";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTopAnime, useSeasonalAnime, useSearchAnime, useAnimeRecommendations } from "@/hooks/useAnimeData";
+import { useTopAnime, useSeasonalAnime, useSearchAnime } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
 
@@ -26,8 +25,8 @@ export default function AnimePage() {
   const [localSearch, setLocalSearch] = useState(searchParams.get("q") || "");
   const resultsRef = useRef<HTMLDivElement>(null);
   
-  // Debounce search input
-  const debouncedSearch = useDebounce(localSearch.trim(), 300);
+  // Debounce search input (150ms default for faster response)
+  const debouncedSearch = useDebounce(localSearch.trim());
 
   // Sync URL when debounced value changes
   useEffect(() => {
@@ -40,13 +39,6 @@ export default function AnimePage() {
 
   const isSearching = debouncedSearch.length > 0;
 
-  // Auto-scroll to results when search starts
-  useEffect(() => {
-    if (isSearching && resultsRef.current) {
-      resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [isSearching]);
-
   const clearSearch = () => {
     setLocalSearch("");
   };
@@ -58,14 +50,6 @@ export default function AnimePage() {
   const { data: topAnime, isLoading: topLoading } = useTopAnime(1, filter);
   const { data: seasonalAnime, isLoading: seasonalLoading } = useSeasonalAnime();
   const { data: searchResults, isLoading: searchLoading } = useSearchAnime(debouncedSearch, !!debouncedSearch);
-  
-  // Get recommendations based on first search result
-  const firstResultId = searchResults?.[0]?.mal_id;
-  const { data: recommendations, isLoading: recsLoading } = useAnimeRecommendations(
-    firstResultId,
-    isSearching && !!firstResultId
-  );
-  const recommendedAnime = recommendations?.map(r => r.entry) || [];
   
   const sortedSeasonalAnime = seasonalAnime?.slice().sort((a, b) => {
     const aIsAiring = a.status === "Currently Airing" ? 1 : 0;
@@ -124,15 +108,6 @@ export default function AnimePage() {
         </div>
       </section>
 
-      {/* Recommendations based on search */}
-      {isSearching && (
-        <SearchRecommendations
-          type="anime"
-          recommendations={recommendedAnime}
-          isLoading={recsLoading}
-          searchQuery={debouncedSearch}
-        />
-      )}
 
       {/* Genres - Hide when searching */}
       {!isSearching && (
