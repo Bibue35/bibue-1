@@ -12,6 +12,7 @@ const navLinks = [
   { href: "/anime", label: "Anime" },
   { href: "/manga", label: "Manga" },
   { href: "/watchlist", label: "Watchlist" },
+  { href: "/recommendations", label: "For You" },
   { href: "/rankings", label: "Rankings" },
   { href: "/community", label: "Community" },
 ];

@@ -14,6 +14,7 @@ import Rankings from "./pages/Rankings";
 import NewsPage from "./pages/NewsPage";
 import CommunityPage from "./pages/CommunityPage";
 import WatchlistPage from "./pages/WatchlistPage";
+import RecommendationsPage from "./pages/RecommendationsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/news" element={<NewsPage />} />
               <Route path="/community" element={<CommunityPage />} />
               <Route path="/watchlist" element={<WatchlistPage />} />
+              <Route path="/recommendations" element={<RecommendationsPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
