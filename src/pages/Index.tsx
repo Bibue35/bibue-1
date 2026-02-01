@@ -67,7 +67,6 @@ const Index = () => {
             <span className="text-sm sm:text-base font-medium text-foreground/90">
               <Badge variant="secondary" className="mr-2">{t("banner.comingSoon")}</Badge>
               {t("banner.newFeatures")}
-              <span className="ml-2 text-primary font-semibold">March 15</span>
             </span>
             <Rocket className="w-5 h-5 text-primary animate-pulse hidden sm:block" />
           </div>
