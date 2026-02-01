@@ -7,7 +7,7 @@ import { MangaCard } from "@/components/MangaCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { GenreSection } from "@/components/GenreSection";
 import { SearchDropdown } from "@/components/SearchDropdown";
-import { SearchRecommendations } from "@/components/SearchRecommendations";
+
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useTopManga, useSearchManga, useMangaRecommendations } from "@/hooks/useAnimeData";
+import { useTopManga, useSearchManga } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
 
@@ -35,8 +35,8 @@ export default function MangaPage() {
   const [sortBy, setSortBy] = useState<SortOption>(sortParam || "popularity");
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  // Debounce search input
-  const debouncedSearch = useDebounce(localSearch.trim(), 300);
+  // Debounce search input (150ms default for faster response)
+  const debouncedSearch = useDebounce(localSearch.trim());
 
   // Sync URL when debounced value or filter changes
   useEffect(() => {
@@ -49,13 +49,6 @@ export default function MangaPage() {
   }, [debouncedSearch, typeFilter, sortBy, genreId, setSearchParams]);
 
   const isSearching = debouncedSearch.length > 0;
-
-  // Auto-scroll to results when search starts
-  useEffect(() => {
-    if (isSearching && resultsRef.current) {
-      resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [isSearching]);
 
   const clearSearch = () => {
     setLocalSearch("");
@@ -76,14 +69,6 @@ export default function MangaPage() {
     isSearching,
     typeFilter === "all" ? undefined : typeFilter,
   );
-
-  // Get recommendations based on first search result
-  const firstResultId = searchResults?.[0]?.mal_id;
-  const { data: recommendations, isLoading: recsLoading } = useMangaRecommendations(
-    firstResultId,
-    isSearching && !!firstResultId
-  );
-  const recommendedManga = recommendations?.map(r => r.entry) || [];
 
   // Select the correct data based on filter
   const getFilteredManga = () => {
@@ -184,15 +169,6 @@ export default function MangaPage() {
         </div>
       </section>
 
-      {/* Recommendations based on search */}
-      {isSearching && (
-        <SearchRecommendations
-          type="manga"
-          recommendations={recommendedManga}
-          isLoading={recsLoading}
-          searchQuery={debouncedSearch}
-        />
-      )}
 
       {/* Genres - Hide when searching */}
       {!isSearching && (
