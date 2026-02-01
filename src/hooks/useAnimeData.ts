@@ -32,10 +32,14 @@ export function useSeasonalAnime(year?: number, season?: string) {
   });
 }
 
-export function useTopManga(page = 1, type?: 'manga' | 'novels' | 'lightnovels' | 'oneshots' | 'doujin' | 'manhwa' | 'manhua') {
+export function useTopManga(
+  page = 1, 
+  type?: 'manga' | 'novels' | 'lightnovels' | 'oneshots' | 'doujin' | 'manhwa' | 'manhua',
+  sort: 'popularity' | 'score' | 'trending' | 'newest' = 'popularity'
+) {
   return useQuery({
-    queryKey: ["topManga", page, type],
-    queryFn: () => getTopManga(page, 25, type),
+    queryKey: ["topManga", page, type, sort],
+    queryFn: () => getTopManga(page, 25, type, sort),
     staleTime: 1000 * 60 * 5,
   });
 }

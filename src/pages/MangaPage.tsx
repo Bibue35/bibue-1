@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Grid, List, Bookmark, Sparkles, Loader2 } from "lucide-react";
+import { Grid, List, Bookmark, Sparkles, Loader2, ArrowUpDown } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
@@ -10,18 +10,29 @@ import { SearchDropdown } from "@/components/SearchDropdown";
 import { SearchRecommendations } from "@/components/SearchRecommendations";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useTopManga, useSearchManga, useMangaRecommendations } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
+
+type SortOption = "popularity" | "score" | "trending" | "newest";
 
 export default function MangaPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const genreId = searchParams.get("genre");
   const filterParam = searchParams.get("filter") as "manga" | "manhwa" | "manhua" | null;
+  const sortParam = searchParams.get("sort") as SortOption | null;
   
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [localSearch, setLocalSearch] = useState(searchParams.get("q") || "");
   const [typeFilter, setTypeFilter] = useState<"all" | "manga" | "manhwa" | "manhua">(filterParam || "all");
+  const [sortBy, setSortBy] = useState<SortOption>(sortParam || "popularity");
   const resultsRef = useRef<HTMLDivElement>(null);
 
   // Debounce search input
@@ -32,9 +43,10 @@ export default function MangaPage() {
     const params = new URLSearchParams();
     if (debouncedSearch) params.set("q", debouncedSearch);
     if (typeFilter !== "all") params.set("filter", typeFilter);
+    if (sortBy !== "popularity") params.set("sort", sortBy);
     if (genreId) params.set("genre", genreId);
     setSearchParams(params, { replace: true });
-  }, [debouncedSearch, typeFilter, genreId, setSearchParams]);
+  }, [debouncedSearch, typeFilter, sortBy, genreId, setSearchParams]);
 
   const isSearching = debouncedSearch.length > 0;
 
@@ -54,10 +66,10 @@ export default function MangaPage() {
   };
 
   // Fetch data based on type filter - separate queries for each filter type
-  const { data: allManga, isLoading: allLoading } = useTopManga(1, undefined);
-  const { data: mangaOnly, isLoading: mangaLoading } = useTopManga(1, 'manga');
-  const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
-  const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua');
+  const { data: allManga, isLoading: allLoading } = useTopManga(1, undefined, sortBy);
+  const { data: mangaOnly, isLoading: mangaLoading } = useTopManga(1, 'manga', sortBy);
+  const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa', sortBy);
+  const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua', sortBy);
   const { data: searchResults, isLoading: searchLoading } = useSearchManga(
     debouncedSearch,
     isSearching,
@@ -219,26 +231,45 @@ export default function MangaPage() {
         </section>
       )}
 
-      {/* View Toggle */}
+      {/* View Toggle & Sort */}
       <section className="py-4" ref={resultsRef}>
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              variant={viewMode === "grid" ? "outline" : "ghost"}
-              size="icon"
-              onClick={() => setViewMode("grid")}
-              className="rounded-full"
-            >
-              <Grid className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "outline" : "ghost"}
-              size="icon"
-              onClick={() => setViewMode("list")}
-              className="rounded-full"
-            >
-              <List className="w-4 h-4" />
-            </Button>
+          <div className="flex items-center justify-between gap-4">
+            {/* Sort Dropdown */}
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
+              <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
+                <SelectTrigger className="w-[140px] rounded-full h-9">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="popularity">Popularity</SelectItem>
+                  <SelectItem value="score">Score</SelectItem>
+                  <SelectItem value="trending">Trending</SelectItem>
+                  <SelectItem value="newest">Newest</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* View Toggle */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant={viewMode === "grid" ? "outline" : "ghost"}
+                size="icon"
+                onClick={() => setViewMode("grid")}
+                className="rounded-full"
+              >
+                <Grid className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "outline" : "ghost"}
+                size="icon"
+                onClick={() => setViewMode("list")}
+                className="rounded-full"
+              >
+                <List className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </section>
