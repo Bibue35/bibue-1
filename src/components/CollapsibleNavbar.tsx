@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Menu, X, ChevronDown } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
@@ -12,12 +12,6 @@ import {
   Collapsible,
   CollapsibleContent,
 } from "@/components/ui/collapsible";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 export function CollapsibleNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -34,16 +28,10 @@ export function CollapsibleNavbar() {
   const navLinks = [
     { href: "/", label: t("nav.home") },
     { href: "/anime", label: t("nav.anime") },
+    { href: "/manga", label: t("nav.manga") },
     { href: "/watchlist", label: t("nav.watchlist") },
     { href: "/recommendations", label: t("nav.forYou") },
     { href: "/rankings", label: t("nav.rankings") },
-  ];
-
-  const mangaTypes = [
-    { href: "/manga", label: "All Manga", texture: "default" },
-    { href: "/manga?filter=manga", label: "Manga", texture: "default" },
-    { href: "/manga?filter=manhwa", label: "Manhwa", texture: "light" },
-    { href: "/manga?filter=manhua", label: "Manhua", texture: "light" },
   ];
 
   // Debounced scroll handler for smoother performance
@@ -158,74 +146,20 @@ export function CollapsibleNavbar() {
                   isNavExpanded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
                 )}
               >
-                {navLinks.map((link) => {
-                  // Insert Manga dropdown after Anime
-                  if (link.href === "/anime") {
-                    return (
-                      <>
-                        <Link
-                          key={link.href}
-                          to={link.href}
-                          className={cn(
-                            "relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-200",
-                            location.pathname === link.href
-                              ? "text-foreground bg-foreground/10"
-                              : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
-                          )}
-                        >
-                          {link.label}
-                        </Link>
-                        
-                        {/* Manga Dropdown */}
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button
-                              className={cn(
-                                "relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 flex items-center gap-1",
-                                location.pathname === "/manga"
-                                  ? "text-foreground bg-foreground/10"
-                                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
-                              )}
-                            >
-                              {t("nav.manga")}
-                              <ChevronDown className="w-3 h-3" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="center" className="min-w-[140px]">
-                            {mangaTypes.map((type) => (
-                              <DropdownMenuItem key={type.href} asChild>
-                                <Link
-                                  to={type.href}
-                                  className={cn(
-                                    "w-full cursor-pointer",
-                                    type.texture === "light" && "bg-accent/50 font-medium"
-                                  )}
-                                >
-                                  {type.label}
-                                </Link>
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </>
-                    );
-                  }
-                  
-                  return (
-                    <Link
-                      key={link.href}
-                      to={link.href}
-                      className={cn(
-                        "relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-200",
-                        location.pathname === link.href
-                          ? "text-foreground bg-foreground/10"
-                          : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
-                      )}
-                    >
-                      {link.label}
-                    </Link>
-                  );
-                })}
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    className={cn(
+                      "relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-200",
+                      location.pathname === link.href
+                        ? "text-foreground bg-foreground/10"
+                        : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
               </CollapsibleContent>
             </Collapsible>
 
@@ -271,76 +205,21 @@ export function CollapsibleNavbar() {
           )}
         >
           <div className="container mx-auto px-4 py-4 space-y-1">
-            {navLinks.map((link) => {
-              // Insert Manga section after Anime
-              if (link.href === "/anime") {
-                return (
-                  <div key="anime-manga-section">
-                    <Link
-                      to={link.href}
-                      className={cn(
-                        "block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
-                        location.pathname === link.href
-                          ? "bg-foreground/10 text-foreground"
-                          : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
-                      )}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      {link.label}
-                    </Link>
-                    
-                    {/* Manga with sub-types */}
-                    <div className="space-y-0.5">
-                      <Link
-                        to="/manga"
-                        className={cn(
-                          "block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
-                          location.pathname === "/manga" && !location.search
-                            ? "bg-foreground/10 text-foreground"
-                            : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
-                        )}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        {t("nav.manga")}
-                      </Link>
-                      <div className="ml-4 flex gap-2">
-                        {mangaTypes.slice(1).map((type) => (
-                          <Link
-                            key={type.href}
-                            to={type.href}
-                            className={cn(
-                              "px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200",
-                              type.texture === "light" 
-                                ? "bg-accent text-accent-foreground hover:bg-accent/80" 
-                                : "bg-muted text-muted-foreground hover:bg-muted/80"
-                            )}
-                            onClick={() => setIsMobileMenuOpen(false)}
-                          >
-                            {type.label}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-              
-              return (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className={cn(
-                    "block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
-                    location.pathname === link.href
-                      ? "bg-foreground/10 text-foreground"
-                      : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
-                  )}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                className={cn(
+                  "block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+                  location.pathname === link.href
+                    ? "bg-foreground/10 text-foreground"
+                    : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+                )}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
         </div>
       </nav>
