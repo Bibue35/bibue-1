@@ -1,8 +1,33 @@
 import { useState, useEffect, useCallback } from "react";
-import { Search, X, Film, BookOpen, Loader2 } from "lucide-react";
+import { Search, X, Film, BookOpen, Loader2, Clock, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSearchAnime, useSearchManga } from "@/hooks/useAnimeData";
 import { cn } from "@/lib/utils";
+
+const RECENT_SEARCHES_KEY = "recentSearches";
+const MAX_RECENT_SEARCHES = 8;
+
+function getRecentSearches(): string[] {
+  try {
+    const stored = localStorage.getItem(RECENT_SEARCHES_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentSearch(query: string) {
+  const trimmed = query.trim();
+  if (!trimmed) return;
+  
+  const recent = getRecentSearches().filter(s => s !== trimmed);
+  recent.unshift(trimmed);
+  localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(recent.slice(0, MAX_RECENT_SEARCHES)));
+}
+
+function clearRecentSearches() {
+  localStorage.removeItem(RECENT_SEARCHES_KEY);
+}
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -12,6 +37,7 @@ interface SearchModalProps {
 export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"anime" | "manga">("anime");
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const navigate = useNavigate();
 
   const { data: animeResults, isLoading: animeLoading } = useSearchAnime(query, activeTab === "anime");
@@ -31,12 +57,28 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     if (isOpen) {
       document.addEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "hidden";
+      setRecentSearches(getRecentSearches());
     }
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
   }, [isOpen, handleKeyDown]);
+
+  const handleSelectResult = (item: { mal_id: number; title: string }) => {
+    saveRecentSearch(query);
+    navigate(`/${activeTab}/${item.mal_id}`);
+    onClose();
+  };
+
+  const handleRecentClick = (search: string) => {
+    setQuery(search);
+  };
+
+  const handleClearRecent = () => {
+    clearRecentSearches();
+    setRecentSearches([]);
+  };
 
   if (!isOpen) return null;
 
@@ -114,10 +156,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   {results.slice(0, 8).map((item) => (
                     <button
                       key={item.mal_id}
-                      onClick={() => {
-                        navigate(`/${activeTab}/${item.mal_id}`);
-                        onClose();
-                      }}
+                      onClick={() => handleSelectResult(item)}
                       className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-all duration-300 text-left group"
                     >
                       <img
@@ -161,11 +200,42 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           )}
 
-          {/* Quick suggestions when empty */}
+          {/* Recent searches when empty */}
           {query.trim().length === 0 && (
-            <div className="mt-6 text-center text-muted-foreground">
-              <p className="font-jp text-lg mb-2">検索してください</p>
-              <p className="text-sm">Start typing to search for anime or manga</p>
+            <div className="mt-4">
+              {recentSearches.length > 0 ? (
+                <div className="liquid-glass-strong rounded-2xl p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Clock className="w-4 h-4" />
+                      <span>Recent Searches</span>
+                    </div>
+                    <button
+                      onClick={handleClearRecent}
+                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      Clear
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {recentSearches.map((search, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleRecentClick(search)}
+                        className="px-3 py-1.5 text-sm rounded-full liquid-glass-subtle hover:bg-muted/50 transition-all duration-300"
+                      >
+                        {search}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center text-muted-foreground">
+                  <p className="font-jp text-lg mb-2">検索してください</p>
+                  <p className="text-sm">Start typing to search for anime or manga</p>
+                </div>
+              )}
             </div>
           )}
         </div>
