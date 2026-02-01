@@ -8,8 +8,10 @@ import {
   getAnimeById,
   getMangaById,
   getSchedule,
+  getScheduleByDay,
   Anime,
   Manga,
+  ScheduleItem,
 } from "@/lib/api";
 
 export function useTopAnime(page = 1, filter?: 'airing' | 'upcoming' | 'bypopularity' | 'favorite') {
@@ -76,6 +78,14 @@ export function useSchedule(day?: string) {
   return useQuery({
     queryKey: ["schedule", day],
     queryFn: () => getSchedule(day),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useScheduleByDay(day: string) {
+  return useQuery<ScheduleItem[]>({
+    queryKey: ["scheduleByDay", day],
+    queryFn: () => getScheduleByDay(day),
     staleTime: 1000 * 60 * 5,
   });
 }
