@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Star, Calendar, Play } from "lucide-react";
+import { Star, Calendar, Play, Flag } from "lucide-react";
 import { Anime, formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { AnimeDetailModal } from "./AnimeDetailModal";
+import { ReportIssueDialog } from "./ReportIssueDialog";
 
 interface AnimeCardProps {
   anime: Anime;
@@ -12,6 +13,7 @@ interface AnimeCardProps {
 
 export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   // Format aired date
   const getAiredInfo = () => {
@@ -90,10 +92,10 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
         )}
         style={{ animationDelay: `${index * 0.05}s` }}
       >
-        {/* Image with theme-specific hover effects */}
+        {/* Image with 3D hover effect */}
         <div className={cn(
           "relative aspect-[2/3] rounded-2xl overflow-hidden mb-2",
-          "divine-card sun-glow moon-glow sun-rays-hover moon-reflection"
+          "card-3d divine-card"
         )}>
           <img
             src={anime.images.webp.image_url}
@@ -106,12 +108,31 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
               E{episodeCount}
             </div>
           )}
+          {/* Report button - appears on hover */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setReportOpen(true);
+            }}
+            className="absolute bottom-2 right-2 p-1.5 rounded-full bg-background/80 text-muted-foreground hover:text-destructive hover:bg-background opacity-0 group-hover:opacity-100 transition-all"
+            title="Report issue"
+          >
+            <Flag className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         {/* Title underneath */}
         <h3 className="font-medium text-xs sm:text-sm line-clamp-2 mb-1 group-hover:text-foreground/80 transition-colors">
           {anime.title}
         </h3>
+
+        {/* Score */}
+        {anime.score && (
+          <div className="flex items-center gap-1 mb-1">
+            <Star className="w-3 h-3 text-primary fill-primary" />
+            <span className="text-xs sm:text-sm font-medium">{formatScore(anime.score)}</span>
+          </div>
+        )}
 
         {/* Metadata underneath - always visible */}
         <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
@@ -131,6 +152,14 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
         animeId={anime.mal_id}
         open={modalOpen}
         onOpenChange={setModalOpen}
+      />
+      
+      <ReportIssueDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        contentType="anime"
+        contentId={anime.mal_id}
+        contentTitle={anime.title}
       />
     </>
   );
