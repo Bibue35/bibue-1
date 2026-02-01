@@ -123,6 +123,28 @@ export function useWatchlist() {
     },
   });
 
+  const updateScore = useMutation({
+    mutationFn: async ({ mal_id, media_type, score }: { mal_id: number; media_type: "anime" | "manga"; score: number | null }) => {
+      if (!user) throw new Error("Must be logged in");
+      
+      const { error } = await supabase
+        .from("watchlist")
+        .update({ score })
+        .eq("user_id", user.id)
+        .eq("mal_id", mal_id)
+        .eq("media_type", media_type);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["watchlist"] });
+      toast({ title: "Rating saved" });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Failed to save rating", description: error.message, variant: "destructive" });
+    },
+  });
+
   const isInWatchlist = (mal_id: number, media_type: "anime" | "manga") => {
     return watchlist?.some((item) => item.mal_id === mal_id && item.media_type === media_type) ?? false;
   };
@@ -137,6 +159,7 @@ export function useWatchlist() {
     addToWatchlist,
     removeFromWatchlist,
     updateStatus,
+    updateScore,
     isInWatchlist,
     getWatchlistItem,
   };
