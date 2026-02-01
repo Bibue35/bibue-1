@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Filter, Grid, List, Search } from "lucide-react";
+import { Grid, List, Search } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
@@ -55,7 +55,7 @@ export default function MangaPage() {
       <CollapsibleNavbar />
 
       {/* Hero with Search */}
-      <section className="pt-28 sm:pt-32 pb-12 sm:pb-16">
+      <section className="pt-28 sm:pt-32 pb-8 sm:pb-12">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
@@ -84,16 +84,31 @@ export default function MangaPage() {
               </div>
             </form>
 
-            {/* Decorative underline */}
-            <div className="mt-8 mx-auto w-24 h-1 rounded-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+            {/* Type Tabs - Manga/Manhwa/Manhua */}
+            <div className="flex justify-center gap-2 mt-6">
+              {([undefined, 'manga', 'manhwa', 'manhua'] as const).map((f) => (
+                <Button
+                  key={f || 'all'}
+                  variant={filter === f ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleFilterChange(f)}
+                  className={cn(
+                    "rounded-full capitalize px-5",
+                    filter !== f && "bg-background/50 border-border/50 hover:bg-background/80"
+                  )}
+                >
+                  {f === undefined ? "All" : f}
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Genres */}
-      <section className="py-8">
+      {/* Genres - Subtle */}
+      <section className="py-4">
         <div className="container mx-auto px-4">
-          <GenreSection type="manga" />
+          <GenreSection type="manga" className="opacity-70 hover:opacity-100 transition-opacity" />
         </div>
       </section>
 
@@ -139,52 +154,26 @@ export default function MangaPage() {
         </div>
       </section>
 
-      {/* Filters */}
-      <section className="py-8">
+      {/* View Toggle */}
+      <section className="py-4">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Type:</span>
-              </div>
-              
-              <div className="flex flex-wrap gap-2">
-                {([undefined, 'manga', 'manhwa', 'manhua'] as const).map((f) => (
-                  <Button
-                    key={f || 'all'}
-                    variant={filter === f ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => handleFilterChange(f)}
-                    className={cn(
-                      "rounded-full capitalize text-xs sm:text-sm",
-                      filter !== f && "glass-button"
-                    )}
-                  >
-                    {f === undefined ? "All" : f}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button
-                variant={viewMode === "grid" ? "outline" : "ghost"}
-                size="icon"
-                onClick={() => setViewMode("grid")}
-                className="rounded-full"
-              >
-                <Grid className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "outline" : "ghost"}
-                size="icon"
-                onClick={() => setViewMode("list")}
-                className="rounded-full"
-              >
-                <List className="w-4 h-4" />
-              </Button>
-            </div>
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              variant={viewMode === "grid" ? "outline" : "ghost"}
+              size="icon"
+              onClick={() => setViewMode("grid")}
+              className="rounded-full"
+            >
+              <Grid className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewMode === "list" ? "outline" : "ghost"}
+              size="icon"
+              onClick={() => setViewMode("list")}
+              className="rounded-full"
+            >
+              <List className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       </section>

@@ -57,24 +57,21 @@ export function GenreSection({ type, className }: GenreSectionProps) {
     <section className={cn("", className)}>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger className="w-full">
-          <div className="flex items-center justify-between mb-6 cursor-pointer group">
-            <div className="text-left">
-              <h2 className="text-2xl font-semibold tracking-tight group-hover:text-foreground/80 transition-colors">
+          <div className="flex items-center justify-between py-2 cursor-pointer group">
+            <div className="flex items-center gap-3 text-left">
+              <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
                 Browse by Genre
-              </h2>
-              <p className="font-jp text-sm text-muted-foreground mt-0.5">
+              </span>
+              <span className="font-jp text-xs text-muted-foreground/70">
                 {type === "anime" ? "ジャンル別" : "ジャンル別漫画"}
-              </p>
+              </span>
             </div>
-            <div className="flex items-center gap-2 text-muted-foreground group-hover:text-foreground transition-colors">
-              <span className="text-sm">{isOpen ? "Hide" : "Show"} Genres</span>
-              <ChevronDown 
-                className={cn(
-                  "w-5 h-5 transition-transform duration-300",
-                  isOpen && "rotate-180"
-                )} 
-              />
-            </div>
+            <ChevronDown 
+              className={cn(
+                "w-4 h-4 text-muted-foreground transition-transform duration-300",
+                isOpen && "rotate-180"
+              )} 
+            />
           </div>
         </CollapsibleTrigger>
         
