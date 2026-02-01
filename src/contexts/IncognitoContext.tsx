@@ -1,5 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { useAuth } from "./AuthContext";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface IncognitoContextType {
@@ -12,13 +11,31 @@ interface IncognitoContextType {
 const IncognitoContext = createContext<IncognitoContextType | undefined>(undefined);
 
 export function IncognitoProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
   const [isIncognito, setIsIncognito] = useState(false);
   const [hideActivity, setHideActivity] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
-  // Load preferences from database
+  // Listen for auth state changes directly from Supabase
   useEffect(() => {
-    if (!user) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUserId(session?.user?.id || null);
+      if (!session?.user) {
+        setIsIncognito(false);
+        setHideActivity(false);
+      }
+    });
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Load preferences from database when user changes
+  useEffect(() => {
+    if (!userId) {
       setIsIncognito(false);
       setHideActivity(false);
       return;
@@ -28,7 +45,7 @@ export function IncognitoProvider({ children }: { children: ReactNode }) {
       const { data } = await supabase
         .from("user_preferences")
         .select("incognito_mode, hide_activity")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .single();
 
       if (data) {
@@ -38,35 +55,35 @@ export function IncognitoProvider({ children }: { children: ReactNode }) {
     };
 
     loadPreferences();
-  }, [user]);
+  }, [userId]);
 
-  const toggleIncognito = async () => {
+  const toggleIncognito = useCallback(async () => {
     const newValue = !isIncognito;
     setIsIncognito(newValue);
 
-    if (user) {
+    if (userId) {
       await supabase
         .from("user_preferences")
         .upsert({ 
-          user_id: user.id, 
+          user_id: userId, 
           incognito_mode: newValue 
         }, { onConflict: "user_id" });
     }
-  };
+  }, [isIncognito, userId]);
 
-  const toggleHideActivity = async () => {
+  const toggleHideActivity = useCallback(async () => {
     const newValue = !hideActivity;
     setHideActivity(newValue);
 
-    if (user) {
+    if (userId) {
       await supabase
         .from("user_preferences")
         .upsert({ 
-          user_id: user.id, 
+          user_id: userId, 
           hide_activity: newValue 
         }, { onConflict: "user_id" });
     }
-  };
+  }, [hideActivity, userId]);
 
   return (
     <IncognitoContext.Provider value={{ isIncognito, toggleIncognito, hideActivity, toggleHideActivity }}>
