@@ -116,7 +116,7 @@ export default function MangaPage() {
       <CollapsibleNavbar />
 
       {/* Hero with Search */}
-      <section className="pt-28 sm:pt-32 pb-8 sm:pb-12">
+      <section className="pt-28 sm:pt-32 pb-6 sm:pb-8">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
@@ -172,7 +172,7 @@ export default function MangaPage() {
 
       {/* Genres - Hide when searching */}
       {!isSearching && (
-        <section className="py-4">
+        <section className="py-2">
           <div className="container mx-auto px-4">
             <GenreSection type="manga" className="opacity-70 hover:opacity-100 transition-opacity" />
           </div>
@@ -181,7 +181,7 @@ export default function MangaPage() {
 
       {/* Top Manhwa - Only show when not searching and not filtering to a different type */}
       {!isSearching && (typeFilter === "all" || typeFilter === "manhwa") && (
-        <section className="py-8">
+        <section className="py-4">
           <div className="container mx-auto px-4">
             <HorizontalScroll title="Top Manhwa" titleJp="韓国漫画">
               {manhwaLoading ? (
@@ -204,7 +204,7 @@ export default function MangaPage() {
 
       {/* Top Manhua - Only show when not searching and not filtering to a different type */}
       {!isSearching && (typeFilter === "all" || typeFilter === "manhua") && (
-        <section className="py-8">
+        <section className="py-4">
           <div className="container mx-auto px-4">
             <HorizontalScroll title="Top Manhua" titleJp="中国漫画">
               {manhuaLoading ? (
@@ -310,7 +310,7 @@ export default function MangaPage() {
       )}
 
       {/* All Manga Grid */}
-      <section className="py-8 pb-24">
+      <section className="py-4 pb-24">
         <div className="container mx-auto px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">
             {isSearching 
