@@ -92,8 +92,10 @@ function toAnime(media: AniListMedia): Anime {
   // Use the highest quality image available
   const imageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
   
+  // IMPORTANT: Always use AniList ID for consistency across the app
+  // This ensures the ID passed to cards matches the ID used for detail fetches
   return {
-    mal_id: media.idMal || media.id,
+    mal_id: media.id, // Use AniList ID consistently (not idMal)
     title: media.title.english || media.title.romaji || "Unknown",
     title_english: media.title.english || undefined,
     title_japanese: media.title.native || undefined,
@@ -130,8 +132,10 @@ function toManga(media: AniListMedia): Manga {
   // Use the highest quality image available
   const imageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
   
+  // IMPORTANT: Always use AniList ID for consistency across the app
+  // This ensures the ID passed to cards matches the ID used for detail fetches
   return {
-    mal_id: media.idMal || media.id,
+    mal_id: media.id, // Use AniList ID consistently (not idMal)
     title: media.title.english || media.title.romaji || "Unknown",
     title_english: media.title.english || undefined,
     title_japanese: media.title.native || undefined,
