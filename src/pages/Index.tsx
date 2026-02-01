@@ -9,8 +9,9 @@ import { AdUnit } from "@/components/AdUnit";
 import { useTopAnime, useSeasonalAnime, useTopManga } from "@/hooks/useAnimeData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const Index = () => {
   const { data: topAnime, isLoading: topAnimeLoading } = useTopAnime(1);
@@ -21,8 +22,22 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <CollapsibleNavbar />
       
+      {/* Coming Soon Banner */}
+      <div className="bg-primary/10 border-b border-primary/20">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-center gap-3 text-center">
+            <Rocket className="w-5 h-5 text-primary animate-pulse" />
+            <span className="text-sm sm:text-base font-medium">
+              <Badge variant="secondary" className="mr-2">Coming Soon</Badge>
+              We're launching new features! Stay tuned for updates.
+            </span>
+            <Rocket className="w-5 h-5 text-primary animate-pulse hidden sm:block" />
+          </div>
+        </div>
+      </div>
+      
       {/* Hero Section */}
-      <HeroSection 
+      <HeroSection
         featuredAnime={seasonalAnime?.slice(0, 5)} 
         isLoading={seasonalLoading} 
       />
