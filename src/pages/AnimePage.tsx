@@ -1,14 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Filter, Grid, List, Search, Bookmark, Sparkles, Loader2 } from "lucide-react";
+import { Filter, Grid, List, Bookmark, Sparkles, Loader2 } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { GenreSection } from "@/components/GenreSection";
+import { SearchDropdown } from "@/components/SearchDropdown";
+import { SearchRecommendations } from "@/components/SearchRecommendations";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTopAnime, useSeasonalAnime, useSearchAnime } from "@/hooks/useAnimeData";
+import { useTopAnime, useSeasonalAnime, useSearchAnime, useAnimeRecommendations } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +24,7 @@ export default function AnimePage() {
   );
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [localSearch, setLocalSearch] = useState(searchParams.get("q") || "");
+  const resultsRef = useRef<HTMLDivElement>(null);
   
   // Debounce search input
   const debouncedSearch = useDebounce(localSearch.trim(), 300);
@@ -37,6 +40,13 @@ export default function AnimePage() {
 
   const isSearching = debouncedSearch.length > 0;
 
+  // Auto-scroll to results when search starts
+  useEffect(() => {
+    if (isSearching && resultsRef.current) {
+      resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [isSearching]);
+
   const clearSearch = () => {
     setLocalSearch("");
   };
@@ -48,6 +58,14 @@ export default function AnimePage() {
   const { data: topAnime, isLoading: topLoading } = useTopAnime(1, filter);
   const { data: seasonalAnime, isLoading: seasonalLoading } = useSeasonalAnime();
   const { data: searchResults, isLoading: searchLoading } = useSearchAnime(debouncedSearch, !!debouncedSearch);
+  
+  // Get recommendations based on first search result
+  const firstResultId = searchResults?.[0]?.mal_id;
+  const { data: recommendations, isLoading: recsLoading } = useAnimeRecommendations(
+    firstResultId,
+    isSearching && !!firstResultId
+  );
+  const recommendedAnime = recommendations?.map(r => r.entry) || [];
   
   const sortedSeasonalAnime = seasonalAnime?.slice().sort((a, b) => {
     const aIsAiring = a.status === "Currently Airing" ? 1 : 0;
@@ -76,30 +94,15 @@ export default function AnimePage() {
             </h1>
             <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">アニメを発見</p>
             
-            {/* Search Bar */}
-            <div className="relative max-w-xl mx-auto">
-              <div className="liquid-glass-strong rounded-2xl transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/30">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search anime by title..."
-                  value={localSearch}
-                  onChange={(e) => setLocalSearch(e.target.value)}
-                  className="w-full h-14 pl-14 pr-14 bg-transparent text-base sm:text-lg placeholder:text-muted-foreground focus:outline-none rounded-2xl"
-                />
-                {localSearch && (
-                  <button
-                    onClick={clearSearch}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-muted/50 rounded-full transition-colors"
-                  >
-                    <span className="sr-only">Clear</span>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            </div>
+            {/* Search Dropdown */}
+            <SearchDropdown
+              type="anime"
+              value={localSearch}
+              onChange={setLocalSearch}
+              results={searchResults}
+              isLoading={searchLoading}
+              placeholder="Search anime by title..."
+            />
 
             {/* Action Buttons - For You & Saved */}
             <div className="flex justify-center gap-3 mt-6">
@@ -123,36 +126,50 @@ export default function AnimePage() {
         </div>
       </section>
 
-      {/* Genres */}
-      <section className="py-4">
-        <div className="container mx-auto px-4">
-          <GenreSection type="anime" className="opacity-70 hover:opacity-100 transition-opacity" />
-        </div>
-      </section>
+      {/* Recommendations based on search */}
+      {isSearching && (
+        <SearchRecommendations
+          type="anime"
+          recommendations={recommendedAnime}
+          isLoading={recsLoading}
+          searchQuery={debouncedSearch}
+        />
+      )}
 
-      {/* This Season */}
-      <section className="py-8">
-        <div className="container mx-auto px-4">
-          <HorizontalScroll title="This Season" titleJp="今季">
-            {seasonalLoading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-36 sm:w-44">
-                  <Skeleton className="aspect-[2/3] rounded-2xl" />
-                </div>
-              ))
-            ) : (
-              sortedSeasonalAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.mal_id} className="flex-shrink-0 w-36 sm:w-44">
-                  <AnimeCard anime={anime} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
-        </div>
-      </section>
+      {/* Genres - Hide when searching */}
+      {!isSearching && (
+        <section className="py-4">
+          <div className="container mx-auto px-4">
+            <GenreSection type="anime" className="opacity-70 hover:opacity-100 transition-opacity" />
+          </div>
+        </section>
+      )}
+
+      {/* This Season - Hide when searching */}
+      {!isSearching && (
+        <section className="py-8">
+          <div className="container mx-auto px-4">
+            <HorizontalScroll title="This Season" titleJp="今季">
+              {seasonalLoading ? (
+                Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="flex-shrink-0 w-36 sm:w-44">
+                    <Skeleton className="aspect-[2/3] rounded-2xl" />
+                  </div>
+                ))
+              ) : (
+                sortedSeasonalAnime?.slice(0, 12).map((anime, index) => (
+                  <div key={anime.mal_id} className="flex-shrink-0 w-36 sm:w-44">
+                    <AnimeCard anime={anime} index={index} />
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          </div>
+        </section>
+      )}
 
       {/* Filters */}
-      <section className="py-8">
+      <section className="py-8" ref={resultsRef}>
         <div className="container mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-2 sm:gap-4 flex-wrap">

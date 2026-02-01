@@ -1,14 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Grid, List, Search, Bookmark, Sparkles, Loader2 } from "lucide-react";
+import { Grid, List, Bookmark, Sparkles, Loader2 } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { GenreSection } from "@/components/GenreSection";
+import { SearchDropdown } from "@/components/SearchDropdown";
+import { SearchRecommendations } from "@/components/SearchRecommendations";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTopManga, useSearchManga } from "@/hooks/useAnimeData";
+import { useTopManga, useSearchManga, useMangaRecommendations } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +22,7 @@ export default function MangaPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [localSearch, setLocalSearch] = useState(searchParams.get("q") || "");
   const [typeFilter, setTypeFilter] = useState<"all" | "manga" | "manhwa" | "manhua">(filterParam || "all");
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   // Debounce search input
   const debouncedSearch = useDebounce(localSearch.trim(), 300);
@@ -34,6 +37,13 @@ export default function MangaPage() {
   }, [debouncedSearch, typeFilter, genreId, setSearchParams]);
 
   const isSearching = debouncedSearch.length > 0;
+
+  // Auto-scroll to results when search starts
+  useEffect(() => {
+    if (isSearching && resultsRef.current) {
+      resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [isSearching]);
 
   const clearSearch = () => {
     setLocalSearch("");
@@ -53,6 +63,14 @@ export default function MangaPage() {
     typeFilter === "all" ? undefined : typeFilter,
   );
 
+  // Get recommendations based on first search result
+  const firstResultId = searchResults?.[0]?.mal_id;
+  const { data: recommendations, isLoading: recsLoading } = useMangaRecommendations(
+    firstResultId,
+    isSearching && !!firstResultId
+  );
+  const recommendedManga = recommendations?.map(r => r.entry) || [];
+
   const displayManga = isSearching ? searchResults : topManga;
   const isLoading = isSearching ? searchLoading : topLoading;
 
@@ -69,30 +87,15 @@ export default function MangaPage() {
             </h1>
             <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">漫画を発見</p>
             
-            {/* Search Bar */}
-            <div className="relative max-w-xl mx-auto">
-              <div className="liquid-glass-strong rounded-2xl transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/30">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search manga, manhwa, manhua..."
-                  value={localSearch}
-                  onChange={(e) => setLocalSearch(e.target.value)}
-                  className="w-full h-14 pl-14 pr-14 bg-transparent text-base sm:text-lg placeholder:text-muted-foreground focus:outline-none rounded-2xl"
-                />
-                {localSearch && (
-                  <button
-                    onClick={clearSearch}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-muted/50 rounded-full transition-colors"
-                  >
-                    <span className="sr-only">Clear</span>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            </div>
+            {/* Search Dropdown */}
+            <SearchDropdown
+              type="manga"
+              value={localSearch}
+              onChange={setLocalSearch}
+              results={searchResults}
+              isLoading={searchLoading}
+              placeholder="Search manga, manhwa, manhua..."
+            />
 
             {/* Action Buttons - For You & Saved */}
             <div className="flex flex-wrap justify-center gap-2 mt-6">
@@ -131,57 +134,73 @@ export default function MangaPage() {
         </div>
       </section>
 
-      {/* Genres */}
-      <section className="py-4">
-        <div className="container mx-auto px-4">
-          <GenreSection type="manga" className="opacity-70 hover:opacity-100 transition-opacity" />
-        </div>
-      </section>
+      {/* Recommendations based on search */}
+      {isSearching && (
+        <SearchRecommendations
+          type="manga"
+          recommendations={recommendedManga}
+          isLoading={recsLoading}
+          searchQuery={debouncedSearch}
+        />
+      )}
 
-      {/* Top Manhwa */}
-      <section className="py-8">
-        <div className="container mx-auto px-4">
-          <HorizontalScroll title="Top Manhwa" titleJp="韓国漫画">
-            {manhwaLoading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-36 sm:w-44">
-                  <Skeleton className="aspect-[2/3] rounded-2xl" />
-                </div>
-              ))
-            ) : (
-              manhwa?.slice(0, 12).map((manga, index) => (
-                <div key={manga.mal_id} className="flex-shrink-0 w-36 sm:w-44">
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
-        </div>
-      </section>
+      {/* Genres - Hide when searching */}
+      {!isSearching && (
+        <section className="py-4">
+          <div className="container mx-auto px-4">
+            <GenreSection type="manga" className="opacity-70 hover:opacity-100 transition-opacity" />
+          </div>
+        </section>
+      )}
 
-      {/* Top Manhua */}
-      <section className="py-8">
-        <div className="container mx-auto px-4">
-          <HorizontalScroll title="Top Manhua" titleJp="中国漫画">
-            {manhuaLoading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-36 sm:w-44">
-                  <Skeleton className="aspect-[2/3] rounded-2xl" />
-                </div>
-              ))
-            ) : (
-              manhua?.slice(0, 12).map((manga, index) => (
-                <div key={manga.mal_id} className="flex-shrink-0 w-36 sm:w-44">
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
-        </div>
-      </section>
+      {/* Top Manhwa - Hide when searching */}
+      {!isSearching && (
+        <section className="py-8">
+          <div className="container mx-auto px-4">
+            <HorizontalScroll title="Top Manhwa" titleJp="韓国漫画">
+              {manhwaLoading ? (
+                Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="flex-shrink-0 w-36 sm:w-44">
+                    <Skeleton className="aspect-[2/3] rounded-2xl" />
+                  </div>
+                ))
+              ) : (
+                manhwa?.slice(0, 12).map((manga, index) => (
+                  <div key={manga.mal_id} className="flex-shrink-0 w-36 sm:w-44">
+                    <MangaCard manga={manga} index={index} />
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          </div>
+        </section>
+      )}
+
+      {/* Top Manhua - Hide when searching */}
+      {!isSearching && (
+        <section className="py-8">
+          <div className="container mx-auto px-4">
+            <HorizontalScroll title="Top Manhua" titleJp="中国漫画">
+              {manhuaLoading ? (
+                Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="flex-shrink-0 w-36 sm:w-44">
+                    <Skeleton className="aspect-[2/3] rounded-2xl" />
+                  </div>
+                ))
+              ) : (
+                manhua?.slice(0, 12).map((manga, index) => (
+                  <div key={manga.mal_id} className="flex-shrink-0 w-36 sm:w-44">
+                    <MangaCard manga={manga} index={index} />
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          </div>
+        </section>
+      )}
 
       {/* View Toggle */}
-      <section className="py-4">
+      <section className="py-4" ref={resultsRef}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-end gap-2">
             <Button
