@@ -4,7 +4,8 @@ import { Search, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
-import { ThemeToggle } from "./ThemeToggle";
+import { ThemeSelector } from "./ThemeSelector";
+import { IncognitoToggle } from "./IncognitoToggle";
 import { UserMenu } from "./UserMenu";
 import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -174,7 +175,8 @@ export function CollapsibleNavbar() {
               </Button>
 
               <LanguageSelector />
-              <ThemeToggle />
+              <IncognitoToggle />
+              <ThemeSelector />
               <UserMenu />
 
               <Button

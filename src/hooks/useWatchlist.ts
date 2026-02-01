@@ -13,6 +13,10 @@ export interface WatchlistItem {
   image_url: string | null;
   score: number | null;
   status: string;
+  category: string | null;
+  notes: string | null;
+  episodes_watched: number;
+  chapters_read: number;
   created_at: string;
   updated_at: string;
 }
