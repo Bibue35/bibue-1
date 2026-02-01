@@ -393,18 +393,38 @@ export async function getMangaById(id: number): Promise<Manga> {
   return toManga(data.Media);
 }
 
-export async function searchManga(searchQuery: string, page = 1, limit = 25): Promise<Manga[]> {
+export async function searchManga(
+  searchQuery: string,
+  page = 1,
+  limit = 25,
+  filter?: "manga" | "novels" | "lightnovels" | "oneshots" | "doujin" | "manhwa" | "manhua",
+): Promise<Manga[]> {
+  let format: string | undefined;
+  let countryOfOrigin: string | undefined;
+
+  if (filter === "manga") format = "MANGA";
+  else if (filter === "novels" || filter === "lightnovels") format = "NOVEL";
+  else if (filter === "oneshots") format = "ONE_SHOT";
+  else if (filter === "manhwa") countryOfOrigin = "KR";
+  else if (filter === "manhua") countryOfOrigin = "CN";
+
   const query = `
-    query ($search: String, $page: Int, $perPage: Int) {
+    query ($search: String, $page: Int, $perPage: Int, $format: MediaFormat, $countryOfOrigin: CountryCode) {
       Page(page: $page, perPage: $perPage) {
-        media(search: $search, type: MANGA, sort: [SEARCH_MATCH], isAdult: false) {
+        media(search: $search, type: MANGA, sort: [SEARCH_MATCH], format: $format, countryOfOrigin: $countryOfOrigin, isAdult: false) {
           ${MEDIA_FRAGMENT}
         }
       }
     }
   `;
 
-  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { search: searchQuery, page, perPage: limit });
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, {
+    search: searchQuery,
+    page,
+    perPage: limit,
+    format,
+    countryOfOrigin,
+  });
   return data.Page.media.map(toManga);
 }
 
