@@ -32,7 +32,14 @@ export default function AnimePage() {
 
   const { data: topAnime, isLoading: topLoading } = useTopAnime(1, filter);
   const { data: seasonalAnime, isLoading: seasonalLoading } = useSeasonalAnime();
-  const { data: airingAnime, isLoading: airingLoading } = useTopAnime(1, 'airing');
+  
+  // Sort seasonal anime by airing status (currently airing first, then by popularity)
+  const sortedSeasonalAnime = seasonalAnime?.slice().sort((a, b) => {
+    const aIsAiring = a.status === "Currently Airing" ? 1 : 0;
+    const bIsAiring = b.status === "Currently Airing" ? 1 : 0;
+    if (bIsAiring !== aIsAiring) return bIsAiring - aIsAiring;
+    return (b.members || 0) - (a.members || 0);
+  });
 
   // Use seasonal anime if filter=seasonal
   const displayAnime = initialFilter === 'seasonal' ? seasonalAnime : topAnime;
@@ -66,28 +73,7 @@ export default function AnimePage() {
         </div>
       </section>
 
-      {/* Currently Airing */}
-      <section className="py-8">
-        <div className="container mx-auto px-4">
-          <HorizontalScroll title="Currently Airing" titleJp="放送中">
-            {airingLoading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-36 sm:w-44">
-                  <Skeleton className="aspect-[2/3] rounded-2xl" />
-                </div>
-              ))
-            ) : (
-              airingAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.mal_id} className="flex-shrink-0 w-36 sm:w-44">
-                  <AnimeCard anime={anime} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
-        </div>
-      </section>
-
-      {/* Seasonal */}
+      {/* This Season - Sorted by airing status and popularity */}
       <section className="py-8">
         <div className="container mx-auto px-4">
           <HorizontalScroll title="This Season" titleJp="今季">
@@ -98,7 +84,7 @@ export default function AnimePage() {
                 </div>
               ))
             ) : (
-              seasonalAnime?.slice(0, 12).map((anime, index) => (
+              sortedSeasonalAnime?.slice(0, 12).map((anime, index) => (
                 <div key={anime.mal_id} className="flex-shrink-0 w-36 sm:w-44">
                   <AnimeCard anime={anime} index={index} />
                 </div>
