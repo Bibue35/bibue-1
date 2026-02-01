@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Grid, List, Bookmark, Sparkles, Loader2, ArrowUpDown } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
@@ -21,7 +21,7 @@ import { useTopManga, useSearchManga, useMangaRecommendations } from "@/hooks/us
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
 
-type SortOption = "popularity" | "score" | "trending" | "newest";
+type SortOption = "popularity" | "score" | "newest";
 
 export default function MangaPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -66,10 +66,11 @@ export default function MangaPage() {
   };
 
   // Fetch data based on type filter - separate queries for each filter type
-  const { data: allManga, isLoading: allLoading } = useTopManga(1, undefined, sortBy);
-  const { data: mangaOnly, isLoading: mangaLoading } = useTopManga(1, 'manga', sortBy);
-  const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa', sortBy);
-  const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua', sortBy);
+  // (sorting is applied client-side below)
+  const { data: allManga, isLoading: allLoading } = useTopManga(1, undefined);
+  const { data: mangaOnly, isLoading: mangaLoading } = useTopManga(1, 'manga');
+  const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
+  const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua');
   const { data: searchResults, isLoading: searchLoading } = useSearchManga(
     debouncedSearch,
     isSearching,
@@ -107,6 +108,23 @@ export default function MangaPage() {
 
   const displayManga = getFilteredManga();
   const isLoading = getFilterLoading();
+
+  const sortedManga = useMemo(() => {
+    const list = (displayManga || []).slice();
+    switch (sortBy) {
+      case "score":
+        return list.sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
+      case "newest":
+        return list.sort(
+          (a, b) =>
+            (b.published?.from ? Date.parse(b.published.from) : 0) -
+            (a.published?.from ? Date.parse(a.published.from) : 0),
+        );
+      case "popularity":
+      default:
+        return list.sort((a, b) => (b.popularity ?? -1) - (a.popularity ?? -1));
+    }
+  }, [displayManga, sortBy]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -185,8 +203,8 @@ export default function MangaPage() {
         </section>
       )}
 
-      {/* Top Manhwa - Hide when searching */}
-      {!isSearching && (
+      {/* Top Manhwa - Only show when not searching and not filtering to a different type */}
+      {!isSearching && (typeFilter === "all" || typeFilter === "manhwa") && (
         <section className="py-8">
           <div className="container mx-auto px-4">
             <HorizontalScroll title="Top Manhwa" titleJp="韓国漫画">
@@ -208,8 +226,8 @@ export default function MangaPage() {
         </section>
       )}
 
-      {/* Top Manhua - Hide when searching */}
-      {!isSearching && (
+      {/* Top Manhua - Only show when not searching and not filtering to a different type */}
+      {!isSearching && (typeFilter === "all" || typeFilter === "manhua") && (
         <section className="py-8">
           <div className="container mx-auto px-4">
             <HorizontalScroll title="Top Manhua" titleJp="中国漫画">
@@ -245,8 +263,7 @@ export default function MangaPage() {
                 <SelectContent>
                   <SelectItem value="popularity">Popularity</SelectItem>
                   <SelectItem value="score">Score</SelectItem>
-                  <SelectItem value="trending">Trending</SelectItem>
-                  <SelectItem value="newest">Newest</SelectItem>
+                  <SelectItem value="newest">Date</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -314,7 +331,7 @@ export default function MangaPage() {
             </div>
           ) : (
             <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
-              {displayManga?.map((manga, index) => (
+              {sortedManga?.map((manga, index) => (
                 viewMode === "grid" ? (
                   <MangaCard key={manga.mal_id} manga={manga} index={index} />
                 ) : (
