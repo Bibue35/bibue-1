@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { Filter, Grid, List, Search } from "lucide-react";
+import { useSearchParams, Link } from "react-router-dom";
+import { Filter, Grid, List, Search, Bookmark, Sparkles } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
@@ -13,7 +13,6 @@ import { cn } from "@/lib/utils";
 
 export default function AnimePage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const initialFilter = searchParams.get("filter") as 'airing' | 'upcoming' | 'bypopularity' | 'favorite' | 'seasonal' | undefined;
   const genreId = searchParams.get("genre");
   const searchQuery = searchParams.get("q") || "";
@@ -24,7 +23,6 @@ export default function AnimePage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [localSearch, setLocalSearch] = useState(searchQuery);
 
-  // Update URL when filter changes
   const handleFilterChange = (newFilter: typeof filter) => {
     setFilter(newFilter);
     const params = new URLSearchParams();
@@ -46,7 +44,6 @@ export default function AnimePage() {
   const { data: seasonalAnime, isLoading: seasonalLoading } = useSeasonalAnime();
   const { data: searchResults, isLoading: searchLoading } = useSearchAnime(searchQuery, !!searchQuery);
   
-  // Sort seasonal anime by airing status (currently airing first, then by popularity)
   const sortedSeasonalAnime = seasonalAnime?.slice().sort((a, b) => {
     const aIsAiring = a.status === "Currently Airing" ? 1 : 0;
     const bIsAiring = b.status === "Currently Airing" ? 1 : 0;
@@ -54,7 +51,6 @@ export default function AnimePage() {
     return (b.members || 0) - (a.members || 0);
   });
 
-  // Use search results if searching, else use filtered data
   const displayAnime = searchQuery 
     ? searchResults 
     : initialFilter === 'seasonal' 
@@ -96,20 +92,36 @@ export default function AnimePage() {
               </div>
             </form>
 
+            {/* Action Buttons - For You & Saved */}
+            <div className="flex justify-center gap-3 mt-6">
+              <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
+                <Link to="/recommendations">
+                  <Sparkles className="w-4 h-4" />
+                  For You
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
+                <Link to="/watchlist?type=anime">
+                  <Bookmark className="w-4 h-4" />
+                  Saved
+                </Link>
+              </Button>
+            </div>
+
             {/* Decorative underline */}
             <div className="mt-8 mx-auto w-24 h-1 rounded-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           </div>
         </div>
       </section>
 
-      {/* Genres - Subtle */}
+      {/* Genres */}
       <section className="py-4">
         <div className="container mx-auto px-4">
           <GenreSection type="anime" className="opacity-70 hover:opacity-100 transition-opacity" />
         </div>
       </section>
 
-      {/* This Season - Sorted by airing status and popularity */}
+      {/* This Season */}
       <section className="py-8">
         <div className="container mx-auto px-4">
           <HorizontalScroll title="This Season" titleJp="今季">
