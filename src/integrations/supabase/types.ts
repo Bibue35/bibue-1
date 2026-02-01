@@ -43,6 +43,45 @@ export type Database = {
           },
         ]
       }
+      content_reports: {
+        Row: {
+          content_id: number
+          content_title: string
+          content_type: string
+          created_at: string
+          description: string | null
+          id: string
+          report_type: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content_id: number
+          content_title: string
+          content_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          report_type: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content_id?: number
+          content_title?: string
+          content_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          report_type?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       discussion_replies: {
         Row: {
           content: string
