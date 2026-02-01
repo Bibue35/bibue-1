@@ -128,9 +128,9 @@ export function CollapsibleNavbar() {
         onMouseLeave={handleNavLeave}
       >
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between">
-            {/* Spacer for logo */}
-            <div className="w-20" />
+          <div className="flex items-center justify-center">
+            {/* Left spacer - matches right side width */}
+            <div className="flex-1" />
 
             {/* Desktop Navigation - Collapsible */}
             <Collapsible
@@ -161,8 +161,8 @@ export function CollapsibleNavbar() {
               </CollapsibleContent>
             </Collapsible>
 
-            {/* Right side */}
-            <div className="flex items-center gap-1.5">
+            {/* Right side - flex-1 to match left spacer */}
+            <div className="flex-1 flex items-center justify-end gap-1.5">
               <Button
                 variant="ghost"
                 size="icon"
