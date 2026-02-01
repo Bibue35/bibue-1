@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Menu, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
@@ -164,22 +164,6 @@ export function CollapsibleNavbar() {
 
             {/* Right side */}
             <div className="flex items-center gap-1.5">
-              {/* Expand/Collapse button for desktop */}
-              {isScrolled && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsNavExpanded(!isNavExpanded)}
-                  className="hidden md:flex rounded-full hover:bg-foreground/5 transition-all duration-200"
-                >
-                  {isNavExpanded ? (
-                    <ChevronUp className="w-4 h-4" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4" />
-                  )}
-                </Button>
-              )}
-
               <Button
                 variant="ghost"
                 size="icon"

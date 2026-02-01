@@ -41,15 +41,15 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100]">
+    <div className="fixed inset-0 z-[100]" onClick={onClose}>
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-background/80 backdrop-blur-xl animate-fade-in"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-xl animate-fade-in" />
 
       {/* Modal */}
-      <div className="relative z-10 flex flex-col items-center pt-[10vh] px-4 animate-fade-up">
+      <div 
+        className="relative z-10 flex flex-col items-center pt-[10vh] px-4 animate-fade-up"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="w-full max-w-2xl">
           {/* Search Input */}
           <div className="relative">
