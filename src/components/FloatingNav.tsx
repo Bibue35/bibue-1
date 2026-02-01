@@ -21,20 +21,20 @@ export function FloatingNav() {
 
   return (
     <>
-      {/* Floating elements - no bar, just positioned items */}
-      <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
-        <div className="container mx-auto px-4 py-4">
+      {/* Scrolls with page - not fixed */}
+      <div className="relative z-50 pt-4 pb-2">
+        <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             {/* Logo - left side */}
             <Link 
               to="/" 
-              className="pointer-events-auto text-2xl font-sacred font-semibold tracking-wide drop-shadow-sm"
+              className="text-2xl font-sacred font-semibold tracking-wide"
             >
               Bibue
             </Link>
 
             {/* Center nav links - desktop only */}
-            <nav className="hidden md:flex items-center gap-1 pointer-events-auto">
+            <nav className="hidden md:flex items-center gap-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -42,8 +42,8 @@ export function FloatingNav() {
                   className={cn(
                     "px-4 py-2 text-sm font-medium rounded-full",
                     location.pathname === link.href
-                      ? "text-foreground bg-background/60 backdrop-blur-sm"
-                      : "text-foreground/70 hover:text-foreground"
+                      ? "text-foreground bg-foreground/10"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   {link.label}
@@ -52,12 +52,12 @@ export function FloatingNav() {
             </nav>
 
             {/* Right side icons */}
-            <div className="flex items-center gap-1 pointer-events-auto">
+            <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsSearchOpen(true)}
-                className="rounded-full text-foreground/70 hover:text-foreground hover:bg-background/40"
+                className="rounded-full"
               >
                 <Search className="w-5 h-5" />
               </Button>
@@ -69,7 +69,7 @@ export function FloatingNav() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden rounded-full text-foreground/70 hover:text-foreground hover:bg-background/40"
+                className="md:hidden rounded-full"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -81,8 +81,8 @@ export function FloatingNav() {
 
       {/* Mobile menu dropdown */}
       {isMobileMenuOpen && (
-        <div className="fixed top-16 left-4 right-4 z-50 md:hidden">
-          <div className="bg-background/95 backdrop-blur-sm border border-border rounded-2xl p-4 space-y-1 shadow-lg">
+        <div className="relative z-50 px-4 md:hidden">
+          <div className="bg-card border border-border rounded-2xl p-4 space-y-1">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
