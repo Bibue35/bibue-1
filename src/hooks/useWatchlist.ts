@@ -1,7 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIncognito } from "@/contexts/IncognitoContext";
 import { useToast } from "@/hooks/use-toast";
+import type { Json } from "@/integrations/supabase/types";
 
 export interface WatchlistItem {
   id: string;
@@ -23,6 +25,7 @@ export interface WatchlistItem {
 
 export function useWatchlist() {
   const { user } = useAuth();
+  const { isIncognito } = useIncognito();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -41,6 +44,32 @@ export function useWatchlist() {
     },
     enabled: !!user,
   });
+
+  // Helper to log activity (only if not incognito)
+  const logActivity = async (
+    activityType: string,
+    malId: number,
+    mediaType: "anime" | "manga",
+    title: string,
+    imageUrl?: string | null,
+    details?: Record<string, Json> | null
+  ) => {
+    if (isIncognito || !user) return;
+    
+    try {
+      await supabase.from("activity_logs").insert([{
+        user_id: user.id,
+        activity_type: activityType,
+        mal_id: malId,
+        media_type: mediaType,
+        title,
+        image_url: imageUrl || null,
+        details: details || {},
+      }]);
+    } catch (error) {
+      console.error("Failed to log activity:", error);
+    }
+  };
 
   const addToWatchlist = useMutation({
     mutationFn: async (item: {
@@ -68,6 +97,10 @@ export function useWatchlist() {
         .single();
 
       if (error) throw error;
+      
+      // Log activity (skipped if incognito)
+      await logActivity("added", item.mal_id, item.media_type, item.title, item.image_url);
+      
       return data;
     },
     onSuccess: () => {

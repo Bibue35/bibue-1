@@ -5,9 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
-import { IncognitoToggle } from "./IncognitoToggle";
 import { UserMenu } from "./UserMenu";
-import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Collapsible,
@@ -174,8 +172,6 @@ export function CollapsibleNavbar() {
                 <Search className="w-5 h-5" />
               </Button>
 
-              <LanguageSelector />
-              <IncognitoToggle />
               <ThemeSelector />
               <UserMenu />
 

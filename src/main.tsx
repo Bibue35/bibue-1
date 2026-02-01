@@ -1,7 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { IncognitoProvider } from "./contexts/IncognitoContext";
 import App from "./App.tsx";
 import "./index.css";
 
