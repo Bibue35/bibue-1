@@ -53,8 +53,9 @@ export default function MangaPage() {
     setTypeFilter(filter);
   };
 
-  // Fetch data based on type filter
-  const { data: topManga, isLoading: topLoading } = useTopManga(1, typeFilter === "all" ? undefined : typeFilter);
+  // Fetch data based on type filter - separate queries for each filter type
+  const { data: allManga, isLoading: allLoading } = useTopManga(1, undefined);
+  const { data: mangaOnly, isLoading: mangaLoading } = useTopManga(1, 'manga');
   const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
   const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua');
   const { data: searchResults, isLoading: searchLoading } = useSearchManga(
@@ -71,8 +72,29 @@ export default function MangaPage() {
   );
   const recommendedManga = recommendations?.map(r => r.entry) || [];
 
-  const displayManga = isSearching ? searchResults : topManga;
-  const isLoading = isSearching ? searchLoading : topLoading;
+  // Select the correct data based on filter
+  const getFilteredManga = () => {
+    if (isSearching) return searchResults;
+    switch (typeFilter) {
+      case "manga": return mangaOnly;
+      case "manhwa": return manhwa;
+      case "manhua": return manhua;
+      default: return allManga;
+    }
+  };
+
+  const getFilterLoading = () => {
+    if (isSearching) return searchLoading;
+    switch (typeFilter) {
+      case "manga": return mangaLoading;
+      case "manhwa": return manhwaLoading;
+      case "manhua": return manhuaLoading;
+      default: return allLoading;
+    }
+  };
+
+  const displayManga = getFilteredManga();
+  const isLoading = getFilterLoading();
 
   return (
     <div className="min-h-screen bg-background">
