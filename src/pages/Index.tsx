@@ -12,7 +12,7 @@ import { AdUnit } from "@/components/AdUnit";
 import { useTopAnime, useSeasonalAnime, useTopManga, useSchedule } from "@/hooks/useAnimeData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
-import { ArrowRight, Rocket, Calendar, TrendingUp, Sparkles, Clock } from "lucide-react";
+import { ArrowRight, Rocket, Calendar, TrendingUp, Sparkles, Clock, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -24,6 +24,8 @@ const Index = () => {
   const { data: upcomingAnime, isLoading: upcomingLoading } = useTopAnime(1, 'upcoming');
   const { data: seasonalAnime, isLoading: seasonalLoading } = useSeasonalAnime();
   const { data: topManga, isLoading: topMangaLoading } = useTopManga(1);
+  const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
+  const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua');
   const { data: scheduleAnime, isLoading: scheduleLoading } = useSchedule();
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -249,35 +251,92 @@ const Index = () => {
         <AdUnit slot="2345678901" format="horizontal" className="my-8" />
       </div>
 
-      {/* Popular Manga */}
-      <section className="py-12 sm:py-16">
+      {/* ===== MANGA SECTION ===== */}
+      <section className="py-16 sm:py-20">
         <div className="container mx-auto px-4">
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">{t("section.popularManga")}</h2>
-              <p className="font-jp text-xs sm:text-sm text-muted-foreground mt-0.5">{t("section.popularMangaJp")}</p>
+          {/* Manga Section Header */}
+          <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-primary/10">
+                <BookOpen className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Manga</h2>
+                <p className="font-jp text-sm text-muted-foreground">漫画・マンファ・漫画</p>
+              </div>
             </div>
             <Button variant="ghost" size="sm" className="gap-1 glass-button" asChild>
-              <Link to="/manga?filter=bypopularity">
-                {t("section.explore")} <ArrowRight className="w-4 h-4" />
+              <Link to="/manga">
+                Browse All <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
           </div>
-          <HorizontalScroll title="" titleJp="">
-            {topMangaLoading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-36 sm:w-44">
-                  <Skeleton className="aspect-[2/3] rounded-2xl" />
-                </div>
-              ))
-            ) : (
-              topManga?.slice(0, 12).map((manga, index) => (
-                <div key={manga.mal_id} className="flex-shrink-0 w-36 sm:w-44">
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+
+          {/* Manga Grid - 3 columns on desktop */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            {/* Top Manga Column */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Top Manga</h3>
+                <Link to="/manga" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                  See all →
+                </Link>
+              </div>
+              <div className="space-y-3">
+                {topMangaLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-20 rounded-xl" />
+                  ))
+                ) : (
+                  topManga?.slice(0, 5).map((manga, index) => (
+                    <MangaCard key={manga.mal_id} manga={manga} index={index} variant="compact" />
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Manhwa Column */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Top Manhwa</h3>
+                <Link to="/manga?filter=manhwa" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                  See all →
+                </Link>
+              </div>
+              <div className="space-y-3">
+                {manhwaLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-20 rounded-xl" />
+                  ))
+                ) : (
+                  manhwa?.slice(0, 5).map((manga, index) => (
+                    <MangaCard key={manga.mal_id} manga={manga} index={index} variant="compact" />
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Manhua Column */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Top Manhua</h3>
+                <Link to="/manga?filter=manhua" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                  See all →
+                </Link>
+              </div>
+              <div className="space-y-3">
+                {manhuaLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-20 rounded-xl" />
+                  ))
+                ) : (
+                  manhua?.slice(0, 5).map((manga, index) => (
+                    <MangaCard key={manga.mal_id} manga={manga} index={index} variant="compact" />
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
