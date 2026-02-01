@@ -1,21 +1,35 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const navLinks = [
+// Primary nav items shown directly
+const primaryLinks = [
   { href: "/", label: "Home" },
   { href: "/anime", label: "Anime" },
   { href: "/manga", label: "Manga" },
+];
+
+// Secondary items in "More" dropdown
+const moreLinks = [
   { href: "/watchlist", label: "Watchlist" },
   { href: "/recommendations", label: "For You" },
   { href: "/rankings", label: "Rankings" },
   { href: "/community", label: "Community" },
 ];
+
+// All links for mobile menu
+const allLinks = [...primaryLinks, ...moreLinks];
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -29,7 +43,6 @@ export function Navbar() {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
-      // Show/hide based on scroll direction
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setIsVisible(false);
       } else {
@@ -47,6 +60,8 @@ export function Navbar() {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
+
+  const isMoreActive = moreLinks.some(link => location.pathname === link.href);
 
   return (
     <>
@@ -68,9 +83,9 @@ export function Navbar() {
               </span>
             </Link>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - Simplified */}
             <div className="hidden md:flex items-center gap-1">
-              {navLinks.map((link) => (
+              {primaryLinks.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
@@ -84,10 +99,40 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              
+              {/* More Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={cn(
+                      "flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-full transition-all duration-300",
+                      isMoreActive
+                        ? "text-foreground bg-foreground/10"
+                        : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                    )}
+                  >
+                    More <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="min-w-[140px]">
+                  {moreLinks.map((link) => (
+                    <DropdownMenuItem key={link.href} asChild>
+                      <Link
+                        to={link.href}
+                        className={cn(
+                          location.pathname === link.href && "bg-accent"
+                        )}
+                      >
+                        {link.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
-            {/* Right side */}
-            <div className="flex items-center gap-2">
+            {/* Right side - Consolidated */}
+            <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
                 size="icon"
@@ -125,7 +170,7 @@ export function Navbar() {
           )}
         >
           <div className="container mx-auto px-4 py-4 space-y-1">
-            {navLinks.map((link) => (
+            {allLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
