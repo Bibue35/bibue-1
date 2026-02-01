@@ -30,30 +30,9 @@ const moreLinks = [
 const allLinks = [...primaryLinks, ...moreLinks];
 
 export function Navbar() {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setIsVisible(false);
-      } else {
-        setIsVisible(true);
-      }
-      
-      setIsScrolled(currentScrollY > 20);
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -63,17 +42,9 @@ export function Navbar() {
 
   return (
     <>
-      <nav
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out",
-          isScrolled
-            ? "liquid-glass-strong py-3"
-            : "bg-transparent py-5",
-          !isVisible && "transform -translate-y-full opacity-0"
-        )}
-      >
+      <nav className="fixed top-0 left-0 right-0 z-50 py-4 pointer-events-none">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between pointer-events-auto">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2">
               <span className="text-2xl font-sacred font-semibold tracking-wide">
@@ -163,17 +134,17 @@ export function Navbar() {
         {/* Mobile Menu */}
         <div
           className={cn(
-            "md:hidden absolute top-full left-0 right-0 liquid-glass-strong border-t border-border/30 overflow-hidden transition-all duration-300",
-            isMobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+            "md:hidden fixed top-16 left-4 right-4 bg-background/95 backdrop-blur-sm border border-border/50 rounded-2xl overflow-hidden transition-all duration-200 pointer-events-auto",
+            isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
           )}
         >
-          <div className="container mx-auto px-4 py-4 space-y-1">
+          <div className="p-4 space-y-1">
             {allLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
                 className={cn(
-                  "block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300",
+                  "block px-4 py-3 rounded-xl text-sm font-medium transition-colors",
                   location.pathname === link.href
                     ? "bg-foreground/10 text-foreground"
                     : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
