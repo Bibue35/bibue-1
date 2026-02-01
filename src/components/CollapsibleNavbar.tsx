@@ -129,9 +129,9 @@ export function CollapsibleNavbar() {
         onMouseLeave={handleNavLeave}
       >
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center">
-            {/* Left spacer - matches right side width */}
-            <div className="flex-1" />
+          <div className="flex items-center justify-between">
+            {/* Left spacer for centering nav links */}
+            <div className="hidden md:block flex-1" />
 
             {/* Desktop Navigation - Collapsible */}
             <Collapsible
