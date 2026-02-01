@@ -244,38 +244,23 @@ export default function MangaPage() {
               </div>
             </div>
           ) : isSearching && !isLoading && (displayManga?.length ?? 0) === 0 ? (
-            <div className={cn(
-              "rounded-2xl liquid-glass-subtle",
-              viewMode === "grid" ? "py-16" : "py-12"
-            )}>
-              <div className="flex flex-col items-center text-center gap-4 px-6">
-                <div className="text-muted-foreground">
-                  <p className="text-base font-medium">No results</p>
-                  <p className="text-sm">Try a different title or clear your search.</p>
-                </div>
-                <Button variant="outline" onClick={clearSearch} className="rounded-full">
+            <div className="rounded-2xl liquid-glass-subtle py-12">
+              <div className="flex flex-col items-center text-center gap-3 px-6">
+                <p className="text-base font-medium">No results for "{debouncedSearch}"</p>
+                <p className="text-sm text-muted-foreground">Check your spelling or try a different title</p>
+                <Button variant="outline" onClick={clearSearch} className="rounded-full mt-2">
                   Clear search
                 </Button>
               </div>
             </div>
           ) : isLoading ? (
-            <div className={cn(
-              "grid gap-4 sm:gap-6",
-              viewMode === "grid" 
-                ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" 
-                : "grid-cols-1"
-            )}>
-              {Array.from({ length: 20 }).map((_, i) => (
-                <Skeleton key={i} className={viewMode === "grid" ? "aspect-[2/3] rounded-2xl" : "h-24 rounded-2xl"} />
+            <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+              {Array.from({ length: 21 }).map((_, i) => (
+                <Skeleton key={i} className={viewMode === "grid" ? "aspect-[2/3] rounded-xl" : "h-20 rounded-xl"} />
               ))}
             </div>
           ) : (
-            <div className={cn(
-              "grid gap-4 sm:gap-6",
-              viewMode === "grid" 
-                ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" 
-                : "grid-cols-1"
-            )}>
+            <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
               {displayManga?.map((manga, index) => (
                 viewMode === "grid" ? (
                   <MangaCard key={manga.mal_id} manga={manga} index={index} />
