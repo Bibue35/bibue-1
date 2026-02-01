@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Grid, List, Search, Bookmark, Sparkles, Loader2 } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
@@ -9,45 +9,38 @@ import { GenreSection } from "@/components/GenreSection";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTopManga, useSearchManga } from "@/hooks/useAnimeData";
+import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
 
 export default function MangaPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const genreId = searchParams.get("genre");
-  const searchQuery = searchParams.get("q") || "";
   const filterParam = searchParams.get("filter") as "manga" | "manhwa" | "manhua" | null;
   
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [localSearch, setLocalSearch] = useState(searchQuery);
+  const [localSearch, setLocalSearch] = useState(searchParams.get("q") || "");
   const [typeFilter, setTypeFilter] = useState<"all" | "manga" | "manhwa" | "manhua">(filterParam || "all");
 
-  const isSearching = searchQuery.trim().length > 0;
+  // Debounce search input
+  const debouncedSearch = useDebounce(localSearch.trim(), 300);
+
+  // Sync URL when debounced value or filter changes
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (debouncedSearch) params.set("q", debouncedSearch);
+    if (typeFilter !== "all") params.set("filter", typeFilter);
+    if (genreId) params.set("genre", genreId);
+    setSearchParams(params, { replace: true });
+  }, [debouncedSearch, typeFilter, genreId, setSearchParams]);
+
+  const isSearching = debouncedSearch.length > 0;
 
   const clearSearch = () => {
     setLocalSearch("");
-    const params = new URLSearchParams();
-    if (typeFilter !== "all") params.set("filter", typeFilter);
-    setSearchParams(params);
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    if (localSearch.trim()) {
-      params.set("q", localSearch.trim());
-    }
-    if (typeFilter !== "all") {
-      params.set("filter", typeFilter);
-    }
-    setSearchParams(params);
   };
 
   const handleTypeFilter = (filter: "all" | "manga" | "manhwa" | "manhua") => {
     setTypeFilter(filter);
-    const params = new URLSearchParams();
-    if (searchQuery) params.set("q", searchQuery);
-    if (filter !== "all") params.set("filter", filter);
-    setSearchParams(params);
   };
 
   // Fetch data based on type filter
@@ -55,7 +48,7 @@ export default function MangaPage() {
   const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
   const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua');
   const { data: searchResults, isLoading: searchLoading } = useSearchManga(
-    searchQuery,
+    debouncedSearch,
     isSearching,
     typeFilter === "all" ? undefined : typeFilter,
   );
@@ -77,7 +70,7 @@ export default function MangaPage() {
             <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">漫画を発見</p>
             
             {/* Search Bar */}
-            <form onSubmit={handleSearch} className="relative max-w-xl mx-auto">
+            <div className="relative max-w-xl mx-auto">
               <div className="liquid-glass-strong rounded-2xl transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/30">
                 <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
@@ -85,17 +78,21 @@ export default function MangaPage() {
                   placeholder="Search manga, manhwa, manhua..."
                   value={localSearch}
                   onChange={(e) => setLocalSearch(e.target.value)}
-                  className="w-full h-14 pl-14 pr-24 bg-transparent text-base sm:text-lg placeholder:text-muted-foreground focus:outline-none rounded-2xl"
+                  className="w-full h-14 pl-14 pr-14 bg-transparent text-base sm:text-lg placeholder:text-muted-foreground focus:outline-none rounded-2xl"
                 />
-                <Button 
-                  type="submit" 
-                  size="sm" 
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl px-4"
-                >
-                  Search
-                </Button>
+                {localSearch && (
+                  <button
+                    onClick={clearSearch}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-muted/50 rounded-full transition-colors"
+                  >
+                    <span className="sr-only">Clear</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
               </div>
-            </form>
+            </div>
 
             {/* Action Buttons - For You & Saved */}
             <div className="flex flex-wrap justify-center gap-2 mt-6">
@@ -212,7 +209,7 @@ export default function MangaPage() {
         <div className="container mx-auto px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">
             {isSearching 
-              ? `Search results for "${searchQuery}"` 
+              ? `Search results for "${debouncedSearch}"` 
               : typeFilter !== "all" 
                 ? `Top ${typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}`
                 : "Top Manga"}
@@ -226,7 +223,7 @@ export default function MangaPage() {
             )}>
               <div className="flex flex-col items-center text-center gap-3 p-8">
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">Searching for “{searchQuery.trim()}”</p>
+                <p className="text-sm text-muted-foreground">Searching for "{debouncedSearch}"</p>
               </div>
             </div>
           ) : isSearching && !isLoading && (displayManga?.length ?? 0) === 0 ? (
