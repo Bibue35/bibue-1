@@ -90,10 +90,10 @@ export function MangaCard({ manga, index = 0, variant = "default" }: MangaCardPr
         )}
         style={{ animationDelay: `${index * 0.05}s` }}
       >
-        {/* Image with theme-specific hover effects */}
+        {/* Image with 3D hover effect */}
         <div className={cn(
           "relative aspect-[2/3] rounded-2xl overflow-hidden mb-2",
-          "divine-card sun-glow moon-glow sun-rays-hover moon-reflection"
+          "card-3d divine-card"
         )}>
           <img
             src={manga.images.webp.image_url}
