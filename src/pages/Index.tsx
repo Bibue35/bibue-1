@@ -9,10 +9,11 @@ import { AnimeCard } from "@/components/AnimeCard";
 import { MangaCard } from "@/components/MangaCard";
 import { Footer } from "@/components/Footer";
 import { AdUnit } from "@/components/AdUnit";
-import { useTopAnime, useSeasonalAnime, useTopManga, useSchedule } from "@/hooks/useAnimeData";
+import { ScheduleSection } from "@/components/ScheduleSection";
+import { useTopAnime, useSeasonalAnime, useTopManga } from "@/hooks/useAnimeData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
-import { ArrowRight, Rocket, Calendar, TrendingUp, Sparkles, Clock, BookOpen } from "lucide-react";
+import { ArrowRight, Rocket, TrendingUp, Sparkles, Clock, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -26,7 +27,6 @@ const Index = () => {
   const { data: topManga, isLoading: topMangaLoading } = useTopManga(1);
   const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
   const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua');
-  const { data: scheduleAnime, isLoading: scheduleLoading } = useSchedule();
   const { t } = useLanguage();
   const { user } = useAuth();
 
@@ -35,7 +35,7 @@ const Index = () => {
     if (!seasonalAnime?.length) return [];
     
     const airingAnime = seasonalAnime
-      .filter(anime => anime.status === "Currently Airing")
+      .filter(anime => anime.status === "RELEASING")
       .sort((a, b) => {
         const scoreA = a.score || 0;
         const scoreB = b.score || 0;
@@ -46,26 +46,8 @@ const Index = () => {
         return popA - popB;
       });
     
-    if (scheduleAnime?.length) {
-      const airingToday = scheduleAnime.filter(anime => 
-        airingAnime.some(a => a.mal_id === anime.mal_id)
-      );
-      
-      const merged = [...airingToday];
-      for (const anime of airingAnime) {
-        if (!merged.some(a => a.mal_id === anime.mal_id)) {
-          merged.push(anime);
-        }
-        if (merged.length >= 5) break;
-      }
-      return merged.slice(0, 5);
-    }
-    
     return airingAnime.slice(0, 5);
-  }, [seasonalAnime, scheduleAnime, user]);
-
-  // Get today's day for schedule
-  const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+  }, [seasonalAnime, user]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -91,44 +73,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Airing Today */}
-      {scheduleAnime && scheduleAnime.length > 0 && (
-        <section className="py-12 sm:py-16">
-          <div className="container mx-auto px-4">
-            <div className="flex items-end justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-primary/10">
-                  <Calendar className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">Airing Today</h2>
-                  <p className="font-jp text-xs sm:text-sm text-muted-foreground mt-0.5">{today} • 今日放送</p>
-                </div>
-              </div>
-              <Button variant="ghost" size="sm" className="gap-1 glass-button" asChild>
-                <Link to="/anime?filter=airing">
-                  {t("section.viewAll")} <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
-            </div>
-            <HorizontalScroll title="" titleJp="">
-              {scheduleLoading ? (
-                Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="flex-shrink-0 w-36 sm:w-44">
-                    <Skeleton className="aspect-[2/3] rounded-2xl" />
-                  </div>
-                ))
-              ) : (
-                scheduleAnime?.slice(0, 12).map((anime, index) => (
-                  <div key={anime.mal_id} className="flex-shrink-0 w-36 sm:w-44">
-                    <AnimeCard anime={anime} index={index} />
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          </div>
-        </section>
-      )}
+      {/* Schedule Section with Day Selector */}
+      <ScheduleSection />
 
       {/* This Season's Hits */}
       <section className="py-12 sm:py-16">

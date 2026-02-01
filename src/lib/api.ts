@@ -372,30 +372,96 @@ export async function getAnimeNews(): Promise<NewsItem[]> {
   return [];
 }
 
-// Schedule - Get currently airing anime by day
+// Schedule item with airing time info
+export interface ScheduleItem {
+  anime: Anime;
+  airingTime: string;
+  airingAt: number;
+  episode?: number;
+}
+
+// Schedule - Get airing schedule using AniList's AiringSchedule query
 export async function getSchedule(day?: string): Promise<Anime[]> {
+  // Legacy function - returns just anime array for backward compatibility
+  const schedule = await getScheduleByDay(day || getCurrentDayName());
+  return schedule.map(s => s.anime);
+}
+
+// New schedule function with airing times
+export async function getScheduleByDay(day: string): Promise<ScheduleItem[]> {
+  const dayMap: Record<string, number> = { 
+    sunday: 0, monday: 1, tuesday: 2, wednesday: 3, 
+    thursday: 4, friday: 5, saturday: 6 
+  };
+  
+  const targetDayNum = dayMap[day.toLowerCase()];
+  const now = new Date();
+  const currentDayNum = now.getDay();
+  
+  // Calculate days until target day
+  let daysUntil = targetDayNum - currentDayNum;
+  if (daysUntil < 0) daysUntil += 7;
+  
+  // Get start and end timestamps for the target day
+  const targetDate = new Date(now);
+  targetDate.setDate(now.getDate() + daysUntil);
+  targetDate.setHours(0, 0, 0, 0);
+  const startOfDay = Math.floor(targetDate.getTime() / 1000);
+  
+  const endDate = new Date(targetDate);
+  endDate.setHours(23, 59, 59, 999);
+  const endOfDay = Math.floor(endDate.getTime() / 1000);
+
   const query = `
-    query {
+    query ($airingAtGreater: Int, $airingAtLesser: Int) {
       Page(page: 1, perPage: 50) {
-        media(type: ANIME, status: RELEASING, sort: [POPULARITY_DESC], isAdult: false) {
-          ${MEDIA_FRAGMENT}
-          nextAiringEpisode { airingAt timeUntilAiring episode }
+        airingSchedules(airingAt_greater: $airingAtGreater, airingAt_lesser: $airingAtLesser, sort: [TIME]) {
+          airingAt
+          episode
+          media {
+            ${MEDIA_FRAGMENT}
+          }
         }
       }
     }
   `;
 
-  const data = await anilistQuery<{ Page: { media: Array<AniListMedia & { nextAiringEpisode?: { airingAt: number } }> } }>(query, {});
-  
-  const dayMap: Record<string, number> = { sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 };
-  
-  return data.Page.media
-    .filter(m => {
-      if (!day || !m.nextAiringEpisode) return true;
-      const airingDate = new Date(m.nextAiringEpisode.airingAt * 1000);
-      return airingDate.getDay() === dayMap[day.toLowerCase()];
-    })
-    .map(toAnime);
+  const data = await anilistQuery<{ 
+    Page: { 
+      airingSchedules: Array<{ 
+        airingAt: number; 
+        episode: number; 
+        media: AniListMedia 
+      }> 
+    } 
+  }>(query, { 
+    airingAtGreater: startOfDay, 
+    airingAtLesser: endOfDay 
+  });
+
+  return data.Page.airingSchedules
+    .filter(s => s.media) // Filter out null media
+    .map(s => ({
+      anime: toAnime(s.media),
+      airingTime: formatAiringTime(s.airingAt),
+      airingAt: s.airingAt,
+      episode: s.episode,
+    }))
+    .sort((a, b) => a.airingAt - b.airingAt);
+}
+
+function formatAiringTime(timestamp: number): string {
+  const date = new Date(timestamp * 1000);
+  return date.toLocaleTimeString('en-US', { 
+    hour: 'numeric', 
+    minute: '2-digit',
+    hour12: true 
+  });
+}
+
+function getCurrentDayName(): string {
+  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  return days[new Date().getDay()];
 }
 
 // Helpers
