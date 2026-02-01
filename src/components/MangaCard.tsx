@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Star, BookOpen, Calendar, Flag } from "lucide-react";
+import { Star, BookOpen, Calendar, Bookmark } from "lucide-react";
 import { Manga, formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { MangaDetailModal } from "./MangaDetailModal";
-import { ReportIssueDialog } from "./ReportIssueDialog";
+import { WatchlistButton } from "./WatchlistButton";
 
 interface MangaCardProps {
   manga: Manga;
@@ -13,7 +13,6 @@ interface MangaCardProps {
 
 export function MangaCard({ manga, index = 0, variant = "default" }: MangaCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [reportOpen, setReportOpen] = useState(false);
 
   // Format published date
   const getPublishedInfo = () => {
@@ -108,17 +107,22 @@ export function MangaCard({ manga, index = 0, variant = "default" }: MangaCardPr
               C{chapterCount}
             </div>
           )}
-          {/* Report button - appears on hover */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setReportOpen(true);
-            }}
-            className="absolute bottom-2 right-2 p-1.5 rounded-full bg-background/80 text-muted-foreground hover:text-destructive hover:bg-background opacity-0 group-hover:opacity-100 transition-all"
-            title="Report issue"
+          {/* Save button - appears on hover */}
+          <div 
+            className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-all"
+            onClick={(e) => e.stopPropagation()}
           >
-            <Flag className="w-3.5 h-3.5" />
-          </button>
+            <WatchlistButton
+              mal_id={manga.mal_id}
+              media_type="manga"
+              title={manga.title}
+              title_japanese={manga.title_japanese}
+              image_url={manga.images.webp.image_url}
+              score={manga.score}
+              variant="icon"
+              className="bg-background/80 hover:bg-background"
+            />
+          </div>
         </div>
 
         {/* Title underneath */}
@@ -150,14 +154,6 @@ export function MangaCard({ manga, index = 0, variant = "default" }: MangaCardPr
         mangaId={manga.mal_id}
         open={modalOpen}
         onOpenChange={setModalOpen}
-      />
-      
-      <ReportIssueDialog
-        open={reportOpen}
-        onOpenChange={setReportOpen}
-        contentType="manga"
-        contentId={manga.mal_id}
-        contentTitle={manga.title}
       />
     </>
   );

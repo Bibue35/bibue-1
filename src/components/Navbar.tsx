@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
-import { IncognitoToggle } from "./IncognitoToggle";
 import { UserMenu } from "./UserMenu";
 import {
   DropdownMenu,
@@ -136,12 +135,11 @@ export function Navbar() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsSearchOpen(true)}
-                className="rounded-full hover:bg-foreground/5"
+                className="rounded-full hover:bg-foreground/5 text-muted-foreground hover:text-foreground"
               >
-                <Search className="w-5 h-5" />
+                <Search className="w-6 h-6" />
               </Button>
 
-              <IncognitoToggle />
               <ThemeSelector />
               
               <UserMenu />

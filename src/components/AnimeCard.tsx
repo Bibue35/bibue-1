@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Star, Calendar, Play, Flag } from "lucide-react";
+import { Star, Calendar, Play, Bookmark } from "lucide-react";
 import { Anime, formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { AnimeDetailModal } from "./AnimeDetailModal";
-import { ReportIssueDialog } from "./ReportIssueDialog";
+import { WatchlistButton } from "./WatchlistButton";
 
 interface AnimeCardProps {
   anime: Anime;
@@ -13,7 +13,6 @@ interface AnimeCardProps {
 
 export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [reportOpen, setReportOpen] = useState(false);
 
   // Format aired date
   const getAiredInfo = () => {
@@ -108,17 +107,22 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
               E{episodeCount}
             </div>
           )}
-          {/* Report button - appears on hover */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setReportOpen(true);
-            }}
-            className="absolute bottom-2 right-2 p-1.5 rounded-full bg-background/80 text-muted-foreground hover:text-destructive hover:bg-background opacity-0 group-hover:opacity-100 transition-all"
-            title="Report issue"
+          {/* Save button - appears on hover */}
+          <div 
+            className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-all"
+            onClick={(e) => e.stopPropagation()}
           >
-            <Flag className="w-3.5 h-3.5" />
-          </button>
+            <WatchlistButton
+              mal_id={anime.mal_id}
+              media_type="anime"
+              title={anime.title}
+              title_japanese={anime.title_japanese}
+              image_url={anime.images.webp.image_url}
+              score={anime.score}
+              variant="icon"
+              className="bg-background/80 hover:bg-background"
+            />
+          </div>
         </div>
 
         {/* Title underneath */}
@@ -152,14 +156,6 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
         animeId={anime.mal_id}
         open={modalOpen}
         onOpenChange={setModalOpen}
-      />
-      
-      <ReportIssueDialog
-        open={reportOpen}
-        onOpenChange={setReportOpen}
-        contentType="anime"
-        contentId={anime.mal_id}
-        contentTitle={anime.title}
       />
     </>
   );
