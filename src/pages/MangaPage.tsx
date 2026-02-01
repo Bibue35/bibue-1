@@ -54,7 +54,11 @@ export default function MangaPage() {
   const { data: topManga, isLoading: topLoading } = useTopManga(1, typeFilter === "all" ? undefined : typeFilter);
   const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
   const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua');
-  const { data: searchResults, isLoading: searchLoading } = useSearchManga(searchQuery, isSearching);
+  const { data: searchResults, isLoading: searchLoading } = useSearchManga(
+    searchQuery,
+    isSearching,
+    typeFilter === "all" ? undefined : typeFilter,
+  );
 
   const displayManga = isSearching ? searchResults : topManga;
   const isLoading = isSearching ? searchLoading : topLoading;

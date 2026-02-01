@@ -47,10 +47,14 @@ export function useSearchAnime(query: string, enabled = true) {
   });
 }
 
-export function useSearchManga(query: string, enabled = true) {
+export function useSearchManga(
+  query: string,
+  enabled = true,
+  filter?: "manga" | "novels" | "lightnovels" | "oneshots" | "doujin" | "manhwa" | "manhua",
+) {
   return useQuery({
-    queryKey: ["searchManga", query],
-    queryFn: () => searchManga(query.trim()),
+    queryKey: ["searchManga", query, filter],
+    queryFn: () => searchManga(query.trim(), 1, 25, filter),
     enabled: enabled && query.trim().length > 0,
     staleTime: 1000 * 60 * 5,
   });
