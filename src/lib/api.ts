@@ -363,8 +363,16 @@ export async function getMangaRecommendations(id: number): Promise<Array<{ entry
     .map(n => ({ entry: toManga(n.mediaRecommendation) }));
 }
 
+// Sort options type
+export type SortOption = "popularity" | "score" | "trending" | "newest";
+
 // Manga endpoints
-export async function getTopManga(page = 1, limit = 25, filter?: "manga" | "novels" | "lightnovels" | "oneshots" | "doujin" | "manhwa" | "manhua"): Promise<Manga[]> {
+export async function getTopManga(
+  page = 1, 
+  limit = 25, 
+  filter?: "manga" | "novels" | "lightnovels" | "oneshots" | "doujin" | "manhwa" | "manhua",
+  sort: SortOption = "popularity"
+): Promise<Manga[]> {
   let format: string | undefined;
   let countryOfOrigin: string | undefined;
 
@@ -374,17 +382,26 @@ export async function getTopManga(page = 1, limit = 25, filter?: "manga" | "nove
   else if (filter === "manhwa") countryOfOrigin = "KR";
   else if (filter === "manhua") countryOfOrigin = "CN";
 
+  // Map sort option to AniList sort enum
+  const sortMap: Record<SortOption, string> = {
+    popularity: "POPULARITY_DESC",
+    score: "SCORE_DESC",
+    trending: "TRENDING_DESC",
+    newest: "START_DATE_DESC",
+  };
+  const sortValue = sortMap[sort];
+
   const query = `
-    query ($page: Int, $perPage: Int, $format: MediaFormat, $countryOfOrigin: CountryCode) {
+    query ($page: Int, $perPage: Int, $format: MediaFormat, $countryOfOrigin: CountryCode, $sort: [MediaSort]) {
       Page(page: $page, perPage: $perPage) {
-        media(type: MANGA, sort: [POPULARITY_DESC], format: $format, countryOfOrigin: $countryOfOrigin, isAdult: false) {
+        media(type: MANGA, sort: $sort, format: $format, countryOfOrigin: $countryOfOrigin, isAdult: false) {
           ${MEDIA_FRAGMENT}
         }
       }
     }
   `;
 
-  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, format, countryOfOrigin });
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, format, countryOfOrigin, sort: [sortValue] });
   return data.Page.media.map(toManga);
 }
 
