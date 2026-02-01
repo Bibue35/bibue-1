@@ -8,6 +8,7 @@ import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { validateComment } from "@/lib/validation";
 
 interface EpisodeCommentsProps {
   animeId: number;
@@ -107,9 +108,13 @@ export function EpisodeComments({ animeId, episodeNumber, className }: EpisodeCo
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newComment.trim()) {
-      addCommentMutation.mutate(newComment.trim());
+    const trimmedComment = newComment.trim();
+    const validation = validateComment(trimmedComment);
+    if (!validation.success) {
+      toast({ title: "Validation Error", description: validation.error, variant: "destructive" });
+      return;
     }
+    addCommentMutation.mutate(trimmedComment);
   };
 
   return (

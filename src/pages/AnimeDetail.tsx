@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { validateComment } from "@/lib/validation";
 
 export default function AnimeDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -138,9 +139,13 @@ export default function AnimeDetailPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newComment.trim()) {
-      addCommentMutation.mutate(newComment.trim());
+    const trimmedComment = newComment.trim();
+    const validation = validateComment(trimmedComment);
+    if (!validation.success) {
+      toast({ title: "Validation Error", description: validation.error, variant: "destructive" });
+      return;
     }
+    addCommentMutation.mutate(trimmedComment);
   };
 
   // Generate mock episode data with thumbnails

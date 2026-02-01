@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { validateComment } from "@/lib/validation";
 
 interface ChapterCommentsProps {
   mangaId: number;
@@ -80,9 +81,13 @@ export function ChapterComments({ mangaId, chapterNumber }: ChapterCommentsProps
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newComment.trim()) {
-      addCommentMutation.mutate(newComment.trim());
+    const trimmedComment = newComment.trim();
+    const validation = validateComment(trimmedComment);
+    if (!validation.success) {
+      toast({ title: "Validation Error", description: validation.error, variant: "destructive" });
+      return;
     }
+    addCommentMutation.mutate(trimmedComment);
   };
 
   const formatDate = (dateString: string) => {
