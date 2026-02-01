@@ -87,13 +87,11 @@ export default function MangaPage() {
             </h1>
             <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">漫画を発見</p>
             
-            {/* Search Dropdown */}
+            {/* Search Input */}
             <SearchDropdown
               type="manga"
               value={localSearch}
               onChange={setLocalSearch}
-              results={searchResults}
-              isLoading={searchLoading}
               placeholder="Search manga, manhwa, manhua..."
             />
 

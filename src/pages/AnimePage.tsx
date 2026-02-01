@@ -94,13 +94,11 @@ export default function AnimePage() {
             </h1>
             <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">アニメを発見</p>
             
-            {/* Search Dropdown */}
+            {/* Search Input */}
             <SearchDropdown
               type="anime"
               value={localSearch}
               onChange={setLocalSearch}
-              results={searchResults}
-              isLoading={searchLoading}
               placeholder="Search anime by title..."
             />
 
