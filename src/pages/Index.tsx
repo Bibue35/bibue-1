@@ -24,14 +24,34 @@ const Index = () => {
       
       {/* Coming Soon Banner - positioned after navbar space */}
       <div className="pt-20">
-        <div className="bg-primary/10 border-b border-primary/20">
-          <div className="container mx-auto px-4 py-2">
-            <div className="flex items-center justify-center gap-2 text-center">
-              <Rocket className="w-4 h-4 text-primary animate-pulse" />
-              <span className="text-xs sm:text-sm font-medium text-foreground/80">
-                <Badge variant="secondary" className="mr-2 text-xs">Coming Soon</Badge>
-                New features launching soon!
-              </span>
+        <div className="relative overflow-hidden bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 border-y border-primary/30">
+          {/* Animated background effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-pulse" />
+          
+          <div className="container mx-auto px-4 py-3 relative">
+            <div className="flex items-center justify-center gap-3 text-center">
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Rocket className="w-5 h-5 text-primary animate-bounce" />
+                  <div className="absolute inset-0 w-5 h-5 bg-primary/30 rounded-full blur-md animate-pulse" />
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Badge className="bg-primary text-primary-foreground font-semibold text-xs sm:text-sm px-3 py-1 shadow-lg shadow-primary/20">
+                  Coming Soon
+                </Badge>
+                <span className="text-sm sm:text-base font-medium text-foreground">
+                  Exciting new features are on the way!
+                </span>
+              </div>
+              
+              <div className="hidden sm:flex items-center gap-2">
+                <div className="relative">
+                  <Rocket className="w-5 h-5 text-primary animate-bounce" style={{ animationDelay: '0.2s' }} />
+                  <div className="absolute inset-0 w-5 h-5 bg-primary/30 rounded-full blur-md animate-pulse" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
