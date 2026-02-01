@@ -113,6 +113,14 @@ export function MangaCard({ manga, index = 0, variant = "default" }: MangaCardPr
           {manga.title}
         </h3>
 
+        {/* Score */}
+        {manga.score && (
+          <div className="flex items-center gap-1 mb-1">
+            <Star className="w-3 h-3 text-primary fill-primary" />
+            <span className="text-xs sm:text-sm font-medium">{formatScore(manga.score)}</span>
+          </div>
+        )}
+
         {/* Metadata underneath - always visible */}
         <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
           {manga.type && <span>{manga.type}</span>}

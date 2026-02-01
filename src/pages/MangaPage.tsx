@@ -291,6 +291,48 @@ export default function MangaPage() {
         </div>
       </section>
 
+      {/* Active Filters Chips */}
+      {(typeFilter !== "all" || sortBy !== "popularity" || genreId) && (
+        <section className="pb-2">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs text-muted-foreground">Active filters:</span>
+              {typeFilter !== "all" && (
+                <button
+                  onClick={() => setTypeFilter("all")}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                >
+                  Type: {typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}
+                  <span className="text-primary/60">×</span>
+                </button>
+              )}
+              {sortBy !== "popularity" && (
+                <button
+                  onClick={() => setSortBy("popularity")}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                >
+                  Sort: {sortBy === "score" ? "Score" : "Date"}
+                  <span className="text-primary/60">×</span>
+                </button>
+              )}
+              {genreId && (
+                <button
+                  onClick={() => {
+                    const params = new URLSearchParams(searchParams);
+                    params.delete("genre");
+                    setSearchParams(params, { replace: true });
+                  }}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                >
+                  Genre: {genreId}
+                  <span className="text-primary/60">×</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* All Manga Grid */}
       <section className="py-8 pb-24">
         <div className="container mx-auto px-4">
@@ -300,7 +342,6 @@ export default function MangaPage() {
               : typeFilter !== "all" 
                 ? `Top ${typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}`
                 : "Top Manga"}
-            {genreId && <span className="text-muted-foreground font-normal ml-2">(filtered by genre)</span>}
           </h2>
           
           {isSearching && isLoading ? (
