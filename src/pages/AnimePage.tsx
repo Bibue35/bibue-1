@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Filter, Grid, List, Search, Bookmark, Sparkles, Loader2 } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
@@ -9,47 +9,45 @@ import { GenreSection } from "@/components/GenreSection";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTopAnime, useSeasonalAnime, useSearchAnime } from "@/hooks/useAnimeData";
+import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
 
 export default function AnimePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialFilter = searchParams.get("filter") as 'airing' | 'upcoming' | 'bypopularity' | 'favorite' | 'seasonal' | undefined;
   const genreId = searchParams.get("genre");
-  const searchQuery = searchParams.get("q") || "";
   
   const [filter, setFilter] = useState<'airing' | 'upcoming' | 'bypopularity' | 'favorite' | undefined>(
     initialFilter === 'seasonal' ? undefined : initialFilter
   );
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [localSearch, setLocalSearch] = useState(searchQuery);
+  const [localSearch, setLocalSearch] = useState(searchParams.get("q") || "");
+  
+  // Debounce search input
+  const debouncedSearch = useDebounce(localSearch.trim(), 300);
 
-  const isSearching = searchQuery.trim().length > 0;
+  // Sync URL when debounced value changes
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (debouncedSearch) params.set("q", debouncedSearch);
+    if (filter) params.set("filter", filter);
+    if (genreId) params.set("genre", genreId);
+    setSearchParams(params, { replace: true });
+  }, [debouncedSearch, filter, genreId, setSearchParams]);
+
+  const isSearching = debouncedSearch.length > 0;
 
   const clearSearch = () => {
     setLocalSearch("");
-    setSearchParams({});
   };
 
   const handleFilterChange = (newFilter: typeof filter) => {
     setFilter(newFilter);
-    const params = new URLSearchParams();
-    if (newFilter) params.set("filter", newFilter);
-    if (genreId) params.set("genre", genreId);
-    setSearchParams(params);
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (localSearch.trim()) {
-      setSearchParams({ q: localSearch.trim() });
-    } else {
-      setSearchParams({});
-    }
   };
 
   const { data: topAnime, isLoading: topLoading } = useTopAnime(1, filter);
   const { data: seasonalAnime, isLoading: seasonalLoading } = useSeasonalAnime();
-  const { data: searchResults, isLoading: searchLoading } = useSearchAnime(searchQuery, !!searchQuery);
+  const { data: searchResults, isLoading: searchLoading } = useSearchAnime(debouncedSearch, !!debouncedSearch);
   
   const sortedSeasonalAnime = seasonalAnime?.slice().sort((a, b) => {
     const aIsAiring = a.status === "Currently Airing" ? 1 : 0;
@@ -58,12 +56,12 @@ export default function AnimePage() {
     return (b.members || 0) - (a.members || 0);
   });
 
-  const displayAnime = searchQuery 
+  const displayAnime = isSearching 
     ? searchResults 
     : initialFilter === 'seasonal' 
       ? seasonalAnime 
       : topAnime;
-  const isLoading = searchQuery ? searchLoading : (initialFilter === 'seasonal' ? seasonalLoading : topLoading);
+  const isLoading = isSearching ? searchLoading : (initialFilter === 'seasonal' ? seasonalLoading : topLoading);
 
   return (
     <div className="min-h-screen bg-background">
@@ -79,7 +77,7 @@ export default function AnimePage() {
             <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">アニメを発見</p>
             
             {/* Search Bar */}
-            <form onSubmit={handleSearch} className="relative max-w-xl mx-auto">
+            <div className="relative max-w-xl mx-auto">
               <div className="liquid-glass-strong rounded-2xl transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/30">
                 <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
@@ -87,17 +85,21 @@ export default function AnimePage() {
                   placeholder="Search anime by title..."
                   value={localSearch}
                   onChange={(e) => setLocalSearch(e.target.value)}
-                  className="w-full h-14 pl-14 pr-24 bg-transparent text-base sm:text-lg placeholder:text-muted-foreground focus:outline-none rounded-2xl"
+                  className="w-full h-14 pl-14 pr-14 bg-transparent text-base sm:text-lg placeholder:text-muted-foreground focus:outline-none rounded-2xl"
                 />
-                <Button 
-                  type="submit" 
-                  size="sm" 
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl px-4"
-                >
-                  Search
-                </Button>
+                {localSearch && (
+                  <button
+                    onClick={clearSearch}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-muted/50 rounded-full transition-colors"
+                  >
+                    <span className="sr-only">Clear</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
               </div>
-            </form>
+            </div>
 
             {/* Action Buttons - For You & Saved */}
             <div className="flex justify-center gap-3 mt-6">
@@ -203,8 +205,8 @@ export default function AnimePage() {
       <section className="py-8 pb-24">
         <div className="container mx-auto px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">
-            {searchQuery 
-              ? `Search results for "${searchQuery}"` 
+            {isSearching 
+              ? `Search results for "${debouncedSearch}"` 
               : `${initialFilter === 'seasonal' ? "This Season's" : filter ? filter.charAt(0).toUpperCase() + filter.slice(1) : "Top Rated"} Anime`}
             {genreId && <span className="text-muted-foreground font-normal ml-2">(filtered by genre)</span>}
           </h2>
@@ -216,7 +218,7 @@ export default function AnimePage() {
             )}>
               <div className="flex flex-col items-center text-center gap-3 p-8">
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">Searching for “{searchQuery.trim()}”</p>
+                <p className="text-sm text-muted-foreground">Searching for "{debouncedSearch}"</p>
               </div>
             </div>
           ) : isSearching && !isLoading && (displayAnime?.length ?? 0) === 0 ? (
