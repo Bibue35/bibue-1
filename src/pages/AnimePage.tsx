@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Filter, Grid, List } from "lucide-react";
+import { useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { Filter, Grid, List, Search } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
@@ -8,18 +8,21 @@ import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { GenreSection } from "@/components/GenreSection";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTopAnime, useSeasonalAnime } from "@/hooks/useAnimeData";
+import { useTopAnime, useSeasonalAnime, useSearchAnime } from "@/hooks/useAnimeData";
 import { cn } from "@/lib/utils";
 
 export default function AnimePage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const initialFilter = searchParams.get("filter") as 'airing' | 'upcoming' | 'bypopularity' | 'favorite' | 'seasonal' | undefined;
   const genreId = searchParams.get("genre");
+  const searchQuery = searchParams.get("q") || "";
   
   const [filter, setFilter] = useState<'airing' | 'upcoming' | 'bypopularity' | 'favorite' | undefined>(
     initialFilter === 'seasonal' ? undefined : initialFilter
   );
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [localSearch, setLocalSearch] = useState(searchQuery);
 
   // Update URL when filter changes
   const handleFilterChange = (newFilter: typeof filter) => {
@@ -30,8 +33,18 @@ export default function AnimePage() {
     setSearchParams(params);
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (localSearch.trim()) {
+      setSearchParams({ q: localSearch.trim() });
+    } else {
+      setSearchParams({});
+    }
+  };
+
   const { data: topAnime, isLoading: topLoading } = useTopAnime(1, filter);
   const { data: seasonalAnime, isLoading: seasonalLoading } = useSeasonalAnime();
+  const { data: searchResults, isLoading: searchLoading } = useSearchAnime(searchQuery, !!searchQuery);
   
   // Sort seasonal anime by airing status (currently airing first, then by popularity)
   const sortedSeasonalAnime = seasonalAnime?.slice().sort((a, b) => {
@@ -41,27 +54,50 @@ export default function AnimePage() {
     return (b.members || 0) - (a.members || 0);
   });
 
-  // Use seasonal anime if filter=seasonal
-  const displayAnime = initialFilter === 'seasonal' ? seasonalAnime : topAnime;
-  const isLoading = initialFilter === 'seasonal' ? seasonalLoading : topLoading;
+  // Use search results if searching, else use filtered data
+  const displayAnime = searchQuery 
+    ? searchResults 
+    : initialFilter === 'seasonal' 
+      ? seasonalAnime 
+      : topAnime;
+  const isLoading = searchQuery ? searchLoading : (initialFilter === 'seasonal' ? seasonalLoading : topLoading);
 
   return (
     <div className="min-h-screen bg-background">
       <CollapsibleNavbar />
 
-      {/* Hero - Clean text-only design */}
+      {/* Hero with Search */}
       <section className="pt-28 sm:pt-32 pb-12 sm:pb-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
               Discover Anime
             </h1>
-            <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-2">アニメを発見</p>
-            <p className="text-muted-foreground text-sm sm:text-lg px-4">
-              Explore the best anime from every season, genre, and era.
-            </p>
+            <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">アニメを発見</p>
+            
+            {/* Search Bar */}
+            <form onSubmit={handleSearch} className="relative max-w-xl mx-auto">
+              <div className="liquid-glass-strong rounded-2xl transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/30">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search anime by title..."
+                  value={localSearch}
+                  onChange={(e) => setLocalSearch(e.target.value)}
+                  className="w-full h-14 pl-14 pr-24 bg-transparent text-base sm:text-lg placeholder:text-muted-foreground focus:outline-none rounded-2xl"
+                />
+                <Button 
+                  type="submit" 
+                  size="sm" 
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl px-4"
+                >
+                  Search
+                </Button>
+              </div>
+            </form>
+
             {/* Decorative underline */}
-            <div className="mt-6 mx-auto w-24 h-1 rounded-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+            <div className="mt-8 mx-auto w-24 h-1 rounded-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           </div>
         </div>
       </section>
@@ -148,7 +184,9 @@ export default function AnimePage() {
       <section className="py-8 pb-24">
         <div className="container mx-auto px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">
-            {initialFilter === 'seasonal' ? "This Season's" : filter ? filter.charAt(0).toUpperCase() + filter.slice(1) : "Top Rated"} Anime
+            {searchQuery 
+              ? `Search results for "${searchQuery}"` 
+              : `${initialFilter === 'seasonal' ? "This Season's" : filter ? filter.charAt(0).toUpperCase() + filter.slice(1) : "Top Rated"} Anime`}
             {genreId && <span className="text-muted-foreground font-normal ml-2">(filtered by genre)</span>}
           </h2>
           
