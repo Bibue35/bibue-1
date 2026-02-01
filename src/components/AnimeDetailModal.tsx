@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Play, X, Star, Copy, Share2, Eye, Search, ChevronLeft, ChevronRight, MessageCircle, Send, User, ThumbsUp, ArrowUpDown } from "lucide-react";
+import { Play, X, Star, Copy, Share2, Eye, Search, ChevronLeft, ChevronRight, MessageCircle, Send, User, ThumbsUp, ArrowUpDown, Users } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,6 +18,8 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { validateComment } from "@/lib/validation";
 import { WatchlistButton } from "./WatchlistButton";
+import { CharactersStaffTab } from "./CharactersStaffTab";
+import { MarkdownContent } from "./MarkdownContent";
 
 interface AnimeDetailModalProps {
   animeId: number;
@@ -241,7 +243,7 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
             )}
           </div>
 
-          {/* Tabs for Episodes and Comments */}
+          {/* Tabs for Episodes, Characters and Comments */}
           <div className="px-6 sm:px-8 pb-8">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="mb-4">
@@ -249,9 +251,13 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                   <Play className="w-4 h-4" />
                   Episodes
                 </TabsTrigger>
+                <TabsTrigger value="characters" className="gap-2">
+                  <Users className="w-4 h-4" />
+                  Characters
+                </TabsTrigger>
                 <TabsTrigger value="comments" className="gap-2">
                   <MessageCircle className="w-4 h-4" />
-                  Comment Section
+                  Comments
                 </TabsTrigger>
               </TabsList>
 
@@ -341,6 +347,11 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                 </div>
               </TabsContent>
 
+              {/* Characters & Staff Tab */}
+              <TabsContent value="characters">
+                <CharactersStaffTab mediaId={animeId} mediaType="anime" />
+              </TabsContent>
+
               {/* Comments Tab */}
               <TabsContent value="comments">
                 <div className="flex items-center justify-between mb-4">
@@ -412,9 +423,10 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                                 {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
                               </span>
                             </div>
-                            <p className="text-sm text-muted-foreground">
-                              {comment.content}
-                            </p>
+                            <MarkdownContent 
+                              content={comment.content} 
+                              className="text-sm text-muted-foreground"
+                            />
                           </div>
                         </div>
                       </div>

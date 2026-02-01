@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          activity_type: string
+          created_at: string
+          details: Json | null
+          id: string
+          image_url: string | null
+          mal_id: number
+          media_type: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          image_url?: string | null
+          mal_id: number
+          media_type: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          image_url?: string | null
+          mal_id?: number
+          media_type?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       comment_likes: {
         Row: {
           comment_id: string
@@ -236,13 +272,74 @@ export type Database = {
         }
         Relationships: []
       }
-      watchlist: {
+      user_categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
         Row: {
           created_at: string
+          hide_activity: boolean | null
+          id: string
+          incognito_mode: boolean | null
+          theme: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hide_activity?: boolean | null
+          id?: string
+          incognito_mode?: boolean | null
+          theme?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hide_activity?: boolean | null
+          id?: string
+          incognito_mode?: boolean | null
+          theme?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      watchlist: {
+        Row: {
+          category: string | null
+          chapters_read: number | null
+          created_at: string
+          episodes_watched: number | null
           id: string
           image_url: string | null
           mal_id: number
           media_type: string
+          notes: string | null
           score: number | null
           status: string | null
           title: string
@@ -251,11 +348,15 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          category?: string | null
+          chapters_read?: number | null
           created_at?: string
+          episodes_watched?: number | null
           id?: string
           image_url?: string | null
           mal_id: number
           media_type: string
+          notes?: string | null
           score?: number | null
           status?: string | null
           title: string
@@ -264,11 +365,15 @@ export type Database = {
           user_id: string
         }
         Update: {
+          category?: string | null
+          chapters_read?: number | null
           created_at?: string
+          episodes_watched?: number | null
           id?: string
           image_url?: string | null
           mal_id?: number
           media_type?: string
+          notes?: string | null
           score?: number | null
           status?: string | null
           title?: string

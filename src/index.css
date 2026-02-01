@@ -1073,3 +1073,176 @@
   .stagger-children > *:nth-child(7) { animation-delay: 0.35s; }
   .stagger-children > *:nth-child(8) { animation-delay: 0.4s; }
 }
+
+/* ============================================
+ * CATPPUCCIN THEME FLAVORS
+ * Mocha | Latte | Frappé | Macchiato
+ * ============================================ */
+
+/* Catppuccin Mocha (Dark) */
+.theme-mocha {
+  --background: 240 21% 12%;
+  --foreground: 226 64% 88%;
+  
+  --card: 240 21% 15%;
+  --card-foreground: 226 64% 88%;
+  
+  --popover: 240 21% 15%;
+  --popover-foreground: 226 64% 88%;
+  
+  --primary: 267 84% 81%;
+  --primary-foreground: 240 21% 12%;
+  
+  --secondary: 240 21% 20%;
+  --secondary-foreground: 226 64% 88%;
+  
+  --muted: 240 21% 18%;
+  --muted-foreground: 227 35% 65%;
+  
+  --accent: 240 21% 22%;
+  --accent-foreground: 226 64% 88%;
+  
+  --destructive: 343 81% 75%;
+  --destructive-foreground: 240 21% 12%;
+  
+  --border: 240 21% 20%;
+  --input: 240 21% 20%;
+  --ring: 267 84% 81%;
+  
+  --glass-bg: 240 21% 12% / 0.85;
+  --glass-border: 240 21% 25% / 0.35;
+  --glass-highlight: 267 84% 81% / 0.1;
+  --glass-shadow: 240 21% 5% / 0.6;
+  --glass-blur: 48px;
+  --glass-refraction: 267 50% 70% / 0.08;
+  
+  --divine-glow: 267 65% 60% / 0.25;
+  --divine-radiance: 267 60% 75% / 0.3;
+  --divine-halo: 267 55% 85% / 0.22;
+}
+
+/* Catppuccin Latte (Light) */
+.theme-latte {
+  --background: 220 23% 95%;
+  --foreground: 234 16% 35%;
+  
+  --card: 220 23% 98%;
+  --card-foreground: 234 16% 35%;
+  
+  --popover: 220 23% 98%;
+  --popover-foreground: 234 16% 35%;
+  
+  --primary: 266 85% 58%;
+  --primary-foreground: 220 23% 98%;
+  
+  --secondary: 220 22% 90%;
+  --secondary-foreground: 234 16% 35%;
+  
+  --muted: 220 22% 87%;
+  --muted-foreground: 233 10% 47%;
+  
+  --accent: 220 22% 92%;
+  --accent-foreground: 234 16% 35%;
+  
+  --destructive: 347 87% 44%;
+  --destructive-foreground: 220 23% 98%;
+  
+  --border: 220 22% 85%;
+  --input: 220 22% 85%;
+  --ring: 266 85% 58%;
+  
+  --glass-bg: 220 23% 98% / 0.82;
+  --glass-border: 220 22% 85% / 0.75;
+  --glass-highlight: 220 23% 100% / 0.95;
+  --glass-shadow: 234 16% 35% / 0.08;
+  --glass-blur: 40px;
+  --glass-refraction: 266 50% 90% / 0.5;
+  
+  --divine-glow: 266 60% 65% / 0.2;
+  --divine-radiance: 266 70% 75% / 0.35;
+  --divine-halo: 266 80% 85% / 0.25;
+}
+
+/* Catppuccin Frappé (Dark) */
+.theme-frappe {
+  --background: 229 19% 23%;
+  --foreground: 227 70% 87%;
+  
+  --card: 229 19% 26%;
+  --card-foreground: 227 70% 87%;
+  
+  --popover: 229 19% 26%;
+  --popover-foreground: 227 70% 87%;
+  
+  --primary: 277 59% 76%;
+  --primary-foreground: 229 19% 20%;
+  
+  --secondary: 229 19% 30%;
+  --secondary-foreground: 227 70% 87%;
+  
+  --muted: 229 19% 28%;
+  --muted-foreground: 227 44% 64%;
+  
+  --accent: 229 19% 32%;
+  --accent-foreground: 227 70% 87%;
+  
+  --destructive: 351 74% 73%;
+  --destructive-foreground: 229 19% 20%;
+  
+  --border: 229 19% 28%;
+  --input: 229 19% 28%;
+  --ring: 277 59% 76%;
+  
+  --glass-bg: 229 19% 23% / 0.85;
+  --glass-border: 229 19% 32% / 0.35;
+  --glass-highlight: 277 59% 76% / 0.1;
+  --glass-shadow: 229 19% 10% / 0.6;
+  --glass-blur: 48px;
+  --glass-refraction: 277 45% 70% / 0.08;
+  
+  --divine-glow: 277 50% 60% / 0.25;
+  --divine-radiance: 277 55% 70% / 0.3;
+  --divine-halo: 277 50% 80% / 0.22;
+}
+
+/* Catppuccin Macchiato (Dark) */
+.theme-macchiato {
+  --background: 232 23% 18%;
+  --foreground: 227 68% 88%;
+  
+  --card: 232 23% 21%;
+  --card-foreground: 227 68% 88%;
+  
+  --popover: 232 23% 21%;
+  --popover-foreground: 227 68% 88%;
+  
+  --primary: 267 83% 80%;
+  --primary-foreground: 232 23% 15%;
+  
+  --secondary: 232 23% 25%;
+  --secondary-foreground: 227 68% 88%;
+  
+  --muted: 232 23% 23%;
+  --muted-foreground: 227 39% 65%;
+  
+  --accent: 232 23% 27%;
+  --accent-foreground: 227 68% 88%;
+  
+  --destructive: 351 74% 73%;
+  --destructive-foreground: 232 23% 15%;
+  
+  --border: 232 23% 25%;
+  --input: 232 23% 25%;
+  --ring: 267 83% 80%;
+  
+  --glass-bg: 232 23% 18% / 0.85;
+  --glass-border: 232 23% 28% / 0.35;
+  --glass-highlight: 267 83% 80% / 0.1;
+  --glass-shadow: 232 23% 8% / 0.6;
+  --glass-blur: 48px;
+  --glass-refraction: 267 55% 70% / 0.08;
+  
+  --divine-glow: 267 60% 60% / 0.25;
+  --divine-radiance: 267 65% 70% / 0.3;
+  --divine-halo: 267 60% 80% / 0.22;
+}

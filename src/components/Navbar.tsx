@@ -4,7 +4,8 @@ import { Search, Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
-import { ThemeToggle } from "./ThemeToggle";
+import { ThemeSelector } from "./ThemeSelector";
+import { IncognitoToggle } from "./IncognitoToggle";
 import { UserMenu } from "./UserMenu";
 import {
   DropdownMenu,
@@ -140,7 +141,8 @@ export function Navbar() {
                 <Search className="w-5 h-5" />
               </Button>
 
-              <ThemeToggle />
+              <IncognitoToggle />
+              <ThemeSelector />
               
               <UserMenu />
 

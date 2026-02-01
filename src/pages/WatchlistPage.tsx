@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Heart, Grid, List, Film, BookOpen, Trash2 } from "lucide-react";
+import { Heart, Grid, List, Film, BookOpen, Trash2, Tag } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,8 @@ import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { RatingPopover } from "@/components/RatingPopover";
+import { CategoryManager, useCategories } from "@/components/CategoryManager";
+import { BatchEditMode, BatchSelectCheckbox } from "@/components/BatchEditMode";
 import {
   Select,
   SelectContent,
@@ -30,18 +32,25 @@ export default function WatchlistPage() {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { watchlist, isLoading, removeFromWatchlist, updateStatus, updateScore } = useWatchlist();
+  const { data: categories = [] } = useCategories();
   
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [isBatchMode, setIsBatchMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   
   // Get type filter from URL (anime or manga)
   const typeFromUrl = searchParams.get("type") as "anime" | "manga" | null;
   const [filter, setFilter] = useState<"all" | "anime" | "manga">(typeFromUrl || "all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   const filteredWatchlist = watchlist?.filter((item) => {
     const typeMatch = filter === "all" || item.media_type === filter;
     const statusMatch = statusFilter === "all" || item.status === statusFilter;
-    return typeMatch && statusMatch;
+    const categoryMatch = categoryFilter === "all" || 
+      (categoryFilter === "none" && !item.category) ||
+      item.category === categoryFilter;
+    return typeMatch && statusMatch && categoryMatch;
   });
 
   const animeCount = watchlist?.filter((i) => i.media_type === "anime").length || 0;
@@ -89,6 +98,27 @@ export default function WatchlistPage() {
         </div>
       </section>
 
+      {/* Batch Edit Mode */}
+      <section className="py-2">
+        <div className="container mx-auto px-4">
+          <BatchEditMode
+            items={filteredWatchlist?.map(i => ({ 
+              id: i.id, 
+              mal_id: i.mal_id, 
+              media_type: i.media_type, 
+              title: i.title 
+            })) || []}
+            isActive={isBatchMode}
+            onToggle={() => {
+              setIsBatchMode(!isBatchMode);
+              setSelectedIds(new Set());
+            }}
+            selectedIds={selectedIds}
+            onSelectionChange={setSelectedIds}
+          />
+        </div>
+      </section>
+
       {/* Filters */}
       <section className="py-4">
         <div className="container mx-auto px-4">
@@ -119,6 +149,26 @@ export default function WatchlistPage() {
                   ))}
                 </SelectContent>
               </Select>
+
+              {categories.length > 0 && (
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-40 rounded-full">
+                    <Tag className="w-3 h-3 mr-1" />
+                    <SelectValue placeholder="Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="none">Uncategorized</SelectItem>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.name}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+
+              <CategoryManager />
             </div>
 
             <div className="flex items-center gap-2">
