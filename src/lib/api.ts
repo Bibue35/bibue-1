@@ -89,14 +89,17 @@ async function anilistQuery<T>(query: string, variables: Record<string, unknown>
 
 // Convert AniList media to our Anime format
 function toAnime(media: AniListMedia): Anime {
+  // Use the highest quality image available
+  const imageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
+  
   return {
     mal_id: media.idMal || media.id,
     title: media.title.english || media.title.romaji || "Unknown",
     title_english: media.title.english || undefined,
     title_japanese: media.title.native || undefined,
     images: {
-      jpg: { large_image_url: media.coverImage.extraLarge || media.coverImage.large, image_url: media.coverImage.medium || media.coverImage.large },
-      webp: { large_image_url: media.coverImage.extraLarge || media.coverImage.large, image_url: media.coverImage.medium || media.coverImage.large },
+      jpg: { large_image_url: imageUrl, image_url: imageUrl },
+      webp: { large_image_url: imageUrl, image_url: imageUrl },
     },
     trailer: media.trailer ? { youtube_id: media.trailer.id, url: media.trailer.site === "youtube" ? `https://youtube.com/watch?v=${media.trailer.id}` : undefined } : undefined,
     synopsis: media.description?.replace(/<[^>]*>/g, "") || undefined,
@@ -124,14 +127,17 @@ function toAnime(media: AniListMedia): Anime {
 
 // Convert AniList media to our Manga format
 function toManga(media: AniListMedia): Manga {
+  // Use the highest quality image available
+  const imageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
+  
   return {
     mal_id: media.idMal || media.id,
     title: media.title.english || media.title.romaji || "Unknown",
     title_english: media.title.english || undefined,
     title_japanese: media.title.native || undefined,
     images: {
-      jpg: { large_image_url: media.coverImage.extraLarge || media.coverImage.large, image_url: media.coverImage.medium || media.coverImage.large },
-      webp: { large_image_url: media.coverImage.extraLarge || media.coverImage.large, image_url: media.coverImage.medium || media.coverImage.large },
+      jpg: { large_image_url: imageUrl, image_url: imageUrl },
+      webp: { large_image_url: imageUrl, image_url: imageUrl },
     },
     synopsis: media.description?.replace(/<[^>]*>/g, "") || undefined,
     score: media.averageScore ? media.averageScore / 10 : undefined,
