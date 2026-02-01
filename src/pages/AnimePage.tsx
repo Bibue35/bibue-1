@@ -216,6 +216,39 @@ export default function AnimePage() {
         </div>
       </section>
 
+      {/* Active Filters Chips */}
+      {(filter || genreId) && (
+        <section className="pb-2">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs text-muted-foreground">Active filters:</span>
+              {filter && (
+                <button
+                  onClick={() => setFilter(undefined)}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                >
+                  Sort: {filter === 'bypopularity' ? 'Popular' : filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  <span className="text-primary/60">×</span>
+                </button>
+              )}
+              {genreId && (
+                <button
+                  onClick={() => {
+                    const params = new URLSearchParams(searchParams);
+                    params.delete("genre");
+                    setSearchParams(params, { replace: true });
+                  }}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                >
+                  Genre: {genreId}
+                  <span className="text-primary/60">×</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* All Anime Grid */}
       <section className="py-8 pb-24">
         <div className="container mx-auto px-4">
@@ -223,7 +256,6 @@ export default function AnimePage() {
             {isSearching 
               ? `Search results for "${debouncedSearch}"` 
               : `${initialFilter === 'seasonal' ? "This Season's" : filter ? filter.charAt(0).toUpperCase() + filter.slice(1) : "Top Rated"} Anime`}
-            {genreId && <span className="text-muted-foreground font-normal ml-2">(filtered by genre)</span>}
           </h2>
           
           {isSearching && isLoading ? (
