@@ -102,10 +102,10 @@ export default function AnimePage() {
         </div>
       </section>
 
-      {/* Genres */}
-      <section className="py-8">
+      {/* Genres - Subtle */}
+      <section className="py-4">
         <div className="container mx-auto px-4">
-          <GenreSection type="anime" />
+          <GenreSection type="anime" className="opacity-70 hover:opacity-100 transition-opacity" />
         </div>
       </section>
 
