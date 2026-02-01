@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Loader2, Mail, Lock, User, Link2 } from "lucide-react";
 import { lovable } from "@/integrations/lovable";
+import { validateEmail, validateUsername } from "@/lib/validation";
 
 interface AuthModalProps {
   open: boolean;
@@ -23,13 +24,36 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Client-side validation
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.success) {
+      toast.error(emailValidation.error);
+      return;
+    }
+    
+    // Password length check (basic - server does full validation)
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    
+    if (!isLogin) {
+      const usernameValidation = validateUsername(username);
+      if (!usernameValidation.success) {
+        toast.error(usernameValidation.error);
+        return;
+      }
+    }
+    
     setLoading(true);
 
     try {
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
-          toast.error(error.message);
+          // Don't expose specific auth errors - could be used for enumeration
+          toast.error("Invalid email or password");
         } else {
           toast.success("Welcome back!");
           onOpenChange(false);
@@ -38,7 +62,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       } else {
         const { error } = await signUp(email, password, username);
         if (error) {
-          toast.error(error.message);
+          // Generic error message for signup failures
+          toast.error("Could not create account. Please try again.");
         } else {
           toast.success("Check your email to verify your account!");
           onOpenChange(false);
