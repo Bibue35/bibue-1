@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, Eye, ChevronLeft, ChevronRight, ThumbsUp, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { validateComment } from "@/lib/validation";
+import { useWatchlist } from "@/hooks/useWatchlist";
 
 export default function AnimeDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,9 +23,14 @@ export default function AnimeDetailPage() {
   const [showControls, setShowControls] = useState(true);
   const [newComment, setNewComment] = useState("");
   const [sortBy, setSortBy] = useState<"latest" | "likes">("latest");
+  const [isFavorite, setIsFavorite] = useState(false);
+  const playerRef = useRef<HTMLElement>(null);
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { addToWatchlist, removeFromWatchlist, isInWatchlist, isLoading: watchlistLoading } = useWatchlist();
+  
+  const isBookmarked = isInWatchlist(Number(id), "anime");
 
   // Hide controls after 3 seconds of inactivity
   useEffect(() => {
@@ -48,7 +54,58 @@ export default function AnimeDetailPage() {
     };
   }, [isFullscreen]);
 
-  // Comments query with sorting
+  // Handle fullscreen toggle using browser Fullscreen API
+  const toggleFullscreen = async () => {
+    if (!document.fullscreenElement) {
+      if (playerRef.current) {
+        await playerRef.current.requestFullscreen();
+        setIsFullscreen(true);
+      }
+    } else {
+      await document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  // Listen for fullscreen changes (e.g., pressing Esc)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  // Handle bookmark toggle
+  const handleBookmarkToggle = () => {
+    if (!user) {
+      toast({ title: "Please sign in to bookmark", variant: "destructive" });
+      return;
+    }
+    if (isBookmarked) {
+      removeFromWatchlist.mutate({ mal_id: Number(id), media_type: "anime" });
+    } else if (anime) {
+      addToWatchlist.mutate({
+        mal_id: Number(id),
+        media_type: "anime",
+        title: anime.title,
+        title_japanese: anime.title_japanese,
+        image_url: anime.images?.webp?.large_image_url,
+        score: anime.score,
+      });
+    }
+  };
+
+  // Handle favorite toggle (local state for now)
+  const handleFavoriteToggle = () => {
+    if (!user) {
+      toast({ title: "Please sign in to favorite", variant: "destructive" });
+      return;
+    }
+    setIsFavorite(!isFavorite);
+    toast({ title: isFavorite ? "Removed from favorites" : "Added to favorites!" });
+  };
+
   const { data: comments, isLoading: commentsLoading } = useQuery({
     queryKey: ["episode-comments", Number(id), selectedEpisode, sortBy],
     queryFn: async () => {
@@ -184,10 +241,13 @@ export default function AnimeDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* ============ SECTION 1: FULLSCREEN VIDEO PLAYER - AnimeRealms Style ============ */}
-      <section className={cn(
-        "relative bg-black transition-all duration-300",
-        isFullscreen ? "fixed inset-0 z-50" : "h-screen"
-      )}>
+      <section 
+        ref={playerRef}
+        className={cn(
+          "relative bg-black transition-all duration-300",
+          isFullscreen ? "fixed inset-0 z-50" : "h-screen"
+        )}
+      >
         {isLoading ? (
           <div className="w-full h-full flex items-center justify-center">
             <Skeleton className="w-full h-full" />
@@ -207,14 +267,31 @@ export default function AnimeDetailPage() {
               "absolute top-6 right-6 z-40 flex items-center gap-3 transition-all duration-500",
               showControls ? "opacity-100" : "opacity-0 pointer-events-none"
             )}>
-              <Button variant="ghost" size="icon" className="h-10 w-10 text-white/70 hover:text-white hover:bg-white/10 rounded-full">
-                <Bookmark className="w-5 h-5" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleBookmarkToggle}
+                disabled={watchlistLoading}
+                className={cn(
+                  "h-10 w-10 hover:bg-white/10 rounded-full transition-all",
+                  isBookmarked ? "text-primary" : "text-white/70 hover:text-white"
+                )}
+              >
+                <Bookmark className={cn("w-5 h-5", isBookmarked && "fill-current")} />
               </Button>
-              <Button variant="ghost" size="icon" className="h-10 w-10 text-white/70 hover:text-white hover:bg-white/10 rounded-full">
-                <Heart className="w-5 h-5" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleFavoriteToggle}
+                className={cn(
+                  "h-10 w-10 hover:bg-white/10 rounded-full transition-all",
+                  isFavorite ? "text-destructive" : "text-white/70 hover:text-white"
+                )}
+              >
+                <Heart className={cn("w-5 h-5", isFavorite && "fill-current")} />
               </Button>
               <button
-                onClick={() => setIsFullscreen(!isFullscreen)}
+                onClick={toggleFullscreen}
                 className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white/70 hover:text-white"
               >
                 {isFullscreen ? (
