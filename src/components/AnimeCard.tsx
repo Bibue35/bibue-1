@@ -32,16 +32,14 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
       <>
         <button
           onClick={() => setModalOpen(true)}
-          className={cn(
-            "flex items-center gap-3 sm:gap-4 p-3 rounded-xl transition-all group text-left w-full",
-            "liquid-glass-subtle hover:bg-foreground/5",
-            "sun-glow moon-glow"
-          )}
+          className="flex items-center gap-3 sm:gap-4 p-3 rounded-xl transition-colors group text-left w-full hover:bg-foreground/5"
         >
           <img
             src={anime.images.webp.image_url}
             alt={anime.title}
-            className="w-14 sm:w-16 h-18 sm:h-20 object-cover rounded-lg"
+            loading="lazy"
+            decoding="async"
+            className="w-14 sm:w-16 h-18 sm:h-20 object-cover rounded-lg bg-muted"
           />
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-sm sm:text-base truncate group-hover:text-foreground/80 transition-colors">
@@ -86,20 +84,16 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
     <>
       <button
         onClick={() => setModalOpen(true)}
-        className={cn(
-          "block group animate-fade-up text-left w-full"
-        )}
-        style={{ animationDelay: `${index * 0.05}s` }}
+        className="block group text-left w-full"
       >
-        {/* Image with 3D hover effect */}
-        <div className={cn(
-          "relative aspect-[2/3] rounded-2xl overflow-hidden mb-2",
-          "card-3d divine-card"
-        )}>
+        {/* Image with simple hover effect */}
+        <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-2 bg-muted">
           <img
             src={anime.images.webp.image_url}
             alt={anime.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+            decoding="async"
+            className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
           />
           {/* Episode count badge */}
           {episodeCount && (

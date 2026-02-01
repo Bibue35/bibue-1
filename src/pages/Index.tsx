@@ -62,13 +62,13 @@ const Index = () => {
       {/* Coming Soon Banner */}
       <section className="py-6 sm:py-8">
         <div className="container mx-auto px-4">
-          <div className="liquid-glass rounded-2xl p-4 sm:p-5 flex items-center justify-center gap-3 text-center">
-            <Rocket className="w-5 h-5 text-primary animate-pulse" />
+          <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 flex items-center justify-center gap-3 text-center">
+            <Rocket className="w-5 h-5 text-primary" />
             <span className="text-sm sm:text-base font-medium text-foreground/90">
               <Badge variant="secondary" className="mr-2">{t("banner.comingSoon")}</Badge>
               {t("banner.newFeatures")}
             </span>
-            <Rocket className="w-5 h-5 text-primary animate-pulse hidden sm:block" />
+            <Rocket className="w-5 h-5 text-primary hidden sm:block" />
           </div>
         </div>
       </section>
@@ -89,7 +89,7 @@ const Index = () => {
                 <p className="font-jp text-xs sm:text-sm text-muted-foreground mt-0.5">{t("section.thisSeasonJp")}</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" className="gap-1 glass-button" asChild>
+            <Button variant="ghost" size="sm" className="gap-1" asChild>
               <Link to="/anime?filter=seasonal">
                 {t("section.viewAll")} <ArrowRight className="w-4 h-4" />
               </Link>
@@ -131,7 +131,7 @@ const Index = () => {
                 <p className="font-jp text-xs sm:text-sm text-muted-foreground mt-0.5">人気アニメ</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" className="gap-1 glass-button" asChild>
+            <Button variant="ghost" size="sm" className="gap-1" asChild>
               <Link to="/rankings?type=anime">
                 {t("section.rankings")} <ArrowRight className="w-4 h-4" />
               </Link>
@@ -168,7 +168,7 @@ const Index = () => {
                 <p className="font-jp text-xs sm:text-sm text-muted-foreground mt-0.5">近日公開</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" className="gap-1 glass-button" asChild>
+            <Button variant="ghost" size="sm" className="gap-1" asChild>
               <Link to="/anime?filter=upcoming">
                 {t("section.viewAll")} <ArrowRight className="w-4 h-4" />
               </Link>
@@ -211,7 +211,7 @@ const Index = () => {
                 <p className="font-jp text-sm text-muted-foreground">漫画・マンファ・漫画</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" className="gap-1 glass-button" asChild>
+            <Button variant="ghost" size="sm" className="gap-1" asChild>
               <Link to="/manga">
                 Browse All <ArrowRight className="w-4 h-4" />
               </Link>
