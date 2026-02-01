@@ -332,6 +332,27 @@ export async function getAnimeRecommendations(id: number): Promise<Array<{ entry
     .map(n => ({ entry: toAnime(n.mediaRecommendation) }));
 }
 
+export async function getMangaRecommendations(id: number): Promise<Array<{ entry: Manga }>> {
+  const query = `
+    query ($id: Int) {
+      Media(id: $id, type: MANGA) {
+        recommendations(page: 1, perPage: 10, sort: [RATING_DESC]) {
+          nodes {
+            mediaRecommendation {
+              ${MEDIA_FRAGMENT}
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Media: { recommendations: { nodes: Array<{ mediaRecommendation: AniListMedia }> } } }>(query, { id });
+  return data.Media.recommendations.nodes
+    .filter(n => n.mediaRecommendation)
+    .map(n => ({ entry: toManga(n.mediaRecommendation) }));
+}
+
 // Manga endpoints
 export async function getTopManga(page = 1, limit = 25, filter?: "manga" | "novels" | "lightnovels" | "oneshots" | "doujin" | "manhwa" | "manhua"): Promise<Manga[]> {
   let format: string | undefined;

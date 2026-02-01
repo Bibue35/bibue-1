@@ -9,6 +9,8 @@ import {
   getMangaById,
   getSchedule,
   getScheduleByDay,
+  getAnimeRecommendations,
+  getMangaRecommendations,
   Anime,
   Manga,
   ScheduleItem,
@@ -91,5 +93,23 @@ export function useScheduleByDay(day: string) {
     queryKey: ["scheduleByDay", day],
     queryFn: () => getScheduleByDay(day),
     staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useAnimeRecommendations(id: number | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ["animeRecommendations", id],
+    queryFn: () => getAnimeRecommendations(id!),
+    enabled: enabled && !!id,
+    staleTime: 1000 * 60 * 10,
+  });
+}
+
+export function useMangaRecommendations(id: number | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ["mangaRecommendations", id],
+    queryFn: () => getMangaRecommendations(id!),
+    enabled: enabled && !!id,
+    staleTime: 1000 * 60 * 10,
   });
 }
