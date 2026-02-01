@@ -29,6 +29,7 @@ export function CollapsibleNavbar() {
     { href: "/", label: t("nav.home") },
     { href: "/anime", label: t("nav.anime") },
     { href: "/manga", label: t("nav.manga") },
+    { href: "/watchlist", label: t("nav.watchlist") },
     { href: "/rankings", label: t("nav.rankings") },
     { href: "/community", label: t("nav.community") },
   ];
