@@ -7,7 +7,6 @@ import { HeroSection } from "@/components/HeroSection";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { AnimeCard } from "@/components/AnimeCard";
 import { MangaCard } from "@/components/MangaCard";
-import { GenreSection } from "@/components/GenreSection";
 import { Footer } from "@/components/Footer";
 import { AdUnit } from "@/components/AdUnit";
 import { useTopAnime, useSeasonalAnime, useTopManga, useSchedule } from "@/hooks/useAnimeData";
@@ -130,13 +129,6 @@ const Index = () => {
         <AdUnit slot="1234567890" format="horizontal" className="my-8" />
       </div>
 
-      {/* Anime Genres */}
-      <section className="py-12 sm:py-16">
-        <div className="container mx-auto px-4">
-          <GenreSection type="anime" />
-        </div>
-      </section>
-
       {/* Trending */}
       <section className="py-12 sm:py-16">
         <div className="container mx-auto px-4">
@@ -210,37 +202,6 @@ const Index = () => {
       <div className="container mx-auto px-4">
         <AdUnit slot="3456789012" format="horizontal" className="my-8" />
       </div>
-
-      {/* Manga Genres */}
-      <section className="py-12 sm:py-16">
-        <div className="container mx-auto px-4">
-          <GenreSection type="manga" />
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 sm:py-24">
-        <div className="container mx-auto px-4">
-          <div className="relative liquid-glass rounded-3xl p-8 sm:p-12 md:p-16 overflow-hidden text-center">
-            <div className="max-w-xl mx-auto">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
-                {t("cta.trackJourney")}
-              </h2>
-              <p className="text-muted-foreground text-sm sm:text-base mb-6 sm:mb-8">
-                {t("cta.connectDescription")}
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Button size="lg" variant="primary">
-                  {t("cta.connectAccount")}
-                </Button>
-                <Button variant="outline" size="lg">
-                  {t("cta.learnMore")}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <Footer />
     </div>
