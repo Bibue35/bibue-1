@@ -85,7 +85,17 @@ export interface NewsItem {
   excerpt: string;
 }
 
-// AniList GraphQL query helper
+// Rate limit error class
+class RateLimitError extends Error {
+  retryAfter: number;
+  constructor(retryAfter: number) {
+    super(`Rate limit exceeded. Please try again in ${retryAfter} seconds.`);
+    this.name = 'RateLimitError';
+    this.retryAfter = retryAfter;
+  }
+}
+
+// AniList GraphQL query helper with rate limit handling
 async function anilistQuery<T>(query: string, variables: Record<string, unknown> = {}): Promise<T> {
   const response = await fetch(ANILIST_API, {
     method: "POST",
@@ -96,13 +106,24 @@ async function anilistQuery<T>(query: string, variables: Record<string, unknown>
     body: JSON.stringify({ query, variables }),
   });
 
+  // Handle rate limiting (429 Too Many Requests)
+  if (response.status === 429) {
+    const retryAfter = parseInt(response.headers.get('Retry-After') || '60', 10);
+    console.warn(`[API] Rate limit hit. Retry after ${retryAfter}s`);
+    throw new RateLimitError(retryAfter);
+  }
+
   if (!response.ok) {
-    throw new Error(`AniList API Error: ${response.status}`);
+    // Don't expose internal error details to users
+    console.error(`[API] AniList error: ${response.status}`);
+    throw new Error(`Failed to fetch data. Please try again later.`);
   }
 
   const json = await response.json();
   if (json.errors) {
-    throw new Error(json.errors[0]?.message || "AniList query error");
+    // Log error details for debugging but show generic message to user
+    console.error('[API] AniList query error:', json.errors[0]?.message);
+    throw new Error('Failed to fetch data. Please try again later.');
   }
   return json.data;
 }

@@ -67,15 +67,28 @@ export function BatchEditMode({
     setIsProcessing(true);
 
     try {
+      // Security: Validate all selected IDs belong to user's watchlist items
+      const validItemIds = items.map(item => item.id);
+      const validatedIds = Array.from(selectedIds).filter(id => validItemIds.includes(id));
+      
+      if (validatedIds.length === 0) {
+        toast({ title: "No valid items selected", variant: "destructive" });
+        return;
+      }
+      
+      if (validatedIds.length !== selectedIds.size) {
+        console.warn(`[Security] Filtered ${selectedIds.size - validatedIds.length} invalid IDs from batch delete`);
+      }
+
       const { error } = await supabase
         .from("watchlist")
         .delete()
-        .in("id", Array.from(selectedIds));
+        .in("id", validatedIds);
 
       if (error) throw error;
 
       queryClient.invalidateQueries({ queryKey: ["watchlist"] });
-      toast({ title: `Removed ${selectedIds.size} items` });
+      toast({ title: `Removed ${validatedIds.length} items` });
       clearSelection();
       onToggle();
     } catch (error) {
@@ -90,15 +103,24 @@ export function BatchEditMode({
     setIsProcessing(true);
 
     try {
+      // Security: Validate all selected IDs belong to user's watchlist items
+      const validItemIds = items.map(item => item.id);
+      const validatedIds = Array.from(selectedIds).filter(id => validItemIds.includes(id));
+      
+      if (validatedIds.length === 0) {
+        toast({ title: "No valid items selected", variant: "destructive" });
+        return;
+      }
+
       const { error } = await supabase
         .from("watchlist")
         .update({ status })
-        .in("id", Array.from(selectedIds));
+        .in("id", validatedIds);
 
       if (error) throw error;
 
       queryClient.invalidateQueries({ queryKey: ["watchlist"] });
-      toast({ title: `Updated ${selectedIds.size} items to "${status}"` });
+      toast({ title: `Updated ${validatedIds.length} items to "${status}"` });
       clearSelection();
     } catch (error) {
       toast({ title: "Failed to update items", variant: "destructive" });
@@ -112,15 +134,24 @@ export function BatchEditMode({
     setIsProcessing(true);
 
     try {
+      // Security: Validate all selected IDs belong to user's watchlist items
+      const validItemIds = items.map(item => item.id);
+      const validatedIds = Array.from(selectedIds).filter(id => validItemIds.includes(id));
+      
+      if (validatedIds.length === 0) {
+        toast({ title: "No valid items selected", variant: "destructive" });
+        return;
+      }
+
       const { error } = await supabase
         .from("watchlist")
         .update({ category: category || null })
-        .in("id", Array.from(selectedIds));
+        .in("id", validatedIds);
 
       if (error) throw error;
 
       queryClient.invalidateQueries({ queryKey: ["watchlist"] });
-      toast({ title: `Moved ${selectedIds.size} items to "${category || 'No Category'}"` });
+      toast({ title: `Moved ${validatedIds.length} items to "${category || 'No Category'}"` });
       clearSelection();
     } catch (error) {
       toast({ title: "Failed to move items", variant: "destructive" });
