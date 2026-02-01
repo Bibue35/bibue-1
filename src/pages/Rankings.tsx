@@ -173,19 +173,16 @@ export default function RankingsPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {data?.map((item, index) => {
                 const rankStyle = getRankBadge(index);
-                const isTop3 = index < 3;
                 
                 return (
                   <div 
                     key={item.mal_id} 
-                    className={cn(
-                      "relative",
-                      isTop3 && "transform scale-[1.02]"
-                    )}
+                    className="relative"
+                    style={{ zIndex: 25 - index }}
                   >
                     {/* Enhanced rank badge */}
                     <div className={cn(
-                      "absolute -top-3 -left-3 z-20 rounded-full flex items-center justify-center font-bold shadow-lg",
+                      "absolute -top-3 -left-3 z-10 rounded-full flex items-center justify-center font-bold shadow-lg",
                       rankStyle.size,
                       rankStyle.className
                     )}>
@@ -199,16 +196,12 @@ export default function RankingsPage() {
                       )}
                     </div>
                     
-                    {/* Card with theme effects */}
-                    <div className={cn(
-                      isTop3 && "sun-glow moon-glow"
-                    )}>
-                      {activeType === "anime" ? (
-                        <AnimeCard anime={item as any} index={index} />
-                      ) : (
-                        <MangaCard manga={item as any} index={index} />
-                      )}
-                    </div>
+                    {/* Card */}
+                    {activeType === "anime" ? (
+                      <AnimeCard anime={item as any} index={index} />
+                    ) : (
+                      <MangaCard manga={item as any} index={index} />
+                    )}
                   </div>
                 );
               })}
