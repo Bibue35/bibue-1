@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Star, BookOpen, Calendar } from "lucide-react";
+import { Star, BookOpen, Calendar, Flag } from "lucide-react";
 import { Manga, formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { MangaDetailModal } from "./MangaDetailModal";
+import { ReportIssueDialog } from "./ReportIssueDialog";
 
 interface MangaCardProps {
   manga: Manga;
@@ -12,6 +13,7 @@ interface MangaCardProps {
 
 export function MangaCard({ manga, index = 0, variant = "default" }: MangaCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   // Format published date
   const getPublishedInfo = () => {
@@ -106,6 +108,17 @@ export function MangaCard({ manga, index = 0, variant = "default" }: MangaCardPr
               C{chapterCount}
             </div>
           )}
+          {/* Report button - appears on hover */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setReportOpen(true);
+            }}
+            className="absolute bottom-2 right-2 p-1.5 rounded-full bg-background/80 text-muted-foreground hover:text-destructive hover:bg-background opacity-0 group-hover:opacity-100 transition-all"
+            title="Report issue"
+          >
+            <Flag className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         {/* Title underneath */}
@@ -137,6 +150,14 @@ export function MangaCard({ manga, index = 0, variant = "default" }: MangaCardPr
         mangaId={manga.mal_id}
         open={modalOpen}
         onOpenChange={setModalOpen}
+      />
+      
+      <ReportIssueDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        contentType="manga"
+        contentId={manga.mal_id}
+        contentTitle={manga.title}
       />
     </>
   );
