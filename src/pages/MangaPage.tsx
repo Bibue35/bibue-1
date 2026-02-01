@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Grid, List, Search } from "lucide-react";
+import { useSearchParams, Link } from "react-router-dom";
+import { Grid, List, Search, Bookmark, Sparkles } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
@@ -13,24 +13,11 @@ import { cn } from "@/lib/utils";
 
 export default function MangaPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialFilter = searchParams.get("filter") as 'manga' | 'manhwa' | 'manhua' | 'bypopularity' | undefined;
   const genreId = searchParams.get("genre");
   const searchQuery = searchParams.get("q") || "";
   
-  const [filter, setFilter] = useState<'manga' | 'manhwa' | 'manhua' | undefined>(
-    initialFilter === 'bypopularity' ? undefined : initialFilter as 'manga' | 'manhwa' | 'manhua' | undefined
-  );
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [localSearch, setLocalSearch] = useState(searchQuery);
-
-  // Update URL when filter changes
-  const handleFilterChange = (newFilter: typeof filter) => {
-    setFilter(newFilter);
-    const params = new URLSearchParams();
-    if (newFilter) params.set("filter", newFilter);
-    if (genreId) params.set("genre", genreId);
-    setSearchParams(params);
-  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,12 +28,11 @@ export default function MangaPage() {
     }
   };
 
-  const { data: topManga, isLoading: topLoading } = useTopManga(1, filter);
+  const { data: topManga, isLoading: topLoading } = useTopManga(1);
   const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
   const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua');
   const { data: searchResults, isLoading: searchLoading } = useSearchManga(searchQuery, !!searchQuery);
 
-  // Use search results if searching
   const displayManga = searchQuery ? searchResults : topManga;
   const isLoading = searchQuery ? searchLoading : topLoading;
 
@@ -84,28 +70,26 @@ export default function MangaPage() {
               </div>
             </form>
 
-            {/* Type Tabs - Manga/Manhwa/Manhua */}
-            <div className="flex justify-center gap-2 mt-6">
-              {([undefined, 'manga', 'manhwa', 'manhua'] as const).map((f) => (
-                <Button
-                  key={f || 'all'}
-                  variant={filter === f ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleFilterChange(f)}
-                  className={cn(
-                    "rounded-full capitalize px-5",
-                    filter !== f && "bg-background/50 border-border/50 hover:bg-background/80"
-                  )}
-                >
-                  {f === undefined ? "All" : f}
-                </Button>
-              ))}
+            {/* Action Buttons - For You & Saved */}
+            <div className="flex justify-center gap-3 mt-6">
+              <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
+                <Link to="/recommendations">
+                  <Sparkles className="w-4 h-4" />
+                  For You
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
+                <Link to="/watchlist?type=manga">
+                  <Bookmark className="w-4 h-4" />
+                  Saved
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Genres - Subtle */}
+      {/* Genres */}
       <section className="py-4">
         <div className="container mx-auto px-4">
           <GenreSection type="manga" className="opacity-70 hover:opacity-100 transition-opacity" />
@@ -184,7 +168,7 @@ export default function MangaPage() {
           <h2 className="text-xl sm:text-2xl font-bold mb-6">
             {searchQuery 
               ? `Search results for "${searchQuery}"` 
-              : `Top ${filter ? filter.charAt(0).toUpperCase() + filter.slice(1) : "Manga"}`}
+              : "Top Manga"}
             {genreId && <span className="text-muted-foreground font-normal ml-2">(filtered by genre)</span>}
           </h2>
           

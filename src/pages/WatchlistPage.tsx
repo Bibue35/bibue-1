@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Heart, Grid, List, Film, BookOpen, Trash2 } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
@@ -27,11 +27,15 @@ const statusOptions = [
 
 export default function WatchlistPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { watchlist, isLoading, removeFromWatchlist, updateStatus, updateScore } = useWatchlist();
   
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [filter, setFilter] = useState<"all" | "anime" | "manga">("all");
+  
+  // Get type filter from URL (anime or manga)
+  const typeFromUrl = searchParams.get("type") as "anime" | "manga" | null;
+  const [filter, setFilter] = useState<"all" | "anime" | "manga">(typeFromUrl || "all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const filteredWatchlist = watchlist?.filter((item) => {
@@ -66,7 +70,7 @@ export default function WatchlistPage() {
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
-              My Watchlist
+              {filter === "anime" ? "Saved Anime" : filter === "manga" ? "Saved Manga" : "My Saved"}
             </h1>
             <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-4">マイリスト</p>
             

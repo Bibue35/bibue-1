@@ -22,8 +22,6 @@ const primaryLinks = [
 
 // Secondary items in "More" dropdown
 const moreLinks = [
-  { href: "/watchlist", label: "Watchlist" },
-  { href: "/recommendations", label: "For You" },
   { href: "/rankings", label: "Rankings" },
   { href: "/community", label: "Community" },
 ];
