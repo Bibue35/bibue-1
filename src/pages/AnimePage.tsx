@@ -70,7 +70,7 @@ export default function AnimePage() {
       <CollapsibleNavbar />
 
       {/* Hero with Search */}
-      <section className="pt-28 sm:pt-32 pb-12 sm:pb-16">
+      <section className="pt-28 sm:pt-32 pb-6 sm:pb-8">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
@@ -101,9 +101,6 @@ export default function AnimePage() {
                 </Link>
               </Button>
             </div>
-
-            {/* Decorative underline */}
-            <div className="mt-8 mx-auto w-24 h-1 rounded-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           </div>
         </div>
       </section>
@@ -111,7 +108,7 @@ export default function AnimePage() {
 
       {/* Genres - Hide when searching */}
       {!isSearching && (
-        <section className="py-4">
+        <section className="py-2">
           <div className="container mx-auto px-4">
             <GenreSection type="anime" className="opacity-70 hover:opacity-100 transition-opacity" />
           </div>
@@ -120,7 +117,7 @@ export default function AnimePage() {
 
       {/* This Season - Hide when searching */}
       {!isSearching && (
-        <section className="py-8">
+        <section className="py-4">
           <div className="container mx-auto px-4">
             <HorizontalScroll title="This Season" titleJp="今季">
               {seasonalLoading ? (
@@ -142,7 +139,7 @@ export default function AnimePage() {
       )}
 
       {/* Filters */}
-      <section className="py-8" ref={resultsRef}>
+      <section className="py-4" ref={resultsRef}>
         <div className="container mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
@@ -225,7 +222,7 @@ export default function AnimePage() {
       )}
 
       {/* All Anime Grid */}
-      <section className="py-8 pb-24">
+      <section className="py-4 pb-24">
         <div className="container mx-auto px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">
             {isSearching 
