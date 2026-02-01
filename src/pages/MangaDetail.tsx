@@ -103,27 +103,30 @@ export default function MangaDetailPage() {
   if (isReading) {
     return (
       <div className="fixed inset-0 z-50 bg-black">
-        {/* Top Left - Bibue Logo */}
-        <button
-          onClick={() => setIsReading(false)}
+        {/* Minimal Top - Only Bibue exit button, always visible */}
+        <Link
+          to="/"
           className="absolute top-4 left-4 z-50 text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors"
         >
           Bibue
+        </Link>
+        
+        {/* Exit reading mode - right side */}
+        <button
+          onClick={() => setIsReading(false)}
+          className="absolute top-4 right-4 z-50 text-sm text-white/60 hover:text-white transition-colors"
+        >
+          Exit Reader
         </button>
 
-        {/* Top Controls */}
+        {/* Chapter info - shows on hover */}
         <div className={cn(
-          "absolute top-0 left-0 right-0 z-40 bg-gradient-to-b from-black/90 to-transparent transition-all duration-500",
-          showControls ? "opacity-100" : "opacity-0 pointer-events-none"
+          "absolute top-14 left-4 z-40 transition-all duration-300",
+          showControls ? "opacity-100" : "opacity-0"
         )}>
-          <div className="flex items-center justify-between p-4">
-            <span className="text-white/70 text-sm">
-              Chapter {selectedChapter} • {currentChapter?.pages || 20} pages
-            </span>
-            <span className="text-white/50 text-sm">
-              {selectedChapter - firstChapter + 1} / {totalChapters}
-            </span>
-          </div>
+          <span className="text-white/50 text-sm">
+            Ch. {selectedChapter} • {currentChapter?.pages || 20} pages
+          </span>
         </div>
 
         {/* Reader Content */}
@@ -204,18 +207,14 @@ export default function MangaDetailPage() {
   // DemonicScans Style Layout
   return (
     <div className="min-h-screen bg-background">
-      {/* Top Navigation Bar */}
-      <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border/30">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="text-2xl font-sacred font-semibold text-foreground hover:text-primary transition-colors">
-            Bibue
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link to="/manga" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Browse Manga
-            </Link>
-          </div>
-        </div>
+      {/* Minimal top - just Bibue logo, scrolls with page */}
+      <div className="container mx-auto px-4 pt-4 pb-2 flex items-center justify-between">
+        <Link to="/" className="text-2xl font-sacred font-semibold text-foreground hover:text-primary transition-colors">
+          Bibue
+        </Link>
+        <Link to="/manga" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          ← Back to Manga
+        </Link>
       </div>
 
       {/* ============ SECTION 1: MANGA INFO - DemonicScans Style ============ */}
