@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ThumbsUp } from "lucide-react";
+import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AnimeDetailModal } from "./AnimeDetailModal";
 import { Recommendation } from "@/hooks/useRecommendations";
@@ -11,7 +11,7 @@ interface RecommendationCardProps {
 
 export function RecommendationCard({ recommendation, index = 0 }: RecommendationCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const { entry, votes } = recommendation;
+  const { entry } = recommendation;
 
   return (
     <>
@@ -32,11 +32,13 @@ export function RecommendationCard({ recommendation, index = 0 }: Recommendation
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
           />
-          {/* Vote count badge */}
-          <div className="absolute top-2 right-2 bg-background/80 text-foreground text-xs font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
-            <ThumbsUp className="w-3 h-3" />
-            {votes}
-          </div>
+          {/* Score badge */}
+          {entry.score && (
+            <div className="absolute top-2 right-2 bg-background/80 text-foreground text-xs font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+              <Star className="w-3 h-3 fill-primary text-primary" />
+              {entry.score.toFixed(1)}
+            </div>
+          )}
         </div>
 
         <h3 className="font-medium text-xs sm:text-sm line-clamp-2 mb-1 group-hover:text-foreground/80 transition-colors">

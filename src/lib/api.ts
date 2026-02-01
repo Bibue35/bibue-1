@@ -1,8 +1,8 @@
-// Jikan API (MyAnimeList) and AniList API integration
-const JIKAN_BASE = "https://api.jikan.moe/v4";
+// AniList GraphQL API integration (replaces Jikan for better rate limits)
+const ANILIST_API = "https://graphql.anilist.co";
 
 export interface Anime {
-  mal_id: number;
+  mal_id: number; // We'll use AniList id but keep the field name for compatibility
   title: string;
   title_english?: string;
   title_japanese?: string;
@@ -65,108 +65,355 @@ export interface NewsItem {
   excerpt: string;
 }
 
-// Rate limiting helper
-let lastRequestTime = 0;
-const MIN_REQUEST_INTERVAL = 400; // Jikan rate limit
+// AniList GraphQL query helper
+async function anilistQuery<T>(query: string, variables: Record<string, unknown> = {}): Promise<T> {
+  const response = await fetch(ANILIST_API, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({ query, variables }),
+  });
 
-async function rateLimitedFetch(url: string) {
-  const now = Date.now();
-  const timeSinceLastRequest = now - lastRequestTime;
-  
-  if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
-    await new Promise(resolve => setTimeout(resolve, MIN_REQUEST_INTERVAL - timeSinceLastRequest));
-  }
-  
-  lastRequestTime = Date.now();
-  const response = await fetch(url);
-  
   if (!response.ok) {
-    throw new Error(`API Error: ${response.status}`);
+    throw new Error(`AniList API Error: ${response.status}`);
   }
-  
-  return response.json();
+
+  const json = await response.json();
+  if (json.errors) {
+    throw new Error(json.errors[0]?.message || "AniList query error");
+  }
+  return json.data;
 }
+
+// Convert AniList media to our Anime format
+function toAnime(media: AniListMedia): Anime {
+  return {
+    mal_id: media.idMal || media.id,
+    title: media.title.english || media.title.romaji || "Unknown",
+    title_english: media.title.english || undefined,
+    title_japanese: media.title.native || undefined,
+    images: {
+      jpg: { large_image_url: media.coverImage.extraLarge || media.coverImage.large, image_url: media.coverImage.medium || media.coverImage.large },
+      webp: { large_image_url: media.coverImage.extraLarge || media.coverImage.large, image_url: media.coverImage.medium || media.coverImage.large },
+    },
+    trailer: media.trailer ? { youtube_id: media.trailer.id, url: media.trailer.site === "youtube" ? `https://youtube.com/watch?v=${media.trailer.id}` : undefined } : undefined,
+    synopsis: media.description?.replace(/<[^>]*>/g, "") || undefined,
+    score: media.averageScore ? media.averageScore / 10 : undefined,
+    scored_by: media.stats?.scoreDistribution?.reduce((sum, s) => sum + s.amount, 0) || undefined,
+    rank: media.rankings?.find(r => r.type === "RATED" && r.allTime)?.rank || undefined,
+    popularity: media.popularity || undefined,
+    members: media.popularity || undefined,
+    favorites: media.favourites || undefined,
+    episodes: media.episodes || undefined,
+    status: media.status || undefined,
+    aired: media.startDate ? {
+      from: `${media.startDate.year}-${String(media.startDate.month || 1).padStart(2, "0")}-${String(media.startDate.day || 1).padStart(2, "0")}`,
+      to: media.endDate?.year ? `${media.endDate.year}-${String(media.endDate.month || 1).padStart(2, "0")}-${String(media.endDate.day || 1).padStart(2, "0")}` : "",
+      string: media.startDate.year ? `${media.startDate.year}` : "",
+    } : undefined,
+    duration: media.duration ? `${media.duration} min` : undefined,
+    source: media.source || undefined,
+    genres: media.genres?.map((g, i) => ({ mal_id: i, name: g })) || [],
+    studios: media.studios?.nodes?.map(s => ({ mal_id: s.id, name: s.name })) || [],
+    year: media.seasonYear || media.startDate?.year || undefined,
+    season: media.season?.toLowerCase() || undefined,
+  };
+}
+
+// Convert AniList media to our Manga format
+function toManga(media: AniListMedia): Manga {
+  return {
+    mal_id: media.idMal || media.id,
+    title: media.title.english || media.title.romaji || "Unknown",
+    title_english: media.title.english || undefined,
+    title_japanese: media.title.native || undefined,
+    images: {
+      jpg: { large_image_url: media.coverImage.extraLarge || media.coverImage.large, image_url: media.coverImage.medium || media.coverImage.large },
+      webp: { large_image_url: media.coverImage.extraLarge || media.coverImage.large, image_url: media.coverImage.medium || media.coverImage.large },
+    },
+    synopsis: media.description?.replace(/<[^>]*>/g, "") || undefined,
+    score: media.averageScore ? media.averageScore / 10 : undefined,
+    scored_by: media.stats?.scoreDistribution?.reduce((sum, s) => sum + s.amount, 0) || undefined,
+    rank: media.rankings?.find(r => r.type === "RATED" && r.allTime)?.rank || undefined,
+    popularity: media.popularity || undefined,
+    members: media.popularity || undefined,
+    favorites: media.favourites || undefined,
+    chapters: media.chapters || undefined,
+    volumes: media.volumes || undefined,
+    status: media.status || undefined,
+    published: media.startDate ? {
+      from: `${media.startDate.year}-${String(media.startDate.month || 1).padStart(2, "0")}-${String(media.startDate.day || 1).padStart(2, "0")}`,
+      to: media.endDate?.year ? `${media.endDate.year}-${String(media.endDate.month || 1).padStart(2, "0")}-${String(media.endDate.day || 1).padStart(2, "0")}` : "",
+      string: media.startDate.year ? `${media.startDate.year}` : "",
+    } : undefined,
+    genres: media.genres?.map((g, i) => ({ mal_id: i, name: g })) || [],
+    authors: media.staff?.nodes?.filter(s => s.primaryOccupations?.includes("Mangaka"))?.map(s => ({ mal_id: s.id, name: s.name.full })) || [],
+    type: media.format || undefined,
+  };
+}
+
+// AniList types
+interface AniListMedia {
+  id: number;
+  idMal?: number;
+  title: { romaji?: string; english?: string; native?: string };
+  coverImage: { extraLarge?: string; large: string; medium?: string };
+  bannerImage?: string;
+  description?: string;
+  averageScore?: number;
+  popularity?: number;
+  favourites?: number;
+  episodes?: number;
+  chapters?: number;
+  volumes?: number;
+  status?: string;
+  season?: string;
+  seasonYear?: number;
+  format?: string;
+  source?: string;
+  duration?: number;
+  genres?: string[];
+  trailer?: { id: string; site: string };
+  startDate?: { year?: number; month?: number; day?: number };
+  endDate?: { year?: number; month?: number; day?: number };
+  studios?: { nodes: Array<{ id: number; name: string }> };
+  staff?: { nodes: Array<{ id: number; name: { full: string }; primaryOccupations?: string[] }> };
+  rankings?: Array<{ type: string; rank: number; allTime: boolean }>;
+  stats?: { scoreDistribution?: Array<{ score: number; amount: number }> };
+  recommendations?: { nodes: Array<{ mediaRecommendation: AniListMedia }> };
+}
+
+const MEDIA_FRAGMENT = `
+  id
+  idMal
+  title { romaji english native }
+  coverImage { extraLarge large medium }
+  bannerImage
+  description(asHtml: false)
+  averageScore
+  popularity
+  favourites
+  episodes
+  chapters
+  volumes
+  status
+  season
+  seasonYear
+  format
+  source
+  duration
+  genres
+  trailer { id site }
+  startDate { year month day }
+  endDate { year month day }
+  studios(isMain: true) { nodes { id name } }
+  rankings { type rank allTime }
+`;
 
 // Anime endpoints
-export async function getTopAnime(page = 1, limit = 25, filter?: 'airing' | 'upcoming' | 'bypopularity' | 'favorite') {
-  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-  if (filter) params.append('filter', filter);
-  const data = await rateLimitedFetch(`${JIKAN_BASE}/top/anime?${params}`);
-  return data.data as Anime[];
+export async function getTopAnime(page = 1, limit = 25, filter?: "airing" | "upcoming" | "bypopularity" | "favorite"): Promise<Anime[]> {
+  let sort = "POPULARITY_DESC";
+  let status: string | undefined;
+  
+  if (filter === "airing") {
+    status = "RELEASING";
+    sort = "POPULARITY_DESC";
+  } else if (filter === "upcoming") {
+    status = "NOT_YET_RELEASED";
+    sort = "POPULARITY_DESC";
+  } else if (filter === "bypopularity") {
+    sort = "POPULARITY_DESC";
+  } else if (filter === "favorite") {
+    sort = "FAVOURITES_DESC";
+  }
+
+  const query = `
+    query ($page: Int, $perPage: Int, $sort: [MediaSort], $status: MediaStatus) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: ANIME, sort: $sort, status: $status, isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, sort: [sort], status });
+  return data.Page.media.map(toAnime);
 }
 
-export async function getSeasonalAnime(year?: number, season?: string) {
+export async function getSeasonalAnime(year?: number, season?: string): Promise<Anime[]> {
   const currentDate = new Date();
   const y = year || currentDate.getFullYear();
-  const s = season || getCurrentSeason();
-  const data = await rateLimitedFetch(`${JIKAN_BASE}/seasons/${y}/${s}`);
-  return data.data as Anime[];
+  const s = (season || getCurrentSeason()).toUpperCase();
+
+  const query = `
+    query ($season: MediaSeason, $seasonYear: Int) {
+      Page(page: 1, perPage: 50) {
+        media(type: ANIME, season: $season, seasonYear: $seasonYear, sort: [POPULARITY_DESC], isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { season: s, seasonYear: y });
+  return data.Page.media.map(toAnime);
 }
 
-export async function getAnimeById(id: number) {
-  const data = await rateLimitedFetch(`${JIKAN_BASE}/anime/${id}/full`);
-  return data.data as Anime;
+export async function getAnimeById(id: number): Promise<Anime> {
+  const query = `
+    query ($id: Int) {
+      Media(id: $id, type: ANIME) {
+        ${MEDIA_FRAGMENT}
+        stats { scoreDistribution { score amount } }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Media: AniListMedia }>(query, { id });
+  return toAnime(data.Media);
 }
 
-export async function searchAnime(query: string, page = 1, limit = 25) {
-  const params = new URLSearchParams({ q: query, page: String(page), limit: String(limit) });
-  const data = await rateLimitedFetch(`${JIKAN_BASE}/anime?${params}`);
-  return data.data as Anime[];
+export async function searchAnime(searchQuery: string, page = 1, limit = 25): Promise<Anime[]> {
+  const query = `
+    query ($search: String, $page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        media(search: $search, type: ANIME, sort: [SEARCH_MATCH], isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { search: searchQuery, page, perPage: limit });
+  return data.Page.media.map(toAnime);
 }
 
-export async function getAnimeRecommendations(id: number) {
-  const data = await rateLimitedFetch(`${JIKAN_BASE}/anime/${id}/recommendations`);
-  return data.data;
+export async function getAnimeRecommendations(id: number): Promise<Array<{ entry: Anime }>> {
+  const query = `
+    query ($id: Int) {
+      Media(id: $id, type: ANIME) {
+        recommendations(page: 1, perPage: 10, sort: [RATING_DESC]) {
+          nodes {
+            mediaRecommendation {
+              ${MEDIA_FRAGMENT}
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Media: { recommendations: { nodes: Array<{ mediaRecommendation: AniListMedia }> } } }>(query, { id });
+  return data.Media.recommendations.nodes
+    .filter(n => n.mediaRecommendation)
+    .map(n => ({ entry: toAnime(n.mediaRecommendation) }));
 }
 
 // Manga endpoints
-export async function getTopManga(page = 1, limit = 25, filter?: 'manga' | 'novels' | 'lightnovels' | 'oneshots' | 'doujin' | 'manhwa' | 'manhua') {
-  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-  if (filter) params.append('type', filter);
-  const data = await rateLimitedFetch(`${JIKAN_BASE}/top/manga?${params}`);
-  return data.data as Manga[];
+export async function getTopManga(page = 1, limit = 25, filter?: "manga" | "novels" | "lightnovels" | "oneshots" | "doujin" | "manhwa" | "manhua"): Promise<Manga[]> {
+  let format: string | undefined;
+  let countryOfOrigin: string | undefined;
+
+  if (filter === "manga") format = "MANGA";
+  else if (filter === "novels" || filter === "lightnovels") format = "NOVEL";
+  else if (filter === "oneshots") format = "ONE_SHOT";
+  else if (filter === "manhwa") countryOfOrigin = "KR";
+  else if (filter === "manhua") countryOfOrigin = "CN";
+
+  const query = `
+    query ($page: Int, $perPage: Int, $format: MediaFormat, $countryOfOrigin: CountryCode) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: MANGA, sort: [POPULARITY_DESC], format: $format, countryOfOrigin: $countryOfOrigin, isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, format, countryOfOrigin });
+  return data.Page.media.map(toManga);
 }
 
-export async function getMangaById(id: number) {
-  const data = await rateLimitedFetch(`${JIKAN_BASE}/manga/${id}/full`);
-  return data.data as Manga;
+export async function getMangaById(id: number): Promise<Manga> {
+  const query = `
+    query ($id: Int) {
+      Media(id: $id, type: MANGA) {
+        ${MEDIA_FRAGMENT}
+        stats { scoreDistribution { score amount } }
+        staff { nodes { id name { full } primaryOccupations } }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Media: AniListMedia }>(query, { id });
+  return toManga(data.Media);
 }
 
-export async function searchManga(query: string, page = 1, limit = 25) {
-  const params = new URLSearchParams({ q: query, page: String(page), limit: String(limit) });
-  const data = await rateLimitedFetch(`${JIKAN_BASE}/manga?${params}`);
-  return data.data as Manga[];
+export async function searchManga(searchQuery: string, page = 1, limit = 25): Promise<Manga[]> {
+  const query = `
+    query ($search: String, $page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        media(search: $search, type: MANGA, sort: [SEARCH_MATCH], isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { search: searchQuery, page, perPage: limit });
+  return data.Page.media.map(toManga);
 }
 
-// News
-export async function getAnimeNews() {
-  const data = await rateLimitedFetch(`${JIKAN_BASE}/anime/1/news`); // Get from a popular anime
-  return data.data as NewsItem[];
+// News - AniList doesn't have news, return empty
+export async function getAnimeNews(): Promise<NewsItem[]> {
+  return [];
 }
 
-// Schedule
-export async function getSchedule(day?: string) {
-  const url = day ? `${JIKAN_BASE}/schedules?filter=${day}` : `${JIKAN_BASE}/schedules`;
-  const data = await rateLimitedFetch(url);
-  return data.data as Anime[];
+// Schedule - Get currently airing anime by day
+export async function getSchedule(day?: string): Promise<Anime[]> {
+  const query = `
+    query {
+      Page(page: 1, perPage: 50) {
+        media(type: ANIME, status: RELEASING, sort: [POPULARITY_DESC], isAdult: false) {
+          ${MEDIA_FRAGMENT}
+          nextAiringEpisode { airingAt timeUntilAiring episode }
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: Array<AniListMedia & { nextAiringEpisode?: { airingAt: number } }> } }>(query, {});
+  
+  const dayMap: Record<string, number> = { sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 };
+  
+  return data.Page.media
+    .filter(m => {
+      if (!day || !m.nextAiringEpisode) return true;
+      const airingDate = new Date(m.nextAiringEpisode.airingAt * 1000);
+      return airingDate.getDay() === dayMap[day.toLowerCase()];
+    })
+    .map(toAnime);
 }
 
 // Helpers
 function getCurrentSeason(): string {
   const month = new Date().getMonth();
-  if (month >= 0 && month <= 2) return 'winter';
-  if (month >= 3 && month <= 5) return 'spring';
-  if (month >= 6 && month <= 8) return 'summer';
-  return 'fall';
+  if (month >= 0 && month <= 2) return "winter";
+  if (month >= 3 && month <= 5) return "spring";
+  if (month >= 6 && month <= 8) return "summer";
+  return "fall";
 }
 
 export function formatScore(score?: number): string {
-  return score ? score.toFixed(1) : 'N/A';
+  return score ? score.toFixed(1) : "N/A";
 }
 
 export function formatNumber(num?: number): string {
-  if (!num) return '0';
-  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+  if (!num) return "0";
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
+  if (num >= 1000) return (num / 1000).toFixed(1) + "K";
   return num.toString();
 }
