@@ -112,7 +112,7 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] p-0 gap-0 bg-background/95 backdrop-blur-xl border-border/50 overflow-hidden">
+      <DialogContent hideCloseButton className="max-w-5xl w-[95vw] max-h-[90vh] p-0 gap-0 bg-background/95 backdrop-blur-xl border-border/50 overflow-hidden">
         <VisuallyHidden>
           <DialogTitle>{anime?.title || "Anime Details"}</DialogTitle>
         </VisuallyHidden>
