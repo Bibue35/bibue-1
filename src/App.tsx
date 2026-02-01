@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
 import AnimePage from "./pages/AnimePage";
 import MangaPage from "./pages/MangaPage";
@@ -25,26 +26,28 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/anime" element={<AnimePage />} />
-            <Route path="/anime/:id" element={<AnimeDetail />} />
-            <Route path="/manga" element={<MangaPage />} />
-            <Route path="/manga/:id" element={<MangaDetail />} />
-            <Route path="/rankings" element={<Rankings />} />
-            <Route path="/news" element={<NewsPage />} />
-            <Route path="/community" element={<CommunityPage />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/anime" element={<AnimePage />} />
+              <Route path="/anime/:id" element={<AnimeDetail />} />
+              <Route path="/manga" element={<MangaPage />} />
+              <Route path="/manga/:id" element={<MangaDetail />} />
+              <Route path="/rankings" element={<Rankings />} />
+              <Route path="/news" element={<NewsPage />} />
+              <Route path="/community" element={<CommunityPage />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </LanguageProvider>
   </QueryClientProvider>
 );
 

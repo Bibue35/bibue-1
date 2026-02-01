@@ -1,26 +1,29 @@
 import { Link } from "react-router-dom";
-
-const footerLinks = [
-  {
-    title: "Browse",
-    links: [
-      { label: "Anime", href: "/anime" },
-      { label: "Manga", href: "/manga" },
-      { label: "Rankings", href: "/rankings" },
-      { label: "Community", href: "/community" },
-    ],
-  },
-  {
-    title: "Connect",
-    links: [
-      { label: "AniList", href: "#" },
-      { label: "MyAnimeList", href: "#" },
-      { label: "Discord", href: "#" },
-    ],
-  },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function Footer() {
+  const { t } = useLanguage();
+
+  const footerLinks = [
+    {
+      title: t("footer.browse"),
+      links: [
+        { label: t("nav.anime"), href: "/anime" },
+        { label: t("nav.manga"), href: "/manga" },
+        { label: t("nav.rankings"), href: "/rankings" },
+        { label: t("nav.community"), href: "/community" },
+      ],
+    },
+    {
+      title: t("footer.connect"),
+      links: [
+        { label: "AniList", href: "#" },
+        { label: "MyAnimeList", href: "#" },
+        { label: "Discord", href: "#" },
+      ],
+    },
+  ];
+
   return (
     <footer className="border-t border-border/30 py-10 sm:py-12">
       <div className="container mx-auto px-4">
@@ -31,7 +34,7 @@ export function Footer() {
               Bibue
             </Link>
             <p className="text-xs sm:text-sm text-muted-foreground mt-2 max-w-xs">
-              Discover your next favorite anime and manga.
+              {t("footer.description")}
             </p>
           </div>
 
@@ -56,7 +59,7 @@ export function Footer() {
         </div>
 
         <div className="mt-10 sm:mt-12 pt-6 border-t border-border/30 text-center text-xs sm:text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} Bibue. Powered by Jikan API.</p>
+          <p>© {new Date().getFullYear()} Bibue. {t("footer.poweredBy")}.</p>
         </div>
       </div>
     </footer>

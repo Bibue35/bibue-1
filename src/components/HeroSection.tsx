@@ -1,8 +1,11 @@
-import { Play, Star } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Play, Star, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Anime } from "@/lib/api";
 import { formatScore } from "@/lib/api";
-import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { AnimeDetailModal } from "./AnimeDetailModal";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface HeroSectionProps {
   featuredAnime?: Anime[];
@@ -10,7 +13,30 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
-  const featured = featuredAnime?.[0];
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [modalOpen, setModalOpen] = useState(false);
+  const { t } = useLanguage();
+  
+  const featured = featuredAnime?.[selectedIndex];
+  const sideCards = featuredAnime?.slice(0, 4).filter((_, i) => i !== selectedIndex) || [];
+
+  // Auto-rotate featured anime every 8 seconds
+  useEffect(() => {
+    if (!featuredAnime?.length) return;
+    
+    const interval = setInterval(() => {
+      setSelectedIndex((prev) => (prev + 1) % Math.min(featuredAnime.length, 4));
+    }, 8000);
+
+    return () => clearInterval(interval);
+  }, [featuredAnime?.length]);
+
+  const handleSideCardClick = (anime: Anime) => {
+    const index = featuredAnime?.findIndex((a) => a.mal_id === anime.mal_id);
+    if (index !== undefined && index >= 0) {
+      setSelectedIndex(index);
+    }
+  };
 
   if (isLoading || !featured) {
     return (
@@ -22,8 +48,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
             <div className="h-6 w-1/2 bg-muted rounded-xl mb-6" />
             <div className="h-16 sm:h-20 w-full bg-muted rounded-xl mb-8" />
             <div className="flex gap-3">
-              <div className="h-10 sm:h-12 w-28 sm:w-32 bg-muted rounded-full" />
-              <div className="h-10 sm:h-12 w-28 sm:w-32 bg-muted rounded-full" />
+              <div className="h-10 sm:h-12 w-32 bg-muted rounded-full" />
             </div>
           </div>
         </div>
@@ -33,13 +58,21 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
 
   return (
     <section className="relative min-h-[75vh] sm:min-h-[85vh] flex items-center overflow-hidden">
-      {/* Background Image */}
+      {/* Background Image with smooth transition */}
       <div className="absolute inset-0 z-0">
-        <img
-          src={featured.images.webp.large_image_url}
-          alt={featured.title}
-          className="w-full h-full object-cover"
-        />
+        <div className="relative w-full h-full">
+          {featuredAnime?.slice(0, 4).map((anime, index) => (
+            <img
+              key={anime.mal_id}
+              src={anime.images.webp.large_image_url}
+              alt={anime.title}
+              className={cn(
+                "absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out",
+                index === selectedIndex ? "opacity-100" : "opacity-0"
+              )}
+            />
+          ))}
+        </div>
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/60" />
       </div>
@@ -50,7 +83,13 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full liquid-glass-subtle text-xs sm:text-sm mb-4 sm:mb-6 animate-fade-up">
             <Star className="w-3 h-3 sm:w-4 sm:h-4 text-foreground fill-foreground" />
-            <span className="font-medium">{formatScore(featured.score)} Rating</span>
+            <span className="font-medium">{formatScore(featured.score)} {t("hero.rating")}</span>
+            {featured.status === "Currently Airing" && (
+              <>
+                <span className="mx-1 opacity-50">•</span>
+                <span className="text-primary font-medium">{t("hero.airing")}</span>
+              </>
+            )}
           </div>
 
           {/* Title */}
@@ -96,37 +135,34 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
             {featured.synopsis}
           </p>
 
-          {/* CTA */}
+          {/* Single CTA Button */}
           <div 
             className="flex flex-wrap items-center gap-3 animate-fade-up"
             style={{ animationDelay: "0.3s" }}
           >
-            <Button size="lg" variant="primary" className="gap-2" asChild>
-              <Link to={`/anime/${featured.mal_id}`}>
-                <Play className="w-4 h-4" />
-                Watch Now
-              </Link>
-            </Button>
             <Button 
-              variant="outline" 
               size="lg" 
-              asChild
+              variant="primary" 
+              className="gap-2"
+              onClick={() => setModalOpen(true)}
             >
-              <Link to={`/anime/${featured.mal_id}`}>
-                View Details
-              </Link>
+              <Play className="w-4 h-4" />
+              {t("hero.watchNow")}
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Floating preview cards */}
+      {/* Side preview cards - Clickable to change hero */}
       <div className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-4">
-        {featuredAnime?.slice(1, 4).map((anime, index) => (
-          <Link
+        {sideCards.map((anime, index) => (
+          <button
             key={anime.mal_id}
-            to={`/anime/${anime.mal_id}`}
-            className="w-24 sm:w-32 aspect-[2/3] rounded-2xl overflow-hidden liquid-glass hover-lift animate-fade-up"
+            onClick={() => handleSideCardClick(anime)}
+            className={cn(
+              "w-24 sm:w-32 aspect-[2/3] rounded-2xl overflow-hidden liquid-glass hover-lift animate-fade-up transition-all duration-300 group relative",
+              "focus:outline-none focus:ring-2 focus:ring-primary/50"
+            )}
             style={{ 
               animationDelay: `${0.4 + index * 0.1}s`,
               transform: index === 1 ? 'translateX(2rem)' : undefined
@@ -135,11 +171,45 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
             <img
               src={anime.images.webp.image_url}
               alt={anime.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
-          </Link>
+            {/* Hover overlay with episode info */}
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2">
+              <div className="text-xs font-medium truncate w-full">
+                {anime.episodes && (
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
+                    {anime.episodes} ep
+                  </span>
+                )}
+              </div>
+            </div>
+          </button>
         ))}
       </div>
+
+      {/* Progress indicators */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+        {featuredAnime?.slice(0, 4).map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setSelectedIndex(index)}
+            className={cn(
+              "w-2 h-2 rounded-full transition-all duration-300",
+              index === selectedIndex 
+                ? "w-8 bg-primary" 
+                : "bg-foreground/30 hover:bg-foreground/50"
+            )}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
+      </div>
+
+      <AnimeDetailModal
+        animeId={featured.mal_id}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+      />
     </section>
   );
 }
