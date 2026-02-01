@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
+import { validateComment } from "@/lib/validation";
 
 interface AnimeDetailModalProps {
   animeId: number;
@@ -100,9 +101,13 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newComment.trim()) {
-      addCommentMutation.mutate(newComment.trim());
+    const trimmedComment = newComment.trim();
+    const validation = validateComment(trimmedComment);
+    if (!validation.success) {
+      toast({ title: "Validation Error", description: validation.error, variant: "destructive" });
+      return;
     }
+    addCommentMutation.mutate(trimmedComment);
   };
 
   const handlePlay = (episodeNumber?: number) => {
