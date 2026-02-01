@@ -103,7 +103,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
           </div>
 
           {/* Results */}
-          {query.length > 2 && (
+          {query.trim().length > 0 && (
             <div className="mt-4 liquid-glass-strong rounded-2xl max-h-[50vh] overflow-y-auto custom-scrollbar">
               {isLoading ? (
                 <div className="flex items-center justify-center py-12">
@@ -155,14 +155,14 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 </div>
               ) : (
                 <div className="py-12 text-center text-muted-foreground">
-                  No results found for "{query}"
+                  No results found for "{query.trim()}"
                 </div>
               )}
             </div>
           )}
 
           {/* Quick suggestions when empty */}
-          {query.length <= 2 && (
+          {query.trim().length === 0 && (
             <div className="mt-6 text-center text-muted-foreground">
               <p className="font-jp text-lg mb-2">検索してください</p>
               <p className="text-sm">Start typing to search for anime or manga</p>

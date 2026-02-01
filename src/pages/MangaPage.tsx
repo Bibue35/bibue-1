@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Grid, List, Search, Bookmark, Sparkles } from "lucide-react";
+import { Grid, List, Search, Bookmark, Sparkles, Loader2 } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
@@ -18,6 +18,13 @@ export default function MangaPage() {
   
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [localSearch, setLocalSearch] = useState(searchQuery);
+
+  const isSearching = searchQuery.trim().length > 0;
+
+  const clearSearch = () => {
+    setLocalSearch("");
+    setSearchParams({});
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -172,7 +179,32 @@ export default function MangaPage() {
             {genreId && <span className="text-muted-foreground font-normal ml-2">(filtered by genre)</span>}
           </h2>
           
-          {isLoading ? (
+          {isSearching && isLoading ? (
+            <div className={cn(
+              "grid place-items-center rounded-2xl liquid-glass-subtle",
+              viewMode === "grid" ? "min-h-[320px]" : "min-h-[220px]"
+            )}>
+              <div className="flex flex-col items-center text-center gap-3 p-8">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">Searching for “{searchQuery.trim()}”</p>
+              </div>
+            </div>
+          ) : isSearching && !isLoading && (displayManga?.length ?? 0) === 0 ? (
+            <div className={cn(
+              "rounded-2xl liquid-glass-subtle",
+              viewMode === "grid" ? "py-16" : "py-12"
+            )}>
+              <div className="flex flex-col items-center text-center gap-4 px-6">
+                <div className="text-muted-foreground">
+                  <p className="text-base font-medium">No results</p>
+                  <p className="text-sm">Try a different title or clear your search.</p>
+                </div>
+                <Button variant="outline" onClick={clearSearch} className="rounded-full">
+                  Clear search
+                </Button>
+              </div>
+            </div>
+          ) : isLoading ? (
             <div className={cn(
               "grid gap-4 sm:gap-6",
               viewMode === "grid" 
