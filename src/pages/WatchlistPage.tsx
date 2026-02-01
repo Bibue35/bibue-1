@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
+import { RatingPopover } from "@/components/RatingPopover";
 import {
   Select,
   SelectContent,
@@ -27,7 +28,7 @@ const statusOptions = [
 export default function WatchlistPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { watchlist, isLoading, removeFromWatchlist, updateStatus } = useWatchlist();
+  const { watchlist, isLoading, removeFromWatchlist, updateStatus, updateScore } = useWatchlist();
   
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [filter, setFilter] = useState<"all" | "anime" | "manga">("all");
@@ -191,21 +192,28 @@ export default function WatchlistPage() {
                         {item.title}
                       </h3>
                     </button>
-                    <Select 
-                      value={item.status} 
-                      onValueChange={(status) => updateStatus.mutate({ mal_id: item.mal_id, media_type: item.media_type as "anime" | "manga", status })}
-                    >
-                      <SelectTrigger className="h-7 text-xs rounded-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {statusOptions.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-1 mt-1">
+                      <RatingPopover
+                        currentScore={item.score}
+                        onRate={(score) => updateScore.mutate({ mal_id: item.mal_id, media_type: item.media_type as "anime" | "manga", score })}
+                        size="sm"
+                      />
+                      <Select 
+                        value={item.status} 
+                        onValueChange={(status) => updateStatus.mutate({ mal_id: item.mal_id, media_type: item.media_type as "anime" | "manga", status })}
+                      >
+                        <SelectTrigger className="h-7 text-xs rounded-full flex-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {statusOptions.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 ) : (
                   <div
@@ -226,11 +234,12 @@ export default function WatchlistPage() {
                           {item.title}
                         </h3>
                         <p className="text-xs text-muted-foreground capitalize">{item.media_type}</p>
-                        {item.score && (
-                          <p className="text-xs text-muted-foreground">★ {item.score}</p>
-                        )}
                       </div>
                     </button>
+                    <RatingPopover
+                      currentScore={item.score}
+                      onRate={(score) => updateScore.mutate({ mal_id: item.mal_id, media_type: item.media_type as "anime" | "manga", score })}
+                    />
                     <Select 
                       value={item.status} 
                       onValueChange={(status) => updateStatus.mutate({ mal_id: item.mal_id, media_type: item.media_type as "anime" | "manga", status })}
