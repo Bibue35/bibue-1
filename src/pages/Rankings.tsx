@@ -80,17 +80,17 @@ export default function RankingsPage() {
         </div>
       </section>
 
-      {/* Type Toggle - Text only, no icons */}
+      {/* Type Toggle - Subtle, consistent styling */}
       <section className="pb-8">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-2 p-1 rounded-xl liquid-glass w-fit mx-auto">
+          <div className="flex items-center justify-center gap-2">
             <button
               onClick={() => setActiveType("anime")}
               className={cn(
-                "px-8 py-3 rounded-lg text-sm font-medium transition-all duration-300",
+                "px-6 py-2 rounded-full text-sm font-medium transition-all duration-200",
                 activeType === "anime"
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-foreground/10 text-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
               )}
             >
               Anime
@@ -98,10 +98,10 @@ export default function RankingsPage() {
             <button
               onClick={() => setActiveType("manga")}
               className={cn(
-                "px-8 py-3 rounded-lg text-sm font-medium transition-all duration-300",
+                "px-6 py-2 rounded-full text-sm font-medium transition-all duration-200",
                 activeType === "manga"
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-foreground/10 text-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
               )}
             >
               Manga
