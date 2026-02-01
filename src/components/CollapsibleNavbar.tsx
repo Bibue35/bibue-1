@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Search, Menu, X, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,19 +6,12 @@ import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
+import { LanguageSelector } from "./LanguageSelector";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-
-const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/anime", label: "Anime" },
-  { href: "/manga", label: "Manga" },
-  { href: "/rankings", label: "Rankings" },
-  { href: "/community", label: "Community" },
-];
 
 export function CollapsibleNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -29,32 +22,62 @@ export function CollapsibleNavbar() {
   const [isNavExpanded, setIsNavExpanded] = useState(true);
   const location = useLocation();
   const collapseTimer = useRef<NodeJS.Timeout | null>(null);
+  const scrollRef = useRef(0);
+  const { t } = useLanguage();
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+  const navLinks = [
+    { href: "/", label: t("nav.home") },
+    { href: "/anime", label: t("nav.anime") },
+    { href: "/manga", label: t("nav.manga") },
+    { href: "/rankings", label: t("nav.rankings") },
+    { href: "/community", label: t("nav.community") },
+  ];
+
+  // Debounced scroll handler for smoother performance
+  const handleScroll = useCallback(() => {
+    const currentScrollY = window.scrollY;
+    
+    // Use requestAnimationFrame for smoother updates
+    requestAnimationFrame(() => {
+      // Calculate scroll direction with threshold to prevent jitter
+      const scrollDelta = currentScrollY - scrollRef.current;
       
-      // Show/hide based on scroll direction
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      // Only hide when scrolling down significantly (>10px) and past header
+      if (scrollDelta > 10 && currentScrollY > 150) {
         setIsVisible(false);
-      } else {
+      } else if (scrollDelta < -5 || currentScrollY < 50) {
         setIsVisible(true);
       }
       
-      // Auto-collapse nav when scrolled down
+      // Smooth collapse transition
       if (currentScrollY > 200) {
         setIsNavExpanded(false);
-      } else {
+      } else if (currentScrollY < 100) {
         setIsNavExpanded(true);
       }
       
-      setIsScrolled(currentScrollY > 20);
+      setIsScrolled(currentScrollY > 30);
+      scrollRef.current = currentScrollY;
       setLastScrollY(currentScrollY);
+    });
+  }, []);
+
+  useEffect(() => {
+    let ticking = false;
+    
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [handleScroll]);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -81,7 +104,10 @@ export function CollapsibleNavbar() {
       {/* Fixed Logo - Always Visible */}
       <Link 
         to="/" 
-        className="fixed top-4 left-4 z-[60] flex items-center gap-2"
+        className={cn(
+          "fixed top-4 left-4 z-[60] flex items-center gap-2 transition-all duration-300",
+          !isVisible && "opacity-0 pointer-events-none"
+        )}
       >
         <span className="text-2xl font-sacred font-semibold tracking-wide">
           Bibue
@@ -90,12 +116,15 @@ export function CollapsibleNavbar() {
 
       <nav
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out",
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out",
           isScrolled
             ? "liquid-glass-strong py-2"
             : "bg-transparent py-4",
-          !isVisible && "transform -translate-y-full opacity-0"
+          !isVisible && "transform -translate-y-full pointer-events-none"
         )}
+        style={{
+          transitionProperty: "transform, opacity, background-color, padding",
+        }}
         onMouseEnter={handleNavHover}
         onMouseLeave={handleNavLeave}
       >
@@ -112,8 +141,8 @@ export function CollapsibleNavbar() {
             >
               <CollapsibleContent
                 className={cn(
-                  "flex items-center gap-1 transition-all duration-500",
-                  isNavExpanded ? "opacity-100" : "opacity-0"
+                  "flex items-center gap-1 transition-all duration-300 ease-out",
+                  isNavExpanded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
                 )}
               >
                 {navLinks.map((link) => (
@@ -121,7 +150,7 @@ export function CollapsibleNavbar() {
                     key={link.href}
                     to={link.href}
                     className={cn(
-                      "relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-300",
+                      "relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-200",
                       location.pathname === link.href
                         ? "text-foreground bg-foreground/10"
                         : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
@@ -134,14 +163,14 @@ export function CollapsibleNavbar() {
             </Collapsible>
 
             {/* Right side */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               {/* Expand/Collapse button for desktop */}
               {isScrolled && (
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsNavExpanded(!isNavExpanded)}
-                  className="hidden md:flex rounded-full hover:bg-foreground/5 transition-all duration-300"
+                  className="hidden md:flex rounded-full hover:bg-foreground/5 transition-all duration-200"
                 >
                   {isNavExpanded ? (
                     <ChevronUp className="w-4 h-4" />
@@ -156,12 +185,13 @@ export function CollapsibleNavbar() {
                 size="icon"
                 onClick={() => setIsSearchOpen(true)}
                 className="rounded-full hover:bg-foreground/5"
+                aria-label={t("nav.search")}
               >
                 <Search className="w-5 h-5" />
               </Button>
 
+              <LanguageSelector />
               <ThemeToggle />
-              
               <UserMenu />
 
               <Button
@@ -181,29 +211,32 @@ export function CollapsibleNavbar() {
         </div>
 
         {/* Mobile Menu - Fixed positioning to prevent overlap */}
-        {isMobileMenuOpen && (
-          <div
-            className="md:hidden fixed top-16 left-0 right-0 z-[55] liquid-glass-strong border-t border-border/30 animate-fade-in"
-          >
-            <div className="container mx-auto px-4 py-4 space-y-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className={cn(
-                    "block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300",
-                    location.pathname === link.href
-                      ? "bg-foreground/10 text-foreground"
-                      : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
-                  )}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
+        <div
+          className={cn(
+            "md:hidden fixed top-16 left-0 right-0 z-[55] liquid-glass-strong border-t border-border/30 transition-all duration-300 ease-out",
+            isMobileMenuOpen 
+              ? "opacity-100 translate-y-0" 
+              : "opacity-0 -translate-y-4 pointer-events-none"
+          )}
+        >
+          <div className="container mx-auto px-4 py-4 space-y-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                className={cn(
+                  "block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+                  location.pathname === link.href
+                    ? "bg-foreground/10 text-foreground"
+                    : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+                )}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
-        )}
+        </div>
       </nav>
 
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
