@@ -315,10 +315,11 @@ export async function getAnimeRecommendations(id: number): Promise<Array<{ entry
   const query = `
     query ($id: Int) {
       Media(id: $id, type: ANIME) {
-        recommendations(page: 1, perPage: 10, sort: [RATING_DESC]) {
+        recommendations(page: 1, perPage: 15, sort: [RATING_DESC]) {
           nodes {
             mediaRecommendation {
               ${MEDIA_FRAGMENT}
+              isAdult
             }
           }
         }
@@ -326,9 +327,10 @@ export async function getAnimeRecommendations(id: number): Promise<Array<{ entry
     }
   `;
 
-  const data = await anilistQuery<{ Media: { recommendations: { nodes: Array<{ mediaRecommendation: AniListMedia }> } } }>(query, { id });
+  const data = await anilistQuery<{ Media: { recommendations: { nodes: Array<{ mediaRecommendation: AniListMedia & { isAdult?: boolean } }> } } }>(query, { id });
   return data.Media.recommendations.nodes
-    .filter(n => n.mediaRecommendation)
+    .filter(n => n.mediaRecommendation && !n.mediaRecommendation.isAdult)
+    .filter(n => !n.mediaRecommendation.genres?.some(g => g.toLowerCase() === 'hentai'))
     .map(n => ({ entry: toAnime(n.mediaRecommendation) }));
 }
 
@@ -336,10 +338,11 @@ export async function getMangaRecommendations(id: number): Promise<Array<{ entry
   const query = `
     query ($id: Int) {
       Media(id: $id, type: MANGA) {
-        recommendations(page: 1, perPage: 10, sort: [RATING_DESC]) {
+        recommendations(page: 1, perPage: 15, sort: [RATING_DESC]) {
           nodes {
             mediaRecommendation {
               ${MEDIA_FRAGMENT}
+              isAdult
             }
           }
         }
@@ -347,9 +350,10 @@ export async function getMangaRecommendations(id: number): Promise<Array<{ entry
     }
   `;
 
-  const data = await anilistQuery<{ Media: { recommendations: { nodes: Array<{ mediaRecommendation: AniListMedia }> } } }>(query, { id });
+  const data = await anilistQuery<{ Media: { recommendations: { nodes: Array<{ mediaRecommendation: AniListMedia & { isAdult?: boolean } }> } } }>(query, { id });
   return data.Media.recommendations.nodes
-    .filter(n => n.mediaRecommendation)
+    .filter(n => n.mediaRecommendation && !n.mediaRecommendation.isAdult)
+    .filter(n => !n.mediaRecommendation.genres?.some(g => g.toLowerCase() === 'hentai'))
     .map(n => ({ entry: toManga(n.mediaRecommendation) }));
 }
 
