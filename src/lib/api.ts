@@ -1,6 +1,26 @@
 // AniList GraphQL API integration (replaces Jikan for better rate limits)
 const ANILIST_API = "https://graphql.anilist.co";
 
+// Language type matching the LanguageContext
+export type SupportedLanguage = "en" | "ja" | "es" | "fr" | "de" | "pt" | "ko" | "zh";
+
+// Helper to get the appropriate title based on language preference
+function getTitleForLanguage(
+  title: { romaji?: string; english?: string; native?: string },
+  language: SupportedLanguage = "en"
+): string {
+  // For Japanese, prefer native title
+  if (language === "ja") {
+    return title.native || title.romaji || title.english || "Unknown";
+  }
+  // For Korean/Chinese, prefer romaji (most readable for these users typically)
+  if (language === "ko" || language === "zh") {
+    return title.romaji || title.english || title.native || "Unknown";
+  }
+  // For all other languages (en, es, fr, de, pt), prefer English
+  return title.english || title.romaji || "Unknown";
+}
+
 export interface Anime {
   mal_id: number; // We'll use AniList id but keep the field name for compatibility
   title: string;
@@ -88,7 +108,7 @@ async function anilistQuery<T>(query: string, variables: Record<string, unknown>
 }
 
 // Convert AniList media to our Anime format
-function toAnime(media: AniListMedia): Anime {
+function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime {
   // Use the highest quality image available
   const imageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
   
@@ -96,7 +116,7 @@ function toAnime(media: AniListMedia): Anime {
   // This ensures the ID passed to cards matches the ID used for detail fetches
   return {
     mal_id: media.id, // Use AniList ID consistently (not idMal)
-    title: media.title.english || media.title.romaji || "Unknown",
+    title: getTitleForLanguage(media.title, language),
     title_english: media.title.english || undefined,
     title_japanese: media.title.native || undefined,
     images: {
@@ -128,7 +148,7 @@ function toAnime(media: AniListMedia): Anime {
 }
 
 // Convert AniList media to our Manga format
-function toManga(media: AniListMedia): Manga {
+function toManga(media: AniListMedia, language: SupportedLanguage = "en"): Manga {
   // Use the highest quality image available
   const imageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
   
@@ -136,7 +156,7 @@ function toManga(media: AniListMedia): Manga {
   // This ensures the ID passed to cards matches the ID used for detail fetches
   return {
     mal_id: media.id, // Use AniList ID consistently (not idMal)
-    title: media.title.english || media.title.romaji || "Unknown",
+    title: getTitleForLanguage(media.title, language),
     title_english: media.title.english || undefined,
     title_japanese: media.title.native || undefined,
     images: {
@@ -223,7 +243,7 @@ const MEDIA_FRAGMENT = `
 `;
 
 // Anime endpoints
-export async function getTopAnime(page = 1, limit = 25, filter?: "airing" | "upcoming" | "bypopularity" | "favorite"): Promise<Anime[]> {
+export async function getTopAnime(page = 1, limit = 25, filter?: "airing" | "upcoming" | "bypopularity" | "favorite", language: SupportedLanguage = "en"): Promise<Anime[]> {
   let sort = "POPULARITY_DESC";
   let status: string | undefined;
   
@@ -250,10 +270,10 @@ export async function getTopAnime(page = 1, limit = 25, filter?: "airing" | "upc
   `;
 
   const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, sort: [sort], status });
-  return data.Page.media.map(toAnime);
+  return data.Page.media.map(m => toAnime(m, language));
 }
 
-export async function getSeasonalAnime(year?: number, season?: string): Promise<Anime[]> {
+export async function getSeasonalAnime(year?: number, season?: string, language: SupportedLanguage = "en"): Promise<Anime[]> {
   const currentDate = new Date();
   const y = year || currentDate.getFullYear();
   const s = (season || getCurrentSeason()).toUpperCase();
@@ -269,10 +289,10 @@ export async function getSeasonalAnime(year?: number, season?: string): Promise<
   `;
 
   const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { season: s, seasonYear: y });
-  return data.Page.media.map(toAnime);
+  return data.Page.media.map(m => toAnime(m, language));
 }
 
-export async function getAnimeById(id: number): Promise<Anime> {
+export async function getAnimeById(id: number, language: SupportedLanguage = "en"): Promise<Anime> {
   // Try to fetch by AniList ID first
   const query = `
     query ($id: Int) {
@@ -286,7 +306,7 @@ export async function getAnimeById(id: number): Promise<Anime> {
   try {
     const data = await anilistQuery<{ Media: AniListMedia }>(query, { id });
     if (data.Media) {
-      return toAnime(data.Media);
+      return toAnime(data.Media, language);
     }
   } catch (e) {
     // If not found by AniList ID, try by MAL ID
@@ -303,10 +323,10 @@ export async function getAnimeById(id: number): Promise<Anime> {
   `;
 
   const data = await anilistQuery<{ Media: AniListMedia }>(malQuery, { idMal: id });
-  return toAnime(data.Media);
+  return toAnime(data.Media, language);
 }
 
-export async function searchAnime(searchQuery: string, page = 1, limit = 25): Promise<Anime[]> {
+export async function searchAnime(searchQuery: string, page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Anime[]> {
   const query = `
     query ($search: String, $page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
@@ -318,10 +338,10 @@ export async function searchAnime(searchQuery: string, page = 1, limit = 25): Pr
   `;
 
   const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { search: searchQuery, page, perPage: limit });
-  return data.Page.media.map(toAnime);
+  return data.Page.media.map(m => toAnime(m, language));
 }
 
-export async function getAnimeRecommendations(id: number): Promise<Array<{ entry: Anime }>> {
+export async function getAnimeRecommendations(id: number, language: SupportedLanguage = "en"): Promise<Array<{ entry: Anime }>> {
   const query = `
     query ($id: Int) {
       Media(id: $id, type: ANIME) {
@@ -341,10 +361,10 @@ export async function getAnimeRecommendations(id: number): Promise<Array<{ entry
   return data.Media.recommendations.nodes
     .filter(n => n.mediaRecommendation && !n.mediaRecommendation.isAdult)
     .filter(n => !n.mediaRecommendation.genres?.some(g => g.toLowerCase() === 'hentai'))
-    .map(n => ({ entry: toAnime(n.mediaRecommendation) }));
+    .map(n => ({ entry: toAnime(n.mediaRecommendation, language) }));
 }
 
-export async function getMangaRecommendations(id: number): Promise<Array<{ entry: Manga }>> {
+export async function getMangaRecommendations(id: number, language: SupportedLanguage = "en"): Promise<Array<{ entry: Manga }>> {
   const query = `
     query ($id: Int) {
       Media(id: $id, type: MANGA) {
@@ -364,7 +384,7 @@ export async function getMangaRecommendations(id: number): Promise<Array<{ entry
   return data.Media.recommendations.nodes
     .filter(n => n.mediaRecommendation && !n.mediaRecommendation.isAdult)
     .filter(n => !n.mediaRecommendation.genres?.some(g => g.toLowerCase() === 'hentai'))
-    .map(n => ({ entry: toManga(n.mediaRecommendation) }));
+    .map(n => ({ entry: toManga(n.mediaRecommendation, language) }));
 }
 
 // Sort options type
@@ -375,7 +395,8 @@ export async function getTopManga(
   page = 1, 
   limit = 25, 
   filter?: "manga" | "novels" | "lightnovels" | "oneshots" | "doujin" | "manhwa" | "manhua",
-  sort: SortOption = "popularity"
+  sort: SortOption = "popularity",
+  language: SupportedLanguage = "en"
 ): Promise<Manga[]> {
   let format: string | undefined;
   let countryOfOrigin: string | undefined;
@@ -406,10 +427,10 @@ export async function getTopManga(
   `;
 
   const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, format, countryOfOrigin, sort: [sortValue] });
-  return data.Page.media.map(toManga);
+  return data.Page.media.map(m => toManga(m, language));
 }
 
-export async function getMangaById(id: number): Promise<Manga> {
+export async function getMangaById(id: number, language: SupportedLanguage = "en"): Promise<Manga> {
   // Try to fetch by AniList ID first
   const query = `
     query ($id: Int) {
@@ -424,7 +445,7 @@ export async function getMangaById(id: number): Promise<Manga> {
   try {
     const data = await anilistQuery<{ Media: AniListMedia }>(query, { id });
     if (data.Media) {
-      return toManga(data.Media);
+      return toManga(data.Media, language);
     }
   } catch (e) {
     // If not found by AniList ID, try by MAL ID
@@ -442,7 +463,7 @@ export async function getMangaById(id: number): Promise<Manga> {
   `;
 
   const data = await anilistQuery<{ Media: AniListMedia }>(malQuery, { idMal: id });
-  return toManga(data.Media);
+  return toManga(data.Media, language);
 }
 
 export async function searchManga(
@@ -450,6 +471,7 @@ export async function searchManga(
   page = 1,
   limit = 25,
   filter?: "manga" | "novels" | "lightnovels" | "oneshots" | "doujin" | "manhwa" | "manhua",
+  language: SupportedLanguage = "en"
 ): Promise<Manga[]> {
   let format: string | undefined;
   let countryOfOrigin: string | undefined;
@@ -477,7 +499,7 @@ export async function searchManga(
     format,
     countryOfOrigin,
   });
-  return data.Page.media.map(toManga);
+  return data.Page.media.map(m => toManga(m, language));
 }
 
 // News - AniList doesn't have news, return empty
@@ -494,14 +516,14 @@ export interface ScheduleItem {
 }
 
 // Schedule - Get airing schedule using AniList's AiringSchedule query
-export async function getSchedule(day?: string): Promise<Anime[]> {
+export async function getSchedule(day?: string, language: SupportedLanguage = "en"): Promise<Anime[]> {
   // Legacy function - returns just anime array for backward compatibility
-  const schedule = await getScheduleByDay(day || getCurrentDayName());
+  const schedule = await getScheduleByDay(day || getCurrentDayName(), language);
   return schedule.map(s => s.anime);
 }
 
 // New schedule function with airing times
-export async function getScheduleByDay(day: string): Promise<ScheduleItem[]> {
+export async function getScheduleByDay(day: string, language: SupportedLanguage = "en"): Promise<ScheduleItem[]> {
   const dayMap: Record<string, number> = { 
     sunday: 0, monday: 1, tuesday: 2, wednesday: 3, 
     thursday: 4, friday: 5, saturday: 6 
@@ -555,7 +577,7 @@ export async function getScheduleByDay(day: string): Promise<ScheduleItem[]> {
   return data.Page.airingSchedules
     .filter(s => s.media) // Filter out null media
     .map(s => ({
-      anime: toAnime(s.media),
+      anime: toAnime(s.media, language),
       airingTime: formatAiringTime(s.airingAt),
       airingAt: s.airingAt,
       episode: s.episode,
