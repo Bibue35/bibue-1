@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Loader2, Mail, Lock, User } from "lucide-react";
+import { Loader2, Mail, Lock, User, Link2 } from "lucide-react";
 import { lovable } from "@/integrations/lovable";
 
 interface AuthModalProps {
@@ -61,10 +61,69 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     resetForm();
   };
 
+  const handleConnectService = (service: string) => {
+    toast.info(`${service} integration coming soon!`);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogTitle className="text-2xl font-sacred text-center">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+        {/* Connect Services - At the top */}
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Link2 className="w-4 h-4 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Connect Your Lists</span>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="flex-1 gap-2 text-xs"
+              onClick={() => handleConnectService("MyAnimeList")}
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8.273 7.247v8.423l-2.103-.003v-5.216l-2.03 2.404-1.989-2.458-.002 5.268H0v-8.42l2.149.003 2.04 2.453 2.033-2.454h2.051zM9.67 15.67V7.247h1.89l.003 8.423H9.67zM14.65 9.025h-3.162v-1.78h8.194v1.778h-3.141v6.645h-1.89l-.001-6.643zM20.18 15.67V7.247h1.89v8.423h-1.89z"/>
+              </svg>
+              MAL
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="flex-1 gap-2 text-xs"
+              onClick={() => handleConnectService("AniList")}
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6.361 2.943L0 21.056h4.942l1.077-3.133H11.4l1.052 3.133H22.9c.71 0 1.1-.392 1.1-1.101V17.53c0-.71-.39-1.101-1.1-1.101h-6.483V4.045c0-.71-.392-1.102-1.101-1.102h-2.422c-.71 0-1.101.392-1.101 1.102v1.064l-.758-2.166h-6.45l.776 2.269v-2.27H6.36zm2.324 10.405l1.42-4.5 1.42 4.5H8.685z"/>
+              </svg>
+              AniList
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="flex-1 gap-2 text-xs"
+              onClick={() => handleConnectService("Kitsu")}
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="12" r="10"/>
+              </svg>
+              Kitsu
+            </Button>
+          </div>
+        </div>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">Or sign in</span>
+          </div>
+        </div>
+
+        <DialogTitle className="text-2xl font-sacred text-center mt-4">
           {isLogin ? "Welcome Back" : "Create Account"}
         </DialogTitle>
         <DialogDescription className="text-center text-muted-foreground">
@@ -132,7 +191,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           </Button>
         </form>
 
-        <div className="relative my-6">
+        <div className="relative my-4">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-border" />
           </div>
