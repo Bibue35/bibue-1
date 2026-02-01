@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Filter, Grid, List } from "lucide-react";
+import { Filter, Grid, List, Search } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
@@ -8,18 +8,20 @@ import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { GenreSection } from "@/components/GenreSection";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTopManga } from "@/hooks/useAnimeData";
+import { useTopManga, useSearchManga } from "@/hooks/useAnimeData";
 import { cn } from "@/lib/utils";
 
 export default function MangaPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialFilter = searchParams.get("filter") as 'manga' | 'manhwa' | 'manhua' | 'bypopularity' | undefined;
   const genreId = searchParams.get("genre");
+  const searchQuery = searchParams.get("q") || "";
   
   const [filter, setFilter] = useState<'manga' | 'manhwa' | 'manhua' | undefined>(
     initialFilter === 'bypopularity' ? undefined : initialFilter as 'manga' | 'manhwa' | 'manhua' | undefined
   );
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [localSearch, setLocalSearch] = useState(searchQuery);
 
   // Update URL when filter changes
   const handleFilterChange = (newFilter: typeof filter) => {
@@ -30,27 +32,60 @@ export default function MangaPage() {
     setSearchParams(params);
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (localSearch.trim()) {
+      setSearchParams({ q: localSearch.trim() });
+    } else {
+      setSearchParams({});
+    }
+  };
+
   const { data: topManga, isLoading: topLoading } = useTopManga(1, filter);
   const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
   const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua');
+  const { data: searchResults, isLoading: searchLoading } = useSearchManga(searchQuery, !!searchQuery);
+
+  // Use search results if searching
+  const displayManga = searchQuery ? searchResults : topManga;
+  const isLoading = searchQuery ? searchLoading : topLoading;
 
   return (
     <div className="min-h-screen bg-background">
       <CollapsibleNavbar />
 
-      {/* Hero - Clean text-only design */}
+      {/* Hero with Search */}
       <section className="pt-28 sm:pt-32 pb-12 sm:pb-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
               Discover Manga
             </h1>
-            <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-2">漫画を発見</p>
-            <p className="text-muted-foreground text-sm sm:text-lg px-4">
-              Explore manga, manhwa, and manhua from around the world.
-            </p>
+            <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">漫画を発見</p>
+            
+            {/* Search Bar */}
+            <form onSubmit={handleSearch} className="relative max-w-xl mx-auto">
+              <div className="liquid-glass-strong rounded-2xl transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/30">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search manga, manhwa, manhua..."
+                  value={localSearch}
+                  onChange={(e) => setLocalSearch(e.target.value)}
+                  className="w-full h-14 pl-14 pr-24 bg-transparent text-base sm:text-lg placeholder:text-muted-foreground focus:outline-none rounded-2xl"
+                />
+                <Button 
+                  type="submit" 
+                  size="sm" 
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl px-4"
+                >
+                  Search
+                </Button>
+              </div>
+            </form>
+
             {/* Decorative underline */}
-            <div className="mt-6 mx-auto w-24 h-1 rounded-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+            <div className="mt-8 mx-auto w-24 h-1 rounded-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           </div>
         </div>
       </section>
@@ -158,11 +193,13 @@ export default function MangaPage() {
       <section className="py-8 pb-24">
         <div className="container mx-auto px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">
-            Top {filter ? filter.charAt(0).toUpperCase() + filter.slice(1) : "Manga"}
+            {searchQuery 
+              ? `Search results for "${searchQuery}"` 
+              : `Top ${filter ? filter.charAt(0).toUpperCase() + filter.slice(1) : "Manga"}`}
             {genreId && <span className="text-muted-foreground font-normal ml-2">(filtered by genre)</span>}
           </h2>
           
-          {topLoading ? (
+          {isLoading ? (
             <div className={cn(
               "grid gap-4 sm:gap-6",
               viewMode === "grid" 
@@ -180,7 +217,7 @@ export default function MangaPage() {
                 ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" 
                 : "grid-cols-1"
             )}>
-              {topManga?.map((manga, index) => (
+              {displayManga?.map((manga, index) => (
                 viewMode === "grid" ? (
                   <MangaCard key={manga.mal_id} manga={manga} index={index} />
                 ) : (
