@@ -41,8 +41,8 @@ export function useTopManga(page = 1, type?: 'manga' | 'novels' | 'lightnovels' 
 export function useSearchAnime(query: string, enabled = true) {
   return useQuery({
     queryKey: ["searchAnime", query],
-    queryFn: () => searchAnime(query),
-    enabled: enabled && query.length > 2,
+    queryFn: () => searchAnime(query.trim()),
+    enabled: enabled && query.trim().length > 0,
     staleTime: 1000 * 60 * 5,
   });
 }
@@ -50,8 +50,8 @@ export function useSearchAnime(query: string, enabled = true) {
 export function useSearchManga(query: string, enabled = true) {
   return useQuery({
     queryKey: ["searchManga", query],
-    queryFn: () => searchManga(query),
-    enabled: enabled && query.length > 2,
+    queryFn: () => searchManga(query.trim()),
+    enabled: enabled && query.trim().length > 0,
     staleTime: 1000 * 60 * 5,
   });
 }
