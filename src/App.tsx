@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { IncognitoProvider } from "@/contexts/IncognitoContext";
+import { IncognitoOverlay } from "@/components/IncognitoOverlay";
 import Index from "./pages/Index";
 import AnimePage from "./pages/AnimePage";
 import MangaPage from "./pages/MangaPage";
@@ -33,6 +34,7 @@ const App = () => (
       <AuthProvider>
         <IncognitoProvider>
           <TooltipProvider>
+            <IncognitoOverlay />
             <Toaster />
             <Sonner />
             <BrowserRouter>
