@@ -2,7 +2,7 @@
  * Bibue - Anime & Manga Platform
  * Main landing page with diverse anime sections like popular streaming sites
  */
-import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
+import { FloatingNav } from "@/components/FloatingNav";
 import { HeroSection } from "@/components/HeroSection";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { AnimeCard } from "@/components/AnimeCard";
@@ -51,7 +51,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <CollapsibleNavbar />
+      <FloatingNav />
       
       {/* Hero Section */}
       <HeroSection
