@@ -1,3 +1,7 @@
+/**
+ * Bibue - Anime & Manga Platform
+ * Main landing page with hero, seasonal anime, trending, and manga sections
+ */
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { HeroSection } from "@/components/HeroSection";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
@@ -28,7 +32,7 @@ const Index = () => {
         isLoading={seasonalLoading} 
       />
 
-      {/* Coming Soon Banner - integrated with page flow */}
+      {/* Coming Soon Banner */}
       <section className="py-6 sm:py-8">
         <div className="container mx-auto px-4">
           <div className="liquid-glass rounded-2xl p-4 sm:p-5 flex items-center justify-center gap-3 text-center">
@@ -41,12 +45,6 @@ const Index = () => {
           </div>
         </div>
       </section>
-      
-      {/* Hero Section */}
-      <HeroSection
-        featuredAnime={seasonalAnime?.slice(0, 5)} 
-        isLoading={seasonalLoading} 
-      />
 
       {/* This Season */}
       <section className="py-12 sm:py-16">
