@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { BookOpen, Star, Heart, Bookmark, Eye, ChevronsLeft, ChevronsRight, MessageCircle, Send, User } from "lucide-react";
+import { BookOpen, Star, Heart, Bookmark, Eye, ChevronsLeft, ChevronsRight, MessageCircle, Send, User, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { validateComment } from "@/lib/validation";
 import { MangaReader } from "@/components/MangaReader";
+import { useReadingProgress } from "@/hooks/useReadingProgress";
 
 export default function MangaDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +26,7 @@ export default function MangaDetailPage() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { lastChapterRead } = useReadingProgress(Number(id), "manga");
 
   // Generate mock chapter data - show ALL chapters
   const generateChapters = (count: number) => {
@@ -121,6 +123,7 @@ export default function MangaDetailPage() {
       <MangaReader
         mangaId={Number(id)}
         mangaTitle={manga?.title || ""}
+        mangaImageUrl={manga?.images.webp.large_image_url}
         selectedChapter={selectedChapter}
         totalChapters={totalChapters}
         firstChapter={firstChapter}
@@ -176,8 +179,21 @@ export default function MangaDetailPage() {
                       }}
                     >
                       <BookOpen className="w-4 h-4" />
-                      Start Reading
+                      Read First
                     </Button>
+                    {lastChapterRead && (
+                      <Button 
+                        variant="secondary" 
+                        className="w-full gap-2"
+                        onClick={() => {
+                          setSelectedChapter(lastChapterRead);
+                          setIsReading(true);
+                        }}
+                      >
+                        <History className="w-4 h-4" />
+                        Continue Ch. {lastChapterRead}
+                      </Button>
+                    )}
                     <div className="grid grid-cols-2 gap-2">
                       <Button 
                         variant="outline" 
@@ -302,9 +318,14 @@ export default function MangaDetailPage() {
                     <h2 className="text-xl font-bold font-sacred">
                       {chapters.length} Chapters Available
                     </h2>
+                    {lastChapterRead && (
+                      <span className="text-sm text-muted-foreground">
+                        Last read: Ch. {lastChapterRead}
+                      </span>
+                    )}
                   </div>
 
-                  {/* Chapter List */}
+                  {/* Chapter List - Full scrollable list */}
                   <ScrollArea className="h-[500px] pr-4">
                     <div className="space-y-1">
                       {isLoading ? (
@@ -313,7 +334,7 @@ export default function MangaDetailPage() {
                         ))
                       ) : (
                         chapters.map((chapter) => {
-                          const isSelected = selectedChapter === chapter.number;
+                          const isLastRead = lastChapterRead === chapter.number;
                           const releaseDate = new Date(chapter.released);
                           
                           return (
@@ -326,15 +347,22 @@ export default function MangaDetailPage() {
                               className={cn(
                                 "w-full flex items-center justify-between py-3 px-4 rounded-lg text-left transition-all",
                                 "hover:bg-primary/10",
-                                isSelected && "bg-primary/20"
+                                isLastRead && "bg-primary/20 border border-primary/30"
                               )}
                             >
-                              <span className={cn(
-                                "font-medium",
-                                isSelected ? "text-primary" : "text-foreground"
-                              )}>
-                                Chapter {chapter.number}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className={cn(
+                                  "font-medium",
+                                  isLastRead ? "text-primary" : "text-foreground"
+                                )}>
+                                  Chapter {chapter.number}
+                                </span>
+                                {isLastRead && (
+                                  <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
+                                    Last Read
+                                  </span>
+                                )}
+                              </div>
                               <span className="text-sm text-muted-foreground">
                                 {releaseDate.toLocaleDateString('en-US', { 
                                   year: 'numeric', 

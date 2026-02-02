@@ -427,6 +427,8 @@ export type Database = {
           episodes_watched: number | null
           id: string
           image_url: string | null
+          last_chapter_read: number | null
+          last_episode_watched: number | null
           mal_id: number
           media_type: string
           notes: string | null
@@ -444,6 +446,8 @@ export type Database = {
           episodes_watched?: number | null
           id?: string
           image_url?: string | null
+          last_chapter_read?: number | null
+          last_episode_watched?: number | null
           mal_id: number
           media_type: string
           notes?: string | null
@@ -461,6 +465,8 @@ export type Database = {
           episodes_watched?: number | null
           id?: string
           image_url?: string | null
+          last_chapter_read?: number | null
+          last_episode_watched?: number | null
           mal_id?: number
           media_type?: string
           notes?: string | null
