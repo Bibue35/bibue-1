@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, Eye, ChevronLeft, ChevronRight, ThumbsUp, ArrowUpDown } from "lucide-react";
+import { ResolutionSelector, type Resolution } from "@/components/ResolutionSelector";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,6 +25,7 @@ export default function AnimeDetailPage() {
   const [newComment, setNewComment] = useState("");
   const [sortBy, setSortBy] = useState<"latest" | "likes">("latest");
   const [isFavorite, setIsFavorite] = useState(false);
+  const [resolution, setResolution] = useState<Resolution>("1080p");
   const playerRef = useRef<HTMLElement>(null);
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -267,6 +269,7 @@ export default function AnimeDetailPage() {
               "absolute top-6 right-6 z-40 flex items-center gap-3 transition-all duration-500",
               showControls ? "opacity-100" : "opacity-0 pointer-events-none"
             )}>
+              <ResolutionSelector value={resolution} onChange={setResolution} />
               <Button 
                 variant="ghost" 
                 size="icon" 
