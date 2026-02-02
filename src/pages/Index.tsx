@@ -230,7 +230,8 @@ const Index = () => {
         title="Classic Anime"
         titleJp="クラシック"
         icon={History}
-        linkTo="/anime?filter=classic"
+        linkTo="/classics"
+        linkText="Browse by Decade"
       >
         <HorizontalScroll showArrows={!isMobile}>
           {classicLoading ? (
