@@ -108,9 +108,10 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
               {query && (
                 <button
                   onClick={() => setQuery("")}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 p-1 hover:bg-muted/50 rounded-full transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 sm:p-1.5 bg-muted/60 hover:bg-muted rounded-full transition-colors active:scale-95"
+                  aria-label="Clear search"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-5 h-5 sm:w-4 sm:h-4" />
                 </button>
               )}
             </div>
