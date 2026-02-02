@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, List, X, MessageCircle, Send, User, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,6 +28,7 @@ interface MangaReaderProps {
   lastChapter: number;
   onChapterChange: (chapter: number) => void;
   onClose: () => void;
+  onNavigate?: () => void;
 }
 
 export function MangaReader({
@@ -40,7 +41,9 @@ export function MangaReader({
   lastChapter,
   onChapterChange,
   onClose,
+  onNavigate,
 }: MangaReaderProps) {
+  const navigate = useNavigate();
   const { updateProgress } = useReadingProgress(mangaId, "manga");
   const [showControls, setShowControls] = useState(true);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -163,12 +166,14 @@ export function MangaReader({
         <div className="flex items-center justify-between px-4 py-3">
           {/* Left: Logo and title */}
           <div className="flex items-center gap-4 min-w-0">
-            <Link
-              to="/manga"
+            <button
+              onClick={() => {
+                window.location.href = "/manga";
+              }}
               className="text-xl font-sacred font-semibold text-foreground hover:text-primary transition-colors flex-shrink-0"
             >
               Bibue
-            </Link>
+            </button>
             <div className="hidden sm:block h-4 w-px bg-border/50" />
             <h1 className="hidden sm:block text-sm text-muted-foreground truncate max-w-[200px] lg:max-w-[400px]">
               {mangaTitle}

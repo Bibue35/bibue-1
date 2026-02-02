@@ -113,6 +113,15 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
     setReadingChapter(chapterNumber);
   };
 
+  const handleCloseReader = () => {
+    setReadingChapter(null);
+  };
+
+  const handleNavigateAway = () => {
+    setReadingChapter(null);
+    onOpenChange(false);
+  };
+
   // If reading, show the reader
   if (readingChapter !== null && manga) {
     return (
@@ -125,7 +134,8 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
         firstChapter={firstChapter}
         lastChapter={lastChapter}
         onChapterChange={setReadingChapter}
-        onClose={() => setReadingChapter(null)}
+        onClose={handleCloseReader}
+        onNavigate={handleNavigateAway}
       />
     );
   }
