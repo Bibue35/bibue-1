@@ -166,14 +166,12 @@ export function MangaReader({
         <div className="flex items-center justify-between px-4 py-3">
           {/* Left: Logo and title */}
           <div className="flex items-center gap-4 min-w-0">
-            <button
-              onClick={() => {
-                window.location.href = "/manga";
-              }}
+            <Link
+              to="/manga"
               className="text-xl font-sacred font-semibold text-foreground hover:text-primary transition-colors flex-shrink-0"
             >
               Bibue
-            </button>
+            </Link>
             <div className="hidden sm:block h-4 w-px bg-border/50" />
             <h1 className="hidden sm:block text-sm text-muted-foreground truncate max-w-[200px] lg:max-w-[400px]">
               {mangaTitle}
