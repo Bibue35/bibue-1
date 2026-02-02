@@ -73,10 +73,21 @@ export function useSwipeGesture({
     }
   }, [threshold, minSwipeDistance]);
 
+  // Trigger haptic feedback
+  const triggerHaptic = useCallback((type: "light" | "medium" | "heavy" = "medium") => {
+    if ("vibrate" in navigator) {
+      const patterns = { light: 10, medium: 25, heavy: 50 };
+      navigator.vibrate(patterns[type]);
+    }
+  }, []);
+
   const handleTouchEnd = useCallback(() => {
     const { direction, progress } = swipeState;
 
     if (progress >= 1) {
+      // Trigger haptic feedback on successful swipe
+      triggerHaptic("medium");
+      
       if (direction === "left" && onSwipeLeft) {
         onSwipeLeft();
       } else if (direction === "right" && onSwipeRight) {
@@ -86,7 +97,7 @@ export function useSwipeGesture({
 
     setSwipeState({ isSwiping: false, direction: null, progress: 0 });
     isHorizontalSwipe.current = false;
-  }, [swipeState, onSwipeLeft, onSwipeRight]);
+  }, [swipeState, onSwipeLeft, onSwipeRight, triggerHaptic]);
 
   useEffect(() => {
     const container = containerRef.current;
