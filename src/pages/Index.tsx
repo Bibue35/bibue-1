@@ -15,7 +15,7 @@ import { AdUnit } from "@/components/AdUnit";
 import { ScheduleSection } from "@/components/ScheduleSection";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { useTopAnime, useSeasonalAnime, useTopManga } from "@/hooks/useAnimeData";
-import { Skeleton } from "@/components/ui/skeleton";
+import { CardSkeleton, CardSkeletonRow, HeroSkeleton } from "@/components/skeletons";
 import { Link } from "react-router-dom";
 import { ArrowRight, Rocket, TrendingUp, Sparkles, Clock, BookOpen, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -97,11 +97,7 @@ const Index = () => {
       >
         <HorizontalScroll showArrows={false}>
           {airingLoading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
-                <Skeleton className="aspect-[2/3] rounded-2xl" />
-              </div>
-            ))
+            <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-44" />
           ) : (
             airingAnime?.slice(0, 10).map((anime, index) => (
               <div key={anime.mal_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
@@ -128,11 +124,7 @@ const Index = () => {
       >
         <HorizontalScroll showArrows={!isMobile}>
           {seasonalLoading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                <Skeleton className="aspect-[2/3] rounded-2xl" />
-              </div>
-            ))
+            <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
           ) : (
             seasonalAnime?.slice(0, 12).map((anime, index) => (
               <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
@@ -162,11 +154,7 @@ const Index = () => {
       >
         <HorizontalScroll showArrows={!isMobile}>
           {popularLoading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                <Skeleton className="aspect-[2/3] rounded-2xl" />
-              </div>
-            ))
+            <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
           ) : (
             popularAnime?.slice(0, 12).map((anime, index) => (
               <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
@@ -190,11 +178,7 @@ const Index = () => {
       >
         <HorizontalScroll showArrows={!isMobile}>
           {upcomingLoading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                <Skeleton className="aspect-[2/3] rounded-2xl" />
-              </div>
-            ))
+            <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
           ) : (
             upcomingAnime?.slice(0, 12).map((anime, index) => (
               <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
@@ -250,7 +234,7 @@ const Index = () => {
               <div className="space-y-2 sm:space-y-3">
                 {topMangaLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="h-16 sm:h-20 rounded-lg sm:rounded-xl" />
+                    <CardSkeleton key={i} variant="compact" />
                   ))
                 ) : (
                   topManga?.slice(0, 5).map((manga, index) => (
@@ -271,7 +255,7 @@ const Index = () => {
               <div className="space-y-2 sm:space-y-3">
                 {manhwaLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="h-16 sm:h-20 rounded-lg sm:rounded-xl" />
+                    <CardSkeleton key={i} variant="compact" />
                   ))
                 ) : (
                   manhwa?.slice(0, 5).map((manga, index) => (
@@ -292,7 +276,7 @@ const Index = () => {
               <div className="space-y-2 sm:space-y-3">
                 {manhuaLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="h-16 sm:h-20 rounded-lg sm:rounded-xl" />
+                    <CardSkeleton key={i} variant="compact" />
                   ))
                 ) : (
                   manhua?.slice(0, 5).map((manga, index) => (

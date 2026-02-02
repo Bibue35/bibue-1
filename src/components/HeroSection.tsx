@@ -6,6 +6,7 @@ import { formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { AnimeDetailModal } from "./AnimeDetailModal";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { HeroSkeleton } from "./skeletons";
 
 interface HeroSectionProps {
   featuredAnime?: Anime[];
@@ -39,21 +40,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
   };
 
   if (isLoading || !featured) {
-    return (
-      <section className="relative min-h-[60vh] sm:min-h-[70vh] flex items-center pt-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl animate-pulse">
-            <div className="h-4 w-24 bg-muted rounded-full mb-6" />
-            <div className="h-10 sm:h-12 w-3/4 bg-muted rounded-2xl mb-4" />
-            <div className="h-6 w-1/2 bg-muted rounded-xl mb-6" />
-            <div className="h-16 sm:h-20 w-full bg-muted rounded-xl mb-8" />
-            <div className="flex gap-3">
-              <div className="h-10 sm:h-12 w-32 bg-muted rounded-full" />
-            </div>
-          </div>
-        </div>
-      </section>
-    );
+    return <HeroSkeleton variant="full" />;
   }
 
   return (
