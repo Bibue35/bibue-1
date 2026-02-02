@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, List, X, MessageCircle, Send, User, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -159,10 +160,10 @@ export function MangaReader({
   const goToPrevChapter = () => onChapterChange(Math.max(firstChapter, selectedChapter - 1));
   const goToNextChapter = () => onChapterChange(Math.min(lastChapter, selectedChapter + 1));
 
-  return (
-    <div className="fixed inset-0 z-[100] isolate bg-[#0a0a0a] overflow-hidden">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] bg-[#0a0a0a] overflow-hidden">
       {/* Fixed Header - Always visible at top */}
-      <header className="fixed top-0 left-0 right-0 z-[110] bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-border/20">
+      <header className="fixed top-0 left-0 right-0 z-[10000] bg-[#0a0a0a] border-b border-border/20">
         <div className="flex items-center justify-between px-4 py-3">
           {/* Left: Logo and title */}
           <div className="flex items-center gap-4 min-w-0">
@@ -394,6 +395,7 @@ export function MangaReader({
       >
         <ArrowUp className="w-5 h-5" />
       </Button>
-    </div>
+    </div>,
+    document.body
   );
 }
