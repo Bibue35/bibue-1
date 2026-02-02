@@ -45,15 +45,15 @@ export function Navbar() {
       <nav className="fixed top-0 left-0 right-0 z-50 py-4 pointer-events-none">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between pointer-events-auto">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2">
+            {/* Left: Logo */}
+            <Link to="/" className="flex items-center">
               <span className="text-2xl font-sacred font-semibold tracking-wide">
                 Bibue
               </span>
             </Link>
 
-            {/* Desktop Navigation - Simplified */}
-            <div className="hidden md:flex items-center gap-1">
+            {/* Center: Navigation - absolutely centered */}
+            <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
               {primaryLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -100,7 +100,7 @@ export function Navbar() {
               </DropdownMenu>
             </div>
 
-            {/* Right side - Consolidated */}
+            {/* Right: Icons */}
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
