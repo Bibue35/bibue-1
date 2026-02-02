@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp, List, Settings, X, MessageCircle, Send, User, ArrowUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, List, X, MessageCircle, Send, User, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { validateComment } from "@/lib/validation";
+import { useReadingProgress } from "@/hooks/useReadingProgress";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +21,7 @@ import {
 interface MangaReaderProps {
   mangaId: number;
   mangaTitle: string;
+  mangaImageUrl?: string;
   selectedChapter: number;
   totalChapters: number;
   firstChapter: number;
@@ -31,6 +33,7 @@ interface MangaReaderProps {
 export function MangaReader({
   mangaId,
   mangaTitle,
+  mangaImageUrl,
   selectedChapter,
   totalChapters,
   firstChapter,
@@ -38,6 +41,7 @@ export function MangaReader({
   onChapterChange,
   onClose,
 }: MangaReaderProps) {
+  const { updateProgress } = useReadingProgress(mangaId, "manga");
   const [showControls, setShowControls] = useState(true);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [newComment, setNewComment] = useState("");
@@ -56,6 +60,17 @@ export function MangaReader({
 
   // Generate chapter list for dropdown
   const chapters = Array.from({ length: totalChapters }, (_, i) => lastChapter - i);
+
+  // Track reading progress when chapter changes
+  useEffect(() => {
+    if (user) {
+      updateProgress({
+        chapterNumber: selectedChapter,
+        title: mangaTitle,
+        imageUrl: mangaImageUrl,
+      });
+    }
+  }, [selectedChapter, user, mangaTitle, mangaImageUrl]);
 
   // Handle scroll for back-to-top button
   useEffect(() => {

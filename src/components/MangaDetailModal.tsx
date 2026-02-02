@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { BookOpen, X, Star, Copy, Share2, ChevronLeft, ChevronRight, MessageCircle, Send, User, ArrowUpDown, ThumbsUp } from "lucide-react";
+import { BookOpen, X, Star, Copy, Share2, MessageCircle, Send, User, ArrowUpDown, ThumbsUp, History } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -17,6 +17,8 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { validateComment } from "@/lib/validation";
 import { WatchlistButton } from "./WatchlistButton";
+import { useReadingProgress } from "@/hooks/useReadingProgress";
+import { cn } from "@/lib/utils";
 
 interface MangaDetailModalProps {
   mangaId: number;
@@ -27,30 +29,27 @@ interface MangaDetailModalProps {
 export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailModalProps) {
   const navigate = useNavigate();
   const { data: manga, isLoading } = useMangaDetails(mangaId, open);
-  const [chapterRange, setChapterRange] = useState(0);
   const [activeTab, setActiveTab] = useState("chapters");
   const [newComment, setNewComment] = useState("");
   const [sortBy, setSortBy] = useState<"latest" | "likes">("latest");
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { lastChapterRead, updateProgress } = useReadingProgress(mangaId, "manga");
 
-  // Generate mock chapter data - show ALL chapters
+  // Generate ALL chapter data - no limits
   const generateChapters = (count: number) => {
     return Array.from({ length: count }, (_, i) => ({
-      number: count - i, // Descending order
+      number: count - i,
       title: `Chapter ${count - i}`,
       released: new Date(Date.now() - (i * 7 * 24 * 60 * 60 * 1000)).toISOString(),
     }));
   };
 
   const chapters = manga ? generateChapters(manga.chapters || 50) : [];
-  const chaptersPerPage = 10;
-  const totalPages = Math.ceil(chapters.length / chaptersPerPage);
-  const displayedChapters = chapters.slice(
-    chapterRange * chaptersPerPage,
-    (chapterRange + 1) * chaptersPerPage
-  );
+  const totalChapters = chapters.length;
+  const firstChapter = chapters[chapters.length - 1]?.number || 1;
+  const lastChapter = chapters[0]?.number || totalChapters;
 
   // Comments query - general comments for the manga
   const { data: comments, isLoading: commentsLoading } = useQuery({
@@ -109,9 +108,17 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
     addCommentMutation.mutate(trimmedComment);
   };
 
-  const handleRead = (chapterNumber?: number) => {
+  const handleRead = (chapterNumber: number) => {
+    // Update reading progress
+    if (user && manga) {
+      updateProgress({
+        chapterNumber,
+        title: manga.title,
+        imageUrl: manga.images?.webp?.large_image_url,
+      });
+    }
     onOpenChange(false);
-    navigate(`/manga/${mangaId}`, { state: { chapter: chapterNumber || 1 } });
+    navigate(`/manga/${mangaId}`, { state: { chapter: chapterNumber, startReading: true } });
   };
 
   return (
@@ -183,11 +190,21 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
               <Button 
                 variant="default" 
                 className="gap-2"
-                onClick={() => handleRead(1)}
+                onClick={() => handleRead(firstChapter)}
               >
                 <BookOpen className="w-4 h-4" />
-                READ
+                Read First
               </Button>
+              {lastChapterRead && (
+                <Button 
+                  variant="secondary" 
+                  className="gap-2"
+                  onClick={() => handleRead(lastChapterRead)}
+                >
+                  <History className="w-4 h-4" />
+                  Continue Ch. {lastChapterRead}
+                </Button>
+              )}
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Copy className="w-4 h-4" />
               </Button>
@@ -258,58 +275,58 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                   <h2 className="text-lg font-bold font-sacred">
                     {chapters.length} CHAPTERS AVAILABLE
                   </h2>
-                  <div className="flex items-center gap-2">
+                  {lastChapterRead && (
                     <span className="text-sm text-muted-foreground">
-                      {chapterRange * chaptersPerPage + 1}-{Math.min((chapterRange + 1) * chaptersPerPage, chapters.length)}
+                      Last read: Ch. {lastChapterRead}
                     </span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 rounded-full"
-                      disabled={chapterRange === 0}
-                      onClick={() => setChapterRange(prev => prev - 1)}
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 rounded-full"
-                      disabled={chapterRange >= totalPages - 1}
-                      onClick={() => setChapterRange(prev => prev + 1)}
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Chapter List */}
-                <div className="space-y-1">
-                  {isLoading ? (
-                    Array.from({ length: 10 }).map((_, i) => (
-                      <Skeleton key={i} className="h-12 w-full" />
-                    ))
-                  ) : (
-                    displayedChapters.map((ch) => (
-                      <button
-                        key={ch.number}
-                        onClick={() => handleRead(ch.number)}
-                        className="w-full flex items-center justify-between py-3 px-4 rounded-lg text-left transition-all hover:bg-primary/10"
-                      >
-                        <span className="font-medium text-primary">
-                          Chapter {ch.number}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          {new Date(ch.released).toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: '2-digit', 
-                            day: '2-digit' 
-                          })}
-                        </span>
-                      </button>
-                    ))
                   )}
                 </div>
+
+                {/* Chapter List - Full scrollable list, no pagination */}
+                <ScrollArea className="h-[400px]">
+                  <div className="space-y-1 pr-4">
+                    {isLoading ? (
+                      Array.from({ length: 10 }).map((_, i) => (
+                        <Skeleton key={i} className="h-12 w-full" />
+                      ))
+                    ) : (
+                      chapters.map((ch) => {
+                        const isLastRead = lastChapterRead === ch.number;
+                        return (
+                          <button
+                            key={ch.number}
+                            onClick={() => handleRead(ch.number)}
+                            className={cn(
+                              "w-full flex items-center justify-between py-3 px-4 rounded-lg text-left transition-all hover:bg-primary/10",
+                              isLastRead && "bg-primary/20 border border-primary/30"
+                            )}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className={cn(
+                                "font-medium",
+                                isLastRead ? "text-primary" : "text-foreground"
+                              )}>
+                                Chapter {ch.number}
+                              </span>
+                              {isLastRead && (
+                                <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
+                                  Last Read
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-sm text-muted-foreground">
+                              {new Date(ch.released).toLocaleDateString('en-US', { 
+                                year: 'numeric', 
+                                month: '2-digit', 
+                                day: '2-digit' 
+                              })}
+                            </span>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </ScrollArea>
               </TabsContent>
 
               {/* Comments Tab */}
