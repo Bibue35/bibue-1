@@ -173,47 +173,47 @@ export function MangaReader({
         )}
       >
         <div className={cn(
-          "flex items-center justify-between px-4 py-3 transition-opacity duration-300",
+          "flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 transition-opacity duration-300",
           !showControls && "opacity-0"
         )}>
           {/* Left: Logo and title */}
-          <div className="flex items-center gap-4 min-w-0">
-            <span className="text-xl font-sacred font-semibold text-foreground flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+            <span className="text-lg sm:text-xl font-sacred font-semibold text-foreground flex-shrink-0">
               Bibue
             </span>
-            <div className="hidden sm:block h-4 w-px bg-border/50" />
-            <h1 className="hidden sm:block text-sm text-muted-foreground truncate max-w-[200px] lg:max-w-[400px]">
+            <div className="hidden xs:block h-4 w-px bg-border/50" />
+            <h1 className="hidden xs:block text-xs sm:text-sm text-muted-foreground truncate max-w-[120px] sm:max-w-[200px] lg:max-w-[400px]">
               {mangaTitle}
             </h1>
           </div>
 
           {/* Center: Chapter Navigation */}
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2 flex-shrink-0">
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              className="h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground hover:text-foreground"
               disabled={selectedChapter === firstChapter}
               onClick={() => onChapterChange(firstChapter)}
             >
-              <ChevronsLeft className="w-4 h-4" />
+              <ChevronsLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              className="h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground hover:text-foreground"
               disabled={selectedChapter === firstChapter}
               onClick={goToPrevChapter}
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </Button>
 
             {/* Chapter Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2 min-w-[120px]">
-                  <List className="w-4 h-4" />
-                  Chapter {selectedChapter}
+                <Button variant="outline" size="sm" className="gap-1.5 sm:gap-2 min-w-[90px] sm:min-w-[120px] h-7 sm:h-8 text-xs sm:text-sm px-2 sm:px-3">
+                  <List className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden xs:inline">Chapter</span> {selectedChapter}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="max-h-[300px] overflow-y-auto">
@@ -232,33 +232,35 @@ export function MangaReader({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              className="h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground hover:text-foreground"
               disabled={selectedChapter === lastChapter}
               onClick={goToNextChapter}
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              className="h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground hover:text-foreground"
               disabled={selectedChapter === lastChapter}
               onClick={() => onChapterChange(lastChapter)}
             >
-              <ChevronsRight className="w-4 h-4" />
+              <ChevronsRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </Button>
           </div>
 
           {/* Right: Close button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="text-muted-foreground hover:text-foreground gap-2"
-          >
-            <X className="w-4 h-4" />
-            <span className="hidden sm:inline">Exit</span>
-          </Button>
+          <div className="flex-1 flex justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="text-muted-foreground hover:text-foreground gap-1.5 sm:gap-2 h-7 sm:h-8 px-2 sm:px-3 text-xs sm:text-sm"
+            >
+              <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Exit</span>
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -271,7 +273,7 @@ export function MangaReader({
           navigate("/manga");
         }}
         className={cn(
-          "fixed top-4 left-4 z-[10001] text-xl font-sacred font-semibold text-foreground hover:text-primary transition-all duration-300",
+          "fixed top-3 left-3 sm:top-4 sm:left-4 z-[10001] text-lg sm:text-xl font-sacred font-semibold text-foreground hover:text-primary transition-all duration-300",
           showControls && "opacity-0 pointer-events-none"
         )}
       >
@@ -279,11 +281,11 @@ export function MangaReader({
       </Link>
 
       {/* Scrollable Content - below fixed header */}
-      <div ref={scrollRef} className="absolute top-14 left-0 right-0 bottom-0 overflow-y-auto">
+      <div ref={scrollRef} className="absolute top-11 sm:top-14 left-0 right-0 bottom-0 overflow-y-auto">
         {/* Chapter Title */}
-        <div className="text-center py-8 border-b border-border/10">
-          <h2 className="text-xl font-bold font-sacred text-foreground">{mangaTitle}</h2>
-          <p className="text-muted-foreground mt-1">Chapter {selectedChapter}</p>
+        <div className="text-center py-4 sm:py-8 border-b border-border/10">
+          <h2 className="text-base sm:text-xl font-bold font-sacred text-foreground line-clamp-1 px-4">{mangaTitle}</h2>
+          <p className="text-muted-foreground text-xs sm:text-sm mt-0.5 sm:mt-1">Chapter {selectedChapter}</p>
         </div>
 
         {/* Manga Pages - Vertical Scroll */}
@@ -301,75 +303,76 @@ export function MangaReader({
         </div>
 
         {/* End of Chapter Navigation */}
-        <div className="max-w-4xl mx-auto py-8 px-4">
-          <div className="flex items-center justify-center gap-4 py-8 border-t border-b border-border/20">
+        <div className="max-w-4xl mx-auto py-6 sm:py-8 px-3 sm:px-4">
+          <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-center gap-2 sm:gap-4 py-6 sm:py-8 border-t border-b border-border/20">
             <Button
               variant="outline"
-              size="lg"
+              size="default"
               disabled={selectedChapter === firstChapter}
               onClick={goToPrevChapter}
-              className="gap-2"
+              className="gap-1.5 sm:gap-2 h-10 sm:h-11 text-xs sm:text-sm"
             >
-              <ChevronLeft className="w-5 h-5" />
-              Previous Chapter
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden xs:inline">Previous</span> Chapter
             </Button>
             <Button
               variant="default"
-              size="lg"
+              size="default"
               disabled={selectedChapter === lastChapter}
               onClick={goToNextChapter}
-              className="gap-2"
+              className="gap-1.5 sm:gap-2 h-10 sm:h-11 text-xs sm:text-sm"
             >
               Next Chapter
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           </div>
         </div>
 
         {/* Comments Section */}
-        <div className="max-w-4xl mx-auto px-4 pb-16">
-          <div className="py-8">
-            <div className="flex items-center gap-3 mb-6">
-              <MessageCircle className="w-5 h-5 text-primary" />
-              <h3 className="text-xl font-bold font-sacred">
-                Chapter {selectedChapter} Comments
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 pb-12 sm:pb-16">
+          <div className="py-6 sm:py-8">
+            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+              <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+              <h3 className="text-base sm:text-xl font-bold font-sacred">
+                Ch. {selectedChapter} Comments
               </h3>
             </div>
 
             {/* Comment Form */}
-            <form onSubmit={handleSubmit} className="mb-8">
+            <form onSubmit={handleSubmit} className="mb-6 sm:mb-8">
               <Textarea
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder={user ? "Share your thoughts on this chapter..." : "Sign in to comment..."}
-                className="mb-3 resize-none bg-background/50 border-border/30"
-                rows={3}
+                placeholder={user ? "Share your thoughts..." : "Sign in to comment..."}
+                className="mb-2 sm:mb-3 resize-none bg-background/50 border-border/30 text-xs sm:text-sm"
+                rows={2}
                 disabled={!user}
               />
               <Button 
                 type="submit" 
+                size="sm"
                 disabled={!user || !newComment.trim() || addCommentMutation.isPending}
-                className="gap-2"
+                className="gap-1.5 sm:gap-2 h-8 sm:h-9 text-xs sm:text-sm"
               >
-                <Send className="w-4 h-4" />
-                {user ? "Post Comment" : "Sign in to Comment"}
+                <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                {user ? "Post" : "Sign in"}
               </Button>
             </form>
 
             {/* Comments List */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {commentsLoading ? (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-6 sm:py-8 text-muted-foreground text-xs sm:text-sm">
                   Loading comments...
                 </div>
               ) : comments && comments.length > 0 ? (
                 comments.map((comment) => (
                   <div 
                     key={comment.id} 
-                    className="rounded-xl p-4 bg-muted/30 border border-border/20"
+                    className="rounded-lg sm:rounded-xl p-3 sm:p-4 bg-muted/30 border border-border/20"
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0">
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0">
                         {(comment.profiles as any)?.avatar_url ? (
                           <img 
                             src={(comment.profiles as any).avatar_url} 
@@ -377,19 +380,19 @@ export function MangaReader({
                             className="w-full h-full rounded-full object-cover" 
                           />
                         ) : (
-                          <User className="w-4 h-4 text-muted-foreground" />
+                          <User className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-sm">
+                        <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
+                          <span className="font-medium text-xs sm:text-sm">
                             {(comment.profiles as any)?.username || "Anonymous"}
                           </span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-[10px] sm:text-xs text-muted-foreground">
                             {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
                           </span>
                         </div>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           {comment.content}
                         </p>
                       </div>
@@ -397,9 +400,9 @@ export function MangaReader({
                   </div>
                 ))
               ) : (
-                <div className="text-center py-12 text-muted-foreground">
-                  <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No comments yet. Be the first to share your thoughts!</p>
+                <div className="text-center py-8 sm:py-12 text-muted-foreground">
+                  <MessageCircle className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-2 sm:mb-3 opacity-50" />
+                  <p className="text-xs sm:text-sm">No comments yet. Be the first!</p>
                 </div>
               )}
             </div>
@@ -412,12 +415,12 @@ export function MangaReader({
         variant="secondary"
         size="icon"
         className={cn(
-          "fixed bottom-6 right-6 z-50 h-12 w-12 rounded-full shadow-lg transition-all duration-300",
+          "fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 h-10 w-10 sm:h-12 sm:w-12 rounded-full shadow-lg transition-all duration-300",
           showBackToTop ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
         )}
         onClick={scrollToTop}
       >
-        <ArrowUp className="w-5 h-5" />
+        <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5" />
       </Button>
     </div>,
     document.body
