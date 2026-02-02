@@ -142,14 +142,14 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent hideCloseButton className="max-w-5xl w-[95vw] max-h-[90vh] p-0 gap-0 bg-background/95 backdrop-blur-xl border-border/50 overflow-hidden">
+      <DialogContent hideCloseButton className="max-w-5xl w-[98vw] sm:w-[95vw] max-h-[95vh] sm:max-h-[90vh] p-0 gap-0 bg-background/95 backdrop-blur-xl border-border/50 overflow-hidden rounded-xl sm:rounded-2xl">
         <VisuallyHidden>
           <DialogTitle>{manga?.title || "Manga Details"}</DialogTitle>
         </VisuallyHidden>
         
-        <ScrollArea className="max-h-[90vh]">
+        <ScrollArea className="max-h-[95vh] sm:max-h-[90vh]">
           {/* Hero Image Section */}
-          <div className="relative h-64 sm:h-80 overflow-hidden">
+          <div className="relative h-48 xs:h-56 sm:h-80 overflow-hidden">
             {isLoading ? (
               <Skeleton className="w-full h-full" />
             ) : (
@@ -162,31 +162,26 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                 
                 {/* Title overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
-                  <h1 className="text-2xl sm:text-4xl font-bold font-sacred text-foreground mb-1">
+                <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
+                  <h1 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold font-sacred text-foreground mb-0.5 sm:mb-1 line-clamp-2">
                     {manga?.title}
                   </h1>
-                  <p className="text-sm text-muted-foreground font-jp mb-3">
+                  <p className="text-xs sm:text-sm text-muted-foreground font-jp mb-2 sm:mb-3 line-clamp-1">
                     {manga?.title_japanese}
                   </p>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap">
                     {manga?.score && (
                       <span className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-foreground text-foreground" />
+                        <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-foreground text-foreground" />
                         {formatScore(manga.score)}
-                        {manga.scored_by && (
-                          <span className="text-muted-foreground">
-                            ({(manga.scored_by / 1000).toFixed(0)}k)
-                          </span>
-                        )}
                       </span>
                     )}
                     <span>•</span>
                     <span>{new Date(manga?.published?.from || "").getFullYear()}</span>
                     {manga?.status && (
                       <>
-                        <span>•</span>
-                        <span>{manga.status}</span>
+                        <span className="hidden xs:inline">•</span>
+                        <span className="hidden xs:inline">{manga.status}</span>
                       </>
                     )}
                   </div>
@@ -197,49 +192,53 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
             {/* Close button */}
             <button
               onClick={() => onOpenChange(false)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-background/50 hover:bg-background/80 transition-colors"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 rounded-full bg-background/50 hover:bg-background/80 transition-colors"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
 
-          {/* Action buttons */}
-          <div className="px-6 sm:px-8 py-4 flex items-center justify-between border-b border-border/30">
-            <div className="flex items-center gap-2">
+          {/* Action buttons - Stacked on very small screens */}
+          <div className="px-4 sm:px-6 md:px-8 py-3 sm:py-4 flex flex-col xs:flex-row items-stretch xs:items-center justify-between border-b border-border/30 gap-2 sm:gap-3">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
               <Button 
                 variant="default" 
-                className="gap-2"
+                size="sm"
+                className="gap-1.5 sm:gap-2 h-8 sm:h-9 text-xs sm:text-sm px-2.5 sm:px-4 flex-1 xs:flex-none"
                 onClick={() => handleRead(firstChapter)}
               >
-                <BookOpen className="w-4 h-4" />
-                Read First
+                <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden xs:inline">Read First</span>
+                <span className="xs:hidden">Start</span>
               </Button>
               {lastChapterRead && (
                 <Button 
                   variant="secondary" 
-                  className="gap-2"
+                  size="sm"
+                  className="gap-1.5 sm:gap-2 h-8 sm:h-9 text-xs sm:text-sm px-2.5 sm:px-4 flex-1 xs:flex-none"
                   onClick={() => handleRead(lastChapterRead)}
                 >
-                  <History className="w-4 h-4" />
-                  Continue Ch. {lastChapterRead}
+                  <History className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Continue Ch. {lastChapterRead}</span>
+                  <span className="sm:hidden">Ch. {lastChapterRead}</span>
                 </Button>
               )}
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="rounded-full"
+                className="rounded-full h-8 w-8 sm:h-9 sm:w-9 hidden xs:flex"
                 onClick={() => {
                   const url = `${window.location.origin}/manga/${mangaId}`;
                   navigator.clipboard.writeText(url);
                   toast({ title: "Link copied!", description: "Manga link copied to clipboard" });
                 }}
               >
-                <Copy className="w-4 h-4" />
+                <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </Button>
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="rounded-full"
+                className="rounded-full h-8 w-8 sm:h-9 sm:w-9 hidden xs:flex"
                 onClick={async () => {
                   const url = `${window.location.origin}/manga/${mangaId}`;
                   const shareData = {
@@ -252,20 +251,18 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                     try {
                       await navigator.share(shareData);
                     } catch (err) {
-                      // User cancelled or error - fallback to copy
                       if ((err as Error).name !== 'AbortError') {
                         navigator.clipboard.writeText(url);
                         toast({ title: "Link copied!", description: "Manga link copied to clipboard" });
                       }
                     }
                   } else {
-                    // Fallback for browsers without share API
                     navigator.clipboard.writeText(url);
                     toast({ title: "Link copied!", description: "Manga link copied to clipboard" });
                   }
                 }}
               >
-                <Share2 className="w-4 h-4" />
+                <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </Button>
             </div>
             <WatchlistButton
@@ -280,29 +277,29 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
           </div>
 
           {/* Synopsis */}
-          <div className="px-6 sm:px-8 py-6">
-            <h2 className="text-lg font-bold font-sacred mb-3">SYNOPSIS</h2>
+          <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6">
+            <h2 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">SYNOPSIS</h2>
             {isLoading ? (
               <>
-                <Skeleton className="h-4 w-full mb-2" />
-                <Skeleton className="h-4 w-full mb-2" />
-                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 sm:h-4 w-full mb-2" />
+                <Skeleton className="h-3 sm:h-4 w-full mb-2" />
+                <Skeleton className="h-3 sm:h-4 w-3/4" />
               </>
             ) : (
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed line-clamp-4 sm:line-clamp-none">
                 {manga?.synopsis || "No synopsis available."}
               </p>
             )}
 
             {/* Genres */}
             {manga?.genres && manga.genres.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-4">
-                {manga.genres.map((genre) => (
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-3 sm:mt-4">
+                {manga.genres.slice(0, 5).map((genre) => (
                   <Link
                     key={genre.mal_id}
                     to={`/manga?genre=${genre.mal_id}`}
                     onClick={() => onOpenChange(false)}
-                    className="px-3 py-1 rounded-full bg-muted text-muted-foreground text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                    className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-muted text-muted-foreground text-xs sm:text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     {genre.name}
                   </Link>
@@ -312,38 +309,40 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
           </div>
 
           {/* Tabs for Chapters and Comments */}
-          <div className="px-6 sm:px-8 pb-8">
+          <div className="px-4 sm:px-6 md:px-8 pb-6 sm:pb-8">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="mb-4">
-                <TabsTrigger value="chapters" className="gap-2">
-                  <BookOpen className="w-4 h-4" />
-                  Chapters
+              <TabsList className="mb-3 sm:mb-4">
+                <TabsTrigger value="chapters" className="gap-1.5 sm:gap-2 text-xs sm:text-sm px-2.5 sm:px-3">
+                  <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden xs:inline">Chapters</span>
+                  <span className="xs:hidden">Chs</span>
                 </TabsTrigger>
-                <TabsTrigger value="comments" className="gap-2">
-                  <MessageCircle className="w-4 h-4" />
-                  Comment Section
+                <TabsTrigger value="comments" className="gap-1.5 sm:gap-2 text-xs sm:text-sm px-2.5 sm:px-3">
+                  <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden xs:inline">Comments</span>
+                  <span className="xs:hidden">Chat</span>
                 </TabsTrigger>
               </TabsList>
 
               {/* Chapters Tab */}
               <TabsContent value="chapters">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-bold font-sacred">
-                    {chapters.length} CHAPTERS AVAILABLE
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <h2 className="text-sm sm:text-lg font-bold font-sacred">
+                    {chapters.length} CHAPTERS
                   </h2>
                   {lastChapterRead && (
-                    <span className="text-sm text-muted-foreground">
-                      Last read: Ch. {lastChapterRead}
+                    <span className="text-xs sm:text-sm text-muted-foreground">
+                      Last: Ch. {lastChapterRead}
                     </span>
                   )}
                 </div>
 
-                {/* Chapter List - Full scrollable list, no pagination */}
-                <ScrollArea className="h-[400px]">
-                  <div className="space-y-1 pr-4">
+                {/* Chapter List - Full scrollable list */}
+                <ScrollArea className="h-[300px] sm:h-[400px]">
+                  <div className="space-y-0.5 sm:space-y-1 pr-4">
                     {isLoading ? (
                       Array.from({ length: 10 }).map((_, i) => (
-                        <Skeleton key={i} className="h-12 w-full" />
+                        <Skeleton key={i} className="h-10 sm:h-12 w-full" />
                       ))
                     ) : (
                       chapters.map((ch) => {
@@ -353,28 +352,27 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                             key={ch.number}
                             onClick={() => handleRead(ch.number)}
                             className={cn(
-                              "w-full flex items-center justify-between py-3 px-4 rounded-lg text-left transition-all hover:bg-primary/10",
+                              "w-full flex items-center justify-between py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg text-left transition-all hover:bg-primary/10",
                               isLastRead && "bg-primary/20 border border-primary/30"
                             )}
                           >
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                               <span className={cn(
-                                "font-medium",
+                                "font-medium text-xs sm:text-sm",
                                 isLastRead ? "text-primary" : "text-foreground"
                               )}>
-                                Chapter {ch.number}
+                                Ch. {ch.number}
                               </span>
                               {isLastRead && (
-                                <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
-                                  Last Read
+                                <span className="text-[10px] sm:text-xs bg-primary/20 text-primary px-1.5 sm:px-2 py-0.5 rounded-full whitespace-nowrap">
+                                  Last
                                 </span>
                               )}
                             </div>
-                            <span className="text-sm text-muted-foreground">
+                            <span className="text-[10px] sm:text-sm text-muted-foreground flex-shrink-0">
                               {new Date(ch.released).toLocaleDateString('en-US', { 
-                                year: 'numeric', 
-                                month: '2-digit', 
-                                day: '2-digit' 
+                                month: 'short', 
+                                day: 'numeric' 
                               })}
                             </span>
                           </button>
@@ -387,47 +385,48 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
 
               {/* Comments Tab */}
               <TabsContent value="comments">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-bold font-sacred">COMMENT SECTION</h2>
-                  <div className="flex items-center gap-1">
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <h2 className="text-sm sm:text-lg font-bold font-sacred">COMMENTS</h2>
+                  <div className="flex items-center gap-0.5 sm:gap-1">
                     <Button
                       variant={sortBy === "latest" ? "secondary" : "ghost"}
                       size="sm"
                       onClick={() => setSortBy("latest")}
-                      className="gap-1.5 text-xs"
+                      className="gap-1 sm:gap-1.5 text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-2.5"
                     >
-                      <ArrowUpDown className="w-3 h-3" />
-                      Latest
+                      <ArrowUpDown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                      New
                     </Button>
                     <Button
                       variant={sortBy === "likes" ? "secondary" : "ghost"}
                       size="sm"
                       onClick={() => setSortBy("likes")}
-                      className="gap-1.5 text-xs"
+                      className="gap-1 sm:gap-1.5 text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-2.5"
                     >
-                      <ThumbsUp className="w-3 h-3" />
+                      <ThumbsUp className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       Top
                     </Button>
                   </div>
                 </div>
 
                 {/* Comment Form */}
-                <form onSubmit={handleSubmit} className="mb-6">
+                <form onSubmit={handleSubmit} className="mb-4 sm:mb-6">
                   <Textarea
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder={user ? "Share your thoughts..." : "Sign in to comment..."}
-                    className="mb-3 resize-none"
-                    rows={3}
+                    className="mb-2 sm:mb-3 resize-none text-xs sm:text-sm"
+                    rows={2}
                     disabled={!user}
                   />
                   <Button 
                     type="submit" 
+                    size="sm"
                     disabled={!user || !newComment.trim() || addCommentMutation.isPending}
-                    className="gap-2"
+                    className="gap-1.5 sm:gap-2 h-8 sm:h-9 text-xs sm:text-sm"
                   >
-                    <Send className="w-4 h-4" />
-                    {user ? "Post Comment" : "Sign in to Comment"}
+                    <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    {user ? "Post" : "Sign in"}
                   </Button>
                 </form>
 

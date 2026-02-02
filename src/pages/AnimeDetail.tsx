@@ -257,18 +257,18 @@ export default function AnimeDetailPage() {
         ) : (
           <>
             {/* Top Header Bar - Fixed, always accessible */}
-            <div className="absolute top-0 left-0 right-0 z-[100] flex items-center justify-between px-4 sm:px-6 py-3 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
+            <div className="absolute top-0 left-0 right-0 z-[100] flex items-center justify-between px-3 sm:px-4 md:px-6 py-2 sm:py-3 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
               {/* Left - Bibue Logo */}
               <Link
                 to="/anime"
-                className="pointer-events-auto text-xl sm:text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors"
+                className="pointer-events-auto text-lg sm:text-xl md:text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors"
               >
                 Bibue
               </Link>
 
               {/* Right - Controls */}
               <div className={cn(
-                "pointer-events-auto flex items-center gap-2 transition-all duration-300",
+                "pointer-events-auto flex items-center gap-1 sm:gap-1.5 md:gap-2 transition-all duration-300",
                 showControls ? "opacity-100" : "opacity-0"
               )}>
                 <ResolutionSelector value={resolution} onChange={setResolution} />
@@ -278,31 +278,31 @@ export default function AnimeDetailPage() {
                   onClick={handleBookmarkToggle}
                   disabled={watchlistLoading}
                   className={cn(
-                    "h-9 w-9 hover:bg-white/10 rounded-full transition-all",
+                    "h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 hover:bg-white/10 rounded-full transition-all",
                     isBookmarked ? "text-primary" : "text-white/70 hover:text-white"
                   )}
                 >
-                  <Bookmark className={cn("w-4 h-4", isBookmarked && "fill-current")} />
+                  <Bookmark className={cn("w-3.5 h-3.5 sm:w-4 sm:h-4", isBookmarked && "fill-current")} />
                 </Button>
                 <Button 
                   variant="ghost" 
                   size="icon" 
                   onClick={handleFavoriteToggle}
                   className={cn(
-                    "h-9 w-9 hover:bg-white/10 rounded-full transition-all",
+                    "h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 hover:bg-white/10 rounded-full transition-all",
                     isFavorite ? "text-destructive" : "text-white/70 hover:text-white"
                   )}
                 >
-                  <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
+                  <Heart className={cn("w-3.5 h-3.5 sm:w-4 sm:h-4", isFavorite && "fill-current")} />
                 </Button>
                 <button
                   onClick={toggleFullscreen}
-                  className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white/70 hover:text-white"
+                  className="p-1.5 sm:p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white/70 hover:text-white"
                 >
                   {isFullscreen ? (
-                    <Minimize2 className="w-4 h-4" />
+                    <Minimize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   ) : (
-                    <Maximize2 className="w-4 h-4" />
+                    <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   )}
                 </button>
               </div>
@@ -319,14 +319,14 @@ export default function AnimeDetailPage() {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 />
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-background/80 to-background">
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-background/80 to-background px-4">
                   <div className="text-center">
-                    <div className="w-20 h-20 rounded-full bg-foreground/10 flex items-center justify-center mb-4 mx-auto">
-                      <Play className="w-8 h-8 text-foreground" />
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full bg-foreground/10 flex items-center justify-center mb-3 sm:mb-4 mx-auto">
+                      <Play className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-foreground" />
                     </div>
-                    <h2 className="text-xl font-sacred font-bold mb-1">{anime?.title}</h2>
-                    <p className="text-muted-foreground text-sm">Episode {selectedEpisode}</p>
-                    <p className="text-xs text-muted-foreground mt-2">Video player coming soon</p>
+                    <h2 className="text-base sm:text-lg md:text-xl font-sacred font-bold mb-0.5 sm:mb-1 line-clamp-2">{anime?.title}</h2>
+                    <p className="text-muted-foreground text-xs sm:text-sm">Episode {selectedEpisode}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-2">Video player coming soon</p>
                   </div>
                 </div>
               )}
@@ -347,15 +347,15 @@ export default function AnimeDetailPage() {
       </section>
 
       {/* ============ SECTION 2: SYNOPSIS, GENRES, STUDIO, INFO ============ */}
-      <section className="py-12 sm:py-16 border-b border-border/30">
-        <div className="container mx-auto px-4">
+      <section className="py-8 sm:py-12 md:py-16 border-b border-border/30">
+        <div className="container mx-auto px-3 sm:px-4">
           <div className="max-w-4xl mx-auto">
-            <div className="liquid-glass rounded-2xl p-5 sm:p-8">
+            <div className="liquid-glass rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-8">
               {/* Header with poster */}
-              <div className="flex flex-col sm:flex-row gap-6 mb-6">
+              <div className="flex flex-col xs:flex-row gap-4 sm:gap-6 mb-4 sm:mb-6">
                 {/* Poster */}
-                <div className="flex-shrink-0 mx-auto sm:mx-0">
-                  <div className="w-32 sm:w-40 aspect-[2/3] rounded-xl overflow-hidden">
+                <div className="flex-shrink-0 mx-auto xs:mx-0">
+                  <div className="w-24 sm:w-32 md:w-40 aspect-[2/3] rounded-lg sm:rounded-xl overflow-hidden">
                     <img
                       src={anime?.images.webp.large_image_url}
                       alt={anime?.title}
@@ -365,26 +365,26 @@ export default function AnimeDetailPage() {
                 </div>
                 
                 {/* Title and quick stats */}
-                <div className="flex-1 text-center sm:text-left">
-                  <h2 className="text-2xl sm:text-3xl font-bold font-sacred mb-2">{anime?.title}</h2>
-                  <p className="font-jp text-sm text-muted-foreground mb-4">{anime?.title_japanese}</p>
+                <div className="flex-1 text-center xs:text-left">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-sacred mb-1 sm:mb-2 line-clamp-2">{anime?.title}</h2>
+                  <p className="font-jp text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 line-clamp-1">{anime?.title_japanese}</p>
                   
-                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-4">
+                  <div className="flex flex-wrap items-center justify-center xs:justify-start gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                     {anime?.score && (
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-foreground/10 text-sm">
-                        <Star className="w-4 h-4 fill-foreground text-foreground" />
+                      <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-foreground/10 text-xs sm:text-sm">
+                        <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-foreground text-foreground" />
                         <span className="font-bold">{formatScore(anime.score)}</span>
                       </div>
                     )}
                     {anime?.episodes && (
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-foreground/10 text-sm">
-                        <Clock className="w-4 h-4" />
-                        <span>{anime.episodes} Episodes</span>
+                      <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-foreground/10 text-xs sm:text-sm">
+                        <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span>{anime.episodes} <span className="hidden xs:inline">Episodes</span><span className="xs:hidden">Eps</span></span>
                       </div>
                     )}
                     {anime?.rank && (
-                      <div className="px-3 py-1.5 rounded-full bg-foreground/10 text-sm font-bold">
-                        #{anime.rank} Ranked
+                      <div className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-foreground/10 text-xs sm:text-sm font-bold">
+                        #{anime.rank}
                       </div>
                     )}
                   </div>
@@ -392,23 +392,23 @@ export default function AnimeDetailPage() {
               </div>
 
               {/* Synopsis */}
-              <div className="mb-6">
-                <h3 className="text-lg font-bold font-sacred mb-3">Synopsis</h3>
-                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+              <div className="mb-4 sm:mb-6">
+                <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">Synopsis</h3>
+                <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed line-clamp-4 sm:line-clamp-none">
                   {anime?.synopsis || "No synopsis available."}
                 </p>
               </div>
 
               {/* Genres */}
               {anime?.genres && anime.genres.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-bold font-sacred mb-3">Genres</h3>
-                  <div className="flex flex-wrap gap-2">
+                <div className="mb-4 sm:mb-6">
+                  <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">Genres</h3>
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {anime.genres.map((genre) => (
                       <Link
                         key={genre.mal_id}
                         to={`/anime?genre=${genre.mal_id}`}
-                        className="px-3 py-1.5 rounded-full bg-accent text-accent-foreground text-sm font-medium hover:bg-accent/80 transition-colors"
+                        className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-accent text-accent-foreground text-xs sm:text-sm font-medium hover:bg-accent/80 transition-colors"
                       >
                         {genre.name}
                       </Link>
@@ -419,13 +419,13 @@ export default function AnimeDetailPage() {
 
               {/* Studio */}
               {anime?.studios && anime.studios.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-bold font-sacred mb-3">Studios</h3>
-                  <div className="flex flex-wrap gap-2">
+                <div className="mb-4 sm:mb-6">
+                  <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">Studios</h3>
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {anime.studios.map((studio) => (
                       <span
                         key={studio.mal_id}
-                        className="px-3 py-1.5 rounded-full bg-muted text-muted-foreground text-sm"
+                        className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-muted text-muted-foreground text-xs sm:text-sm"
                       >
                         {studio.name}
                       </span>
@@ -436,8 +436,8 @@ export default function AnimeDetailPage() {
 
               {/* Information Grid */}
               <div>
-                <h3 className="text-lg font-bold font-sacred mb-3">Information</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+                <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">Information</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
                   {[
                     { label: "Source", value: anime?.source },
                     { label: "Episodes", value: anime?.episodes },
