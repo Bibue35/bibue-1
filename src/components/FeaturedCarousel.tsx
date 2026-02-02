@@ -5,6 +5,7 @@ import { Anime, formatScore } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AnimeDetailModal } from "./AnimeDetailModal";
+import { HeroSkeleton } from "./skeletons";
 
 interface FeaturedCarouselProps {
   items: Anime[];
@@ -95,9 +96,7 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
   }, [currentItem]);
 
   if (isLoading) {
-    return (
-      <div className="relative aspect-[4/5] sm:aspect-[16/9] overflow-hidden bg-muted animate-pulse rounded-2xl" />
-    );
+    return <HeroSkeleton variant="carousel" />;
   }
 
   if (!currentItem) return null;
