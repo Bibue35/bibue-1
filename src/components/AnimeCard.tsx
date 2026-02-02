@@ -87,7 +87,7 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
         className="block group text-left w-full"
       >
         {/* Image with simple hover effect */}
-        <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-2 bg-muted">
+        <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted">
           <img
             src={anime.images.webp.image_url}
             alt={anime.title}
@@ -97,13 +97,13 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
           />
           {/* Episode count badge */}
           {episodeCount && (
-            <div className="absolute top-2 right-2 bg-background/80 text-foreground text-xs font-bold px-1.5 py-0.5 rounded">
+            <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 bg-background/80 text-foreground text-[10px] sm:text-xs font-bold px-1 py-0.5 sm:px-1.5 rounded">
               E{episodeCount}
             </div>
           )}
           {/* Save button - appears on hover */}
           <div 
-            className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-all"
+            className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 opacity-0 group-hover:opacity-100 transition-all"
             onClick={(e) => e.stopPropagation()}
           >
             <WatchlistButton
@@ -114,26 +114,26 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
               image_url={anime.images.webp.image_url}
               score={anime.score}
               variant="icon"
-              className="bg-background/80 hover:bg-background"
+              className="bg-background/80 hover:bg-background h-7 w-7 sm:h-8 sm:w-8"
             />
           </div>
         </div>
 
         {/* Title underneath */}
-        <h3 className="font-medium text-xs sm:text-sm line-clamp-2 mb-1 group-hover:text-foreground/80 transition-colors">
+        <h3 className="font-medium text-[11px] sm:text-xs md:text-sm line-clamp-2 mb-0.5 sm:mb-1 group-hover:text-foreground/80 transition-colors leading-tight">
           {anime.title}
         </h3>
 
         {/* Score */}
         {anime.score && (
-          <div className="flex items-center gap-1 mb-1">
-            <Star className="w-3 h-3 text-primary fill-primary" />
-            <span className="text-xs sm:text-sm font-medium">{formatScore(anime.score)}</span>
+          <div className="flex items-center gap-0.5 sm:gap-1 mb-0.5 sm:mb-1">
+            <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary fill-primary" />
+            <span className="text-[10px] sm:text-xs md:text-sm font-medium">{formatScore(anime.score)}</span>
           </div>
         )}
 
         {/* Metadata underneath - always visible */}
-        <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-[10px] sm:text-xs text-muted-foreground">
           {anime.status && (
             <span>{anime.status === "Currently Airing" ? "TV" : anime.status}</span>
           )}

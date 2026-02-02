@@ -57,7 +57,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
   }
 
   return (
-    <section className="relative min-h-[75vh] sm:min-h-[85vh] flex items-center overflow-hidden">
+    <section className="relative min-h-[65vh] sm:min-h-[75vh] md:min-h-[85vh] flex items-center overflow-hidden">
       {/* Background Image with smooth transition */}
       <div className="absolute inset-0 z-0">
         <div className="relative w-full h-full">
@@ -80,39 +80,39 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
       </div>
 
       {/* Content */}
-      <div className="container mx-auto px-4 relative z-10 pt-20">
-        <div className="max-w-2xl">
+      <div className="container mx-auto px-3 sm:px-4 relative z-10 pt-16 sm:pt-20">
+        <div className="max-w-xl sm:max-w-2xl">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/60 backdrop-blur-sm border border-border/50 text-xs sm:text-sm mb-4 sm:mb-6">
-            <Star className="w-3 h-3 sm:w-4 sm:h-4 text-foreground fill-foreground" />
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-background/60 backdrop-blur-sm border border-border/50 text-xs mb-3 sm:mb-6">
+            <Star className="w-3 h-3 text-foreground fill-foreground" />
             <span className="font-medium">{formatScore(featured.score)} {t("hero.rating")}</span>
             {featured.status === "Currently Airing" && (
               <>
-                <span className="mx-1 opacity-50">•</span>
+                <span className="mx-0.5 sm:mx-1 opacity-50">•</span>
                 <span className="text-primary font-medium">{t("hero.airing")}</span>
               </>
             )}
           </div>
 
           {/* Title */}
-          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold font-sacred mb-2 sm:mb-3 tracking-wide">
+          <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-bold font-sacred mb-1.5 sm:mb-3 tracking-wide leading-tight">
             {featured.title}
           </h1>
 
           {/* Japanese title */}
           {featured.title_japanese && (
-            <p className="font-jp text-base sm:text-lg md:text-xl text-muted-foreground mb-4 sm:mb-6">
+            <p className="font-jp text-sm sm:text-lg md:text-xl text-muted-foreground mb-3 sm:mb-6">
               {featured.title_japanese}
             </p>
           )}
 
           {/* Genres */}
           {featured.genres && featured.genres.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
-              {featured.genres.slice(0, 4).map((genre) => (
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-6">
+              {featured.genres.slice(0, 3).map((genre) => (
                 <span
                   key={genre.mal_id}
-                  className="px-2 sm:px-3 py-1 rounded-full bg-background/60 backdrop-blur-sm border border-border/50 text-xs sm:text-sm font-medium"
+                  className="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-background/60 backdrop-blur-sm border border-border/50 text-xs font-medium"
                 >
                   {genre.name}
                 </span>
@@ -120,20 +120,20 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
             </div>
           )}
 
-          {/* Synopsis */}
-          <p className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-xl mb-6 sm:mb-8 line-clamp-2 sm:line-clamp-3">
+          {/* Synopsis - hidden on very small screens */}
+          <p className="hidden xs:block text-muted-foreground text-xs sm:text-sm md:text-base leading-relaxed max-w-xl mb-4 sm:mb-8 line-clamp-2 sm:line-clamp-3">
             {featured.synopsis}
           </p>
 
           {/* Single CTA Button */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <Button 
-              size="lg" 
+              size="default"
               variant="primary" 
-              className="gap-2"
+              className="gap-2 text-sm sm:text-base h-9 sm:h-11 px-4 sm:px-6"
               onClick={() => setModalOpen(true)}
             >
-              <Play className="w-4 h-4" />
+              <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               {t("hero.watchNow")}
             </Button>
           </div>
@@ -177,15 +177,15 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
       </div>
 
       {/* Progress indicators */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+      <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-1.5 sm:gap-2 z-10">
         {featuredAnime?.slice(0, 4).map((_, index) => (
           <button
             key={index}
             onClick={() => setSelectedIndex(index)}
             className={cn(
-              "w-2 h-2 rounded-full transition-all duration-300",
+              "w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300",
               index === selectedIndex 
-                ? "w-8 bg-primary" 
+                ? "w-6 sm:w-8 bg-primary" 
                 : "bg-foreground/30 hover:bg-foreground/50"
             )}
             aria-label={`Go to slide ${index + 1}`}
