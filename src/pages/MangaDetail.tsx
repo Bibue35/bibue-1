@@ -139,7 +139,7 @@ export default function MangaDetailPage() {
     <div className="min-h-screen bg-background">
       {/* Minimal top - just Bibue logo */}
       <div className="container mx-auto px-4 pt-4 pb-2 flex items-center justify-between">
-        <Link to="/" className="text-2xl font-sacred font-semibold text-foreground hover:text-primary transition-colors">
+        <Link to="/manga" className="text-2xl font-sacred font-semibold text-foreground hover:text-primary transition-colors">
           Bibue
         </Link>
         <Link to="/manga" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
