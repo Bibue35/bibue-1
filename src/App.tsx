@@ -38,10 +38,10 @@ const App = () => (
           <MiniPlayerProvider>
             <TooltipProvider>
               <IncognitoOverlay />
-              <MiniPlayer />
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <MiniPlayer />
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/anime" element={<AnimePage />} />
