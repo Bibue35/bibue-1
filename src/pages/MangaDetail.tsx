@@ -26,9 +26,9 @@ export default function MangaDetailPage() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Generate mock chapter data
+  // Generate mock chapter data - show ALL chapters
   const generateChapters = (count: number) => {
-    return Array.from({ length: Math.min(count, 100) }, (_, i) => ({
+    return Array.from({ length: count }, (_, i) => ({
       number: count - i,
       title: `Chapter ${count - i}`,
       released: new Date(Date.now() - (i * 7 * 24 * 60 * 60 * 1000)).toISOString(),
