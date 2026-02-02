@@ -224,10 +224,47 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                   Continue Ch. {lastChapterRead}
                 </Button>
               )}
-              <Button variant="ghost" size="icon" className="rounded-full">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-full"
+                onClick={() => {
+                  const url = `${window.location.origin}/manga/${mangaId}`;
+                  navigator.clipboard.writeText(url);
+                  toast({ title: "Link copied!", description: "Manga link copied to clipboard" });
+                }}
+              >
                 <Copy className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="rounded-full">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-full"
+                onClick={async () => {
+                  const url = `${window.location.origin}/manga/${mangaId}`;
+                  const shareData = {
+                    title: manga?.title || "Check out this manga",
+                    text: manga?.synopsis?.slice(0, 100) + "..." || "Check out this manga on Bibue!",
+                    url: url,
+                  };
+                  
+                  if (navigator.share && navigator.canShare?.(shareData)) {
+                    try {
+                      await navigator.share(shareData);
+                    } catch (err) {
+                      // User cancelled or error - fallback to copy
+                      if ((err as Error).name !== 'AbortError') {
+                        navigator.clipboard.writeText(url);
+                        toast({ title: "Link copied!", description: "Manga link copied to clipboard" });
+                      }
+                    }
+                  } else {
+                    // Fallback for browsers without share API
+                    navigator.clipboard.writeText(url);
+                    toast({ title: "Link copied!", description: "Manga link copied to clipboard" });
+                  }
+                }}
+              >
                 <Share2 className="w-4 h-4" />
               </Button>
             </div>
