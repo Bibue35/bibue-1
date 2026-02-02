@@ -23,9 +23,11 @@ export function FeaturedCarousel({
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedAnimeId, setSelectedAnimeId] = useState<number | null>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [scrollY, setScrollY] = useState(0);
   const navigate = useNavigate();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const currentItem = items[currentIndex];
 
@@ -41,6 +43,24 @@ export function FeaturedCarousel({
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [autoPlay, autoPlayInterval, items.length]);
+
+  // Scroll parallax effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      // Only apply parallax when hero is visible
+      if (rect.bottom > 0 && rect.top < viewportHeight) {
+        const progress = (viewportHeight - rect.top) / (viewportHeight + rect.height);
+        setScrollY(progress * 60); // Max 60px movement
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Initial call
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
@@ -85,8 +105,8 @@ export function FeaturedCarousel({
 
   return (
     <>
-      {/* Hero with soft parallax tilt on hover */}
-      <div className="relative py-4 sm:py-6">
+      {/* Hero with soft parallax tilt on hover + scroll parallax */}
+      <div ref={containerRef} className="relative py-4 sm:py-6">
         <div 
           ref={cardRef}
           className="relative group mx-auto"
@@ -102,12 +122,15 @@ export function FeaturedCarousel({
               transformStyle: "preserve-3d",
             }}
           >
-            {/* Background Image */}
+            {/* Background Image with scroll parallax */}
             <div className="relative aspect-[3/4] sm:aspect-[16/9] overflow-hidden">
               <img
                 src={currentItem.images.webp.large_image_url || currentItem.images.webp.image_url}
                 alt={currentItem.title}
-                className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover object-top transition-transform duration-100 ease-out group-hover:scale-105"
+                style={{
+                  transform: `translateY(${-scrollY}px) scale(1.1)`,
+                }}
               />
               
               {/* Gradients */}
