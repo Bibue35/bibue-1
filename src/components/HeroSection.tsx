@@ -33,7 +33,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
   }, [featuredAnime?.length]);
 
   const handleSideCardClick = (anime: Anime) => {
-    const index = featuredAnime?.findIndex((a) => a.mal_id === anime.mal_id);
+    const index = featuredAnime?.findIndex((a) => a.anilist_id === anime.anilist_id);
     if (index !== undefined && index >= 0) {
       setSelectedIndex(index);
     }
@@ -50,7 +50,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
         <div className="relative w-full h-full">
           {featuredAnime?.slice(0, 4).map((anime, index) => (
             <img
-              key={anime.mal_id}
+              key={anime.anilist_id}
               src={anime.images.webp.large_image_url}
               alt={anime.title}
               loading={index === 0 ? "eager" : "lazy"}
@@ -131,7 +131,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
       <div className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-4">
         {sideCards.map((anime, index) => (
           <button
-            key={anime.mal_id}
+            key={anime.anilist_id}
             onClick={() => handleSideCardClick(anime)}
             className={cn(
               "w-24 sm:w-32 aspect-[2/3] rounded-2xl overflow-hidden bg-card border border-border/50 transition-transform duration-200 group relative hover:scale-105",
@@ -181,7 +181,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
       </div>
 
       <AnimeDetailModal
-        animeId={featured.mal_id}
+        animeId={featured.anilist_id}
         open={modalOpen}
         onOpenChange={setModalOpen}
       />

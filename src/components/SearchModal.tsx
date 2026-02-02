@@ -64,9 +64,9 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     };
   }, [isOpen, handleKeyDown]);
 
-  const handleSelectResult = (type: "anime" | "manga", item: { mal_id: number; title: string }) => {
+  const handleSelectResult = (type: "anime" | "manga", item: { anilist_id: number; mal_id: number; title: string }) => {
     saveRecentSearch(query);
-    navigate(`/${type}/${item.mal_id}`);
+    navigate(`/${type}/${item.anilist_id}`);
     onClose();
   };
 
@@ -136,7 +136,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       <div>
                         {animeResults.slice(0, 5).map((item) => (
                           <button
-                            key={`anime-${item.mal_id}`}
+                            key={`anime-${item.anilist_id}`}
                             onClick={() => handleSelectResult("anime", item)}
                             className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-all duration-300 text-left group"
                           >
@@ -182,7 +182,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       <div>
                         {mangaResults.slice(0, 5).map((item) => (
                           <button
-                            key={`manga-${item.mal_id}`}
+                            key={`manga-${item.anilist_id}`}
                             onClick={() => handleSelectResult("manga", item)}
                             className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-all duration-300 text-left group"
                           >

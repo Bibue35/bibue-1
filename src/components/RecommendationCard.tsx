@@ -47,7 +47,7 @@ export function RecommendationCard({ recommendation, index = 0 }: Recommendation
       </button>
       
       <AnimeDetailModal
-        animeId={entry.mal_id}
+        animeId={entry.anilist_id}
         open={modalOpen}
         onOpenChange={setModalOpen}
       />

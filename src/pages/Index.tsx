@@ -108,7 +108,7 @@ const Index = () => {
             <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-44" />
           ) : (
             airingAnime?.slice(0, 10).map((anime, index) => (
-              <div key={anime.mal_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
+              <div key={anime.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
                 {isMobile ? (
                   <MobileAnimeCard anime={anime} index={index} />
                 ) : (
@@ -135,7 +135,7 @@ const Index = () => {
             <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
           ) : (
             seasonalAnime?.slice(0, 12).map((anime, index) => (
-              <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+              <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                 {isMobile ? (
                   <MobileAnimeCard anime={anime} index={index} />
                 ) : (
@@ -165,7 +165,7 @@ const Index = () => {
             <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
           ) : (
             popularAnime?.slice(0, 12).map((anime, index) => (
-              <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+              <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                 {isMobile ? (
                   <MobileAnimeCard anime={anime} index={index} />
                 ) : (
@@ -189,7 +189,7 @@ const Index = () => {
             <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
           ) : (
             upcomingAnime?.slice(0, 12).map((anime, index) => (
-              <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+              <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                 {isMobile ? (
                   <MobileAnimeCard anime={anime} index={index} />
                 ) : (
@@ -213,7 +213,7 @@ const Index = () => {
             <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
           ) : (
             allTimeTop?.slice(0, 12).map((anime, index) => (
-              <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+              <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                 {isMobile ? (
                   <MobileAnimeCard anime={anime} index={index} />
                 ) : (
@@ -238,7 +238,7 @@ const Index = () => {
             <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
           ) : (
             classicAnime?.slice(0, 12).map((anime, index) => (
-              <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+              <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                 {isMobile ? (
                   <MobileAnimeCard anime={anime} index={index} />
                 ) : (
@@ -295,7 +295,7 @@ const Index = () => {
                   ))
                 ) : (
                   topManga?.slice(0, 5).map((manga, index) => (
-                    <MangaCard key={manga.mal_id} manga={manga} index={index} variant="compact" />
+                    <MangaCard key={manga.anilist_id} manga={manga} index={index} variant="compact" />
                   ))
                 )}
               </div>
@@ -319,7 +319,7 @@ const Index = () => {
                   ))
                 ) : (
                   trendingManhwa?.slice(0, 5).map((manga, index) => (
-                    <MangaCard key={manga.mal_id} manga={manga} index={index} variant="compact" />
+                    <MangaCard key={manga.anilist_id} manga={manga} index={index} variant="compact" />
                   ))
                 )}
               </div>
@@ -343,7 +343,7 @@ const Index = () => {
                   ))
                 ) : (
                   trendingManhua?.slice(0, 5).map((manga, index) => (
-                    <MangaCard key={manga.mal_id} manga={manga} index={index} variant="compact" />
+                    <MangaCard key={manga.anilist_id} manga={manga} index={index} variant="compact" />
                   ))
                 )}
               </div>

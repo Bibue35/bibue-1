@@ -28,7 +28,7 @@ export function SearchRecommendations({
   };
 
   const getDetailUrl = (item: Anime | Manga) => {
-    return `/${type}/${item.mal_id}`;
+    return `/${type}/${item.anilist_id}`;
   };
 
   return (
@@ -53,7 +53,7 @@ export function SearchRecommendations({
           <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
             {recommendations?.slice(0, 10).map((item) => (
               <Link
-                key={item.mal_id}
+                key={item.anilist_id}
                 to={getDetailUrl(item)}
                 className="flex-shrink-0 w-32 group"
               >

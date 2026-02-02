@@ -176,7 +176,7 @@ export default function RankingsPage() {
                 
                 return (
                   <div 
-                    key={item.mal_id} 
+                    key={item.anilist_id}
                     className="relative"
                     style={{ zIndex: 25 - index }}
                   >

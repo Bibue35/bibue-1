@@ -200,7 +200,7 @@ export default function MangaPage() {
                 ))
               ) : (
                 manhwa?.slice(0, 12).map((manga, index) => (
-                  <div key={manga.mal_id} className="flex-shrink-0 w-36 sm:w-44">
+                  <div key={manga.anilist_id} className="flex-shrink-0 w-36 sm:w-44">
                     <MangaCard manga={manga} index={index} />
                   </div>
                 ))
@@ -223,7 +223,7 @@ export default function MangaPage() {
                 ))
               ) : (
                 manhua?.slice(0, 12).map((manga, index) => (
-                  <div key={manga.mal_id} className="flex-shrink-0 w-36 sm:w-44">
+                  <div key={manga.anilist_id} className="flex-shrink-0 w-36 sm:w-44">
                     <MangaCard manga={manga} index={index} />
                   </div>
                 ))
@@ -358,9 +358,9 @@ export default function MangaPage() {
             <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
               {sortedManga?.map((manga, index) => (
                 viewMode === "grid" ? (
-                  <MangaCard key={manga.mal_id} manga={manga} index={index} />
+                  <MangaCard key={manga.anilist_id} manga={manga} index={index} />
                 ) : (
-                  <MangaCard key={manga.mal_id} manga={manga} index={index} variant="compact" />
+                  <MangaCard key={manga.anilist_id} manga={manga} index={index} variant="compact" />
                 )
               ))}
             </div>
