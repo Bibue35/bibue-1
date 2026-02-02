@@ -14,10 +14,10 @@ import { Footer } from "@/components/Footer";
 import { AdUnit } from "@/components/AdUnit";
 import { ScheduleSection } from "@/components/ScheduleSection";
 import { PullToRefresh } from "@/components/PullToRefresh";
-import { useTopAnime, useSeasonalAnime, useTopManga } from "@/hooks/useAnimeData";
+import { useTopAnime, useSeasonalAnime, useTopManga, useClassicAnime, useAllTimeTopAnime, useTrendingManhwa, useTrendingManhua } from "@/hooks/useAnimeData";
 import { CardSkeleton, CardSkeletonRow, HeroSkeleton } from "@/components/skeletons";
 import { Link } from "react-router-dom";
-import { ArrowRight, Rocket, TrendingUp, Sparkles, Clock, BookOpen, Flame } from "lucide-react";
+import { ArrowRight, Rocket, TrendingUp, Sparkles, Clock, BookOpen, Flame, History, Trophy, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -34,6 +34,10 @@ const Index = () => {
   const { data: topManga, isLoading: topMangaLoading } = useTopManga(1);
   const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
   const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua');
+  const { data: classicAnime, isLoading: classicLoading } = useClassicAnime(1);
+  const { data: allTimeTop, isLoading: allTimeLoading } = useAllTimeTopAnime(1);
+  const { data: trendingManhwa, isLoading: trendingManhwaLoading } = useTrendingManhwa(1);
+  const { data: trendingManhua, isLoading: trendingManhuaLoading } = useTrendingManhua(1);
   const { t } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -44,6 +48,10 @@ const Index = () => {
     await queryClient.invalidateQueries({ queryKey: ["topAnime"] });
     await queryClient.invalidateQueries({ queryKey: ["seasonalAnime"] });
     await queryClient.invalidateQueries({ queryKey: ["topManga"] });
+    await queryClient.invalidateQueries({ queryKey: ["classicAnime"] });
+    await queryClient.invalidateQueries({ queryKey: ["allTimeTopAnime"] });
+    await queryClient.invalidateQueries({ queryKey: ["trendingManhwa"] });
+    await queryClient.invalidateQueries({ queryKey: ["trendingManhua"] });
   }, [queryClient]);
 
   // Get recommended anime for hero section
@@ -193,6 +201,54 @@ const Index = () => {
         </HorizontalScroll>
       </ContentSection>
 
+      {/* All-Time Top Rated */}
+      <ContentSection
+        title="All-Time Top Rated"
+        titleJp="歴代最高"
+        icon={Trophy}
+        linkTo="/rankings?type=anime&sort=score"
+      >
+        <HorizontalScroll showArrows={!isMobile}>
+          {allTimeLoading ? (
+            <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+          ) : (
+            allTimeTop?.slice(0, 12).map((anime, index) => (
+              <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                {isMobile ? (
+                  <MobileAnimeCard anime={anime} index={index} />
+                ) : (
+                  <AnimeCard anime={anime} index={index} />
+                )}
+              </div>
+            ))
+          )}
+        </HorizontalScroll>
+      </ContentSection>
+
+      {/* Classic Anime (Pre-2010) */}
+      <ContentSection
+        title="Classic Anime"
+        titleJp="クラシック"
+        icon={History}
+        linkTo="/anime?filter=classic"
+      >
+        <HorizontalScroll showArrows={!isMobile}>
+          {classicLoading ? (
+            <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+          ) : (
+            classicAnime?.slice(0, 12).map((anime, index) => (
+              <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                {isMobile ? (
+                  <MobileAnimeCard anime={anime} index={index} />
+                ) : (
+                  <AnimeCard anime={anime} index={index} />
+                )}
+              </div>
+            ))
+          )}
+        </HorizontalScroll>
+      </ContentSection>
+
       {/* Ad Unit */}
       <div className="container mx-auto px-3 sm:px-4">
         <AdUnit slot="2345678901" format="horizontal" className="my-4 sm:my-6 md:my-8" />
@@ -244,42 +300,48 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Manhwa Column */}
+            {/* Manhwa Column - Trending */}
             <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-base sm:text-lg font-semibold">Top Manhwa</h3>
+                <h3 className="text-base sm:text-lg font-semibold flex items-center gap-1.5">
+                  <Zap className="w-4 h-4 text-primary" />
+                  Trending Manhwa
+                </h3>
                 <Link to="/manga?filter=manhwa" className="text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors">
                   See all →
                 </Link>
               </div>
               <div className="space-y-2 sm:space-y-3">
-                {manhwaLoading ? (
+                {trendingManhwaLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <CardSkeleton key={i} variant="compact" />
                   ))
                 ) : (
-                  manhwa?.slice(0, 5).map((manga, index) => (
+                  trendingManhwa?.slice(0, 5).map((manga, index) => (
                     <MangaCard key={manga.mal_id} manga={manga} index={index} variant="compact" />
                   ))
                 )}
               </div>
             </div>
 
-            {/* Manhua Column */}
+            {/* Manhua Column - Trending */}
             <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-base sm:text-lg font-semibold">Top Manhua</h3>
+                <h3 className="text-base sm:text-lg font-semibold flex items-center gap-1.5">
+                  <Zap className="w-4 h-4 text-primary" />
+                  Trending Manhua
+                </h3>
                 <Link to="/manga?filter=manhua" className="text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors">
                   See all →
                 </Link>
               </div>
               <div className="space-y-2 sm:space-y-3">
-                {manhuaLoading ? (
+                {trendingManhuaLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <CardSkeleton key={i} variant="compact" />
                   ))
                 ) : (
-                  manhua?.slice(0, 5).map((manga, index) => (
+                  trendingManhua?.slice(0, 5).map((manga, index) => (
                     <MangaCard key={manga.mal_id} manga={manga} index={index} variant="compact" />
                   ))
                 )}
