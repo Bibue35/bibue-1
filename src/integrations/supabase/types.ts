@@ -50,6 +50,36 @@ export type Database = {
         }
         Relationships: []
       }
+      chapter_votes: {
+        Row: {
+          chapter_number: number
+          created_at: string
+          id: string
+          manga_id: number
+          updated_at: string
+          user_id: string
+          vote_type: string
+        }
+        Insert: {
+          chapter_number: number
+          created_at?: string
+          id?: string
+          manga_id: number
+          updated_at?: string
+          user_id: string
+          vote_type: string
+        }
+        Update: {
+          chapter_number?: number
+          created_at?: string
+          id?: string
+          manga_id?: number
+          updated_at?: string
+          user_id?: string
+          vote_type?: string
+        }
+        Relationships: []
+      }
       comment_likes: {
         Row: {
           comment_id: string
@@ -244,6 +274,66 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      episode_votes: {
+        Row: {
+          anime_id: number
+          created_at: string
+          episode_number: number
+          id: string
+          updated_at: string
+          user_id: string
+          vote_type: string
+        }
+        Insert: {
+          anime_id: number
+          created_at?: string
+          episode_number: number
+          id?: string
+          updated_at?: string
+          user_id: string
+          vote_type: string
+        }
+        Update: {
+          anime_id?: number
+          created_at?: string
+          episode_number?: number
+          id?: string
+          updated_at?: string
+          user_id?: string
+          vote_type?: string
+        }
+        Relationships: []
+      }
+      media_votes: {
+        Row: {
+          created_at: string
+          id: string
+          media_id: number
+          media_type: string
+          updated_at: string
+          user_id: string
+          vote_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          media_id: number
+          media_type: string
+          updated_at?: string
+          user_id: string
+          vote_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          media_id?: number
+          media_type?: string
+          updated_at?: string
+          user_id?: string
+          vote_type?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
