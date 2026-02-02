@@ -1,12 +1,15 @@
 /**
  * Bibue - Anime & Manga Platform
- * Main landing page with diverse anime sections like popular streaming sites
+ * Main landing page with modern mobile-first design
  */
 import { FloatingNav } from "@/components/FloatingNav";
 import { HeroSection } from "@/components/HeroSection";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { AnimeCard } from "@/components/AnimeCard";
 import { MangaCard } from "@/components/MangaCard";
+import { MobileAnimeCard } from "@/components/MobileAnimeCard";
+import { FeaturedCarousel } from "@/components/FeaturedCarousel";
+import { ContentSection } from "@/components/ContentSection";
 import { Footer } from "@/components/Footer";
 import { AdUnit } from "@/components/AdUnit";
 import { ScheduleSection } from "@/components/ScheduleSection";
@@ -14,17 +17,19 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import { useTopAnime, useSeasonalAnime, useTopManga } from "@/hooks/useAnimeData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
-import { ArrowRight, Rocket, TrendingUp, Sparkles, Clock, BookOpen } from "lucide-react";
+import { ArrowRight, Rocket, TrendingUp, Sparkles, Clock, BookOpen, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMemo, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
   const { data: popularAnime, isLoading: popularLoading } = useTopAnime(1, 'bypopularity');
   const { data: upcomingAnime, isLoading: upcomingLoading } = useTopAnime(1, 'upcoming');
+  const { data: airingAnime, isLoading: airingLoading } = useTopAnime(1, 'airing');
   const { data: seasonalAnime, isLoading: seasonalLoading } = useSeasonalAnime();
   const { data: topManga, isLoading: topMangaLoading } = useTopManga(1);
   const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
@@ -32,6 +37,7 @@ const Index = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
   // Pull-to-refresh handler
   const handleRefresh = useCallback(async () => {
@@ -63,68 +69,83 @@ const Index = () => {
     <PullToRefresh onRefresh={handleRefresh}>
       <FloatingNav />
       
-      {/* Hero Section */}
-      <HeroSection
-        featuredAnime={heroAnime.length > 0 ? heroAnime : seasonalAnime?.slice(0, 5)} 
-        isLoading={seasonalLoading} 
-      />
-
-      {/* Coming Soon Banner */}
-      <section className="py-4 sm:py-6 md:py-8">
-        <div className="container mx-auto px-3 sm:px-4">
-          <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 flex items-center justify-center gap-2 sm:gap-3 text-center">
-            <Rocket className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
-            <span className="text-xs sm:text-sm md:text-base font-medium text-foreground/90">
-              <Badge variant="secondary" className="mr-1.5 sm:mr-2 text-xs">{t("banner.comingSoon")}</Badge>
-              <span className="hidden xs:inline">{t("banner.newFeatures")}</span>
-              <span className="xs:hidden">New features!</span>
-            </span>
-            <Rocket className="w-4 h-4 sm:w-5 sm:h-5 text-primary hidden sm:block flex-shrink-0" />
+      {/* Hero Section - Use FeaturedCarousel on mobile for cleaner look */}
+      {isMobile ? (
+        <section className="pt-20 pb-4">
+          <div className="container mx-auto px-3">
+            <FeaturedCarousel 
+              items={heroAnime.length > 0 ? heroAnime : (seasonalAnime?.slice(0, 5) || [])} 
+              isLoading={seasonalLoading}
+              autoPlayInterval={8000}
+            />
           </div>
-        </div>
-      </section>
+        </section>
+      ) : (
+        <HeroSection
+          featuredAnime={heroAnime.length > 0 ? heroAnime : seasonalAnime?.slice(0, 5)} 
+          isLoading={seasonalLoading} 
+        />
+      )}
 
-      {/* Schedule Section with Day Selector */}
+      {/* Trending Now - Mobile-optimized horizontal scroll with larger cards */}
+      <ContentSection
+        title="Trending Now"
+        titleJp="トレンド"
+        icon={Flame}
+        linkTo="/anime?filter=airing"
+        compact
+      >
+        <HorizontalScroll showArrows={false}>
+          {airingLoading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
+                <Skeleton className="aspect-[2/3] rounded-2xl" />
+              </div>
+            ))
+          ) : (
+            airingAnime?.slice(0, 10).map((anime, index) => (
+              <div key={anime.mal_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
+                {isMobile ? (
+                  <MobileAnimeCard anime={anime} index={index} />
+                ) : (
+                  <AnimeCard anime={anime} index={index} />
+                )}
+              </div>
+            ))
+          )}
+        </HorizontalScroll>
+      </ContentSection>
+
+      {/* Schedule Section */}
       <ScheduleSection />
 
       {/* This Season's Hits */}
-      <section className="py-8 sm:py-12 md:py-16">
-        <div className="container mx-auto px-3 sm:px-4">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-primary/10">
-                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+      <ContentSection
+        title={t("section.thisSeason")}
+        titleJp={t("section.thisSeasonJp")}
+        icon={Sparkles}
+        linkTo="/anime?filter=seasonal"
+      >
+        <HorizontalScroll showArrows={!isMobile}>
+          {seasonalLoading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                <Skeleton className="aspect-[2/3] rounded-2xl" />
               </div>
-              <div>
-                <h2 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight">{t("section.thisSeason")}</h2>
-                <p className="font-jp text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5">{t("section.thisSeasonJp")}</p>
-              </div>
-            </div>
-            <Button variant="ghost" size="sm" className="gap-1 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3" asChild>
-              <Link to="/anime?filter=seasonal">
-                <span className="hidden xs:inline">{t("section.viewAll")}</span>
-                <span className="xs:hidden">All</span>
-                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              </Link>
-            </Button>
-          </div>
-          <HorizontalScroll title="" titleJp="">
-            {seasonalLoading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  <Skeleton className="aspect-[2/3] rounded-xl sm:rounded-2xl" />
-                </div>
-              ))
-            ) : (
-              seasonalAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+            ))
+          ) : (
+            seasonalAnime?.slice(0, 12).map((anime, index) => (
+              <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                {isMobile ? (
+                  <MobileAnimeCard anime={anime} index={index} />
+                ) : (
                   <AnimeCard anime={anime} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
-        </div>
-      </section>
+                )}
+              </div>
+            ))
+          )}
+        </HorizontalScroll>
+      </ContentSection>
 
       {/* Ad Unit */}
       <div className="container mx-auto px-3 sm:px-4">
@@ -132,82 +153,61 @@ const Index = () => {
       </div>
 
       {/* Most Popular */}
-      <section className="py-8 sm:py-12 md:py-16">
-        <div className="container mx-auto px-3 sm:px-4">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-primary/10">
-                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+      <ContentSection
+        title="Most Popular"
+        titleJp="人気アニメ"
+        icon={TrendingUp}
+        linkTo="/rankings?type=anime"
+        linkText={t("section.rankings")}
+      >
+        <HorizontalScroll showArrows={!isMobile}>
+          {popularLoading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                <Skeleton className="aspect-[2/3] rounded-2xl" />
               </div>
-              <div>
-                <h2 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight">Most Popular</h2>
-                <p className="font-jp text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5">人気アニメ</p>
-              </div>
-            </div>
-            <Button variant="ghost" size="sm" className="gap-1 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3" asChild>
-              <Link to="/rankings?type=anime">
-                <span className="hidden xs:inline">{t("section.rankings")}</span>
-                <span className="xs:hidden">More</span>
-                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              </Link>
-            </Button>
-          </div>
-          <HorizontalScroll title="" titleJp="">
-            {popularLoading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  <Skeleton className="aspect-[2/3] rounded-xl sm:rounded-2xl" />
-                </div>
-              ))
-            ) : (
-              popularAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+            ))
+          ) : (
+            popularAnime?.slice(0, 12).map((anime, index) => (
+              <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                {isMobile ? (
+                  <MobileAnimeCard anime={anime} index={index} />
+                ) : (
                   <AnimeCard anime={anime} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
-        </div>
-      </section>
+                )}
+              </div>
+            ))
+          )}
+        </HorizontalScroll>
+      </ContentSection>
 
-      {/* Upcoming Anime */}
-      <section className="py-8 sm:py-12 md:py-16">
-        <div className="container mx-auto px-3 sm:px-4">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-primary/10">
-                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+      {/* Coming Soon */}
+      <ContentSection
+        title="Coming Soon"
+        titleJp="近日公開"
+        icon={Clock}
+        linkTo="/anime?filter=upcoming"
+      >
+        <HorizontalScroll showArrows={!isMobile}>
+          {upcomingLoading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                <Skeleton className="aspect-[2/3] rounded-2xl" />
               </div>
-              <div>
-                <h2 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight">Coming Soon</h2>
-                <p className="font-jp text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5">近日公開</p>
-              </div>
-            </div>
-            <Button variant="ghost" size="sm" className="gap-1 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3" asChild>
-              <Link to="/anime?filter=upcoming">
-                <span className="hidden xs:inline">{t("section.viewAll")}</span>
-                <span className="xs:hidden">All</span>
-                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              </Link>
-            </Button>
-          </div>
-          <HorizontalScroll title="" titleJp="">
-            {upcomingLoading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  <Skeleton className="aspect-[2/3] rounded-xl sm:rounded-2xl" />
-                </div>
-              ))
-            ) : (
-              upcomingAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+            ))
+          ) : (
+            upcomingAnime?.slice(0, 12).map((anime, index) => (
+              <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                {isMobile ? (
+                  <MobileAnimeCard anime={anime} index={index} />
+                ) : (
                   <AnimeCard anime={anime} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
-        </div>
-      </section>
+                )}
+              </div>
+            ))
+          )}
+        </HorizontalScroll>
+      </ContentSection>
 
       {/* Ad Unit */}
       <div className="container mx-auto px-3 sm:px-4">
