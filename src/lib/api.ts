@@ -22,7 +22,10 @@ function getTitleForLanguage(
 }
 
 export interface Anime {
-  mal_id: number; // We'll use AniList id but keep the field name for compatibility
+  /** @description Primary ID - This is the AniList ID used for all API calls */
+  anilist_id: number;
+  /** @deprecated Use anilist_id instead. Kept for backward compatibility with existing code. */
+  mal_id: number;
   title: string;
   title_english?: string;
   title_japanese?: string;
@@ -51,6 +54,9 @@ export interface Anime {
 }
 
 export interface Manga {
+  /** @description Primary ID - This is the AniList ID used for all API calls */
+  anilist_id: number;
+  /** @deprecated Use anilist_id instead. Kept for backward compatibility with existing code. */
   mal_id: number;
   title: string;
   title_english?: string;
@@ -136,7 +142,8 @@ function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime
   // IMPORTANT: Always use AniList ID for consistency across the app
   // This ensures the ID passed to cards matches the ID used for detail fetches
   return {
-    mal_id: media.id, // Use AniList ID consistently (not idMal)
+    anilist_id: media.id, // Primary AniList ID for all API calls
+    mal_id: media.id, // Keep for backward compatibility (also AniList ID)
     title: getTitleForLanguage(media.title, language),
     title_english: media.title.english || undefined,
     title_japanese: media.title.native || undefined,
@@ -176,7 +183,8 @@ function toManga(media: AniListMedia, language: SupportedLanguage = "en"): Manga
   // IMPORTANT: Always use AniList ID for consistency across the app
   // This ensures the ID passed to cards matches the ID used for detail fetches
   return {
-    mal_id: media.id, // Use AniList ID consistently (not idMal)
+    anilist_id: media.id, // Primary AniList ID for all API calls
+    mal_id: media.id, // Keep for backward compatibility (also AniList ID)
     title: getTitleForLanguage(media.title, language),
     title_english: media.title.english || undefined,
     title_japanese: media.title.native || undefined,
