@@ -137,7 +137,7 @@ export default function AnimePage() {
                 ))
               ) : (
                 sortedSeasonalAnime?.slice(0, 12).map((anime, index) => (
-                  <div key={anime.mal_id} className="flex-shrink-0 w-36 sm:w-44">
+                  <div key={anime.anilist_id} className="flex-shrink-0 w-36 sm:w-44">
                     <AnimeCard anime={anime} index={index} />
                   </div>
                 ))
@@ -269,9 +269,9 @@ export default function AnimePage() {
             <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
               {displayAnime?.map((anime, index) => (
                 viewMode === "grid" ? (
-                  <AnimeCard key={anime.mal_id} anime={anime} index={index} />
+                  <AnimeCard key={anime.anilist_id} anime={anime} index={index} />
                 ) : (
-                  <AnimeCard key={anime.mal_id} anime={anime} index={index} variant="compact" />
+                  <AnimeCard key={anime.anilist_id} anime={anime} index={index} variant="compact" />
                 )
               ))}
             </div>

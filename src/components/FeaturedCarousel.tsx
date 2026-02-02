@@ -84,13 +84,13 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
 
   const handlePlay = useCallback(() => {
     if (currentItem) {
-      navigate(`/anime/${currentItem.mal_id}`, { state: { episode: 1 } });
+      navigate(`/anime/${currentItem.anilist_id}`, { state: { episode: 1 } });
     }
   }, [currentItem, navigate]);
 
   const handleInfo = useCallback(() => {
     if (currentItem) {
-      setSelectedAnimeId(currentItem.mal_id);
+      setSelectedAnimeId(currentItem.anilist_id);
       setModalOpen(true);
     }
   }, [currentItem]);

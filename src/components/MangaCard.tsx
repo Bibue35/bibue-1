@@ -72,7 +72,7 @@ export const MangaCard = memo(function MangaCard({ manga, index = 0, variant = "
         </button>
         
         <MangaDetailModal
-          mangaId={manga.mal_id}
+          mangaId={manga.anilist_id}
           open={modalOpen}
           onOpenChange={setModalOpen}
         />
@@ -107,7 +107,7 @@ export const MangaCard = memo(function MangaCard({ manga, index = 0, variant = "
             onClick={(e) => e.stopPropagation()}
           >
             <WatchlistButton
-              mal_id={manga.mal_id}
+              mal_id={manga.anilist_id}
               media_type="manga"
               title={manga.title}
               title_japanese={manga.title_japanese}
@@ -145,7 +145,7 @@ export const MangaCard = memo(function MangaCard({ manga, index = 0, variant = "
       </button>
       
       <MangaDetailModal
-        mangaId={manga.mal_id}
+        mangaId={manga.anilist_id}
         open={modalOpen}
         onOpenChange={setModalOpen}
       />

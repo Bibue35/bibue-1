@@ -26,7 +26,7 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
   const { addToWatchlist, removeFromWatchlist, isInWatchlist, isLoading } = useWatchlist();
   const { user } = useAuth();
   const { toast } = useToast();
-  const isBookmarked = isInWatchlist(anime.mal_id, "anime");
+  const isBookmarked = isInWatchlist(anime.anilist_id, "anime");
 
   const handleSave = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -35,10 +35,10 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
       return;
     }
     if (isBookmarked) {
-      removeFromWatchlist.mutate({ mal_id: anime.mal_id, media_type: "anime" });
+      removeFromWatchlist.mutate({ mal_id: anime.anilist_id, media_type: "anime" });
     } else {
       addToWatchlist.mutate({
-        mal_id: anime.mal_id,
+        mal_id: anime.anilist_id,
         media_type: "anime",
         title: anime.title,
         title_japanese: anime.title_japanese,
@@ -134,7 +134,7 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
         </button>
 
         <AnimeDetailModal
-          animeId={anime.mal_id}
+          animeId={anime.anilist_id}
           open={modalOpen}
           onOpenChange={setModalOpen}
         />
@@ -211,7 +211,7 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
         </button>
 
         <AnimeDetailModal
-          animeId={anime.mal_id}
+          animeId={anime.anilist_id}
           open={modalOpen}
           onOpenChange={setModalOpen}
         />
@@ -298,7 +298,7 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
     </button>
 
       <AnimeDetailModal
-        animeId={anime.mal_id}
+        animeId={anime.anilist_id}
         open={modalOpen}
         onOpenChange={setModalOpen}
       />

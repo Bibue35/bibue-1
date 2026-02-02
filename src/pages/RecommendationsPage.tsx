@@ -74,7 +74,7 @@ export default function RecommendationsPage() {
           ) : recommendations.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 sm:gap-6">
               {recommendations.map((rec, index) => (
-                <RecommendationCard key={rec.entry.mal_id} recommendation={rec} index={index} />
+                <RecommendationCard key={rec.entry.anilist_id} recommendation={rec} index={index} />
               ))}
             </div>
           ) : (

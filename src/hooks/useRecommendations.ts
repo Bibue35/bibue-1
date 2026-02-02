@@ -4,6 +4,9 @@ import { getAnimeRecommendations, Anime } from "@/lib/api";
 
 export interface Recommendation {
   entry: {
+    /** @description Primary ID - This is the AniList ID used for all API calls */
+    anilist_id: number;
+    /** @deprecated Use anilist_id instead */
     mal_id: number;
     title: string;
     images: {
@@ -28,7 +31,8 @@ async function fetchRecommendationsFromWatchlist(
       const recs = await getAnimeRecommendations(id);
       const mapped: Recommendation[] = recs?.slice(0, 6).map(r => ({
         entry: {
-          mal_id: r.entry.mal_id,
+          anilist_id: r.entry.anilist_id || r.entry.mal_id, // Use anilist_id if available
+          mal_id: r.entry.mal_id, // Keep for backward compatibility
           title: r.entry.title,
           images: r.entry.images,
           score: r.entry.score,
@@ -73,8 +77,8 @@ export function useRecommendations() {
   if (recommendationsMap) {
     recommendationsMap.forEach((recs) => {
       recs.forEach(rec => {
-        if (!seenIds.has(rec.entry.mal_id)) {
-          seenIds.add(rec.entry.mal_id);
+        if (!seenIds.has(rec.entry.anilist_id)) {
+          seenIds.add(rec.entry.anilist_id);
           recommendations.push(rec);
         }
       });

@@ -90,7 +90,7 @@ export function ScheduleSection() {
         ) : scheduleData && scheduleData.length > 0 ? (
           <HorizontalScroll title="" titleJp="">
             {scheduleData.map((item, index) => (
-              <div key={item.anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+              <div key={item.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                 {/* Airing time badge */}
                 <div className="mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2">
                   <span className="text-[10px] sm:text-xs font-medium px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-primary/10 text-primary">

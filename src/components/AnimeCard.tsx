@@ -72,7 +72,7 @@ export const AnimeCard = memo(function AnimeCard({ anime, index = 0, variant = "
         </button>
         
         <AnimeDetailModal
-          animeId={anime.mal_id}
+          animeId={anime.anilist_id}
           open={modalOpen}
           onOpenChange={setModalOpen}
         />
@@ -107,7 +107,7 @@ export const AnimeCard = memo(function AnimeCard({ anime, index = 0, variant = "
             onClick={(e) => e.stopPropagation()}
           >
             <WatchlistButton
-              mal_id={anime.mal_id}
+              mal_id={anime.anilist_id}
               media_type="anime"
               title={anime.title}
               title_japanese={anime.title_japanese}
@@ -147,7 +147,7 @@ export const AnimeCard = memo(function AnimeCard({ anime, index = 0, variant = "
       </button>
       
       <AnimeDetailModal
-        animeId={anime.mal_id}
+        animeId={anime.anilist_id}
         open={modalOpen}
         onOpenChange={setModalOpen}
       />
