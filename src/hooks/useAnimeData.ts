@@ -12,6 +12,17 @@ import {
   getScheduleByDay,
   getAnimeRecommendations,
   getMangaRecommendations,
+  getAnimeByYearRange,
+  getAllTimeTopAnime,
+  getClassicAnime,
+  getAnimeByDecade,
+  getAnimeByGenre,
+  getMangaByYearRange,
+  getAllTimeTopManga,
+  getClassicManga,
+  getTrendingManhwa,
+  getTrendingManhua,
+  getMangaByGenre,
   Anime,
   Manga,
   ScheduleItem,
@@ -137,6 +148,139 @@ export function useMangaRecommendations(id: number | undefined, enabled = true) 
     queryKey: ["mangaRecommendations", id, language],
     queryFn: () => getMangaRecommendations(id!, language as SupportedLanguage),
     enabled: enabled && !!id,
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 60,
+  });
+}
+
+// Extended anime hooks for older/classic content
+export function useAnimeByYearRange(
+  startYear: number,
+  endYear: number,
+  page = 1,
+  sort: "SCORE_DESC" | "POPULARITY_DESC" | "FAVOURITES_DESC" = "SCORE_DESC"
+) {
+  const { language } = useLanguage();
+  return useQuery({
+    queryKey: ["animeByYearRange", startYear, endYear, page, sort, language],
+    queryFn: () => getAnimeByYearRange(startYear, endYear, page, 25, sort, language as SupportedLanguage),
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 60,
+  });
+}
+
+export function useAllTimeTopAnime(page = 1) {
+  const { language } = useLanguage();
+  return useQuery({
+    queryKey: ["allTimeTopAnime", page, language],
+    queryFn: () => getAllTimeTopAnime(page, 25, language as SupportedLanguage),
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 60,
+  });
+}
+
+export function useClassicAnime(page = 1) {
+  const { language } = useLanguage();
+  return useQuery({
+    queryKey: ["classicAnime", page, language],
+    queryFn: () => getClassicAnime(page, 25, language as SupportedLanguage),
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 60,
+  });
+}
+
+export function useAnimeByDecade(decade: "70s" | "80s" | "90s" | "2000s" | "2010s", page = 1) {
+  const { language } = useLanguage();
+  return useQuery({
+    queryKey: ["animeByDecade", decade, page, language],
+    queryFn: () => getAnimeByDecade(decade, page, 25, language as SupportedLanguage),
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 60,
+  });
+}
+
+export function useAnimeByGenre(
+  genre: string,
+  page = 1,
+  sort: "SCORE_DESC" | "POPULARITY_DESC" | "TRENDING_DESC" = "POPULARITY_DESC"
+) {
+  const { language } = useLanguage();
+  return useQuery({
+    queryKey: ["animeByGenre", genre, page, sort, language],
+    queryFn: () => getAnimeByGenre(genre, page, 25, sort, language as SupportedLanguage),
+    enabled: !!genre,
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 60,
+  });
+}
+
+// Extended manga hooks
+export function useMangaByYearRange(
+  startYear: number,
+  endYear: number,
+  page = 1,
+  filter?: "manga" | "manhwa" | "manhua"
+) {
+  const { language } = useLanguage();
+  return useQuery({
+    queryKey: ["mangaByYearRange", startYear, endYear, page, filter, language],
+    queryFn: () => getMangaByYearRange(startYear, endYear, page, 25, filter, "SCORE_DESC", language as SupportedLanguage),
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 60,
+  });
+}
+
+export function useAllTimeTopManga(page = 1, filter?: "manga" | "manhwa" | "manhua") {
+  const { language } = useLanguage();
+  return useQuery({
+    queryKey: ["allTimeTopManga", page, filter, language],
+    queryFn: () => getAllTimeTopManga(page, 25, filter, language as SupportedLanguage),
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 60,
+  });
+}
+
+export function useClassicManga(page = 1) {
+  const { language } = useLanguage();
+  return useQuery({
+    queryKey: ["classicManga", page, language],
+    queryFn: () => getClassicManga(page, 25, language as SupportedLanguage),
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 60,
+  });
+}
+
+export function useTrendingManhwa(page = 1) {
+  const { language } = useLanguage();
+  return useQuery({
+    queryKey: ["trendingManhwa", page, language],
+    queryFn: () => getTrendingManhwa(page, 25, language as SupportedLanguage),
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
+  });
+}
+
+export function useTrendingManhua(page = 1) {
+  const { language } = useLanguage();
+  return useQuery({
+    queryKey: ["trendingManhua", page, language],
+    queryFn: () => getTrendingManhua(page, 25, language as SupportedLanguage),
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
+  });
+}
+
+export function useMangaByGenre(
+  genre: string,
+  page = 1,
+  filter?: "manga" | "manhwa" | "manhua",
+  sort: "SCORE_DESC" | "POPULARITY_DESC" | "TRENDING_DESC" = "POPULARITY_DESC"
+) {
+  const { language } = useLanguage();
+  return useQuery({
+    queryKey: ["mangaByGenre", genre, page, filter, sort, language],
+    queryFn: () => getMangaByGenre(genre, page, 25, filter, sort, language as SupportedLanguage),
+    enabled: !!genre,
     staleTime: 1000 * 60 * 15,
     gcTime: 1000 * 60 * 60,
   });

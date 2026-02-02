@@ -294,6 +294,95 @@ export async function getTopAnime(page = 1, limit = 25, filter?: "airing" | "upc
   return data.Page.media.map(m => toAnime(m, language));
 }
 
+// Get anime by year range (for classic/older content)
+export async function getAnimeByYearRange(
+  startYear: number,
+  endYear: number,
+  page = 1,
+  limit = 25,
+  sort: "SCORE_DESC" | "POPULARITY_DESC" | "FAVOURITES_DESC" = "SCORE_DESC",
+  language: SupportedLanguage = "en"
+): Promise<Anime[]> {
+  const query = `
+    query ($page: Int, $perPage: Int, $sort: [MediaSort], $startYear: FuzzyDateInt, $endYear: FuzzyDateInt) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: ANIME, sort: $sort, startDate_greater: $startYear, startDate_lesser: $endYear, isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  // Convert years to FuzzyDateInt format (YYYYMMDD)
+  const startDateInt = startYear * 10000 + 101; // Jan 1 of start year
+  const endDateInt = endYear * 10000 + 1231; // Dec 31 of end year
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { 
+    page, 
+    perPage: limit, 
+    sort: [sort], 
+    startYear: startDateInt,
+    endYear: endDateInt
+  });
+  return data.Page.media.map(m => toAnime(m, language));
+}
+
+// Get all-time highest rated anime
+export async function getAllTimeTopAnime(page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Anime[]> {
+  const query = `
+    query ($page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: ANIME, sort: [SCORE_DESC], status_in: [FINISHED, RELEASING], isAdult: false, averageScore_greater: 70) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit });
+  return data.Page.media.map(m => toAnime(m, language));
+}
+
+// Get classic anime (pre-2010)
+export async function getClassicAnime(page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Anime[]> {
+  return getAnimeByYearRange(1970, 2009, page, limit, "SCORE_DESC", language);
+}
+
+// Get anime by decade
+export async function getAnimeByDecade(decade: "70s" | "80s" | "90s" | "2000s" | "2010s", page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Anime[]> {
+  const decadeRanges: Record<string, [number, number]> = {
+    "70s": [1970, 1979],
+    "80s": [1980, 1989],
+    "90s": [1990, 1999],
+    "2000s": [2000, 2009],
+    "2010s": [2010, 2019],
+  };
+  const [start, end] = decadeRanges[decade];
+  return getAnimeByYearRange(start, end, page, limit, "SCORE_DESC", language);
+}
+
+// Get anime by genre with expanded options
+export async function getAnimeByGenre(
+  genre: string,
+  page = 1,
+  limit = 25,
+  sort: "SCORE_DESC" | "POPULARITY_DESC" | "TRENDING_DESC" = "POPULARITY_DESC",
+  language: SupportedLanguage = "en"
+): Promise<Anime[]> {
+  const query = `
+    query ($page: Int, $perPage: Int, $genre: String, $sort: [MediaSort]) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: ANIME, genre: $genre, sort: $sort, isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, genre, sort: [sort] });
+  return data.Page.media.map(m => toAnime(m, language));
+}
+
 export async function getSeasonalAnime(year?: number, season?: string, language: SupportedLanguage = "en"): Promise<Anime[]> {
   const currentDate = new Date();
   const y = year || currentDate.getFullYear();
@@ -448,6 +537,133 @@ export async function getTopManga(
   `;
 
   const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, format, countryOfOrigin, sort: [sortValue] });
+  return data.Page.media.map(m => toManga(m, language));
+}
+
+// Get manga by year range (for classic/older content)
+export async function getMangaByYearRange(
+  startYear: number,
+  endYear: number,
+  page = 1,
+  limit = 25,
+  filter?: "manga" | "manhwa" | "manhua",
+  sort: "SCORE_DESC" | "POPULARITY_DESC" = "SCORE_DESC",
+  language: SupportedLanguage = "en"
+): Promise<Manga[]> {
+  let countryOfOrigin: string | undefined;
+  if (filter === "manhwa") countryOfOrigin = "KR";
+  else if (filter === "manhua") countryOfOrigin = "CN";
+
+  const query = `
+    query ($page: Int, $perPage: Int, $sort: [MediaSort], $startYear: FuzzyDateInt, $endYear: FuzzyDateInt, $countryOfOrigin: CountryCode) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: MANGA, sort: $sort, startDate_greater: $startYear, startDate_lesser: $endYear, countryOfOrigin: $countryOfOrigin, isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const startDateInt = startYear * 10000 + 101;
+  const endDateInt = endYear * 10000 + 1231;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { 
+    page, 
+    perPage: limit, 
+    sort: [sort], 
+    startYear: startDateInt,
+    endYear: endDateInt,
+    countryOfOrigin
+  });
+  return data.Page.media.map(m => toManga(m, language));
+}
+
+// Get all-time highest rated manga
+export async function getAllTimeTopManga(
+  page = 1, 
+  limit = 25, 
+  filter?: "manga" | "manhwa" | "manhua",
+  language: SupportedLanguage = "en"
+): Promise<Manga[]> {
+  let countryOfOrigin: string | undefined;
+  if (filter === "manhwa") countryOfOrigin = "KR";
+  else if (filter === "manhua") countryOfOrigin = "CN";
+
+  const query = `
+    query ($page: Int, $perPage: Int, $countryOfOrigin: CountryCode) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: MANGA, sort: [SCORE_DESC], status_in: [FINISHED, RELEASING], countryOfOrigin: $countryOfOrigin, isAdult: false, averageScore_greater: 70) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, countryOfOrigin });
+  return data.Page.media.map(m => toManga(m, language));
+}
+
+// Get classic manga (pre-2010)
+export async function getClassicManga(page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Manga[]> {
+  return getMangaByYearRange(1950, 2009, page, limit, undefined, "SCORE_DESC", language);
+}
+
+// Get trending manhwa specifically
+export async function getTrendingManhwa(page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Manga[]> {
+  const query = `
+    query ($page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: MANGA, sort: [TRENDING_DESC], countryOfOrigin: KR, isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit });
+  return data.Page.media.map(m => toManga(m, language));
+}
+
+// Get trending manhua specifically
+export async function getTrendingManhua(page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Manga[]> {
+  const query = `
+    query ($page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: MANGA, sort: [TRENDING_DESC], countryOfOrigin: CN, isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit });
+  return data.Page.media.map(m => toManga(m, language));
+}
+
+// Get manga by genre
+export async function getMangaByGenre(
+  genre: string,
+  page = 1,
+  limit = 25,
+  filter?: "manga" | "manhwa" | "manhua",
+  sort: "SCORE_DESC" | "POPULARITY_DESC" | "TRENDING_DESC" = "POPULARITY_DESC",
+  language: SupportedLanguage = "en"
+): Promise<Manga[]> {
+  let countryOfOrigin: string | undefined;
+  if (filter === "manhwa") countryOfOrigin = "KR";
+  else if (filter === "manhua") countryOfOrigin = "CN";
+
+  const query = `
+    query ($page: Int, $perPage: Int, $genre: String, $sort: [MediaSort], $countryOfOrigin: CountryCode) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: MANGA, genre: $genre, sort: $sort, countryOfOrigin: $countryOfOrigin, isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, genre, sort: [sort], countryOfOrigin });
   return data.Page.media.map(m => toManga(m, language));
 }
 
