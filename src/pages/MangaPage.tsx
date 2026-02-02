@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Grid, List, Bookmark, Sparkles, Loader2, ArrowUpDown } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
@@ -7,6 +7,7 @@ import { MangaCard } from "@/components/MangaCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { GenreSection } from "@/components/GenreSection";
 import { SearchDropdown } from "@/components/SearchDropdown";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { useTopManga, useSearchManga } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
 type SortOption = "popularity" | "score" | "newest";
@@ -34,6 +36,7 @@ export default function MangaPage() {
   const [typeFilter, setTypeFilter] = useState<"all" | "manga" | "manhwa" | "manhua">(filterParam || "all");
   const [sortBy, setSortBy] = useState<SortOption>(sortParam || "popularity");
   const resultsRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
 
   // Debounce search input (150ms default for faster response)
   const debouncedSearch = useDebounce(localSearch.trim());
@@ -57,6 +60,11 @@ export default function MangaPage() {
   const handleTypeFilter = (filter: "all" | "manga" | "manhwa" | "manhua") => {
     setTypeFilter(filter);
   };
+
+  // Pull-to-refresh handler
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ["topManga"] });
+  }, [queryClient]);
 
   // Fetch data based on type filter - separate queries for each filter type
   // (sorting is applied client-side below)
@@ -112,7 +120,7 @@ export default function MangaPage() {
   }, [displayManga, sortBy]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <PullToRefresh onRefresh={handleRefresh}>
       <CollapsibleNavbar />
 
       {/* Hero with Search */}
@@ -361,6 +369,6 @@ export default function MangaPage() {
       </section>
 
       <Footer />
-    </div>
+    </PullToRefresh>
   );
 }
