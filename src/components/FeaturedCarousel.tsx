@@ -80,13 +80,19 @@ export function FeaturedCarousel({
         >
           {/* Main hero card with 3D transform and organic blob shape */}
           <div 
-            className="relative overflow-hidden transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+            className="relative overflow-hidden transition-transform duration-500 ease-out group-hover:scale-[1.02] animate-[hero-float_6s_ease-in-out_infinite]"
             style={{ 
-              transform: "rotateX(2deg) rotateY(-1deg)",
               transformStyle: "preserve-3d",
               borderRadius: "30% 70% 70% 30% / 30% 30% 70% 70%",
             }}
           >
+            {/* Floating animation keyframes */}
+            <style>{`
+              @keyframes hero-float {
+                0%, 100% { transform: rotateX(2deg) rotateY(-1deg) translateY(0); }
+                50% { transform: rotateX(1deg) rotateY(0.5deg) translateY(-6px); }
+              }
+            `}</style>
             {/* Floating shadow underneath for 3D depth */}
             <div 
               className="absolute -inset-4 -z-10 opacity-40 blur-2xl"
