@@ -715,6 +715,8 @@ export async function getAnimeNews(): Promise<NewsItem[]> {
 
 // Schedule item with airing time info
 export interface ScheduleItem {
+  /** @description Primary ID - This is the AniList ID used for all API calls */
+  anilist_id: number;
   anime: Anime;
   airingTime: string;
   airingAt: number;
@@ -783,6 +785,7 @@ export async function getScheduleByDay(day: string, language: SupportedLanguage 
   return data.Page.airingSchedules
     .filter(s => s.media) // Filter out null media
     .map(s => ({
+      anilist_id: s.media.id, // Primary AniList ID
       anime: toAnime(s.media, language),
       airingTime: formatAiringTime(s.airingAt),
       airingAt: s.airingAt,
