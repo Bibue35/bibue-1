@@ -28,33 +28,35 @@ export function ScheduleSection() {
   const isToday = DAYS[today].key === selectedDay;
 
   return (
-    <section className="py-12 sm:py-16">
-      <div className="container mx-auto px-4">
+    <section className="py-8 sm:py-12 md:py-16">
+      <div className="container mx-auto px-3 sm:px-4">
         {/* Header with day selector */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-primary/10">
-              <Calendar className="w-5 h-5 text-primary" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-primary/10">
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight">
                 {isToday ? "Today's Schedule" : `${selectedDayLabel}'s Schedule`}
               </h2>
-              <p className="font-jp text-xs sm:text-sm text-muted-foreground mt-0.5">
+              <p className="font-jp text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5">
                 {isToday ? "今日放送" : "放送スケジュール"}
               </p>
             </div>
           </div>
           
-          <Button variant="ghost" size="sm" className="gap-1 glass-button self-start sm:self-auto" asChild>
+          <Button variant="ghost" size="sm" className="gap-1 glass-button self-start sm:self-auto text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3" asChild>
             <Link to="/anime?filter=airing">
-              View All <ArrowRight className="w-4 h-4" />
+              <span className="hidden xs:inline">View All</span>
+              <span className="xs:hidden">All</span>
+              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </Link>
           </Button>
         </div>
 
-        {/* Day selector buttons */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+        {/* Day selector buttons - scrollable on mobile */}
+        <div className="flex gap-1.5 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2 scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0">
           {DAYS.map((day, index) => (
             <Button
               key={day.key}
@@ -62,7 +64,7 @@ export function ScheduleSection() {
               size="sm"
               onClick={() => setSelectedDay(day.key)}
               className={cn(
-                "flex-shrink-0 min-w-[60px] transition-all",
+                "flex-shrink-0 min-w-[52px] sm:min-w-[60px] transition-all text-xs sm:text-sm h-8 sm:h-9",
                 selectedDay === day.key 
                   ? "bg-primary text-primary-foreground shadow-md" 
                   : "bg-background/50 border-border/50 hover:bg-accent"
@@ -77,25 +79,25 @@ export function ScheduleSection() {
         {isLoading ? (
           <HorizontalScroll title="" titleJp="">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-36 sm:w-44">
+              <div key={i} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                 <div className="mb-2">
-                  <Skeleton className="h-5 w-16 rounded-full" />
+                  <Skeleton className="h-4 sm:h-5 w-14 sm:w-16 rounded-full" />
                 </div>
-                <Skeleton className="aspect-[2/3] rounded-2xl" />
+                <Skeleton className="aspect-[2/3] rounded-xl sm:rounded-2xl" />
               </div>
             ))}
           </HorizontalScroll>
         ) : scheduleData && scheduleData.length > 0 ? (
           <HorizontalScroll title="" titleJp="">
             {scheduleData.map((item, index) => (
-              <div key={item.anime.mal_id} className="flex-shrink-0 w-36 sm:w-44">
+              <div key={item.anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                 {/* Airing time badge */}
-                <div className="mb-2 flex items-center gap-2">
-                  <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+                <div className="mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2">
+                  <span className="text-[10px] sm:text-xs font-medium px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-primary/10 text-primary">
                     {item.airingTime}
                   </span>
                   {item.episode && (
-                    <span className="text-xs font-medium px-2 py-0.5 rounded bg-accent text-accent-foreground">
+                    <span className="text-[10px] sm:text-xs font-medium px-1.5 py-0.5 sm:px-2 rounded bg-accent text-accent-foreground">
                       E{item.episode}
                     </span>
                   )}

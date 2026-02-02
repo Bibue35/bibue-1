@@ -60,15 +60,16 @@ const Index = () => {
       />
 
       {/* Coming Soon Banner */}
-      <section className="py-6 sm:py-8">
-        <div className="container mx-auto px-4">
-          <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 flex items-center justify-center gap-3 text-center">
-            <Rocket className="w-5 h-5 text-primary" />
-            <span className="text-sm sm:text-base font-medium text-foreground/90">
-              <Badge variant="secondary" className="mr-2">{t("banner.comingSoon")}</Badge>
-              {t("banner.newFeatures")}
+      <section className="py-4 sm:py-6 md:py-8">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 flex items-center justify-center gap-2 sm:gap-3 text-center">
+            <Rocket className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
+            <span className="text-xs sm:text-sm md:text-base font-medium text-foreground/90">
+              <Badge variant="secondary" className="mr-1.5 sm:mr-2 text-xs">{t("banner.comingSoon")}</Badge>
+              <span className="hidden xs:inline">{t("banner.newFeatures")}</span>
+              <span className="xs:hidden">New features!</span>
             </span>
-            <Rocket className="w-5 h-5 text-primary hidden sm:block" />
+            <Rocket className="w-4 h-4 sm:w-5 sm:h-5 text-primary hidden sm:block flex-shrink-0" />
           </div>
         </div>
       </section>
@@ -77,34 +78,36 @@ const Index = () => {
       <ScheduleSection />
 
       {/* This Season's Hits */}
-      <section className="py-12 sm:py-16">
-        <div className="container mx-auto px-4">
-          <div className="flex items-end justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-primary/10">
-                <Sparkles className="w-5 h-5 text-primary" />
+      <section className="py-8 sm:py-12 md:py-16">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-primary/10">
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">{t("section.thisSeason")}</h2>
-                <p className="font-jp text-xs sm:text-sm text-muted-foreground mt-0.5">{t("section.thisSeasonJp")}</p>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight">{t("section.thisSeason")}</h2>
+                <p className="font-jp text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5">{t("section.thisSeasonJp")}</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" className="gap-1" asChild>
+            <Button variant="ghost" size="sm" className="gap-1 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3" asChild>
               <Link to="/anime?filter=seasonal">
-                {t("section.viewAll")} <ArrowRight className="w-4 h-4" />
+                <span className="hidden xs:inline">{t("section.viewAll")}</span>
+                <span className="xs:hidden">All</span>
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </Link>
             </Button>
           </div>
           <HorizontalScroll title="" titleJp="">
             {seasonalLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-36 sm:w-44">
-                  <Skeleton className="aspect-[2/3] rounded-2xl" />
+                <div key={i} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <Skeleton className="aspect-[2/3] rounded-xl sm:rounded-2xl" />
                 </div>
               ))
             ) : (
               seasonalAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.mal_id} className="flex-shrink-0 w-36 sm:w-44">
+                <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                   <AnimeCard anime={anime} index={index} />
                 </div>
               ))
@@ -114,39 +117,41 @@ const Index = () => {
       </section>
 
       {/* Ad Unit */}
-      <div className="container mx-auto px-4">
-        <AdUnit slot="1234567890" format="horizontal" className="my-8" />
+      <div className="container mx-auto px-3 sm:px-4">
+        <AdUnit slot="1234567890" format="horizontal" className="my-4 sm:my-6 md:my-8" />
       </div>
 
       {/* Most Popular */}
-      <section className="py-12 sm:py-16">
-        <div className="container mx-auto px-4">
-          <div className="flex items-end justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-primary/10">
-                <TrendingUp className="w-5 h-5 text-primary" />
+      <section className="py-8 sm:py-12 md:py-16">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-primary/10">
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">Most Popular</h2>
-                <p className="font-jp text-xs sm:text-sm text-muted-foreground mt-0.5">人気アニメ</p>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight">Most Popular</h2>
+                <p className="font-jp text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5">人気アニメ</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" className="gap-1" asChild>
+            <Button variant="ghost" size="sm" className="gap-1 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3" asChild>
               <Link to="/rankings?type=anime">
-                {t("section.rankings")} <ArrowRight className="w-4 h-4" />
+                <span className="hidden xs:inline">{t("section.rankings")}</span>
+                <span className="xs:hidden">More</span>
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </Link>
             </Button>
           </div>
           <HorizontalScroll title="" titleJp="">
             {popularLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-36 sm:w-44">
-                  <Skeleton className="aspect-[2/3] rounded-2xl" />
+                <div key={i} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <Skeleton className="aspect-[2/3] rounded-xl sm:rounded-2xl" />
                 </div>
               ))
             ) : (
               popularAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.mal_id} className="flex-shrink-0 w-36 sm:w-44">
+                <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                   <AnimeCard anime={anime} index={index} />
                 </div>
               ))
@@ -156,34 +161,36 @@ const Index = () => {
       </section>
 
       {/* Upcoming Anime */}
-      <section className="py-12 sm:py-16">
-        <div className="container mx-auto px-4">
-          <div className="flex items-end justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-primary/10">
-                <Clock className="w-5 h-5 text-primary" />
+      <section className="py-8 sm:py-12 md:py-16">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-primary/10">
+                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">Coming Soon</h2>
-                <p className="font-jp text-xs sm:text-sm text-muted-foreground mt-0.5">近日公開</p>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight">Coming Soon</h2>
+                <p className="font-jp text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5">近日公開</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" className="gap-1" asChild>
+            <Button variant="ghost" size="sm" className="gap-1 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3" asChild>
               <Link to="/anime?filter=upcoming">
-                {t("section.viewAll")} <ArrowRight className="w-4 h-4" />
+                <span className="hidden xs:inline">{t("section.viewAll")}</span>
+                <span className="xs:hidden">All</span>
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </Link>
             </Button>
           </div>
           <HorizontalScroll title="" titleJp="">
             {upcomingLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-36 sm:w-44">
-                  <Skeleton className="aspect-[2/3] rounded-2xl" />
+                <div key={i} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <Skeleton className="aspect-[2/3] rounded-xl sm:rounded-2xl" />
                 </div>
               ))
             ) : (
               upcomingAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.mal_id} className="flex-shrink-0 w-36 sm:w-44">
+                <div key={anime.mal_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                   <AnimeCard anime={anime} index={index} />
                 </div>
               ))
@@ -193,45 +200,47 @@ const Index = () => {
       </section>
 
       {/* Ad Unit */}
-      <div className="container mx-auto px-4">
-        <AdUnit slot="2345678901" format="horizontal" className="my-8" />
+      <div className="container mx-auto px-3 sm:px-4">
+        <AdUnit slot="2345678901" format="horizontal" className="my-4 sm:my-6 md:my-8" />
       </div>
 
       {/* ===== MANGA SECTION ===== */}
-      <section className="py-16 sm:py-20">
-        <div className="container mx-auto px-4">
+      <section className="py-10 sm:py-16 md:py-20">
+        <div className="container mx-auto px-3 sm:px-4">
           {/* Manga Section Header */}
-          <div className="flex items-center justify-between mb-10">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-primary/10">
-                <BookOpen className="w-6 h-6 text-primary" />
+          <div className="flex items-center justify-between mb-6 sm:mb-8 md:mb-10">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-primary/10">
+                <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Manga</h2>
-                <p className="font-jp text-sm text-muted-foreground">漫画・マンファ・漫画</p>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Manga</h2>
+                <p className="font-jp text-xs sm:text-sm text-muted-foreground">漫画・マンファ・漫画</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" className="gap-1" asChild>
+            <Button variant="ghost" size="sm" className="gap-1 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3" asChild>
               <Link to="/manga">
-                Browse All <ArrowRight className="w-4 h-4" />
+                <span className="hidden xs:inline">Browse All</span>
+                <span className="xs:hidden">All</span>
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </Link>
             </Button>
           </div>
 
-          {/* Manga Grid - 3 columns on desktop */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* Manga Grid - responsive columns */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {/* Top Manga Column */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Top Manga</h3>
-                <Link to="/manga" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <h3 className="text-base sm:text-lg font-semibold">Top Manga</h3>
+                <Link to="/manga" className="text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors">
                   See all →
                 </Link>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {topMangaLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="h-20 rounded-xl" />
+                    <Skeleton key={i} className="h-16 sm:h-20 rounded-lg sm:rounded-xl" />
                   ))
                 ) : (
                   topManga?.slice(0, 5).map((manga, index) => (
@@ -242,17 +251,17 @@ const Index = () => {
             </div>
 
             {/* Manhwa Column */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Top Manhwa</h3>
-                <Link to="/manga?filter=manhwa" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <h3 className="text-base sm:text-lg font-semibold">Top Manhwa</h3>
+                <Link to="/manga?filter=manhwa" className="text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors">
                   See all →
                 </Link>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {manhwaLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="h-20 rounded-xl" />
+                    <Skeleton key={i} className="h-16 sm:h-20 rounded-lg sm:rounded-xl" />
                   ))
                 ) : (
                   manhwa?.slice(0, 5).map((manga, index) => (
@@ -263,17 +272,17 @@ const Index = () => {
             </div>
 
             {/* Manhua Column */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Top Manhua</h3>
-                <Link to="/manga?filter=manhua" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <h3 className="text-base sm:text-lg font-semibold">Top Manhua</h3>
+                <Link to="/manga?filter=manhua" className="text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors">
                   See all →
                 </Link>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {manhuaLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="h-20 rounded-xl" />
+                    <Skeleton key={i} className="h-16 sm:h-20 rounded-lg sm:rounded-xl" />
                   ))
                 ) : (
                   manhua?.slice(0, 5).map((manga, index) => (
@@ -287,8 +296,8 @@ const Index = () => {
       </section>
 
       {/* Ad Unit */}
-      <div className="container mx-auto px-4">
-        <AdUnit slot="3456789012" format="horizontal" className="my-8" />
+      <div className="container mx-auto px-3 sm:px-4">
+        <AdUnit slot="3456789012" format="horizontal" className="my-4 sm:my-6 md:my-8" />
       </div>
 
       <Footer />

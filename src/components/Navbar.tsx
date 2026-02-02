@@ -42,12 +42,12 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 py-4 pointer-events-none">
-        <div className="w-full px-4 md:px-6">
+      <nav className="fixed top-0 left-0 right-0 z-50 py-3 sm:py-4 pointer-events-none">
+        <div className="w-full px-3 sm:px-4 md:px-6">
           <div className="flex items-center justify-between pointer-events-auto relative">
             {/* Left: Logo */}
             <Link to="/" className="flex items-center">
-              <span className="text-2xl font-sacred font-semibold tracking-wide">
+              <span className="text-xl sm:text-2xl font-sacred font-semibold tracking-wide">
                 Bibue
               </span>
             </Link>
@@ -100,15 +100,15 @@ export function Navbar() {
               </DropdownMenu>
             </div>
 
-            {/* Right: Icons */}
-            <div className="flex items-center gap-1">
+            {/* Right: Icons - tighter spacing on mobile */}
+            <div className="flex items-center gap-0.5 sm:gap-1">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsSearchOpen(true)}
-                className="rounded-full hover:bg-foreground/5 text-muted-foreground hover:text-foreground"
+                className="rounded-full hover:bg-foreground/5 text-muted-foreground hover:text-foreground h-9 w-9 sm:h-10 sm:w-10"
               >
-                <Search className="w-6 h-6" />
+                <Search className="w-5 h-5 sm:w-6 sm:h-6" />
               </Button>
 
               <ThemeSelector />
@@ -118,7 +118,7 @@ export function Navbar() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden rounded-full"
+                className="md:hidden rounded-full h-9 w-9 sm:h-10 sm:w-10"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
                 {isMobileMenuOpen ? (
@@ -131,20 +131,20 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu - improved styling */}
         <div
           className={cn(
-            "md:hidden fixed top-16 left-4 right-4 bg-background/95 backdrop-blur-sm border border-border/50 rounded-2xl overflow-hidden transition-all duration-200 pointer-events-auto",
+            "md:hidden fixed top-14 sm:top-16 left-3 right-3 sm:left-4 sm:right-4 bg-background/95 backdrop-blur-md border border-border/50 rounded-2xl overflow-hidden transition-all duration-200 pointer-events-auto shadow-lg",
             isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
           )}
         >
-          <div className="p-4 space-y-1">
+          <div className="p-3 sm:p-4 space-y-0.5 sm:space-y-1">
             {allLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
                 className={cn(
-                  "block px-4 py-3 rounded-xl text-sm font-medium transition-colors",
+                  "block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-medium transition-colors",
                   location.pathname === link.href
                     ? "bg-foreground/10 text-foreground"
                     : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
