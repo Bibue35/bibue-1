@@ -20,6 +20,7 @@ import { validateComment } from "@/lib/validation";
 import { WatchlistButton } from "./WatchlistButton";
 import { CharactersStaffTab } from "./CharactersStaffTab";
 import { MarkdownContent } from "./MarkdownContent";
+import { RelatedMedia } from "./RelatedMedia";
 
 interface AnimeDetailModalProps {
   animeId: number;
@@ -236,6 +237,15 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                 ))}
               </div>
             )}
+
+            {/* Related Media - Read the Manga */}
+            <div className="mt-4 sm:mt-6">
+              <RelatedMedia 
+                mediaId={animeId} 
+                mediaType="anime" 
+                onNavigate={() => onOpenChange(false)} 
+              />
+            </div>
           </div>
 
           {/* Tabs for Episodes, Characters and Comments */}

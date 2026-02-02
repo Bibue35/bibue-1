@@ -19,6 +19,7 @@ import { validateComment } from "@/lib/validation";
 import { WatchlistButton } from "./WatchlistButton";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
 import { MangaReader } from "./MangaReader";
+import { RelatedMedia } from "./RelatedMedia";
 import { cn } from "@/lib/utils";
 
 interface MangaDetailModalProps {
@@ -306,9 +307,16 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                 ))}
               </div>
             )}
-          </div>
 
-          {/* Tabs for Chapters and Comments */}
+            {/* Related Media - Watch the Anime */}
+            <div className="mt-4 sm:mt-6">
+              <RelatedMedia 
+                mediaId={mangaId} 
+                mediaType="manga" 
+                onNavigate={() => onOpenChange(false)} 
+              />
+            </div>
+          </div>
           <div className="px-4 sm:px-6 md:px-8 pb-6 sm:pb-8">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="mb-3 sm:mb-4">
