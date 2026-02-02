@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Filter, Grid, List, Bookmark, Sparkles, Loader2 } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
@@ -7,10 +7,12 @@ import { AnimeCard } from "@/components/AnimeCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { GenreSection } from "@/components/GenreSection";
 import { SearchDropdown } from "@/components/SearchDropdown";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTopAnime, useSeasonalAnime, useSearchAnime } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
 export default function AnimePage() {
@@ -24,6 +26,7 @@ export default function AnimePage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [localSearch, setLocalSearch] = useState(searchParams.get("q") || "");
   const resultsRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
   
   // Debounce search input (150ms default for faster response)
   const debouncedSearch = useDebounce(localSearch.trim());
@@ -47,6 +50,12 @@ export default function AnimePage() {
     setFilter(newFilter);
   };
 
+  // Pull-to-refresh handler
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ["topAnime"] });
+    await queryClient.invalidateQueries({ queryKey: ["seasonalAnime"] });
+  }, [queryClient]);
+
   const { data: topAnime, isLoading: topLoading } = useTopAnime(1, filter);
   const { data: seasonalAnime, isLoading: seasonalLoading } = useSeasonalAnime();
   const { data: searchResults, isLoading: searchLoading } = useSearchAnime(debouncedSearch, !!debouncedSearch);
@@ -66,7 +75,7 @@ export default function AnimePage() {
   const isLoading = isSearching ? searchLoading : (initialFilter === 'seasonal' ? seasonalLoading : topLoading);
 
   return (
-    <div className="min-h-screen bg-background">
+    <PullToRefresh onRefresh={handleRefresh}>
       <CollapsibleNavbar />
 
       {/* Hero with Search */}
@@ -271,6 +280,6 @@ export default function AnimePage() {
       </section>
 
       <Footer />
-    </div>
+    </PullToRefresh>
   );
 }

@@ -10,6 +10,7 @@ import { MangaCard } from "@/components/MangaCard";
 import { Footer } from "@/components/Footer";
 import { AdUnit } from "@/components/AdUnit";
 import { ScheduleSection } from "@/components/ScheduleSection";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { useTopAnime, useSeasonalAnime, useTopManga } from "@/hooks/useAnimeData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
@@ -18,7 +19,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Index = () => {
   const { data: popularAnime, isLoading: popularLoading } = useTopAnime(1, 'bypopularity');
@@ -29,6 +31,14 @@ const Index = () => {
   const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua');
   const { t } = useLanguage();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  // Pull-to-refresh handler
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ["topAnime"] });
+    await queryClient.invalidateQueries({ queryKey: ["seasonalAnime"] });
+    await queryClient.invalidateQueries({ queryKey: ["topManga"] });
+  }, [queryClient]);
 
   // Get recommended anime for hero section
   const heroAnime = useMemo(() => {
@@ -50,7 +60,7 @@ const Index = () => {
   }, [seasonalAnime, user]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <PullToRefresh onRefresh={handleRefresh}>
       <FloatingNav />
       
       {/* Hero Section */}
@@ -301,7 +311,7 @@ const Index = () => {
       </div>
 
       <Footer />
-    </div>
+    </PullToRefresh>
   );
 };
 
