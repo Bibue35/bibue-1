@@ -403,7 +403,7 @@ export async function getSeasonalAnime(year?: number, season?: string, language:
 }
 
 export async function getAnimeById(id: number, language: SupportedLanguage = "en"): Promise<Anime> {
-  // Try to fetch by AniList ID first
+  // All IDs in this app are AniList IDs - no fallback to MAL ID to prevent mismatches
   const query = `
     query ($id: Int) {
       Media(id: $id, type: ANIME) {
@@ -413,26 +413,7 @@ export async function getAnimeById(id: number, language: SupportedLanguage = "en
     }
   `;
 
-  try {
-    const data = await anilistQuery<{ Media: AniListMedia }>(query, { id });
-    if (data.Media) {
-      return toAnime(data.Media, language);
-    }
-  } catch (e) {
-    // If not found by AniList ID, try by MAL ID
-  }
-
-  // Fallback: search by MAL ID
-  const malQuery = `
-    query ($idMal: Int) {
-      Media(idMal: $idMal, type: ANIME) {
-        ${MEDIA_FRAGMENT}
-        stats { scoreDistribution { score amount } }
-      }
-    }
-  `;
-
-  const data = await anilistQuery<{ Media: AniListMedia }>(malQuery, { idMal: id });
+  const data = await anilistQuery<{ Media: AniListMedia }>(query, { id });
   return toAnime(data.Media, language);
 }
 
@@ -668,7 +649,7 @@ export async function getMangaByGenre(
 }
 
 export async function getMangaById(id: number, language: SupportedLanguage = "en"): Promise<Manga> {
-  // Try to fetch by AniList ID first
+  // All IDs in this app are AniList IDs - no fallback to MAL ID to prevent mismatches
   const query = `
     query ($id: Int) {
       Media(id: $id, type: MANGA) {
@@ -679,27 +660,7 @@ export async function getMangaById(id: number, language: SupportedLanguage = "en
     }
   `;
 
-  try {
-    const data = await anilistQuery<{ Media: AniListMedia }>(query, { id });
-    if (data.Media) {
-      return toManga(data.Media, language);
-    }
-  } catch (e) {
-    // If not found by AniList ID, try by MAL ID
-  }
-
-  // Fallback: search by MAL ID
-  const malQuery = `
-    query ($idMal: Int) {
-      Media(idMal: $idMal, type: MANGA) {
-        ${MEDIA_FRAGMENT}
-        stats { scoreDistribution { score amount } }
-        staff { nodes { id name { full } primaryOccupations } }
-      }
-    }
-  `;
-
-  const data = await anilistQuery<{ Media: AniListMedia }>(malQuery, { idMal: id });
+  const data = await anilistQuery<{ Media: AniListMedia }>(query, { id });
   return toManga(data.Media, language);
 }
 
