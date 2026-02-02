@@ -160,9 +160,9 @@ export function MangaReader({
   const goToNextChapter = () => onChapterChange(Math.min(lastChapter, selectedChapter + 1));
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#0a0a0a] overflow-hidden">
+    <div className="fixed inset-0 z-[100] isolate bg-[#0a0a0a] overflow-hidden">
       {/* Fixed Header - Always visible at top */}
-      <header className="absolute top-0 left-0 right-0 z-10 bg-[#0a0a0a] border-b border-border/20">
+      <header className="fixed top-0 left-0 right-0 z-[110] bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-border/20">
         <div className="flex items-center justify-between px-4 py-3">
           {/* Left: Logo and title */}
           <div className="flex items-center gap-4 min-w-0">
