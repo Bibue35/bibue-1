@@ -6,7 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { IncognitoProvider } from "@/contexts/IncognitoContext";
+import { MiniPlayerProvider } from "@/contexts/MiniPlayerContext";
 import { IncognitoOverlay } from "@/components/IncognitoOverlay";
+import { MiniPlayer } from "@/components/MiniPlayer";
 import Index from "./pages/Index";
 import AnimePage from "./pages/AnimePage";
 import MangaPage from "./pages/MangaPage";
@@ -33,27 +35,30 @@ const App = () => (
     <LanguageProvider>
       <AuthProvider>
         <IncognitoProvider>
-          <TooltipProvider>
-            <IncognitoOverlay />
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/anime" element={<AnimePage />} />
-                <Route path="/anime/:id" element={<AnimeDetail />} />
-                <Route path="/manga" element={<MangaPage />} />
-                <Route path="/manga/:id" element={<MangaDetail />} />
-                <Route path="/rankings" element={<Rankings />} />
-                <Route path="/news" element={<NewsPage />} />
-                <Route path="/community" element={<CommunityPage />} />
-                <Route path="/watchlist" element={<WatchlistPage />} />
-                <Route path="/recommendations" element={<RecommendationsPage />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
+          <MiniPlayerProvider>
+            <TooltipProvider>
+              <IncognitoOverlay />
+              <MiniPlayer />
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/anime" element={<AnimePage />} />
+                  <Route path="/anime/:id" element={<AnimeDetail />} />
+                  <Route path="/manga" element={<MangaPage />} />
+                  <Route path="/manga/:id" element={<MangaDetail />} />
+                  <Route path="/rankings" element={<Rankings />} />
+                  <Route path="/news" element={<NewsPage />} />
+                  <Route path="/community" element={<CommunityPage />} />
+                  <Route path="/watchlist" element={<WatchlistPage />} />
+                  <Route path="/recommendations" element={<RecommendationsPage />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </TooltipProvider>
+          </MiniPlayerProvider>
         </IncognitoProvider>
       </AuthProvider>
     </LanguageProvider>
