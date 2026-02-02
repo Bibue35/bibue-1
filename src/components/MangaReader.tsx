@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { validateComment } from "@/lib/validation";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
+import { useSwipeGesture } from "@/hooks/useSwipeGesture";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -160,11 +161,28 @@ export function MangaReader({
     scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const goToPrevChapter = () => onChapterChange(Math.max(firstChapter, selectedChapter - 1));
-  const goToNextChapter = () => onChapterChange(Math.min(lastChapter, selectedChapter + 1));
+  const goToPrevChapter = () => {
+    if (selectedChapter > firstChapter) {
+      onChapterChange(selectedChapter - 1);
+    }
+  };
+  
+  const goToNextChapter = () => {
+    if (selectedChapter < lastChapter) {
+      onChapterChange(selectedChapter + 1);
+    }
+  };
+
+  // Swipe gesture for chapter navigation
+  const { containerRef: swipeRef, swipeState } = useSwipeGesture({
+    onSwipeLeft: goToNextChapter,
+    onSwipeRight: goToPrevChapter,
+    threshold: 120,
+    minSwipeDistance: 30,
+  });
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] bg-[#0a0a0a] overflow-hidden">
+    <div ref={swipeRef} className="fixed inset-0 z-[9999] bg-[#0a0a0a] overflow-hidden">
       {/* Fixed Header - Collapsible on scroll */}
       <header 
         className={cn(
@@ -409,6 +427,52 @@ export function MangaReader({
           </div>
         </div>
       </div>
+
+      {/* Swipe Indicators */}
+      {swipeState.isSwiping && (
+        <>
+          {/* Left indicator (next chapter) */}
+          {swipeState.direction === "left" && (
+            <div 
+              className="fixed right-0 top-0 bottom-0 w-16 z-[10002] flex items-center justify-center pointer-events-none"
+              style={{
+                background: `linear-gradient(to left, hsl(var(--primary) / ${swipeState.progress * 0.4}), transparent)`,
+              }}
+            >
+              <div 
+                className="flex flex-col items-center gap-1 text-primary-foreground transition-transform"
+                style={{ 
+                  opacity: swipeState.progress,
+                  transform: `translateX(${(1 - swipeState.progress) * 20}px)` 
+                }}
+              >
+                <ChevronRight className="w-6 h-6" />
+                <span className="text-xs font-medium">Next</span>
+              </div>
+            </div>
+          )}
+          {/* Right indicator (previous chapter) */}
+          {swipeState.direction === "right" && (
+            <div 
+              className="fixed left-0 top-0 bottom-0 w-16 z-[10002] flex items-center justify-center pointer-events-none"
+              style={{
+                background: `linear-gradient(to right, hsl(var(--primary) / ${swipeState.progress * 0.4}), transparent)`,
+              }}
+            >
+              <div 
+                className="flex flex-col items-center gap-1 text-primary-foreground transition-transform"
+                style={{ 
+                  opacity: swipeState.progress,
+                  transform: `translateX(${(swipeState.progress - 1) * 20}px)` 
+                }}
+              >
+                <ChevronLeft className="w-6 h-6" />
+                <span className="text-xs font-medium">Prev</span>
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Back to Top Button */}
       <Button
