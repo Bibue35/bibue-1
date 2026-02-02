@@ -63,7 +63,7 @@ export function FeaturedCarousel({
 
   if (isLoading) {
     return (
-      <div className="relative aspect-[16/9] sm:aspect-[21/9] rounded-2xl overflow-hidden bg-muted animate-pulse" />
+      <div className="relative aspect-[4/5] sm:aspect-[16/9] overflow-hidden bg-muted animate-pulse" />
     );
   }
 
@@ -71,128 +71,138 @@ export function FeaturedCarousel({
 
   return (
     <>
-      <div className="relative overflow-hidden rounded-2xl group">
-        {/* Background Image with Parallax effect */}
-        <div className="relative aspect-[16/9] sm:aspect-[21/9] overflow-hidden">
+      {/* Full-bleed embedded hero - no card styling */}
+      <div className="relative overflow-hidden group -mx-3 sm:mx-0 sm:rounded-2xl">
+        {/* Background Image - taller on mobile for immersive feel */}
+        <div className="relative aspect-[3/4] sm:aspect-[16/9] overflow-hidden">
           <img
             src={currentItem.images.webp.large_image_url || currentItem.images.webp.image_url}
             alt={currentItem.title}
-            className="w-full h-full object-cover transition-transform duration-700"
+            className="w-full h-full object-cover object-top transition-transform duration-700"
           />
           
-          {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-transparent" />
+          {/* Smooth gradient that blends into page background */}
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
         </div>
 
-        {/* Content */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
+        {/* Content - positioned to feel integrated */}
+        <div className="absolute bottom-0 left-0 right-0 px-4 pb-6 sm:p-6 md:p-8">
           <div className="max-w-xl">
-            {/* Genre badges */}
-            <div className="flex flex-wrap gap-1.5 mb-2 sm:mb-3">
-              {currentItem.genres?.slice(0, 3).map((genre) => (
-                <span
-                  key={genre.mal_id}
-                  className="px-2 py-0.5 rounded-full bg-foreground/10 backdrop-blur-sm text-foreground/90 text-[10px] sm:text-xs font-medium"
-                >
-                  {genre.name}
+            {/* Rank indicator */}
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-5xl sm:text-6xl font-black text-foreground/10 leading-none">
+                #{currentIndex + 1}
+              </span>
+              {currentItem.status === "Currently Airing" && (
+                <span className="px-2 py-1 rounded-md bg-primary/20 text-primary text-[10px] font-semibold uppercase tracking-wider">
+                  Airing
                 </span>
-              ))}
+              )}
             </div>
 
             {/* Title */}
-            <h2 className="font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl line-clamp-2 mb-2 sm:mb-3">
+            <h2 className="font-bold text-2xl sm:text-3xl md:text-4xl line-clamp-2 mb-1">
               {currentItem.title}
             </h2>
 
             {/* Japanese title */}
             {currentItem.title_japanese && (
-              <p className="font-jp text-xs sm:text-sm text-foreground/70 mb-2 sm:mb-3 line-clamp-1">
+              <p className="font-jp text-sm text-muted-foreground mb-3 line-clamp-1">
                 {currentItem.title_japanese}
               </p>
             )}
 
-            {/* Stats */}
-            <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-5 text-xs sm:text-sm text-foreground/80">
+            {/* Meta row - minimal and clean */}
+            <div className="flex items-center gap-3 mb-4 text-sm text-muted-foreground">
               {currentItem.score && (
-                <span className="flex items-center gap-1 font-medium">
+                <span className="flex items-center gap-1 text-foreground font-medium">
                   <Star className="w-4 h-4 fill-primary text-primary" />
                   {formatScore(currentItem.score)}
                 </span>
               )}
               {currentItem.year && <span>{currentItem.year}</span>}
-              {currentItem.episodes && <span>{currentItem.episodes} episodes</span>}
-              {currentItem.status && (
-                <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-[10px] sm:text-xs">
-                  {currentItem.status === "Currently Airing" ? "Airing" : currentItem.status}
+              {currentItem.episodes && <span>{currentItem.episodes} eps</span>}
+              {currentItem.genres?.slice(0, 2).map((genre) => (
+                <span key={genre.mal_id} className="hidden sm:inline">
+                  {genre.name}
                 </span>
-              )}
+              ))}
             </div>
 
-            {/* Synopsis - hidden on small mobile */}
-            <p className="hidden sm:block text-sm text-foreground/70 line-clamp-2 mb-4">
-              {currentItem.synopsis}
-            </p>
-
-            {/* Action buttons */}
-            <div className="flex items-center gap-2 sm:gap-3">
+            {/* Action buttons - cleaner styling */}
+            <div className="flex items-center gap-3">
               <Button 
                 size="lg" 
                 onClick={handlePlay}
-                className="gap-2 rounded-full shadow-lg shadow-primary/30"
+                className="gap-2 rounded-full px-6"
               >
-                <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
-                <span className="hidden xs:inline">Watch Now</span>
-                <span className="xs:hidden">Play</span>
+                <Play className="w-4 h-4 fill-current" />
+                Watch
               </Button>
               <Button 
-                variant="secondary" 
+                variant="outline" 
                 size="lg" 
                 onClick={handleInfo}
-                className="gap-2 rounded-full"
+                className="gap-2 rounded-full px-6 bg-background/50 backdrop-blur-sm border-foreground/20"
               >
-                <Info className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="hidden xs:inline">More Info</span>
-                <span className="xs:hidden">Info</span>
+                <Info className="w-4 h-4" />
+                Details
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Navigation arrows - hidden on mobile, visible on hover for desktop */}
+        {/* Subtle swipe hint on mobile */}
         {items.length > 1 && (
-          <>
-            <button
-              onClick={handlePrev}
-              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background/80"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={handleNext}
-              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background/80"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </>
-        )}
-
-        {/* Dots indicator */}
-        {items.length > 1 && (
-          <div className="absolute bottom-4 sm:bottom-6 right-4 sm:right-6 flex items-center gap-1.5">
+          <div className="absolute top-4 right-4 flex items-center gap-1 sm:hidden">
             {items.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrentIndex(i)}
                 className={cn(
-                  "w-2 h-2 rounded-full transition-all",
+                  "w-1.5 h-1.5 rounded-full transition-all",
                   i === currentIndex
-                    ? "bg-primary w-6"
-                    : "bg-foreground/30 hover:bg-foreground/50"
+                    ? "bg-foreground w-4"
+                    : "bg-foreground/30"
                 )}
               />
             ))}
           </div>
+        )}
+
+        {/* Desktop navigation arrows */}
+        {items.length > 1 && (
+          <>
+            <button
+              onClick={handlePrev}
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/50 backdrop-blur-sm hidden sm:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background/80"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={handleNext}
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/50 backdrop-blur-sm hidden sm:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background/80"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+
+            {/* Desktop dots */}
+            <div className="absolute bottom-6 right-6 hidden sm:flex items-center gap-1.5">
+              {items.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentIndex(i)}
+                  className={cn(
+                    "w-2 h-2 rounded-full transition-all",
+                    i === currentIndex
+                      ? "bg-primary w-6"
+                      : "bg-foreground/30 hover:bg-foreground/50"
+                  )}
+                />
+              ))}
+            </div>
+          </>
         )}
       </div>
 
