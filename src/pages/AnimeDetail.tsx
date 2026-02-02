@@ -260,7 +260,7 @@ export default function AnimeDetailPage() {
             <div className="absolute top-0 left-0 right-0 z-[100] flex items-center justify-between px-4 sm:px-6 py-3 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
               {/* Left - Bibue Logo */}
               <Link
-                to="/"
+                to="/anime"
                 className="pointer-events-auto text-xl sm:text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors"
               >
                 Bibue

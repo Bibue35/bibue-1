@@ -164,7 +164,7 @@ export function MangaReader({
           {/* Left: Logo and title */}
           <div className="flex items-center gap-4 min-w-0">
             <Link
-              to="/"
+              to="/manga"
               className="text-xl font-sacred font-semibold text-foreground hover:text-primary transition-colors flex-shrink-0"
             >
               Bibue
