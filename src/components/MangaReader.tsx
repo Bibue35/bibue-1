@@ -76,11 +76,14 @@ export function MangaReader({
     }
   }, [selectedChapter, user, mangaTitle, mangaImageUrl]);
 
-  // Handle scroll for back-to-top button
+  // Handle scroll for back-to-top button and header visibility
   useEffect(() => {
     const handleScroll = () => {
       if (scrollRef.current) {
-        setShowBackToTop(scrollRef.current.scrollTop > 500);
+        const scrollTop = scrollRef.current.scrollTop;
+        setShowBackToTop(scrollTop > 500);
+        // Hide full header after scrolling 100px, show only Bibue
+        setShowControls(scrollTop < 100);
       }
     };
 
@@ -162,17 +165,22 @@ export function MangaReader({
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] bg-[#0a0a0a] overflow-hidden">
-      {/* Fixed Header - Always visible at top */}
-      <header className="fixed top-0 left-0 right-0 z-[10000] bg-[#0a0a0a] border-b border-border/20">
-        <div className="flex items-center justify-between px-4 py-3">
+      {/* Fixed Header - Collapsible on scroll */}
+      <header 
+        className={cn(
+          "fixed top-0 left-0 right-0 z-[10000] bg-[#0a0a0a] border-b border-border/20 transition-all duration-300",
+          !showControls && "border-transparent bg-transparent pointer-events-none"
+        )}
+      >
+        <div className={cn(
+          "flex items-center justify-between px-4 py-3 transition-opacity duration-300",
+          !showControls && "opacity-0"
+        )}>
           {/* Left: Logo and title */}
           <div className="flex items-center gap-4 min-w-0">
-            <Link
-              to="/manga"
-              className="text-xl font-sacred font-semibold text-foreground hover:text-primary transition-colors flex-shrink-0"
-            >
+            <span className="text-xl font-sacred font-semibold text-foreground flex-shrink-0">
               Bibue
-            </Link>
+            </span>
             <div className="hidden sm:block h-4 w-px bg-border/50" />
             <h1 className="hidden sm:block text-sm text-muted-foreground truncate max-w-[200px] lg:max-w-[400px]">
               {mangaTitle}
@@ -253,6 +261,22 @@ export function MangaReader({
           </Button>
         </div>
       </header>
+
+      {/* Floating Bibue - Always visible when header is hidden */}
+      <Link
+        to="/manga"
+        onClick={(e) => {
+          e.preventDefault();
+          onNavigate?.();
+          navigate("/manga");
+        }}
+        className={cn(
+          "fixed top-4 left-4 z-[10001] text-xl font-sacred font-semibold text-foreground hover:text-primary transition-all duration-300",
+          showControls && "opacity-0 pointer-events-none"
+        )}
+      >
+        Bibue
+      </Link>
 
       {/* Scrollable Content - below fixed header */}
       <div ref={scrollRef} className="absolute top-14 left-0 right-0 bottom-0 overflow-y-auto">
