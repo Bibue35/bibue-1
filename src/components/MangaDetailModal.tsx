@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { BookOpen, X, Star, Copy, Share2, MessageCircle, Send, User, ArrowUpDown, ThumbsUp, History } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import { formatDistanceToNow } from "date-fns";
 import { validateComment } from "@/lib/validation";
 import { WatchlistButton } from "./WatchlistButton";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
+import { MangaReader } from "./MangaReader";
 import { cn } from "@/lib/utils";
 
 interface MangaDetailModalProps {
@@ -27,15 +28,15 @@ interface MangaDetailModalProps {
 }
 
 export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailModalProps) {
-  const navigate = useNavigate();
   const { data: manga, isLoading } = useMangaDetails(mangaId, open);
   const [activeTab, setActiveTab] = useState("chapters");
   const [newComment, setNewComment] = useState("");
   const [sortBy, setSortBy] = useState<"latest" | "likes">("latest");
+  const [readingChapter, setReadingChapter] = useState<number | null>(null);
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { lastChapterRead, updateProgress } = useReadingProgress(mangaId, "manga");
+  const { lastChapterRead } = useReadingProgress(mangaId, "manga");
 
   // Generate ALL chapter data - no limits
   const generateChapters = (count: number) => {
@@ -109,17 +110,25 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
   };
 
   const handleRead = (chapterNumber: number) => {
-    // Update reading progress
-    if (user && manga) {
-      updateProgress({
-        chapterNumber,
-        title: manga.title,
-        imageUrl: manga.images?.webp?.large_image_url,
-      });
-    }
-    onOpenChange(false);
-    navigate(`/manga/${mangaId}`, { state: { chapter: chapterNumber, startReading: true } });
+    setReadingChapter(chapterNumber);
   };
+
+  // If reading, show the reader
+  if (readingChapter !== null && manga) {
+    return (
+      <MangaReader
+        mangaId={mangaId}
+        mangaTitle={manga.title}
+        mangaImageUrl={manga.images?.webp?.large_image_url}
+        selectedChapter={readingChapter}
+        totalChapters={totalChapters}
+        firstChapter={firstChapter}
+        lastChapter={lastChapter}
+        onChapterChange={setReadingChapter}
+        onClose={() => setReadingChapter(null)}
+      />
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
