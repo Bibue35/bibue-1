@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback, memo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,7 @@ interface HorizontalScrollProps {
   className?: string;
 }
 
-export function HorizontalScroll({
+export const HorizontalScroll = memo(function HorizontalScroll({
   children,
   title,
   titleJp,
@@ -22,35 +22,38 @@ export function HorizontalScroll({
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  const checkScroll = () => {
+  const checkScroll = useCallback(() => {
     if (!scrollRef.current) return;
     const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
     setCanScrollLeft(scrollLeft > 0);
     setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
-  };
+  }, []);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     
     checkScroll();
-    el.addEventListener("scroll", checkScroll);
-    window.addEventListener("resize", checkScroll);
+    el.addEventListener("scroll", checkScroll, { passive: true });
+    
+    // Use ResizeObserver instead of window resize for better performance
+    const resizeObserver = new ResizeObserver(checkScroll);
+    resizeObserver.observe(el);
     
     return () => {
       el.removeEventListener("scroll", checkScroll);
-      window.removeEventListener("resize", checkScroll);
+      resizeObserver.disconnect();
     };
-  }, []);
+  }, [checkScroll]);
 
-  const scroll = (direction: "left" | "right") => {
+  const scroll = useCallback((direction: "left" | "right") => {
     if (!scrollRef.current) return;
     const scrollAmount = scrollRef.current.clientWidth * 0.8;
     scrollRef.current.scrollBy({
       left: direction === "left" ? -scrollAmount : scrollAmount,
       behavior: "smooth",
     });
-  };
+  }, []);
 
   return (
     <div className={cn("relative group", className)}>
@@ -120,4 +123,4 @@ export function HorizontalScroll({
       </div>
     </div>
   );
-}
+});

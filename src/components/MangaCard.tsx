@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Star, BookOpen, Calendar, Bookmark } from "lucide-react";
 import { Manga, formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,7 @@ interface MangaCardProps {
   variant?: "default" | "compact";
 }
 
-export function MangaCard({ manga, index = 0, variant = "default" }: MangaCardProps) {
+export const MangaCard = memo(function MangaCard({ manga, index = 0, variant = "default" }: MangaCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
 
   // Format published date
@@ -151,4 +151,4 @@ export function MangaCard({ manga, index = 0, variant = "default" }: MangaCardPr
       />
     </>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo, useCallback } from "react";
 import { Star, Calendar, Play, Bookmark } from "lucide-react";
 import { Anime, formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,7 @@ interface AnimeCardProps {
   variant?: "default" | "compact";
 }
 
-export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardProps) {
+export const AnimeCard = memo(function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
 
   // Format aired date
@@ -153,4 +153,4 @@ export function AnimeCard({ anime, index = 0, variant = "default" }: AnimeCardPr
       />
     </>
   );
-}
+});

@@ -23,7 +23,8 @@ export function useTopAnime(page = 1, filter?: 'airing' | 'upcoming' | 'bypopula
   return useQuery({
     queryKey: ["topAnime", page, filter, language],
     queryFn: () => getTopAnime(page, 25, filter, language as SupportedLanguage),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 10, // 10 minutes - increased for less refetching
+    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
   });
 }
 
@@ -32,7 +33,8 @@ export function useSeasonalAnime(year?: number, season?: string) {
   return useQuery({
     queryKey: ["seasonalAnime", year, season, language],
     queryFn: () => getSeasonalAnime(year, season, language as SupportedLanguage),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
   });
 }
 
@@ -45,7 +47,8 @@ export function useTopManga(
   return useQuery({
     queryKey: ["topManga", page, type, sort, language],
     queryFn: () => getTopManga(page, 25, type, sort, language as SupportedLanguage),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
   });
 }
 
@@ -55,7 +58,8 @@ export function useSearchAnime(query: string, enabled = true) {
     queryKey: ["searchAnime", query, language],
     queryFn: () => searchAnime(query.trim(), 1, 25, language as SupportedLanguage),
     enabled: enabled && query.trim().length > 0,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
   });
 }
 
@@ -69,7 +73,8 @@ export function useSearchManga(
     queryKey: ["searchManga", query, filter, language],
     queryFn: () => searchManga(query.trim(), 1, 25, filter, language as SupportedLanguage),
     enabled: enabled && query.trim().length > 0,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
   });
 }
 
@@ -79,7 +84,8 @@ export function useAnimeDetails(id: number, enabled = true) {
     queryKey: ["anime", id, language],
     queryFn: () => getAnimeById(id, language as SupportedLanguage),
     enabled,
-    staleTime: 1000 * 60 * 10,
+    staleTime: 1000 * 60 * 15, // Details can be cached longer
+    gcTime: 1000 * 60 * 60, // 1 hour
   });
 }
 
@@ -89,7 +95,8 @@ export function useMangaDetails(id: number, enabled = true) {
     queryKey: ["manga", id, language],
     queryFn: () => getMangaById(id, language as SupportedLanguage),
     enabled,
-    staleTime: 1000 * 60 * 10,
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 60,
   });
 }
 
@@ -98,7 +105,8 @@ export function useSchedule(day?: string) {
   return useQuery({
     queryKey: ["schedule", day, language],
     queryFn: () => getSchedule(day, language as SupportedLanguage),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
   });
 }
 
@@ -107,7 +115,8 @@ export function useScheduleByDay(day: string) {
   return useQuery<ScheduleItem[]>({
     queryKey: ["scheduleByDay", day, language],
     queryFn: () => getScheduleByDay(day, language as SupportedLanguage),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
   });
 }
 
@@ -117,7 +126,8 @@ export function useAnimeRecommendations(id: number | undefined, enabled = true) 
     queryKey: ["animeRecommendations", id, language],
     queryFn: () => getAnimeRecommendations(id!, language as SupportedLanguage),
     enabled: enabled && !!id,
-    staleTime: 1000 * 60 * 10,
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 60,
   });
 }
 
@@ -127,6 +137,7 @@ export function useMangaRecommendations(id: number | undefined, enabled = true) 
     queryKey: ["mangaRecommendations", id, language],
     queryFn: () => getMangaRecommendations(id!, language as SupportedLanguage),
     enabled: enabled && !!id,
-    staleTime: 1000 * 60 * 10,
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 60,
   });
 }
