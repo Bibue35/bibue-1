@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, memo } from "react";
 import { ChevronLeft, ChevronRight, Play, Star, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Anime, formatScore } from "@/lib/api";
@@ -13,7 +13,7 @@ interface FeaturedCarouselProps {
   autoPlayInterval?: number;
 }
 
-export function FeaturedCarousel({ 
+export const FeaturedCarousel = memo(function FeaturedCarousel({ 
   items, 
   isLoading = false,
   autoPlay = true,
@@ -22,11 +22,9 @@ export function FeaturedCarousel({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedAnimeId, setSelectedAnimeId] = useState<number | null>(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [scrollY, setScrollY] = useState(0);
   const navigate = useNavigate();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const currentItem = items[currentIndex];
@@ -44,56 +42,57 @@ export function FeaturedCarousel({
     };
   }, [autoPlay, autoPlayInterval, items.length]);
 
-  // Scroll parallax effect
+  // Optimized scroll parallax with requestAnimationFrame
   useEffect(() => {
+    let rafId: number;
+    let ticking = false;
+
     const handleScroll = () => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      // Only apply parallax when hero is visible
-      if (rect.bottom > 0 && rect.top < viewportHeight) {
-        const progress = (viewportHeight - rect.top) / (viewportHeight + rect.height);
-        setScrollY(progress * 60); // Max 60px movement
+      if (!ticking) {
+        rafId = requestAnimationFrame(() => {
+          if (!containerRef.current) {
+            ticking = false;
+            return;
+          }
+          const rect = containerRef.current.getBoundingClientRect();
+          const viewportHeight = window.innerHeight;
+          if (rect.bottom > 0 && rect.top < viewportHeight) {
+            const progress = (viewportHeight - rect.top) / (viewportHeight + rect.height);
+            setScrollY(progress * 40); // Reduced movement for performance
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // Initial call
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
-  };
+  }, [items.length]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % items.length);
-  };
+  }, [items.length]);
 
-  const handlePlay = () => {
+  const handlePlay = useCallback(() => {
     if (currentItem) {
       navigate(`/anime/${currentItem.mal_id}`, { state: { episode: 1 } });
     }
-  };
+  }, [currentItem, navigate]);
 
-  const handleInfo = () => {
+  const handleInfo = useCallback(() => {
     if (currentItem) {
       setSelectedAnimeId(currentItem.mal_id);
       setModalOpen(true);
     }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setTilt({ x: y * -8, y: x * 8 });
-  };
-
-  const handleMouseLeave = () => {
-    setTilt({ x: 0, y: 0 });
-  };
+  }, [currentItem]);
 
   if (isLoading) {
     return (
@@ -105,31 +104,21 @@ export function FeaturedCarousel({
 
   return (
     <>
-      {/* Hero with soft parallax tilt on hover + scroll parallax */}
+      {/* Hero with scroll parallax - simplified for performance */}
       <div ref={containerRef} className="relative py-4 sm:py-6">
-        <div 
-          ref={cardRef}
-          className="relative group mx-auto"
-          style={{ perspective: "1000px" }}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-        >
-          {/* Main hero card */}
-          <div 
-            className="relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-xl transition-transform duration-300 ease-out"
-            style={{ 
-              transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-              transformStyle: "preserve-3d",
-            }}
-          >
-            {/* Background Image with scroll parallax */}
+        <div className="relative group mx-auto">
+          {/* Main hero card - removed 3D tilt for performance */}
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-xl">
+            {/* Background Image with GPU-accelerated parallax */}
             <div className="relative aspect-[3/4] sm:aspect-[16/9] overflow-hidden">
               <img
                 src={currentItem.images.webp.large_image_url || currentItem.images.webp.image_url}
                 alt={currentItem.title}
-                className="w-full h-full object-cover object-top transition-transform duration-100 ease-out group-hover:scale-105"
+                loading="eager"
+                decoding="async"
+                className="w-full h-full object-cover object-top will-change-transform"
                 style={{
-                  transform: `translateY(${-scrollY}px) scale(1.1)`,
+                  transform: `translate3d(0, ${-scrollY}px, 0) scale(1.1)`,
                 }}
               />
               
@@ -253,4 +242,4 @@ export function FeaturedCarousel({
       )}
     </>
   );
-}
+});

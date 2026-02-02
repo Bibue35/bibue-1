@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo, useCallback } from "react";
 import { Star, Play, Plus, Check } from "lucide-react";
 import { Anime, formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ interface MobileAnimeCardProps {
   progress?: number;
 }
 
-export function MobileAnimeCard({ 
+export const MobileAnimeCard = memo(function MobileAnimeCard({ 
   anime, 
   index = 0, 
   variant = "default",
@@ -28,7 +28,7 @@ export function MobileAnimeCard({
   const { toast } = useToast();
   const isBookmarked = isInWatchlist(anime.mal_id, "anime");
 
-  const handleSave = (e: React.MouseEvent) => {
+  const handleSave = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (!user) {
       toast({ title: "Sign in to save", variant: "destructive" });
@@ -46,7 +46,7 @@ export function MobileAnimeCard({
         score: anime.score,
       });
     }
-  };
+  }, [user, isBookmarked, anime, addToWatchlist, removeFromWatchlist, toast]);
 
   const getAiredInfo = () => {
     if (anime.aired?.from) {
@@ -304,4 +304,4 @@ export function MobileAnimeCard({
       />
     </>
   );
-}
+});
