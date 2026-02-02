@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
-import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, ThumbsUp, ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, ThumbsUp, ArrowUpDown, ChevronLeft, ChevronRight, PictureInPicture2 } from "lucide-react";
 import { ResolutionSelector, type Resolution } from "@/components/ResolutionSelector";
 import { CollapsibleEpisodeList } from "@/components/CollapsibleEpisodeList";
 import { Button } from "@/components/ui/button";
@@ -17,9 +17,11 @@ import { useToast } from "@/hooks/use-toast";
 import { validateComment } from "@/lib/validation";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useSwipeGesture } from "@/hooks/useSwipeGesture";
+import { useMiniPlayer } from "@/contexts/MiniPlayerContext";
 
 export default function AnimeDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { data: anime, isLoading, error } = useAnimeDetails(Number(id));
   const [selectedEpisode, setSelectedEpisode] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -33,6 +35,7 @@ export default function AnimeDetailPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { addToWatchlist, removeFromWatchlist, isInWatchlist, isLoading: watchlistLoading } = useWatchlist();
+  const { activateMiniPlayer } = useMiniPlayer();
   
   const isBookmarked = isInWatchlist(Number(id), "anime");
 
@@ -108,6 +111,22 @@ export default function AnimeDetailPage() {
     }
     setIsFavorite(!isFavorite);
     toast({ title: isFavorite ? "Removed from favorites" : "Added to favorites!" });
+  };
+
+  // Handle minimize to mini-player
+  const handleMinimize = () => {
+    if (!anime) return;
+    const episodes = generateEpisodes(anime.episodes || 12);
+    activateMiniPlayer({
+      animeId: Number(id),
+      animeTitle: anime.title,
+      animeTitleJapanese: anime.title_japanese,
+      episodeNumber: selectedEpisode,
+      totalEpisodes: episodes.length,
+      thumbnail: anime.images?.webp?.large_image_url,
+      youtubeId: anime.trailer?.youtube_id,
+    });
+    navigate("/anime");
   };
 
   const { data: comments, isLoading: commentsLoading } = useQuery({
@@ -324,6 +343,13 @@ export default function AnimeDetailPage() {
                 >
                   <Heart className={cn("w-3.5 h-3.5 sm:w-4 sm:h-4", isFavorite && "fill-current")} />
                 </Button>
+                <button
+                  onClick={handleMinimize}
+                  className="p-1.5 sm:p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white/70 hover:text-white"
+                  title="Mini player"
+                >
+                  <PictureInPicture2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </button>
                 <button
                   onClick={toggleFullscreen}
                   className="p-1.5 sm:p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white/70 hover:text-white"
