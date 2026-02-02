@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { Search, X, Film, BookOpen, Loader2, Clock, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSearchAnime, useSearchManga } from "@/hooks/useAnimeData";
-import { cn } from "@/lib/utils";
 
 const RECENT_SEARCHES_KEY = "recentSearches";
 const MAX_RECENT_SEARCHES = 8;
@@ -36,15 +35,15 @@ interface SearchModalProps {
 
 export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<"anime" | "manga">("anime");
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const navigate = useNavigate();
 
-  const { data: animeResults, isLoading: animeLoading } = useSearchAnime(query, activeTab === "anime");
-  const { data: mangaResults, isLoading: mangaLoading } = useSearchManga(query, activeTab === "manga");
+  // Search both anime and manga simultaneously
+  const { data: animeResults, isLoading: animeLoading } = useSearchAnime(query, query.trim().length > 0);
+  const { data: mangaResults, isLoading: mangaLoading } = useSearchManga(query, query.trim().length > 0);
 
-  const results = activeTab === "anime" ? animeResults : mangaResults;
-  const isLoading = activeTab === "anime" ? animeLoading : mangaLoading;
+  const isLoading = animeLoading || mangaLoading;
+  const hasResults = (animeResults && animeResults.length > 0) || (mangaResults && mangaResults.length > 0);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -65,9 +64,9 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     };
   }, [isOpen, handleKeyDown]);
 
-  const handleSelectResult = (item: { mal_id: number; title: string }) => {
+  const handleSelectResult = (type: "anime" | "manga", item: { mal_id: number; title: string }) => {
     saveRecentSearch(query);
-    navigate(`/${activeTab}/${item.mal_id}`);
+    navigate(`/${type}/${item.mal_id}`);
     onClose();
   };
 
@@ -99,7 +98,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search anime, manga..."
+                placeholder="Search anime & manga..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 autoFocus
@@ -117,85 +116,116 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           </div>
 
-          {/* Tabs */}
-          <div className="flex gap-2 mt-4">
-            <button
-              onClick={() => setActiveTab("anime")}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
-                activeTab === "anime"
-                  ? "bg-foreground text-background"
-                  : "liquid-glass-subtle text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Film className="w-4 h-4" />
-              Anime
-            </button>
-            <button
-              onClick={() => setActiveTab("manga")}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
-                activeTab === "manga"
-                  ? "bg-foreground text-background"
-                  : "liquid-glass-subtle text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <BookOpen className="w-4 h-4" />
-              Manga
-            </button>
-          </div>
-
           {/* Results */}
           {query.trim().length > 0 && (
-            <div className="mt-4 liquid-glass-strong rounded-2xl max-h-[50vh] overflow-y-auto custom-scrollbar">
-              {isLoading ? (
+            <div className="mt-4 liquid-glass-strong rounded-2xl max-h-[60vh] overflow-y-auto custom-scrollbar">
+              {isLoading && !hasResults ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-8 h-8 animate-spin text-primary" />
                 </div>
-              ) : results && results.length > 0 ? (
-                <div className="p-2">
-                  {results.slice(0, 8).map((item) => (
-                    <button
-                      key={item.mal_id}
-                      onClick={() => handleSelectResult(item)}
-                      className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-all duration-300 text-left group"
-                    >
-                      <img
-                        src={item.images.webp.image_url}
-                        alt={item.title}
-                        className="w-12 h-16 object-cover rounded-lg"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium truncate group-hover:text-foreground/80 transition-colors">
-                          {item.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground truncate">
-                          {item.title_japanese}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          {item.score && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-foreground/10 text-foreground">
-                              ★ {item.score}
-                            </span>
-                          )}
-                          {'episodes' in item && item.episodes && (
-                            <span className="text-xs text-muted-foreground">
-                              {item.episodes} eps
-                            </span>
-                          )}
-                          {'chapters' in item && item.chapters && (
-                            <span className="text-xs text-muted-foreground">
-                              {item.chapters} ch
-                            </span>
-                          )}
-                        </div>
+              ) : hasResults ? (
+                <div className="p-2 space-y-4">
+                  {/* Anime Section */}
+                  {animeResults && animeResults.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground">
+                        <Film className="w-4 h-4" />
+                        <span>Anime</span>
+                        <span className="text-xs opacity-60">({animeResults.length})</span>
                       </div>
-                    </button>
-                  ))}
+                      <div>
+                        {animeResults.slice(0, 5).map((item) => (
+                          <button
+                            key={`anime-${item.mal_id}`}
+                            onClick={() => handleSelectResult("anime", item)}
+                            className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-all duration-300 text-left group"
+                          >
+                            <img
+                              src={item.images.webp.image_url}
+                              alt={item.title}
+                              className="w-12 h-16 object-cover rounded-lg"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-medium truncate group-hover:text-foreground/80 transition-colors">
+                                {item.title}
+                              </h3>
+                              <p className="text-sm text-muted-foreground truncate">
+                                {item.title_japanese}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                {item.score && (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-foreground/10 text-foreground">
+                                    ★ {item.score}
+                                  </span>
+                                )}
+                                {item.episodes && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {item.episodes} eps
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Manga Section */}
+                  {mangaResults && mangaResults.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground border-t border-border/50 pt-4">
+                        <BookOpen className="w-4 h-4" />
+                        <span>Manga</span>
+                        <span className="text-xs opacity-60">({mangaResults.length})</span>
+                      </div>
+                      <div>
+                        {mangaResults.slice(0, 5).map((item) => (
+                          <button
+                            key={`manga-${item.mal_id}`}
+                            onClick={() => handleSelectResult("manga", item)}
+                            className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-all duration-300 text-left group"
+                          >
+                            <img
+                              src={item.images.webp.image_url}
+                              alt={item.title}
+                              className="w-12 h-16 object-cover rounded-lg"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-medium truncate group-hover:text-foreground/80 transition-colors">
+                                {item.title}
+                              </h3>
+                              <p className="text-sm text-muted-foreground truncate">
+                                {item.title_japanese}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                {item.score && (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-foreground/10 text-foreground">
+                                    ★ {item.score}
+                                  </span>
+                                )}
+                                {item.chapters && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {item.chapters} ch
+                                  </span>
+                                )}
+                                {item.type && (
+                                  <span className="text-xs text-muted-foreground capitalize">
+                                    {item.type}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="py-12 text-center text-muted-foreground">
-                  No results found for "{query.trim()}"
+                  <p className="mb-1">No results found for "{query.trim()}"</p>
+                  <p className="text-sm opacity-70">Try checking your spelling or using different keywords</p>
                 </div>
               )}
             </div>
@@ -234,7 +264,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
               ) : (
                 <div className="text-center text-muted-foreground">
                   <p className="font-jp text-lg mb-2">検索してください</p>
-                  <p className="text-sm">Start typing to search for anime or manga</p>
+                  <p className="text-sm">Start typing to search anime & manga</p>
                 </div>
               )}
             </div>
