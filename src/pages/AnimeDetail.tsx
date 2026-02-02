@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, Eye, ChevronLeft, ChevronRight, ThumbsUp, ArrowUpDown } from "lucide-react";
+import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, ThumbsUp, ArrowUpDown } from "lucide-react";
 import { ResolutionSelector, type Resolution } from "@/components/ResolutionSelector";
+import { CollapsibleEpisodeList } from "@/components/CollapsibleEpisodeList";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -238,220 +239,108 @@ export default function AnimeDetailPage() {
   }
 
   const episodes = anime ? generateEpisodes(anime.episodes || 12) : [];
-  const currentEpisode = episodes.find(ep => ep.number === selectedEpisode);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* ============ SECTION 1: FULLSCREEN VIDEO PLAYER - AnimeRealms Style ============ */}
+      {/* ============ SECTION 1: FULLSCREEN VIDEO PLAYER ============ */}
       <section 
         ref={playerRef}
         className={cn(
-          "relative bg-black transition-all duration-300",
+          "relative bg-black transition-all duration-300 flex flex-col",
           isFullscreen ? "fixed inset-0 z-50" : "h-screen"
         )}
       >
         {isLoading ? (
-          <div className="w-full h-full flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center">
             <Skeleton className="w-full h-full" />
           </div>
         ) : (
           <>
-            {/* Top Left - Bibue Logo (Always visible, never fades) */}
-            <Link
-              to="/"
-              className="absolute top-6 left-6 z-[60] text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors drop-shadow-lg"
-            >
-              Bibue
-            </Link>
+            {/* Top Header Bar - Fixed, always accessible */}
+            <div className="absolute top-0 left-0 right-0 z-[100] flex items-center justify-between px-4 sm:px-6 py-3 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
+              {/* Left - Bibue Logo */}
+              <Link
+                to="/"
+                className="pointer-events-auto text-xl sm:text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors"
+              >
+                Bibue
+              </Link>
 
-            {/* Top Right Controls (fade with showControls) */}
-            <div className={cn(
-              "absolute top-6 right-6 z-40 flex items-center gap-3 transition-all duration-500",
-              showControls ? "opacity-100" : "opacity-0 pointer-events-none"
-            )}>
-              <ResolutionSelector value={resolution} onChange={setResolution} />
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleBookmarkToggle}
-                disabled={watchlistLoading}
-                className={cn(
-                  "h-10 w-10 hover:bg-white/10 rounded-full transition-all",
-                  isBookmarked ? "text-primary" : "text-white/70 hover:text-white"
-                )}
-              >
-                <Bookmark className={cn("w-5 h-5", isBookmarked && "fill-current")} />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleFavoriteToggle}
-                className={cn(
-                  "h-10 w-10 hover:bg-white/10 rounded-full transition-all",
-                  isFavorite ? "text-destructive" : "text-white/70 hover:text-white"
-                )}
-              >
-                <Heart className={cn("w-5 h-5", isFavorite && "fill-current")} />
-              </Button>
-              <button
-                onClick={toggleFullscreen}
-                className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white/70 hover:text-white"
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="w-5 h-5" />
-                ) : (
-                  <Maximize2 className="w-5 h-5" />
-                )}
-              </button>
+              {/* Right - Controls */}
+              <div className={cn(
+                "pointer-events-auto flex items-center gap-2 transition-all duration-300",
+                showControls ? "opacity-100" : "opacity-0"
+              )}>
+                <ResolutionSelector value={resolution} onChange={setResolution} />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={handleBookmarkToggle}
+                  disabled={watchlistLoading}
+                  className={cn(
+                    "h-9 w-9 hover:bg-white/10 rounded-full transition-all",
+                    isBookmarked ? "text-primary" : "text-white/70 hover:text-white"
+                  )}
+                >
+                  <Bookmark className={cn("w-4 h-4", isBookmarked && "fill-current")} />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={handleFavoriteToggle}
+                  className={cn(
+                    "h-9 w-9 hover:bg-white/10 rounded-full transition-all",
+                    isFavorite ? "text-destructive" : "text-white/70 hover:text-white"
+                  )}
+                >
+                  <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
+                </Button>
+                <button
+                  onClick={toggleFullscreen}
+                  className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white/70 hover:text-white"
+                >
+                  {isFullscreen ? (
+                    <Minimize2 className="w-4 h-4" />
+                  ) : (
+                    <Maximize2 className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
             </div>
 
-            {/* Video Player Area */}
-            <div className="w-full h-full">
+            {/* Video Player Area - Takes remaining space */}
+            <div className="flex-1 relative">
               {anime?.trailer?.youtube_id ? (
                 <iframe
                   src={`https://www.youtube.com/embed/${anime.trailer.youtube_id}?autoplay=0&rel=0&modestbranding=1&iv_load_policy=3`}
                   title={`${anime.title} - Episode ${selectedEpisode}`}
-                  className="w-full h-full"
+                  className="absolute inset-0 w-full h-full"
                   allowFullScreen
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-background/80 to-background">
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-background/80 to-background">
                   <div className="text-center">
-                    <div className="w-24 h-24 rounded-full bg-foreground/10 flex items-center justify-center mb-6 mx-auto">
-                      <Play className="w-10 h-10 text-foreground" />
+                    <div className="w-20 h-20 rounded-full bg-foreground/10 flex items-center justify-center mb-4 mx-auto">
+                      <Play className="w-8 h-8 text-foreground" />
                     </div>
-                    <h2 className="text-2xl font-sacred font-bold mb-2">{anime?.title}</h2>
-                    <p className="text-muted-foreground">Episode {selectedEpisode}</p>
-                    <p className="text-sm text-muted-foreground mt-4">Video player coming soon</p>
+                    <h2 className="text-xl font-sacred font-bold mb-1">{anime?.title}</h2>
+                    <p className="text-muted-foreground text-sm">Episode {selectedEpisode}</p>
+                    <p className="text-xs text-muted-foreground mt-2">Video player coming soon</p>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Bottom Episode Carousel - AnimeRealms Style */}
-            <div className={cn(
-              "absolute bottom-0 left-0 right-0 transition-all duration-500",
-              showControls ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
-            )}>
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none" />
-              
-              <div className="relative px-4 sm:px-8 pb-6 pt-20">
-                {/* Currently Playing Info */}
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="flex-1">
-                    <h2 className="text-white font-bold text-lg sm:text-xl truncate">{anime?.title}</h2>
-                    <p className="text-white/60 text-sm">Episode {selectedEpisode} • {currentEpisode?.title}</p>
-                  </div>
-                  <div className="flex items-center gap-2 text-white/60 text-sm">
-                    <span>EP {selectedEpisode}/{episodes.length}</span>
-                  </div>
-                </div>
-
-                {/* Episode Carousel */}
-                <div className="relative group">
-                  {/* Scroll Left Button */}
-                  <button 
-                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/80 hover:bg-black rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2"
-                    onClick={() => {
-                      const container = document.getElementById('episode-carousel');
-                      if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
-                    }}
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-
-                  {/* Episodes */}
-                  <div 
-                    id="episode-carousel"
-                    className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                  >
-                    {episodes.map((ep) => {
-                      const isPlaying = selectedEpisode === ep.number;
-                      const isWatched = ep.number < selectedEpisode;
-                      
-                      return (
-                        <button
-                          key={ep.number}
-                          onClick={() => setSelectedEpisode(ep.number)}
-                          className={cn(
-                            "flex-shrink-0 w-40 sm:w-48 group/card text-left rounded-lg overflow-hidden transition-all duration-200",
-                            isPlaying 
-                              ? "ring-2 ring-primary scale-105" 
-                              : "hover:scale-102 hover:ring-1 hover:ring-white/30"
-                          )}
-                        >
-                          {/* Thumbnail */}
-                          <div className="relative aspect-video bg-black/50">
-                            <img
-                              src={ep.thumbnail}
-                              alt={ep.title}
-                              className={cn(
-                                "w-full h-full object-cover transition-all",
-                                isWatched && "opacity-60"
-                              )}
-                            />
-                            
-                            {/* Now Playing Badge */}
-                            {isPlaying && (
-                              <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                                <div className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1">
-                                  <Play className="w-3 h-3 fill-current" />
-                                  NOW PLAYING
-                                </div>
-                              </div>
-                            )}
-                            
-                            {/* Play overlay on hover */}
-                            {!isPlaying && (
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/card:opacity-100 transition-opacity flex items-center justify-center">
-                                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                  <Play className="w-4 h-4 text-white fill-white" />
-                                </div>
-                              </div>
-                            )}
-                            
-                            {/* Watched indicator */}
-                            {isWatched && (
-                              <div className="absolute top-1.5 left-1.5 p-1 rounded-full bg-primary/80">
-                                <Eye className="w-2.5 h-2.5 text-white" />
-                              </div>
-                            )}
-                            
-                            {/* Episode number badge */}
-                            <div className="absolute bottom-1.5 right-1.5 bg-black/70 text-white text-xs font-bold px-1.5 py-0.5 rounded">
-                              E{ep.number}
-                            </div>
-                          </div>
-                          
-                          {/* Episode title */}
-                          <div className="p-2 bg-black/60">
-                            <p className={cn(
-                              "text-xs font-medium truncate",
-                              isPlaying ? "text-primary" : "text-white/80"
-                            )}>
-                              {ep.title}
-                            </p>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Scroll Right Button */}
-                  <button 
-                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/80 hover:bg-black rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity translate-x-2"
-                    onClick={() => {
-                      const container = document.getElementById('episode-carousel');
-                      if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
-                    }}
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
+            {/* Bottom - Collapsible Episode List */}
+            <div className="relative z-[90]">
+              <CollapsibleEpisodeList
+                episodes={episodes}
+                selectedEpisode={selectedEpisode}
+                onSelectEpisode={setSelectedEpisode}
+                animeTitle={anime?.title}
+                totalEpisodes={anime?.episodes || episodes.length}
+              />
             </div>
           </>
         )}
