@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, ThumbsUp, ArrowUpDown } from "lucide-react";
+import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, ThumbsUp, ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { ResolutionSelector, type Resolution } from "@/components/ResolutionSelector";
 import { CollapsibleEpisodeList } from "@/components/CollapsibleEpisodeList";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { validateComment } from "@/lib/validation";
 import { useWatchlist } from "@/hooks/useWatchlist";
+import { useSwipeGesture } from "@/hooks/useSwipeGesture";
 
 export default function AnimeDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -239,12 +240,40 @@ export default function AnimeDetailPage() {
   }
 
   const episodes = anime ? generateEpisodes(anime.episodes || 12) : [];
+  const totalEpisodes = episodes.length;
+
+  // Episode navigation functions for swipe
+  const goToPrevEpisode = () => {
+    if (selectedEpisode > 1) {
+      setSelectedEpisode(selectedEpisode - 1);
+    }
+  };
+
+  const goToNextEpisode = () => {
+    if (selectedEpisode < totalEpisodes) {
+      setSelectedEpisode(selectedEpisode + 1);
+    }
+  };
+
+  // Swipe gesture for episode navigation
+  const { containerRef: swipeRef, swipeState } = useSwipeGesture({
+    onSwipeLeft: goToNextEpisode,
+    onSwipeRight: goToPrevEpisode,
+    threshold: 120,
+    minSwipeDistance: 30,
+  });
 
   return (
     <div className="min-h-screen bg-background">
       {/* ============ SECTION 1: FULLSCREEN VIDEO PLAYER ============ */}
       <section 
-        ref={playerRef}
+        ref={(el) => {
+          // Combine refs for both fullscreen and swipe
+          (playerRef as React.MutableRefObject<HTMLElement | null>).current = el;
+          if (swipeRef) {
+            (swipeRef as React.MutableRefObject<HTMLDivElement | null>).current = el as HTMLDivElement;
+          }
+        }}
         className={cn(
           "relative bg-black transition-all duration-300 flex flex-col",
           isFullscreen ? "fixed inset-0 z-50" : "h-screen"
@@ -331,6 +360,52 @@ export default function AnimeDetailPage() {
                 </div>
               )}
             </div>
+
+            {/* Swipe Indicators */}
+            {swipeState.isSwiping && (
+              <>
+                {/* Left indicator (next episode) */}
+                {swipeState.direction === "left" && selectedEpisode < totalEpisodes && (
+                  <div 
+                    className="absolute right-0 top-0 bottom-0 w-16 z-[95] flex items-center justify-center pointer-events-none"
+                    style={{
+                      background: `linear-gradient(to left, hsl(var(--primary) / ${swipeState.progress * 0.5}), transparent)`,
+                    }}
+                  >
+                    <div 
+                      className="flex flex-col items-center gap-1 text-white transition-transform"
+                      style={{ 
+                        opacity: swipeState.progress,
+                        transform: `translateX(${(1 - swipeState.progress) * 20}px)` 
+                      }}
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                      <span className="text-xs font-medium">Ep {selectedEpisode + 1}</span>
+                    </div>
+                  </div>
+                )}
+                {/* Right indicator (previous episode) */}
+                {swipeState.direction === "right" && selectedEpisode > 1 && (
+                  <div 
+                    className="absolute left-0 top-0 bottom-0 w-16 z-[95] flex items-center justify-center pointer-events-none"
+                    style={{
+                      background: `linear-gradient(to right, hsl(var(--primary) / ${swipeState.progress * 0.5}), transparent)`,
+                    }}
+                  >
+                    <div 
+                      className="flex flex-col items-center gap-1 text-white transition-transform"
+                      style={{ 
+                        opacity: swipeState.progress,
+                        transform: `translateX(${(swipeState.progress - 1) * 20}px)` 
+                      }}
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                      <span className="text-xs font-medium">Ep {selectedEpisode - 1}</span>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
 
             {/* Bottom - Collapsible Episode List */}
             <div className="relative z-[90]">
