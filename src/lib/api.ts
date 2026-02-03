@@ -5,7 +5,6 @@ const ANILIST_API = "https://graphql.anilist.co";
 export type SupportedLanguage = "en" | "ja" | "es" | "fr" | "de" | "pt" | "ko" | "zh";
 
 // Helper to get the appropriate title based on language preference
-// Prioritizes Romaji for most cases as it's the most recognizable form for anime/manga titles
 function getTitleForLanguage(
   title: { romaji?: string; english?: string; native?: string },
   language: SupportedLanguage = "en"
@@ -14,8 +13,11 @@ function getTitleForLanguage(
   if (language === "ja") {
     return title.native || title.romaji || title.english || "Unknown";
   }
-  // For all other languages, prefer Romaji first (more recognizable for anime fans)
-  // then fall back to English, then native
+  // For English, prefer English title if available
+  if (language === "en") {
+    return title.english || title.romaji || title.native || "Unknown";
+  }
+  // For all other languages, prefer Romaji (more recognizable for anime fans)
   return title.romaji || title.english || title.native || "Unknown";
 }
 
