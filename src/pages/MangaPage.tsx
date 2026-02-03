@@ -1,13 +1,15 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Grid, List, Bookmark, Sparkles, Loader2, ArrowUpDown } from "lucide-react";
+import { Grid, List, Bookmark, Sparkles, Loader2, ArrowUpDown, Flame, TrendingUp, Trophy, Star, Zap } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { GenreSection } from "@/components/GenreSection";
+import { ContentSection } from "@/components/ContentSection";
 import { SearchDropdown } from "@/components/SearchDropdown";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { CardSkeletonRow } from "@/components/skeletons";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,9 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useTopManga, useSearchManga } from "@/hooks/useAnimeData";
+import { useTopManga, useSearchManga, useTrendingManhwa, useTrendingManhua } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
 type SortOption = "popularity" | "score" | "newest";
@@ -37,6 +40,7 @@ export default function MangaPage() {
   const [sortBy, setSortBy] = useState<SortOption>(sortParam || "popularity");
   const resultsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
   // Debounce search input (150ms default for faster response)
   const debouncedSearch = useDebounce(localSearch.trim());
@@ -64,14 +68,17 @@ export default function MangaPage() {
   // Pull-to-refresh handler
   const handleRefresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["topManga"] });
+    await queryClient.invalidateQueries({ queryKey: ["trendingManhwa"] });
+    await queryClient.invalidateQueries({ queryKey: ["trendingManhua"] });
   }, [queryClient]);
 
-  // Fetch data based on type filter - separate queries for each filter type
-  // (sorting is applied client-side below)
+  // Fetch data based on type filter
   const { data: allManga, isLoading: allLoading } = useTopManga(1, undefined);
   const { data: mangaOnly, isLoading: mangaLoading } = useTopManga(1, 'manga');
   const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
   const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua');
+  const { data: trendingManhwa, isLoading: trendingManhwaLoading } = useTrendingManhwa(1);
+  const { data: trendingManhua, isLoading: trendingManhuaLoading } = useTrendingManhua(1);
   const { data: searchResults, isLoading: searchLoading } = useSearchManga(
     debouncedSearch,
     isSearching,
@@ -118,6 +125,11 @@ export default function MangaPage() {
         return list.sort((a, b) => (b.popularity ?? -1) - (a.popularity ?? -1));
     }
   }, [displayManga, sortBy]);
+
+  // Get top rated manga (sorted by score)
+  const topRatedManga = useMemo(() => {
+    return [...(mangaOnly || [])].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 12);
+  }, [mangaOnly]);
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
@@ -187,50 +199,136 @@ export default function MangaPage() {
         </section>
       )}
 
-      {/* Top Manhwa - Only show when not searching and not filtering to a different type */}
-      {!isSearching && (typeFilter === "all" || typeFilter === "manhwa") && (
-        <section className="py-4">
-          <div className="container mx-auto px-4">
-            <HorizontalScroll title="Top Manhwa" titleJp="韓国漫画">
-              {manhwaLoading ? (
-                Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="flex-shrink-0 w-36 sm:w-44">
-                    <Skeleton className="aspect-[2/3] rounded-2xl" />
-                  </div>
-                ))
-              ) : (
-                manhwa?.slice(0, 12).map((manga, index) => (
-                  <div key={manga.anilist_id} className="flex-shrink-0 w-36 sm:w-44">
-                    <MangaCard manga={manga} index={index} />
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          </div>
-        </section>
+      {/* Most Popular Manga - Hide when searching */}
+      {!isSearching && (typeFilter === "all" || typeFilter === "manga") && (
+        <ContentSection
+          title="Most Popular Manga"
+          titleJp="人気漫画"
+          icon={TrendingUp}
+          linkTo="/manga?filter=manga"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {mangaLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              mangaOnly?.slice(0, 12).map((manga, index) => (
+                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaCard manga={manga} index={index} />
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
       )}
 
-      {/* Top Manhua - Only show when not searching and not filtering to a different type */}
+      {/* Top Rated Manga - Hide when searching */}
+      {!isSearching && (typeFilter === "all" || typeFilter === "manga") && (
+        <ContentSection
+          title="Top Rated Manga"
+          titleJp="高評価"
+          icon={Trophy}
+          linkTo="/rankings?type=manga&sort=score"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {mangaLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              topRatedManga?.map((manga, index) => (
+                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaCard manga={manga} index={index} />
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* Trending Manhwa - Hide when searching */}
+      {!isSearching && (typeFilter === "all" || typeFilter === "manhwa") && (
+        <ContentSection
+          title="Trending Manhwa"
+          titleJp="韓国漫画"
+          icon={Zap}
+          linkTo="/manga?filter=manhwa"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {trendingManhwaLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              trendingManhwa?.slice(0, 12).map((manga, index) => (
+                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaCard manga={manga} index={index} />
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* Top Manhwa - Hide when searching */}
+      {!isSearching && (typeFilter === "all" || typeFilter === "manhwa") && (
+        <ContentSection
+          title="Top Manhwa"
+          titleJp="韓国トップ"
+          icon={Star}
+          linkTo="/manga?filter=manhwa&sort=score"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {manhwaLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              manhwa?.slice(0, 12).map((manga, index) => (
+                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaCard manga={manga} index={index} />
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* Trending Manhua - Hide when searching */}
       {!isSearching && (typeFilter === "all" || typeFilter === "manhua") && (
-        <section className="py-4">
-          <div className="container mx-auto px-4">
-            <HorizontalScroll title="Top Manhua" titleJp="中国漫画">
-              {manhuaLoading ? (
-                Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="flex-shrink-0 w-36 sm:w-44">
-                    <Skeleton className="aspect-[2/3] rounded-2xl" />
-                  </div>
-                ))
-              ) : (
-                manhua?.slice(0, 12).map((manga, index) => (
-                  <div key={manga.anilist_id} className="flex-shrink-0 w-36 sm:w-44">
-                    <MangaCard manga={manga} index={index} />
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          </div>
-        </section>
+        <ContentSection
+          title="Trending Manhua"
+          titleJp="中国漫画"
+          icon={Zap}
+          linkTo="/manga?filter=manhua"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {trendingManhuaLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              trendingManhua?.slice(0, 12).map((manga, index) => (
+                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaCard manga={manga} index={index} />
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* Top Manhua - Hide when searching */}
+      {!isSearching && (typeFilter === "all" || typeFilter === "manhua") && (
+        <ContentSection
+          title="Top Manhua"
+          titleJp="中国トップ"
+          icon={Star}
+          linkTo="/manga?filter=manhua&sort=score"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {manhuaLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              manhua?.slice(0, 12).map((manga, index) => (
+                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaCard manga={manga} index={index} />
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
       )}
 
       {/* View Toggle & Sort */}
