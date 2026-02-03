@@ -36,13 +36,11 @@ export function FloatingNav() {
 
   return (
     <>
-      {/* Floating nav - subtle background on scroll */}
+      {/* Static nav - scrolls with page */}
       <nav
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-          isScrolled 
-            ? "bg-background/90 backdrop-blur-lg border-b border-border/20 shadow-sm" 
-            : "bg-background/50 backdrop-blur-sm"
+          "w-full z-50 transition-all duration-300",
+          "bg-background/50 backdrop-blur-sm"
         )}
       >
         <div className="w-full px-3 sm:px-4 md:px-6 py-2.5 sm:py-3">

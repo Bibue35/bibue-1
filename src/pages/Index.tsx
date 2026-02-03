@@ -80,7 +80,7 @@ const Index = () => {
       
       {/* Hero Section - Use FeaturedCarousel on mobile for cleaner look */}
       {isMobile ? (
-        <section className="pt-20 pb-4">
+        <section className="pb-4">
           <div className="container mx-auto px-3">
             <FeaturedCarousel 
               items={heroAnime.length > 0 ? heroAnime : (seasonalAnime?.slice(0, 5) || [])} 
