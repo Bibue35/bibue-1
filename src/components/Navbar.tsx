@@ -105,16 +105,16 @@ export function Navbar() {
               {/* Community Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
                     className={cn(
-                      "flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-full transition-all duration-300 relative cursor-pointer",
+                      "flex items-center gap-1 px-4 py-2 h-auto text-sm font-medium rounded-full transition-all duration-300",
                       isCommunityActive
                         ? "text-foreground bg-foreground/10"
                         : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
                     )}
                   >
-                    <span>Community</span>
+                    Community
                     {user && (unreadCount ?? 0) > 0 && (
                       <Badge 
                         variant="default" 
@@ -124,7 +124,7 @@ export function Navbar() {
                       </Badge>
                     )}
                     <ChevronDown className="w-3.5 h-3.5" />
-                  </button>
+                  </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="center" className="min-w-[140px]">
                   {communityLinks.map((link) => (
