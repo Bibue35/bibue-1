@@ -63,11 +63,11 @@ export function useTopManga(
   });
 }
 
-export function useSearchAnime(query: string, enabled = true) {
+export function useSearchAnime(query: string, enabled = true, sort: "SEARCH_MATCH" | "START_DATE_DESC" | "POPULARITY_DESC" = "START_DATE_DESC") {
   const { language } = useLanguage();
   return useQuery({
-    queryKey: ["searchAnime", query, language],
-    queryFn: () => searchAnime(query.trim(), 1, 25, language as SupportedLanguage),
+    queryKey: ["searchAnime", query, sort, language],
+    queryFn: () => searchAnime(query.trim(), 1, 25, language as SupportedLanguage, sort),
     enabled: enabled && query.trim().length > 0,
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
@@ -78,11 +78,12 @@ export function useSearchManga(
   query: string,
   enabled = true,
   filter?: "manga" | "novels" | "lightnovels" | "oneshots" | "doujin" | "manhwa" | "manhua",
+  sort: "SEARCH_MATCH" | "START_DATE_DESC" | "POPULARITY_DESC" = "START_DATE_DESC"
 ) {
   const { language } = useLanguage();
   return useQuery({
-    queryKey: ["searchManga", query, filter, language],
-    queryFn: () => searchManga(query.trim(), 1, 25, filter, language as SupportedLanguage),
+    queryKey: ["searchManga", query, filter, sort, language],
+    queryFn: () => searchManga(query.trim(), 1, 25, filter, language as SupportedLanguage, sort),
     enabled: enabled && query.trim().length > 0,
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
