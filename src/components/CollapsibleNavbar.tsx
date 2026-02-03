@@ -103,15 +103,12 @@ export function CollapsibleNavbar() {
       {/* Fixed Logo - Always Visible */}
       <Link 
         to="/" 
-        className={cn(
-          "fixed top-4 left-4 z-[60] flex items-center gap-2 transition-all duration-300",
-          !isVisible && "opacity-0 pointer-events-none"
-        )}
+        className="fixed top-3 left-3 sm:top-4 sm:left-4 z-[60] flex items-center"
       >
         <img 
           src={bibueLogo} 
           alt="Bibue" 
-          className="h-10 sm:h-12 w-auto object-contain dark:invert"
+          className="h-8 sm:h-10 w-auto object-contain dark:invert"
         />
       </Link>
 
