@@ -22,24 +22,20 @@ export function FloatingNav() {
 
   return (
     <>
-      {/* Fixed Logo - Always Visible */}
-      <Link 
-        to="/" 
-        className="fixed top-2 left-3 sm:top-3 sm:left-4 z-[60] flex items-center"
-      >
-        <img 
-          src={bibueLogo} 
-          alt="Bibue" 
-          className="h-12 sm:h-14 md:h-16 w-auto object-contain dark:invert"
-        />
-      </Link>
+      {/* Logo - Scrolls with page */}
 
-      {/* Fixed navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 py-3 sm:py-4">
+      {/* Navbar - scrolls with page */}
+      <nav className="py-3 sm:py-4">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
-            {/* Left spacer for logo */}
-            <div className="w-32 sm:w-36 md:w-40" />
+            {/* Logo */}
+            <Link to="/" className="flex items-center">
+              <img 
+                src={bibueLogo} 
+                alt="Bibue" 
+                className="h-14 sm:h-16 md:h-20 w-auto object-contain dark:invert"
+              />
+            </Link>
 
             {/* Center nav links - desktop only */}
             <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
@@ -90,7 +86,7 @@ export function FloatingNav() {
       {/* Mobile menu dropdown */}
       <div
         className={cn(
-          "md:hidden fixed top-16 left-3 right-3 sm:left-4 sm:right-4 z-[55] bg-background/95 backdrop-blur-md border border-border/50 rounded-2xl overflow-hidden transition-all duration-200 shadow-lg",
+          "md:hidden fixed top-20 left-3 right-3 sm:left-4 sm:right-4 z-[55] bg-background/95 backdrop-blur-md border border-border/50 rounded-2xl overflow-hidden transition-all duration-200 shadow-lg",
           isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
         )}
       >
