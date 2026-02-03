@@ -19,6 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import bibueLogo from "@/assets/bibue-logo.jpg";
 
 interface MangaReaderProps {
   mangaId: number;
@@ -196,9 +197,13 @@ export function MangaReader({
         )}>
           {/* Left: Logo and title */}
           <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
-            <span className="text-lg sm:text-xl font-sacred font-semibold text-foreground flex-shrink-0">
-              Bibue
-            </span>
+            <Link to="/manga" className="flex-shrink-0">
+              <img 
+                src={bibueLogo} 
+                alt="Bibue" 
+                className="h-10 sm:h-12 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
+              />
+            </Link>
             <div className="hidden xs:block h-4 w-px bg-border/50" />
             <h1 className="hidden xs:block text-xs sm:text-sm text-muted-foreground truncate max-w-[120px] sm:max-w-[200px] lg:max-w-[400px]">
               {mangaTitle}
