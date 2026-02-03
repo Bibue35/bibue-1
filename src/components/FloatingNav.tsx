@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
-import bibueLogo from "@/assets/bibue-logo.jpg";
+import bibueLogo from "@/assets/bibue-logo.png";
 
 const navLinks = [
   { href: "/", label: "Home" },

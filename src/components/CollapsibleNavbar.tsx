@@ -11,7 +11,7 @@ import {
   Collapsible,
   CollapsibleContent,
 } from "@/components/ui/collapsible";
-import bibueLogo from "@/assets/bibue-logo.jpg";
+import bibueLogo from "@/assets/bibue-logo.png";
 
 export function CollapsibleNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
