@@ -53,8 +53,9 @@ export function PullToRefresh({ children, onRefresh, className }: PullToRefreshP
         </div>
       </div>
 
-      {/* Content with pull transform */}
+      {/* Content with pull transform - only non-fixed elements */}
       <div
+        className="pull-to-refresh-content"
         style={{
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? "transform 0.3s ease-out" : undefined,
