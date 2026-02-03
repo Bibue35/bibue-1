@@ -9,9 +9,9 @@ import { UserMenu } from "./UserMenu";
 import bibueTower from "@/assets/bibue-tower.png";
 
 const navLinks = [
-  { href: "/", label: "Home" },
   { href: "/anime", label: "Anime" },
   { href: "/manga", label: "Manga" },
+  { href: "/news", label: "News" },
   { href: "/rankings", label: "Rankings" },
 ];
 
