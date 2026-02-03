@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import bibueLogo from "@/assets/bibue-logo-horizontal.png";
+import bibueLogo from "@/assets/bibue-logo.jpg";
 
 // Primary nav items shown directly
 const primaryLinks = [
@@ -43,23 +43,20 @@ export function Navbar() {
 
   return (
     <>
-      {/* Fixed Logo - Always Visible */}
-      <Link 
-        to="/" 
-        className="fixed top-2 left-3 sm:top-3 sm:left-4 z-[60] flex items-center"
-      >
-        <img 
-          src={bibueLogo} 
-          alt="Bibue" 
-          className="h-12 sm:h-14 md:h-16 w-auto object-contain dark:invert"
-        />
-      </Link>
-
       <nav className="fixed top-0 left-0 right-0 z-50 py-3 sm:py-4 pointer-events-none">
         <div className="w-full px-3 sm:px-4 md:px-6">
           <div className="flex items-center justify-between pointer-events-auto relative">
-            {/* Left spacer for logo */}
-            <div className="w-32 sm:w-36 md:w-40" />
+            {/* Left: Logo */}
+            <Link to="/" className="flex flex-col items-center gap-1">
+              <span className="text-xl sm:text-2xl font-sacred font-semibold tracking-wide">
+                Bibue
+              </span>
+              <img 
+                src={bibueLogo} 
+                alt="Bibue Logo" 
+                className="h-6 sm:h-8 w-auto object-contain"
+              />
+            </Link>
 
             {/* Center: Navigation - absolutely centered */}
             <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">

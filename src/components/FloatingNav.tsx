@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
-import bibueLogo from "@/assets/bibue-logo-horizontal.png";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -22,32 +21,29 @@ export function FloatingNav() {
 
   return (
     <>
-      {/* Logo - Scrolls with page */}
-
-      {/* Navbar - scrolls with page */}
-      <nav className="py-3 sm:py-4">
+      {/* Scrolls with page - not fixed */}
+      <div className="relative z-50 pt-4 pb-2">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
-            {/* Logo */}
-            <Link to="/" className="flex items-center">
-              <img 
-                src={bibueLogo} 
-                alt="Bibue" 
-                className="h-14 sm:h-16 md:h-20 w-auto object-contain dark:invert"
-              />
+            {/* Logo - left side */}
+            <Link 
+              to="/" 
+              className="text-2xl font-sacred font-semibold tracking-wide"
+            >
+              Bibue
             </Link>
 
             {/* Center nav links - desktop only */}
-            <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+            <nav className="hidden md:flex items-center gap-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
                   className={cn(
-                    "px-4 py-2 text-sm font-medium rounded-full transition-all duration-200",
+                    "px-4 py-2 text-sm font-medium rounded-full",
                     location.pathname === link.href
                       ? "text-foreground bg-foreground/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   {link.label}
@@ -61,7 +57,7 @@ export function FloatingNav() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsSearchOpen(true)}
-                className="rounded-full hover:bg-foreground/5"
+                className="rounded-full"
               >
                 <Search className="w-5 h-5" />
               </Button>
@@ -81,33 +77,30 @@ export function FloatingNav() {
             </div>
           </div>
         </div>
-      </nav>
+      </div>
 
       {/* Mobile menu dropdown */}
-      <div
-        className={cn(
-          "md:hidden fixed top-20 left-3 right-3 sm:left-4 sm:right-4 z-[55] bg-background/95 backdrop-blur-md border border-border/50 rounded-2xl overflow-hidden transition-all duration-200 shadow-lg",
-          isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
-        )}
-      >
-        <div className="p-3 sm:p-4 space-y-1">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              to={link.href}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={cn(
-                "block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
-                location.pathname === link.href
-                  ? "bg-foreground/10 text-foreground"
-                  : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
+      {isMobileMenuOpen && (
+        <div className="relative z-50 px-4 md:hidden">
+          <div className="bg-card border border-border rounded-2xl p-4 space-y-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={cn(
+                  "block px-4 py-3 rounded-xl text-sm font-medium",
+                  location.pathname === link.href
+                    ? "bg-foreground/10 text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>

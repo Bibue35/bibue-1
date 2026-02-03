@@ -18,7 +18,6 @@ import { validateComment } from "@/lib/validation";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useSwipeGesture } from "@/hooks/useSwipeGesture";
 import { useMiniPlayer } from "@/contexts/MiniPlayerContext";
-import bibueLogo from "@/assets/bibue-logo-horizontal.png";
 
 export default function AnimeDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -310,13 +309,9 @@ export default function AnimeDetailPage() {
               {/* Left - Bibue Logo */}
               <Link
                 to="/anime"
-                className="pointer-events-auto"
+                className="pointer-events-auto text-lg sm:text-xl md:text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors"
               >
-                <img 
-                  src={bibueLogo} 
-                  alt="Bibue" 
-                  className="h-12 sm:h-14 md:h-16 w-auto object-contain brightness-0 invert"
-                />
+                Bibue
               </Link>
 
               {/* Right - Controls */}
