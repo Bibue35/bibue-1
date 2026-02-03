@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
+import bibueLogo from "@/assets/bibue-logo.jpg";
+import bibueTower from "@/assets/bibue-tower.png";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -26,11 +28,22 @@ export function FloatingNav() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             {/* Logo - left side */}
-            <Link 
-              to="/" 
-              className="text-2xl font-sacred font-semibold tracking-wide"
-            >
-              Bibue
+            <Link to="/" className="flex items-center gap-2">
+              <img 
+                src={bibueTower} 
+                alt="Bibue Tower" 
+                className="h-10 sm:h-12 w-auto object-contain dark:invert"
+              />
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-2xl font-sacred font-semibold tracking-wide">
+                  Bibue
+                </span>
+                <img 
+                  src={bibueLogo} 
+                  alt="Bibue Logo" 
+                  className="h-6 sm:h-8 w-auto object-contain"
+                />
+              </div>
             </Link>
 
             {/* Center nav links - desktop only */}
