@@ -100,18 +100,6 @@ export function CollapsibleNavbar() {
 
   return (
     <>
-      {/* Fixed Logo - Always Visible */}
-      <Link 
-        to="/" 
-        className="fixed top-2 left-3 sm:top-3 sm:left-4 z-[60] flex items-center"
-      >
-        <img 
-          src={bibueLogo} 
-          alt="Bibue" 
-          className="h-20 sm:h-24 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
-        />
-      </Link>
-
       <nav
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out",
@@ -128,8 +116,14 @@ export function CollapsibleNavbar() {
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
-            {/* Left spacer for centering nav links */}
-            <div className="hidden md:block flex-1" />
+            {/* Left - Logo */}
+            <Link to="/" className="flex items-center">
+              <img 
+                src={bibueLogo} 
+                alt="Bibue" 
+                className="h-20 sm:h-24 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
+              />
+            </Link>
 
             {/* Desktop Navigation - Collapsible */}
             <Collapsible
