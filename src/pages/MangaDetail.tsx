@@ -144,7 +144,7 @@ export default function MangaDetailPage() {
           <img 
             src={bibueLogo} 
             alt="Bibue" 
-            className="h-10 sm:h-12 md:h-14 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
+            className="h-12 sm:h-14 md:h-16 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
           />
         </Link>
         <Link to="/manga" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
