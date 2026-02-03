@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Trophy, Star, Zap, Filter, ChevronDown, ChevronUp, Calendar } from "lucide-react";
+import { Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Trophy, Star, Zap, Filter, ChevronDown, ChevronUp } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
@@ -33,7 +33,6 @@ export default function MangaPage() {
   const [typeFilter, setTypeFilter] = useState<"all" | "manga" | "manhwa" | "manhua">(filterParam || "all");
   const [sortBy, setSortBy] = useState<SortOption>(sortParam || "popularity");
   const [isFiltersOpen, setIsFiltersOpen] = useState(true);
-  const [timePeriod, setTimePeriod] = useState<'day' | 'week' | 'month' | '6months' | 'year' | 'alltime'>('alltime');
   const resultsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
@@ -408,37 +407,6 @@ export default function MangaPage() {
                 </div>
               </div>
 
-              {/* Time Period Filter */}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Time Period:</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {([
-                    { value: 'day', label: 'Today' },
-                    { value: 'week', label: 'This Week' },
-                    { value: 'month', label: 'This Month' },
-                    { value: '6months', label: '6 Months' },
-                    { value: 'year', label: 'This Year' },
-                    { value: 'alltime', label: 'All Time' },
-                  ] as const).map((period) => (
-                    <Button
-                      key={period.value}
-                      variant={timePeriod === period.value ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => setTimePeriod(period.value)}
-                      className={cn(
-                        "rounded-full text-xs h-8",
-                        timePeriod !== period.value && "glass-button"
-                      )}
-                    >
-                      {period.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
               {/* View Mode Toggle */}
               <div className="flex items-center justify-between pt-2 border-t border-border/30">
                 <span className="text-xs text-muted-foreground">View mode:</span>
@@ -467,7 +435,7 @@ export default function MangaPage() {
       </section>
 
       {/* Active Filters Chips */}
-      {(typeFilter !== "all" || sortBy !== "popularity" || timePeriod !== 'alltime' || genreId) && (
+      {(typeFilter !== "all" || sortBy !== "popularity" || genreId) && (
         <section className="pb-2">
           <div className="container mx-auto px-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -487,15 +455,6 @@ export default function MangaPage() {
                   className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                 >
                   Sort: {sortBy === "score" ? "Top Rated" : "Newest"}
-                  <span className="text-primary/60">×</span>
-                </button>
-              )}
-              {timePeriod !== 'alltime' && (
-                <button
-                  onClick={() => setTimePeriod('alltime')}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                >
-                  Period: {timePeriod === 'day' ? 'Today' : timePeriod === 'week' ? 'This Week' : timePeriod === 'month' ? 'This Month' : timePeriod === '6months' ? '6 Months' : 'This Year'}
                   <span className="text-primary/60">×</span>
                 </button>
               )}
