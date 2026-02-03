@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Menu, X, ChevronDown, MessageCircle } from "lucide-react";
+import { Search, Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -23,17 +23,22 @@ const primaryLinks = [
   { href: "/", label: "Home" },
   { href: "/anime", label: "Anime" },
   { href: "/manga", label: "Manga" },
-  { href: "/community", label: "Community" },
+  { href: "/rankings", label: "Rankings" },
+];
+
+// Community dropdown items
+const communityLinks = [
+  { href: "/community", label: "Discussions" },
+  { href: "/messages", label: "Messages" },
 ];
 
 // Secondary items in "More" dropdown
 const moreLinks = [
-  { href: "/rankings", label: "Rankings" },
   { href: "/news", label: "News" },
 ];
 
 // All links for mobile menu
-const allLinks = [...primaryLinks, ...moreLinks];
+const allLinks = [...primaryLinks, ...communityLinks, ...moreLinks];
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -47,6 +52,7 @@ export function Navbar() {
   }, [location]);
 
   const isMoreActive = moreLinks.some(link => location.pathname === link.href);
+  const isCommunityActive = communityLinks.some(link => location.pathname === link.href);
 
   return (
     <>
@@ -102,6 +108,54 @@ export function Navbar() {
                 </Link>
               ))}
               
+              {/* Community Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={cn(
+                      "flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-full transition-all duration-300 relative",
+                      isCommunityActive
+                        ? "text-foreground bg-foreground/10"
+                        : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                    )}
+                  >
+                    Community 
+                    {user && (unreadCount ?? 0) > 0 && (
+                      <Badge 
+                        variant="default" 
+                        className="ml-1 h-5 min-w-5 px-1.5 text-xs flex items-center justify-center"
+                      >
+                        {unreadCount && unreadCount > 9 ? "9+" : unreadCount}
+                      </Badge>
+                    )}
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="min-w-[140px]">
+                  {communityLinks.map((link) => (
+                    <DropdownMenuItem key={link.href} asChild>
+                      <Link
+                        to={link.href}
+                        className={cn(
+                          "flex items-center justify-between w-full",
+                          location.pathname === link.href && "bg-accent"
+                        )}
+                      >
+                        {link.label}
+                        {link.href === "/messages" && user && (unreadCount ?? 0) > 0 && (
+                          <Badge 
+                            variant="default" 
+                            className="ml-2 h-5 min-w-5 px-1.5 text-xs"
+                          >
+                            {unreadCount && unreadCount > 9 ? "9+" : unreadCount}
+                          </Badge>
+                        )}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               {/* More Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -133,7 +187,7 @@ export function Navbar() {
               </DropdownMenu>
             </div>
 
-            {/* Right: Icons - Sign in is now the rightmost item */}
+            {/* Right: Icons */}
             <div className="flex items-center gap-0.5 sm:gap-1">
               <Button
                 variant="ghost"
@@ -143,27 +197,6 @@ export function Navbar() {
               >
                 <Search className="w-5 h-5 sm:w-6 sm:h-6" />
               </Button>
-
-              {/* Messages Icon with Badge */}
-              {user && (
-                <Link to="/messages">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-full hover:bg-foreground/5 text-muted-foreground hover:text-foreground h-9 w-9 sm:h-10 sm:w-10 relative"
-                  >
-                    <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
-                    {(unreadCount ?? 0) > 0 && (
-                      <Badge 
-                        variant="default" 
-                        className="absolute -top-1 -right-1 h-5 min-w-5 px-1.5 text-xs flex items-center justify-center"
-                      >
-                        {unreadCount && unreadCount > 9 ? "9+" : unreadCount}
-                      </Badge>
-                    )}
-                  </Button>
-                </Link>
-              )}
 
               <ThemeSelector />
               
