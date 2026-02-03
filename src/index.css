@@ -177,6 +177,16 @@
     content-visibility: auto;
   }
 
+  /* Logo stability - prevent background flash during theme/state changes */
+  .logo-stable {
+    background-color: transparent !important;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    will-change: filter;
+    image-rendering: -webkit-optimize-contrast;
+  }
+
   ::selection {
     background: hsl(var(--primary) / 0.2);
     color: hsl(var(--foreground));
