@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import bibueLogo from "@/assets/bibue-logo.jpg";
+import bibueLogo from "@/assets/bibue-logo.png";
 
 // Primary nav items shown directly
 const primaryLinks = [

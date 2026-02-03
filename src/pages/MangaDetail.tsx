@@ -16,7 +16,7 @@ import { formatDistanceToNow } from "date-fns";
 import { validateComment } from "@/lib/validation";
 import { MangaReader } from "@/components/MangaReader";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
-import bibueLogo from "@/assets/bibue-logo.jpg";
+import bibueLogo from "@/assets/bibue-logo.png";
 
 export default function MangaDetailPage() {
   const { id } = useParams<{ id: string }>();
