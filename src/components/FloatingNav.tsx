@@ -23,12 +23,12 @@ export function FloatingNav() {
 
   return (
     <>
-      {/* Scrolls with page - not fixed */}
-      <div className="relative z-50 pt-4 pb-2">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between">
+      {/* Floating nav - no background, just floating elements */}
+      <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
+        <div className="w-full px-4 md:px-6 py-4">
+          <div className="flex items-center justify-between pointer-events-auto">
             {/* Logo - left side */}
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2 drop-shadow-sm">
               <img 
                 src={bibueTower} 
                 alt="Bibue Tower" 
@@ -39,16 +39,16 @@ export function FloatingNav() {
               </span>
             </Link>
 
-            {/* Center nav links - desktop only */}
-            <nav className="hidden md:flex items-center gap-1">
+            {/* Center nav links - desktop only, absolutely centered */}
+            <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
                   className={cn(
-                    "px-4 py-2 text-sm font-medium rounded-full",
+                    "px-4 py-2 text-sm font-medium rounded-full transition-all duration-200",
                     location.pathname === link.href
-                      ? "text-foreground bg-foreground/10"
+                      ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
@@ -58,12 +58,12 @@ export function FloatingNav() {
             </nav>
 
             {/* Right side icons */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsSearchOpen(true)}
-                className="rounded-full"
+                className="rounded-full hover:bg-foreground/5"
               >
                 <Search className="w-5 h-5" />
               </Button>
@@ -75,7 +75,7 @@ export function FloatingNav() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden rounded-full"
+                className="md:hidden rounded-full hover:bg-foreground/5"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -86,27 +86,30 @@ export function FloatingNav() {
       </div>
 
       {/* Mobile menu dropdown */}
-      {isMobileMenuOpen && (
-        <div className="relative z-50 px-4 md:hidden">
-          <div className="bg-card border border-border rounded-2xl p-4 space-y-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={cn(
-                  "block px-4 py-3 rounded-xl text-sm font-medium",
-                  location.pathname === link.href
-                    ? "bg-foreground/10 text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
+      <div
+        className={cn(
+          "fixed top-16 left-4 right-4 z-50 bg-background/90 backdrop-blur-md border border-border/30 rounded-2xl overflow-hidden transition-all duration-200 shadow-lg",
+          isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
+        )}
+      >
+        <div className="p-3 space-y-0.5 md:hidden">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              to={link.href}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={cn(
+                "block px-4 py-3 rounded-xl text-sm font-medium transition-colors",
+                location.pathname === link.href
+                  ? "text-foreground bg-foreground/5"
+                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
-      )}
+      </div>
 
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>
