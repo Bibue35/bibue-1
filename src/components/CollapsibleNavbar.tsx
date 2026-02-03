@@ -11,6 +11,7 @@ import {
   Collapsible,
   CollapsibleContent,
 } from "@/components/ui/collapsible";
+import bibueLogo from "@/assets/bibue-logo.jpg";
 
 export function CollapsibleNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -107,9 +108,11 @@ export function CollapsibleNavbar() {
           !isVisible && "opacity-0 pointer-events-none"
         )}
       >
-        <span className="text-2xl font-sacred font-semibold tracking-wide">
-          Bibue
-        </span>
+        <img 
+          src={bibueLogo} 
+          alt="Bibue" 
+          className="h-10 sm:h-12 w-auto object-contain dark:invert"
+        />
       </Link>
 
       <nav
