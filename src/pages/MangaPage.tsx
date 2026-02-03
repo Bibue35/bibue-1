@@ -131,6 +131,16 @@ export default function MangaPage() {
     return [...(mangaOnly || [])].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 12);
   }, [mangaOnly]);
 
+  // Get top rated manhwa (sorted by score)
+  const topRatedManhwa = useMemo(() => {
+    return [...(manhwa || [])].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 12);
+  }, [manhwa]);
+
+  // Get top rated manhua (sorted by score)
+  const topRatedManhua = useMemo(() => {
+    return [...(manhua || [])].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 12);
+  }, [manhua]);
+
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <CollapsibleNavbar />
@@ -277,7 +287,7 @@ export default function MangaPage() {
             {manhwaLoading ? (
               <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
-              manhwa?.slice(0, 12).map((manga, index) => (
+              topRatedManhwa?.map((manga, index) => (
                 <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                   <MangaCard manga={manga} index={index} />
                 </div>
@@ -321,7 +331,7 @@ export default function MangaPage() {
             {manhuaLoading ? (
               <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
-              manhua?.slice(0, 12).map((manga, index) => (
+              topRatedManhua?.map((manga, index) => (
                 <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                   <MangaCard manga={manga} index={index} />
                 </div>
