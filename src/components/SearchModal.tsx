@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Search, X, Film, BookOpen, Loader2, Clock, Trash2, Sparkles } from "lucide-react";
+import { Search, X, Film, BookOpen, Loader2, Clock, Trash2, Sparkles, ArrowRight, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Fuse from "fuse.js";
 import { useSearchAnime, useSearchManga } from "@/hooks/useAnimeData";
@@ -88,6 +88,40 @@ function expandSearchQuery(query: string): string {
   return query;
 }
 
+// Get autocomplete suggestions based on typed query
+function getAutocompleteSuggestions(query: string, limit = 6): Array<{ abbr: string; full: string; type: 'abbreviation' | 'title' }> {
+  if (!query.trim()) return [];
+  
+  const lowerQuery = query.toLowerCase().trim();
+  const suggestions: Array<{ abbr: string; full: string; type: 'abbreviation' | 'title' }> = [];
+  
+  // First, find matching abbreviations
+  const abbrMatches = ABBREVIATION_ENTRIES.filter(e => 
+    e.abbr.toLowerCase().startsWith(lowerQuery) || 
+    e.full.toLowerCase().includes(lowerQuery)
+  );
+  
+  abbrMatches.slice(0, 4).forEach(match => {
+    suggestions.push({ abbr: match.abbr, full: match.full, type: 'abbreviation' });
+  });
+  
+  // Then try fuzzy matches if we don't have enough
+  if (suggestions.length < limit) {
+    const fuzzyResults = abbreviationFuse.search(lowerQuery);
+    fuzzyResults
+      .filter(r => r.score! < 0.5)
+      .slice(0, limit - suggestions.length)
+      .forEach(result => {
+        const exists = suggestions.some(s => s.full === result.item.full);
+        if (!exists) {
+          suggestions.push({ abbr: result.item.abbr, full: result.item.full, type: 'title' });
+        }
+      });
+  }
+  
+  return suggestions.slice(0, limit);
+}
+
 function getRecentSearches(): string[] {
   try {
     const stored = localStorage.getItem(RECENT_SEARCHES_KEY);
@@ -118,14 +152,24 @@ interface SearchModalProps {
 export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [showAutocomplete, setShowAutocomplete] = useState(true);
   const navigate = useNavigate();
 
   // Expand abbreviations for better search
   const expandedQuery = expandSearchQuery(query);
+  
+  // Get autocomplete suggestions
+  const autocompleteSuggestions = useMemo(() => 
+    getAutocompleteSuggestions(query), 
+    [query]
+  );
 
+  // Only search when query is long enough and user hasn't just typed
+  const shouldSearch = expandedQuery.trim().length >= 2;
+  
   // Search both anime and manga simultaneously
-  const { data: animeResults, isLoading: animeLoading } = useSearchAnime(expandedQuery, expandedQuery.trim().length > 0);
-  const { data: mangaResults, isLoading: mangaLoading } = useSearchManga(expandedQuery, expandedQuery.trim().length > 0);
+  const { data: animeResults, isLoading: animeLoading } = useSearchAnime(expandedQuery, shouldSearch);
+  const { data: mangaResults, isLoading: mangaLoading } = useSearchManga(expandedQuery, shouldSearch);
 
   const isLoading = animeLoading || mangaLoading;
   const hasResults = (animeResults && animeResults.length > 0) || (mangaResults && mangaResults.length > 0);
@@ -157,6 +201,12 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   const handleRecentClick = (search: string) => {
     setQuery(search);
+    setShowAutocomplete(false);
+  };
+
+  const handleSuggestionClick = (suggestion: { abbr: string; full: string }) => {
+    setQuery(suggestion.full);
+    setShowAutocomplete(false);
   };
 
   const handleClearRecent = () => {
@@ -188,7 +238,10 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 type="text"
                 placeholder="Search anime & manga..."
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setShowAutocomplete(true);
+                }}
                 autoFocus
                 className="w-full h-14 pl-14 pr-14 bg-transparent text-lg placeholder:text-muted-foreground focus:outline-none"
               />
@@ -204,8 +257,35 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           </div>
 
+          {/* Autocomplete Suggestions */}
+          {query.trim().length > 0 && query.trim().length < 3 && showAutocomplete && autocompleteSuggestions.length > 0 && (
+            <div className="mt-2 liquid-glass-strong rounded-2xl p-2 flex-shrink-0">
+              <div className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                <Zap className="w-3 h-3" />
+                <span>Quick suggestions</span>
+              </div>
+              <div className="space-y-0.5">
+                {autocompleteSuggestions.map((suggestion, index) => (
+                  <button
+                    key={`${suggestion.abbr}-${index}`}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors text-left group"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 shrink-0 uppercase">
+                        {suggestion.abbr}
+                      </Badge>
+                      <span className="text-sm truncate">{suggestion.full}</span>
+                    </div>
+                    <ArrowRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Results */}
-          {query.trim().length > 0 && (
+          {query.trim().length >= 2 && (
             <div className="mt-4 liquid-glass-strong rounded-2xl flex-1 min-h-0 overflow-hidden">
               <ScrollArea className="h-full max-h-[calc(80vh-100px)]">
                 {isLoading && !hasResults ? (
