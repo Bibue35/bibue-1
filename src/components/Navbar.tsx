@@ -18,11 +18,11 @@ import {
 import bibueLogo from "@/assets/bibue-logo.jpg";
 import bibueTower from "@/assets/bibue-tower.png";
 
-// Primary nav items shown directly
+// Primary nav items shown directly (no Home - logo serves as home)
 const primaryLinks = [
-  { href: "/", label: "Home" },
   { href: "/anime", label: "Anime" },
   { href: "/manga", label: "Manga" },
+  { href: "/news", label: "News" },
   { href: "/rankings", label: "Rankings" },
 ];
 
@@ -32,13 +32,8 @@ const communityLinks = [
   { href: "/messages", label: "Messages" },
 ];
 
-// Secondary items in "More" dropdown
-const moreLinks = [
-  { href: "/news", label: "News" },
-];
-
 // All links for mobile menu
-const allLinks = [...primaryLinks, ...communityLinks, ...moreLinks];
+const allLinks = [...primaryLinks, ...communityLinks];
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -51,7 +46,6 @@ export function Navbar() {
     setIsMobileMenuOpen(false);
   }, [location]);
 
-  const isMoreActive = moreLinks.some(link => location.pathname === link.href);
   const isCommunityActive = communityLinks.some(link => location.pathname === link.href);
 
   return (
@@ -156,35 +150,6 @@ export function Navbar() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* More Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className={cn(
-                      "flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-full transition-all duration-300",
-                      isMoreActive
-                        ? "text-foreground bg-foreground/10"
-                        : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
-                    )}
-                  >
-                    More <ChevronDown className="w-3.5 h-3.5" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" className="min-w-[140px]">
-                  {moreLinks.map((link) => (
-                    <DropdownMenuItem key={link.href} asChild>
-                      <Link
-                        to={link.href}
-                        className={cn(
-                          location.pathname === link.href && "bg-accent"
-                        )}
-                      >
-                        {link.label}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
 
             {/* Right: Icons */}
