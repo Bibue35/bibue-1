@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Filter, Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History } from "lucide-react";
+import { Filter, Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History, ChevronDown, ChevronUp } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
@@ -13,6 +13,7 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardSkeletonRow } from "@/components/skeletons";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useTopAnime, useSeasonalAnime, useSearchAnime, useClassicAnime, useAllTimeTopAnime } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
@@ -29,6 +30,7 @@ export default function AnimePage() {
   );
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [localSearch, setLocalSearch] = useState(searchParams.get("q") || "");
+  const [isTopRatedOpen, setIsTopRatedOpen] = useState(true);
   const resultsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
@@ -78,6 +80,12 @@ export default function AnimePage() {
     if (bIsAiring !== aIsAiring) return bIsAiring - aIsAiring;
     return (b.members || 0) - (a.members || 0);
   });
+
+  // Sort all-time top by score (highest first)
+  const sortedAllTimeTop = useMemo(() => {
+    if (!allTimeTop) return [];
+    return [...allTimeTop].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  }, [allTimeTop]);
 
   const displayAnime = isSearching 
     ? searchResults 
@@ -241,30 +249,55 @@ export default function AnimePage() {
         </ContentSection>
       )}
 
-      {/* All-Time Top Rated - Hide when searching */}
+      {/* All-Time Top Rated - Collapsible, sorted by score */}
       {!isSearching && (
-        <ContentSection
-          title="All-Time Top Rated"
-          titleJp="歴代最高"
-          icon={Trophy}
-          linkTo="/rankings?type=anime&sort=score"
-        >
-          <HorizontalScroll showArrows={!isMobile}>
-            {allTimeLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              allTimeTop?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
+        <section className="py-4 sm:py-6">
+          <div className="container mx-auto px-3 sm:px-4">
+            <Collapsible open={isTopRatedOpen} onOpenChange={setIsTopRatedOpen}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
+                    <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight">All-Time Top Rated</h2>
+                    <p className="font-jp text-xs sm:text-sm text-muted-foreground">歴代最高</p>
+                  </div>
                 </div>
-              ))
-            )}
-          </HorizontalScroll>
-        </ContentSection>
+                <div className="flex items-center gap-2">
+                  <Link 
+                    to="/rankings?type=anime&sort=score" 
+                    className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    See all →
+                  </Link>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8">
+                      {isTopRatedOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </Button>
+                  </CollapsibleTrigger>
+                </div>
+              </div>
+              <CollapsibleContent className="transition-all duration-300">
+                <HorizontalScroll showArrows={!isMobile}>
+                  {allTimeLoading ? (
+                    <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+                  ) : (
+                    sortedAllTimeTop?.slice(0, 12).map((anime, index) => (
+                      <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                        {isMobile ? (
+                          <MobileAnimeCard anime={anime} index={index} />
+                        ) : (
+                          <AnimeCard anime={anime} index={index} />
+                        )}
+                      </div>
+                    ))
+                  )}
+                </HorizontalScroll>
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
+        </section>
       )}
 
       {/* Classic Anime - Hide when searching */}
