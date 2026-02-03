@@ -108,7 +108,7 @@ export function CollapsibleNavbar() {
         <img 
           src={bibueLogo} 
           alt="Bibue" 
-          className="h-16 sm:h-20 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
+          className="h-20 sm:h-24 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
         />
       </Link>
 
