@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Filter, Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History, ChevronDown, ChevronUp } from "lucide-react";
+import { Filter, Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History, ChevronDown, ChevronUp, Calendar } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardSkeletonRow } from "@/components/skeletons";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { useTopAnime, useSeasonalAnime, useSearchAnime, useClassicAnime, useAllTimeTopAnime } from "@/hooks/useAnimeData";
+import { useTopAnime, useSeasonalAnime, useSearchAnime, useClassicAnime } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -30,7 +30,8 @@ export default function AnimePage() {
   );
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [localSearch, setLocalSearch] = useState(searchParams.get("q") || "");
-  const [isTopRatedOpen, setIsTopRatedOpen] = useState(true);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(true);
+  const [timePeriod, setTimePeriod] = useState<'day' | 'week' | 'month' | '6months' | 'year' | 'alltime'>('alltime');
   const resultsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
@@ -62,7 +63,6 @@ export default function AnimePage() {
     await queryClient.invalidateQueries({ queryKey: ["topAnime"] });
     await queryClient.invalidateQueries({ queryKey: ["seasonalAnime"] });
     await queryClient.invalidateQueries({ queryKey: ["classicAnime"] });
-    await queryClient.invalidateQueries({ queryKey: ["allTimeTopAnime"] });
   }, [queryClient]);
 
   const { data: topAnime, isLoading: topLoading } = useTopAnime(1, filter);
@@ -71,7 +71,6 @@ export default function AnimePage() {
   const { data: airingAnime, isLoading: airingLoading } = useTopAnime(1, 'airing');
   const { data: seasonalAnime, isLoading: seasonalLoading } = useSeasonalAnime();
   const { data: classicAnime, isLoading: classicLoading } = useClassicAnime(1);
-  const { data: allTimeTop, isLoading: allTimeLoading } = useAllTimeTopAnime(1);
   const { data: searchResults, isLoading: searchLoading } = useSearchAnime(debouncedSearch, !!debouncedSearch);
   
   const sortedSeasonalAnime = seasonalAnime?.slice().sort((a, b) => {
@@ -80,12 +79,6 @@ export default function AnimePage() {
     if (bIsAiring !== aIsAiring) return bIsAiring - aIsAiring;
     return (b.members || 0) - (a.members || 0);
   });
-
-  // Sort all-time top by score (highest first)
-  const sortedAllTimeTop = useMemo(() => {
-    if (!allTimeTop) return [];
-    return [...allTimeTop].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
-  }, [allTimeTop]);
 
   const displayAnime = isSearching 
     ? searchResults 
@@ -249,57 +242,6 @@ export default function AnimePage() {
         </ContentSection>
       )}
 
-      {/* All-Time Top Rated - Collapsible, sorted by score */}
-      {!isSearching && (
-        <section className="py-4 sm:py-6">
-          <div className="container mx-auto px-3 sm:px-4">
-            <Collapsible open={isTopRatedOpen} onOpenChange={setIsTopRatedOpen}>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
-                    <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight">All-Time Top Rated</h2>
-                    <p className="font-jp text-xs sm:text-sm text-muted-foreground">歴代最高</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Link 
-                    to="/rankings?type=anime&sort=score" 
-                    className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    See all →
-                  </Link>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8">
-                      {isTopRatedOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                    </Button>
-                  </CollapsibleTrigger>
-                </div>
-              </div>
-              <CollapsibleContent className="transition-all duration-300">
-                <HorizontalScroll showArrows={!isMobile}>
-                  {allTimeLoading ? (
-                    <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-                  ) : (
-                    sortedAllTimeTop?.slice(0, 12).map((anime, index) => (
-                      <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                        {isMobile ? (
-                          <MobileAnimeCard anime={anime} index={index} />
-                        ) : (
-                          <AnimeCard anime={anime} index={index} />
-                        )}
-                      </div>
-                    ))
-                  )}
-                </HorizontalScroll>
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
-        </section>
-      )}
-
       {/* Classic Anime - Hide when searching */}
       {!isSearching && (
         <ContentSection
@@ -327,58 +269,109 @@ export default function AnimePage() {
         </ContentSection>
       )}
 
-      {/* Filters */}
+      {/* Collapsible Filters Section */}
       <section className="py-4" ref={resultsRef}>
         <div className="container mx-auto px-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+          <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Sort by:</span>
+                <div className="p-1.5 rounded-lg bg-primary/10">
+                  <Filter className="w-4 h-4 text-primary" />
+                </div>
+                <h3 className="text-base sm:text-lg font-semibold">Browse & Filter</h3>
               </div>
-              
-              <div className="flex flex-wrap gap-2">
-                {([undefined, 'airing', 'upcoming', 'bypopularity', 'favorite'] as const).map((f) => (
-                  <Button
-                    key={f || 'all'}
-                    variant={filter === f ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => handleFilterChange(f)}
-                    className={cn(
-                      "rounded-full text-xs sm:text-sm capitalize",
-                      filter !== f && "glass-button"
-                    )}
-                  >
-                    {f === undefined ? "Top Rated" : f === 'bypopularity' ? "Popular" : f}
-                  </Button>
-                ))}
-              </div>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8">
+                  {isFiltersOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </Button>
+              </CollapsibleTrigger>
             </div>
+            
+            <CollapsibleContent className="space-y-4 transition-all duration-300">
+              {/* Status/Type Filter */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Status:</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {([undefined, 'airing', 'upcoming', 'bypopularity', 'favorite'] as const).map((f) => (
+                    <Button
+                      key={f || 'all'}
+                      variant={filter === f ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => handleFilterChange(f)}
+                      className={cn(
+                        "rounded-full text-xs capitalize h-8",
+                        filter !== f && "glass-button"
+                      )}
+                    >
+                      {f === undefined ? "Top Rated" : f === 'bypopularity' ? "Popular" : f}
+                    </Button>
+                  ))}
+                </div>
+              </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                variant={viewMode === "grid" ? "outline" : "ghost"}
-                size="icon"
-                onClick={() => setViewMode("grid")}
-                className="rounded-full"
-              >
-                <Grid className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "outline" : "ghost"}
-                size="icon"
-                onClick={() => setViewMode("list")}
-                className="rounded-full"
-              >
-                <List className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+              {/* Time Period Filter */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Time Period:</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {([
+                    { value: 'day', label: 'Today' },
+                    { value: 'week', label: 'This Week' },
+                    { value: 'month', label: 'This Month' },
+                    { value: '6months', label: '6 Months' },
+                    { value: 'year', label: 'This Year' },
+                    { value: 'alltime', label: 'All Time' },
+                  ] as const).map((period) => (
+                    <Button
+                      key={period.value}
+                      variant={timePeriod === period.value ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setTimePeriod(period.value)}
+                      className={cn(
+                        "rounded-full text-xs h-8",
+                        timePeriod !== period.value && "glass-button"
+                      )}
+                    >
+                      {period.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* View Mode Toggle */}
+              <div className="flex items-center justify-between pt-2 border-t border-border/30">
+                <span className="text-xs text-muted-foreground">View mode:</span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={viewMode === "grid" ? "outline" : "ghost"}
+                    size="icon"
+                    onClick={() => setViewMode("grid")}
+                    className="rounded-full h-8 w-8"
+                  >
+                    <Grid className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === "list" ? "outline" : "ghost"}
+                    size="icon"
+                    onClick={() => setViewMode("list")}
+                    className="rounded-full h-8 w-8"
+                  >
+                    <List className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       </section>
 
       {/* Active Filters Chips */}
-      {(filter || genreId) && (
+      {(filter || timePeriod !== 'alltime' || genreId) && (
         <section className="pb-2">
           <div className="container mx-auto px-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -388,7 +381,16 @@ export default function AnimePage() {
                   onClick={() => setFilter(undefined)}
                   className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                 >
-                  Sort: {filter === 'bypopularity' ? 'Popular' : filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  Status: {filter === 'bypopularity' ? 'Popular' : filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  <span className="text-primary/60">×</span>
+                </button>
+              )}
+              {timePeriod !== 'alltime' && (
+                <button
+                  onClick={() => setTimePeriod('alltime')}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                >
+                  Period: {timePeriod === 'day' ? 'Today' : timePeriod === 'week' ? 'This Week' : timePeriod === 'month' ? 'This Month' : timePeriod === '6months' ? '6 Months' : 'This Year'}
                   <span className="text-primary/60">×</span>
                 </button>
               )}
