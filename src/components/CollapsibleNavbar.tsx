@@ -108,11 +108,13 @@ export function CollapsibleNavbar() {
           !isVisible && "opacity-0 pointer-events-none"
         )}
       >
-        <img 
-          src={bibueTower} 
-          alt="Bibue Tower" 
-          className="h-12 sm:h-14 w-auto object-contain brightness-0 dark:brightness-0 dark:invert"
-        />
+        <div className="h-12 sm:h-14 w-auto flex items-center justify-center">
+          <img 
+            src={bibueTower} 
+            alt="Bibue Tower" 
+            className="h-full w-auto object-contain dark:brightness-0 dark:invert"
+          />
+        </div>
         <span className="text-2xl sm:text-3xl font-sacred font-semibold tracking-wide">
           Bibue
         </span>
