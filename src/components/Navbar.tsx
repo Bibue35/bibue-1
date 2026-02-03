@@ -86,7 +86,7 @@ export function Navbar() {
             </div>
 
             {/* Center: Navigation */}
-            <div className="hidden md:flex items-center gap-1">
+            <nav className="hidden md:flex items-center gap-1">
               {primaryLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -150,7 +150,7 @@ export function Navbar() {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
+            </nav>
 
             {/* Right: Icons */}
             <div className="flex items-center gap-0.5 sm:gap-1 ml-auto">
