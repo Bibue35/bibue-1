@@ -49,11 +49,13 @@ export function FloatingNav() {
           <div className="flex items-center justify-between">
             {/* Logo - left side */}
             <Link to="/" className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
-              <img 
-                src={bibueTower} 
-                alt="Bibue Tower" 
-                className="h-6 sm:h-8 md:h-10 lg:h-12 w-auto object-contain dark:invert"
-              />
+              <div className="h-6 sm:h-8 md:h-10 lg:h-12 w-auto flex items-center justify-center">
+                <img 
+                  src={bibueTower} 
+                  alt="Bibue Tower" 
+                  className="h-full w-auto object-contain dark:brightness-0 dark:invert"
+                />
+              </div>
               <span className="text-sm sm:text-base md:text-xl lg:text-2xl font-sacred font-semibold tracking-wide">
                 Bibue
               </span>
