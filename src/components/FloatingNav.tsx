@@ -36,10 +36,10 @@ export function FloatingNav() {
 
   return (
     <>
-      {/* Desktop navbar - top */}
+      {/* Floating nav - subtle background on scroll */}
       <nav
         className={cn(
-          "hidden md:block fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
           isScrolled 
             ? "bg-background/80 backdrop-blur-md border-b border-border/10" 
             : "bg-transparent"
@@ -59,8 +59,8 @@ export function FloatingNav() {
               </span>
             </Link>
 
-            {/* Center nav links */}
-            <div className="flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+            {/* Center nav links - desktop only, absolutely centered */}
+            <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -90,53 +90,44 @@ export function FloatingNav() {
 
               <ThemeSelector />
               <UserMenu />
+
+              {/* Mobile menu toggle */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden rounded-full hover:bg-foreground/10"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </Button>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Mobile navbar - bottom */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border/20 safe-area-inset-bottom">
-        <div className="flex items-center justify-around py-2 px-2">
+      {/* Mobile menu dropdown */}
+      <div
+        className={cn(
+          "fixed top-16 left-4 right-4 z-50 bg-background/95 backdrop-blur-md border border-border/30 rounded-2xl overflow-hidden transition-all duration-200 shadow-lg",
+          isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
+        )}
+      >
+        <div className="p-3 space-y-0.5 md:hidden">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               to={link.href}
+              onClick={() => setIsMobileMenuOpen(false)}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200",
+                "block px-4 py-3 rounded-xl text-sm font-medium transition-colors",
                 location.pathname === link.href
-                  ? "text-foreground"
-                  : "text-muted-foreground"
+                  ? "text-foreground bg-foreground/5"
+                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
               )}
             >
-              <span className="text-xs font-medium">{link.label}</span>
+              {link.label}
             </Link>
           ))}
-          <button
-            onClick={() => setIsSearchOpen(true)}
-            className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-muted-foreground transition-all duration-200"
-          >
-            <Search className="w-5 h-5" />
-            <span className="text-xs font-medium">Search</span>
-          </button>
-        </div>
-      </nav>
-
-      {/* Mobile header - logo only */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <img 
-            src={bibueTower} 
-            alt="Bibue Tower" 
-            className="h-10 w-auto object-contain brightness-0 dark:brightness-0 dark:invert"
-          />
-          <span className="text-xl font-sacred font-semibold tracking-wide">
-            Bibue
-          </span>
-        </Link>
-        <div className="flex items-center gap-0.5">
-          <ThemeSelector />
-          <UserMenu />
         </div>
       </div>
 
