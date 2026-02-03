@@ -315,7 +315,7 @@ export default function AnimeDetailPage() {
                 <img 
                   src={bibueLogo} 
                   alt="Bibue" 
-                  className="h-10 sm:h-12 md:h-14 w-auto object-contain brightness-0 invert"
+                  className="h-12 sm:h-14 md:h-16 w-auto object-contain brightness-0 invert"
                 />
               </Link>
 
