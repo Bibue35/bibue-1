@@ -25,6 +25,7 @@ export interface Anime {
   /** @deprecated Use anilist_id instead. Kept for backward compatibility with existing code. */
   mal_id: number;
   title: string;
+  title_romaji?: string;
   title_english?: string;
   title_japanese?: string;
   images: {
@@ -57,6 +58,7 @@ export interface Manga {
   /** @deprecated Use anilist_id instead. Kept for backward compatibility with existing code. */
   mal_id: number;
   title: string;
+  title_romaji?: string;
   title_english?: string;
   title_japanese?: string;
   images: {
@@ -143,6 +145,7 @@ function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime
     anilist_id: media.id, // Primary AniList ID for all API calls
     mal_id: media.id, // Keep for backward compatibility (also AniList ID)
     title: getTitleForLanguage(media.title, language),
+    title_romaji: media.title.romaji || undefined,
     title_english: media.title.english || undefined,
     title_japanese: media.title.native || undefined,
     images: {
@@ -184,6 +187,7 @@ function toManga(media: AniListMedia, language: SupportedLanguage = "en"): Manga
     anilist_id: media.id, // Primary AniList ID for all API calls
     mal_id: media.id, // Keep for backward compatibility (also AniList ID)
     title: getTitleForLanguage(media.title, language),
+    title_romaji: media.title.romaji || undefined,
     title_english: media.title.english || undefined,
     title_japanese: media.title.native || undefined,
     images: {
