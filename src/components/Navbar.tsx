@@ -1,52 +1,31 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Menu, X, ChevronDown } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUnreadCount } from "@/hooks/useMessages";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import bibueLogo from "@/assets/bibue-logo.jpg";
 import bibueTower from "@/assets/bibue-tower.png";
 
-// Primary nav items shown directly (no Home - logo serves as home)
-const primaryLinks = [
+// Primary nav items (Community is now on page, not in navbar)
+const navLinks = [
   { href: "/anime", label: "Anime" },
   { href: "/manga", label: "Manga" },
   { href: "/news", label: "News" },
   { href: "/rankings", label: "Rankings" },
+  { href: "/community", label: "Community" },
 ];
-
-// Community dropdown items
-const communityLinks = [
-  { href: "/community", label: "Discussions" },
-  { href: "/messages", label: "Messages" },
-];
-
-// All links for mobile menu
-const allLinks = [...primaryLinks, ...communityLinks];
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
-  const { user } = useAuth();
-  const { data: unreadCount } = useUnreadCount();
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
-
-  const isCommunityActive = communityLinks.some(link => location.pathname === link.href);
 
   return (
     <>
@@ -87,7 +66,7 @@ export function Navbar() {
 
             {/* Center: Navigation */}
             <nav className="hidden md:flex items-center gap-1">
-              {primaryLinks.map((link) => (
+              {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
@@ -101,55 +80,6 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              
-              {/* Community Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    className={cn(
-                      "flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-full transition-all duration-300 relative cursor-pointer",
-                      isCommunityActive
-                        ? "text-foreground bg-foreground/10"
-                        : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
-                    )}
-                  >
-                    <span>Community</span>
-                    {user && (unreadCount ?? 0) > 0 && (
-                      <Badge 
-                        variant="default" 
-                        className="ml-1 h-5 min-w-5 px-1.5 text-xs flex items-center justify-center"
-                      >
-                        {unreadCount && unreadCount > 9 ? "9+" : unreadCount}
-                      </Badge>
-                    )}
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" className="min-w-[140px]">
-                  {communityLinks.map((link) => (
-                    <DropdownMenuItem key={link.href} asChild>
-                      <Link
-                        to={link.href}
-                        className={cn(
-                          "flex items-center justify-between w-full",
-                          location.pathname === link.href && "bg-accent"
-                        )}
-                      >
-                        {link.label}
-                        {link.href === "/messages" && user && (unreadCount ?? 0) > 0 && (
-                          <Badge 
-                            variant="default" 
-                            className="ml-2 h-5 min-w-5 px-1.5 text-xs"
-                          >
-                            {unreadCount && unreadCount > 9 ? "9+" : unreadCount}
-                          </Badge>
-                        )}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
             </nav>
 
             {/* Right: Icons */}
@@ -170,7 +100,7 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu - improved styling */}
+        {/* Mobile Menu */}
         <div
           className={cn(
             "md:hidden fixed top-14 sm:top-16 left-3 right-3 sm:left-4 sm:right-4 bg-background/95 backdrop-blur-md border border-border/50 rounded-2xl overflow-hidden transition-all duration-200 pointer-events-auto shadow-lg",
@@ -178,7 +108,7 @@ export function Navbar() {
           )}
         >
           <div className="p-3 sm:p-4 space-y-0.5 sm:space-y-1">
-            {allLinks.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
