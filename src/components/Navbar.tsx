@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import bibueLogo from "@/assets/bibue-logo.png";
+import bibueLogo from "@/assets/bibue-logo-horizontal.png";
 
 // Primary nav items shown directly
 const primaryLinks = [
@@ -51,7 +51,7 @@ export function Navbar() {
         <img 
           src={bibueLogo} 
           alt="Bibue" 
-          className="h-20 sm:h-24 md:h-28 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
+          className="h-10 sm:h-12 md:h-14 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
         />
       </Link>
 
@@ -59,7 +59,7 @@ export function Navbar() {
         <div className="w-full px-3 sm:px-4 md:px-6">
           <div className="flex items-center justify-between pointer-events-auto relative">
             {/* Left spacer for logo */}
-            <div className="w-24 sm:w-28 md:w-32" />
+            <div className="w-32 sm:w-36 md:w-40" />
 
             {/* Center: Navigation - absolutely centered */}
             <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">

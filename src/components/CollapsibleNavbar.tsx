@@ -11,7 +11,7 @@ import {
   Collapsible,
   CollapsibleContent,
 } from "@/components/ui/collapsible";
-import bibueLogo from "@/assets/bibue-logo.png";
+import bibueLogo from "@/assets/bibue-logo-horizontal.png";
 
 export function CollapsibleNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -108,7 +108,7 @@ export function CollapsibleNavbar() {
         <img 
           src={bibueLogo} 
           alt="Bibue" 
-          className="h-20 sm:h-24 md:h-28 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
+          className="h-10 sm:h-12 md:h-14 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
         />
       </Link>
 
@@ -129,7 +129,7 @@ export function CollapsibleNavbar() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             {/* Left spacer for logo */}
-            <div className="w-24 sm:w-28 md:w-32" />
+            <div className="w-32 sm:w-36 md:w-40" />
 
             {/* Desktop Navigation - Collapsible */}
             <Collapsible

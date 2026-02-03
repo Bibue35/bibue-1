@@ -18,7 +18,7 @@ import { validateComment } from "@/lib/validation";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useSwipeGesture } from "@/hooks/useSwipeGesture";
 import { useMiniPlayer } from "@/contexts/MiniPlayerContext";
-import bibueLogo from "@/assets/bibue-logo.png";
+import bibueLogo from "@/assets/bibue-logo-horizontal.png";
 
 export default function AnimeDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -315,7 +315,7 @@ export default function AnimeDetailPage() {
                 <img 
                   src={bibueLogo} 
                   alt="Bibue" 
-                  className="h-16 sm:h-20 md:h-24 w-auto object-contain brightness-0 invert"
+                  className="h-10 sm:h-12 md:h-14 w-auto object-contain brightness-0 invert"
                 />
               </Link>
 
