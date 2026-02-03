@@ -1,9 +1,10 @@
 import { useState, memo, forwardRef } from "react";
-import { Star, Calendar, Play, Bookmark } from "lucide-react";
+import { Star, Calendar, Play } from "lucide-react";
 import { Anime, formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { AnimeDetailModal } from "./AnimeDetailModal";
 import { WatchlistButton } from "./WatchlistButton";
+import { TitleTooltip } from "./TitleTooltip";
 
 interface AnimeCardProps {
   anime: Anime;
@@ -119,10 +120,18 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
           </div>
         </div>
 
-        {/* Title underneath */}
-        <h3 className="font-medium text-[11px] sm:text-xs md:text-sm line-clamp-2 mb-0.5 sm:mb-1 group-hover:text-foreground/80 transition-colors leading-tight">
-          {anime.title}
-        </h3>
+        {/* Title with verification tooltip */}
+        <div className="flex items-start gap-1">
+          <h3 className="font-medium text-[11px] sm:text-xs md:text-sm line-clamp-2 mb-0.5 sm:mb-1 group-hover:text-foreground/80 transition-colors leading-tight flex-1">
+            {anime.title}
+          </h3>
+          <TitleTooltip 
+            romaji={anime.title_romaji}
+            english={anime.title_english}
+            native={anime.title_japanese}
+            className="mt-0.5 shrink-0"
+          />
+        </div>
 
         {/* Score */}
         {anime.score && (

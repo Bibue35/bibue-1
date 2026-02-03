@@ -1,9 +1,10 @@
 import { useState, memo, forwardRef } from "react";
-import { Star, BookOpen, Calendar, Bookmark } from "lucide-react";
+import { Star, BookOpen, Calendar } from "lucide-react";
 import { Manga, formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { MangaDetailModal } from "./MangaDetailModal";
 import { WatchlistButton } from "./WatchlistButton";
+import { TitleTooltip } from "./TitleTooltip";
 
 interface MangaCardProps {
   manga: Manga;
@@ -119,10 +120,18 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
           </div>
         </div>
 
-        {/* Title underneath */}
-        <h3 className="font-medium text-xs sm:text-sm line-clamp-2 mb-1 group-hover:text-foreground/80 transition-colors">
-          {manga.title}
-        </h3>
+        {/* Title with verification tooltip */}
+        <div className="flex items-start gap-1">
+          <h3 className="font-medium text-xs sm:text-sm line-clamp-2 mb-1 group-hover:text-foreground/80 transition-colors flex-1">
+            {manga.title}
+          </h3>
+          <TitleTooltip 
+            romaji={manga.title_romaji}
+            english={manga.title_english}
+            native={manga.title_japanese}
+            className="mt-0.5 shrink-0"
+          />
+        </div>
 
         {/* Score */}
         {manga.score && (
