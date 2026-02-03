@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Menu, X, ChevronDown } from "lucide-react";
+import { Search, Menu, X, ChevronDown, Play, BookOpen, Newspaper, Trophy, Users, Mail, LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -18,22 +18,25 @@ import {
 import bibueLogo from "@/assets/bibue-logo.jpg";
 import bibueTower from "@/assets/bibue-tower.png";
 
+interface NavLink {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+}
+
 // Primary nav items shown directly (no Home - logo serves as home)
-const primaryLinks = [
-  { href: "/anime", label: "Anime" },
-  { href: "/manga", label: "Manga" },
-  { href: "/news", label: "News" },
-  { href: "/rankings", label: "Rankings" },
+const primaryLinks: NavLink[] = [
+  { href: "/anime", label: "Anime", icon: Play },
+  { href: "/manga", label: "Manga", icon: BookOpen },
+  { href: "/news", label: "News", icon: Newspaper },
+  { href: "/rankings", label: "Rankings", icon: Trophy },
 ];
 
 // Community dropdown items
-const communityLinks = [
-  { href: "/community", label: "Discussions" },
-  { href: "/messages", label: "Messages" },
+const communityLinks: NavLink[] = [
+  { href: "/community", label: "Discussions", icon: Users },
+  { href: "/messages", label: "Messages", icon: Mail },
 ];
-
-// All links for mobile menu
-const allLinks = [...primaryLinks, ...communityLinks];
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -87,20 +90,24 @@ export function Navbar() {
 
             {/* Center: Navigation */}
             <div className="hidden md:flex items-center gap-1">
-              {primaryLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className={cn(
-                    "relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-300",
-                    location.pathname === link.href
-                      ? "text-foreground bg-foreground/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {primaryLinks.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    className={cn(
+                      "relative flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-full transition-all duration-300",
+                      location.pathname === link.href
+                        ? "text-foreground bg-foreground/10"
+                        : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                    )}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {link.label}
+                  </Link>
+                );
+              })}
               
               {/* Community Dropdown */}
               <DropdownMenu>
@@ -126,28 +133,34 @@ export function Navbar() {
                     <ChevronDown className="w-3.5 h-3.5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" className="min-w-[140px]">
-                  {communityLinks.map((link) => (
-                    <DropdownMenuItem key={link.href} asChild>
-                      <Link
-                        to={link.href}
-                        className={cn(
-                          "flex items-center justify-between w-full",
-                          location.pathname === link.href && "bg-accent"
-                        )}
-                      >
-                        {link.label}
-                        {link.href === "/messages" && user && (unreadCount ?? 0) > 0 && (
-                          <Badge 
-                            variant="default" 
-                            className="ml-2 h-5 min-w-5 px-1.5 text-xs"
-                          >
-                            {unreadCount && unreadCount > 9 ? "9+" : unreadCount}
-                          </Badge>
-                        )}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
+                <DropdownMenuContent align="center" className="min-w-[160px]">
+                  {communityLinks.map((link) => {
+                    const Icon = link.icon;
+                    return (
+                      <DropdownMenuItem key={link.href} asChild>
+                        <Link
+                          to={link.href}
+                          className={cn(
+                            "flex items-center justify-between w-full",
+                            location.pathname === link.href && "bg-accent"
+                          )}
+                        >
+                          <span className="flex items-center gap-2">
+                            <Icon className="w-4 h-4" />
+                            {link.label}
+                          </span>
+                          {link.href === "/messages" && user && (unreadCount ?? 0) > 0 && (
+                            <Badge 
+                              variant="default" 
+                              className="ml-2 h-5 min-w-5 px-1.5 text-xs"
+                            >
+                              {unreadCount && unreadCount > 9 ? "9+" : unreadCount}
+                            </Badge>
+                          )}
+                        </Link>
+                      </DropdownMenuItem>
+                    );
+                  })}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -179,20 +192,24 @@ export function Navbar() {
         >
           <div className="p-3 sm:p-4 space-y-1">
             {/* Primary Links */}
-            {primaryLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className={cn(
-                  "block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-medium transition-colors",
-                  location.pathname === link.href
-                    ? "bg-foreground/10 text-foreground"
-                    : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {primaryLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={cn(
+                    "flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-medium transition-colors",
+                    location.pathname === link.href
+                      ? "bg-foreground/10 text-foreground"
+                      : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+                  )}
+                >
+                  <Icon className="w-4 h-4" />
+                  {link.label}
+                </Link>
+              );
+            })}
             
             {/* Divider */}
             <div className="h-px bg-border/50 my-2" />
@@ -201,28 +218,34 @@ export function Navbar() {
             <div className="px-3 sm:px-4 py-1">
               <span className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">Community</span>
             </div>
-            {communityLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className={cn(
-                  "flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-medium transition-colors",
-                  location.pathname === link.href
-                    ? "bg-foreground/10 text-foreground"
-                    : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
-                )}
-              >
-                {link.label}
-                {link.href === "/messages" && user && (unreadCount ?? 0) > 0 && (
-                  <Badge 
-                    variant="default" 
-                    className="h-5 min-w-5 px-1.5 text-xs"
-                  >
-                    {unreadCount && unreadCount > 9 ? "9+" : unreadCount}
-                  </Badge>
-                )}
-              </Link>
-            ))}
+            {communityLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={cn(
+                    "flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-medium transition-colors",
+                    location.pathname === link.href
+                      ? "bg-foreground/10 text-foreground"
+                      : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+                  )}
+                >
+                  <span className="flex items-center gap-3">
+                    <Icon className="w-4 h-4" />
+                    {link.label}
+                  </span>
+                  {link.href === "/messages" && user && (unreadCount ?? 0) > 0 && (
+                    <Badge 
+                      variant="default" 
+                      className="h-5 min-w-5 px-1.5 text-xs"
+                    >
+                      {unreadCount && unreadCount > 9 ? "9+" : unreadCount}
+                    </Badge>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </nav>
