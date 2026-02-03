@@ -42,20 +42,28 @@ const activityLabels: Record<string, string> = {
 interface ActivityFeedProps {
   limit?: number;
   showUser?: boolean;
+  userId?: string;
 }
 
-export function ActivityFeed({ limit = 20, showUser = true }: ActivityFeedProps) {
+export function ActivityFeed({ limit = 20, showUser = true, userId }: ActivityFeedProps) {
   const navigate = useNavigate();
 
   const { data: activities, isLoading } = useQuery({
-    queryKey: ["activity-feed", limit],
+    queryKey: ["activity-feed", limit, userId],
     queryFn: async () => {
-      // Fetch activity logs
-      const { data: logs, error } = await supabase
+      // Build query
+      let query = supabase
         .from("activity_logs")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(limit);
+
+      // Filter by user if provided
+      if (userId) {
+        query = query.eq("user_id", userId);
+      }
+
+      const { data: logs, error } = await query;
 
       if (error) throw error;
       if (!logs || logs.length === 0) return [];

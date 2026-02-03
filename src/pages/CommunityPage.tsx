@@ -1,21 +1,24 @@
 import { useState } from "react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageCircle, TrendingUp, Clock, Plus, Activity } from "lucide-react";
+import { MessageCircle, TrendingUp, Clock, Activity, Trophy, BarChart3 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDistanceToNow } from "date-fns";
 import { ActivityFeed } from "@/components/ActivityFeed";
-import { MarkdownContent } from "@/components/MarkdownContent";
+import { Leaderboard } from "@/components/community/Leaderboard";
+import { DiscussionCard } from "@/components/community/DiscussionCard";
+import { CreateDiscussionDialog } from "@/components/community/CreateDiscussionDialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 const CommunityPage = () => {
-  const [activeTab, setActiveTab] = useState("trending");
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState("discussions");
+  const [sortBy, setSortBy] = useState<"trending" | "recent">("trending");
 
   const { data: discussions, isLoading } = useQuery({
-    queryKey: ["discussions", activeTab],
+    queryKey: ["discussions", sortBy],
     queryFn: async () => {
       const { data: rawData, error } = await supabase
         .from("discussions")
@@ -30,7 +33,7 @@ const CommunityPage = () => {
       const userIds = [...new Set(rawData.map(d => d.user_id))];
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("user_id, username, avatar_url")
+        .select("user_id, username, avatar_url, display_name")
         .in("user_id", userIds);
 
       const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
@@ -56,105 +59,199 @@ const CommunityPage = () => {
                 Discuss anime, manga, and connect with fellow fans
               </p>
             </div>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              New Discussion
-            </Button>
+            <CreateDiscussionDialog />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Content */}
-            <div className="lg:col-span-2">
-              {/* Tabs */}
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-                <TabsList className="liquid-glass-subtle p-1 rounded-full">
-                  <TabsTrigger 
-                    value="trending" 
-                    className="rounded-full gap-2 data-[state=active]:bg-foreground/10"
-                  >
-                    <TrendingUp className="w-4 h-4" />
-                    Trending
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="recent" 
-                    className="rounded-full gap-2 data-[state=active]:bg-foreground/10"
-                  >
-                    <Clock className="w-4 h-4" />
-                    Recent
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
+          {/* Main Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="liquid-glass-subtle p-1 rounded-full">
+              <TabsTrigger 
+                value="discussions" 
+                className="rounded-full gap-2 data-[state=active]:bg-foreground/10"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span className="hidden sm:inline">Discussions</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="activity" 
+                className="rounded-full gap-2 data-[state=active]:bg-foreground/10"
+              >
+                <Activity className="w-4 h-4" />
+                <span className="hidden sm:inline">Activity</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="leaderboard" 
+                className="rounded-full gap-2 data-[state=active]:bg-foreground/10"
+              >
+                <Trophy className="w-4 h-4" />
+                <span className="hidden sm:inline">Leaderboard</span>
+              </TabsTrigger>
+            </TabsList>
 
-              {/* Discussions List */}
-              <div className="space-y-4">
-                {isLoading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="liquid-glass rounded-2xl p-6">
-                      <Skeleton className="h-6 w-3/4 mb-3" />
-                      <Skeleton className="h-4 w-full mb-4" />
-                      <div className="flex gap-4">
-                        <Skeleton className="h-4 w-20" />
-                        <Skeleton className="h-4 w-24" />
+            {/* Discussions Tab */}
+            <TabsContent value="discussions">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Main Content */}
+                <div className="lg:col-span-2 space-y-4">
+                  {/* Sort Options */}
+                  <div className="flex gap-2 mb-4">
+                    <button
+                      onClick={() => setSortBy("trending")}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-colors ${
+                        sortBy === "trending" 
+                          ? "bg-primary text-primary-foreground" 
+                          : "bg-foreground/5 hover:bg-foreground/10"
+                      }`}
+                    >
+                      <TrendingUp className="w-4 h-4" />
+                      Trending
+                    </button>
+                    <button
+                      onClick={() => setSortBy("recent")}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-colors ${
+                        sortBy === "recent" 
+                          ? "bg-primary text-primary-foreground" 
+                          : "bg-foreground/5 hover:bg-foreground/10"
+                      }`}
+                    >
+                      <Clock className="w-4 h-4" />
+                      Recent
+                    </button>
+                  </div>
+
+                  {/* Discussions List */}
+                  {isLoading ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="liquid-glass rounded-2xl p-6">
+                        <Skeleton className="h-6 w-3/4 mb-3" />
+                        <Skeleton className="h-4 w-full mb-4" />
+                        <div className="flex gap-4">
+                          <Skeleton className="h-4 w-20" />
+                          <Skeleton className="h-4 w-24" />
+                        </div>
+                      </div>
+                    ))
+                  ) : discussions && discussions.length > 0 ? (
+                    discussions.map((discussion) => (
+                      <DiscussionCard key={discussion.id} discussion={discussion} />
+                    ))
+                  ) : (
+                    <div className="liquid-glass rounded-2xl p-12 text-center">
+                      <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">No discussions yet</h3>
+                      <p className="text-muted-foreground mb-6">
+                        Be the first to start a conversation!
+                      </p>
+                      <CreateDiscussionDialog />
+                    </div>
+                  )}
+                </div>
+
+                {/* Sidebar */}
+                <div className="space-y-6">
+                  {/* Quick Stats */}
+                  <div className="liquid-glass rounded-2xl p-6">
+                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5" />
+                      Community Stats
+                    </h3>
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Discussions</span>
+                        <span className="font-semibold">{discussions?.length || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Active Today</span>
+                        <span className="font-semibold">-</span>
                       </div>
                     </div>
-                  ))
-                ) : discussions && discussions.length > 0 ? (
-                  discussions.map((discussion) => (
-                    <article 
-                      key={discussion.id} 
-                      className="liquid-glass rounded-2xl p-6 hover-lift cursor-pointer"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0">
-                          <MessageCircle className="w-5 h-5 text-muted-foreground" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-semibold mb-1 line-clamp-1">
-                            {discussion.title}
-                          </h3>
-                          <MarkdownContent 
-                            content={discussion.content.slice(0, 200) + (discussion.content.length > 200 ? "..." : "")} 
-                            className="text-muted-foreground text-sm line-clamp-2 mb-3"
-                          />
-                          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                            <span className="px-2 py-0.5 rounded-full bg-foreground/5 text-xs">
-                              {discussion.category}
-                            </span>
-                            <span>
-                              {formatDistanceToNow(new Date(discussion.created_at), { addSuffix: true })}
-                            </span>
-                            <span className="text-xs">
-                              by {(discussion.profiles as any)?.username || "Anonymous"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  ))
-                ) : (
-                  <div className="liquid-glass rounded-2xl p-12 text-center">
-                    <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No discussions yet</h3>
-                    <p className="text-muted-foreground mb-6">
-                      Be the first to start a conversation!
-                    </p>
-                    <Button>Start a Discussion</Button>
                   </div>
-                )}
-              </div>
-            </div>
 
-            {/* Sidebar - Activity Feed */}
-            <div className="lg:col-span-1">
-              <div className="liquid-glass rounded-2xl p-6 sticky top-24">
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <Activity className="w-5 h-5" />
-                  Recent Activity
-                </h3>
-                <ActivityFeed limit={10} showUser={true} />
+                  {/* Activity Preview */}
+                  <div className="liquid-glass rounded-2xl p-6">
+                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                      <Activity className="w-5 h-5" />
+                      Recent Activity
+                    </h3>
+                    <ActivityFeed limit={5} showUser={true} />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            </TabsContent>
+
+            {/* Activity Tab */}
+            <TabsContent value="activity">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2">
+                  <div className="liquid-glass rounded-2xl p-6">
+                    <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
+                      <Activity className="w-5 h-5" />
+                      Community Activity Feed
+                    </h3>
+                    <ActivityFeed limit={30} showUser={true} />
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="liquid-glass rounded-2xl p-6">
+                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                      <Trophy className="w-5 h-5" />
+                      Top Contributors
+                    </h3>
+                    <Leaderboard limit={5} />
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Leaderboard Tab */}
+            <TabsContent value="leaderboard">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2">
+                  <div className="liquid-glass rounded-2xl p-6">
+                    <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                      <Trophy className="w-6 h-6 text-primary" />
+                      Community Leaderboard
+                    </h3>
+                    <Leaderboard limit={25} />
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="liquid-glass rounded-2xl p-6">
+                    <h3 className="text-lg font-bold mb-4">How Karma Works</h3>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li className="flex items-start gap-2">
+                        <span className="text-primary">+5</span>
+                        <span>Creating a discussion</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-primary">+2</span>
+                        <span>Posting a reply</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-primary">+1</span>
+                        <span>Receiving a like</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-primary">+10</span>
+                        <span>Receiving helpful vote</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {user && (
+                    <div className="liquid-glass rounded-2xl p-6">
+                      <h3 className="text-lg font-bold mb-4">Your Rank</h3>
+                      <p className="text-muted-foreground text-sm">
+                        Start contributing to climb the leaderboard!
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
 

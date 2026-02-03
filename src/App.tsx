@@ -17,6 +17,7 @@ import MangaDetail from "./pages/MangaDetail";
 import Rankings from "./pages/Rankings";
 import NewsPage from "./pages/NewsPage";
 import CommunityPage from "./pages/CommunityPage";
+import UserProfile from "./pages/UserProfile";
 import WatchlistPage from "./pages/WatchlistPage";
 import RecommendationsPage from "./pages/RecommendationsPage";
 import ClassicsPage from "./pages/ClassicsPage";
@@ -53,6 +54,7 @@ const App = () => (
                   <Route path="/rankings" element={<Rankings />} />
                   <Route path="/news" element={<NewsPage />} />
                   <Route path="/community" element={<CommunityPage />} />
+                  <Route path="/user/:userId" element={<UserProfile />} />
                   <Route path="/watchlist" element={<WatchlistPage />} />
                   <Route path="/recommendations" element={<RecommendationsPage />} />
                   <Route path="/classics" element={<ClassicsPage />} />
