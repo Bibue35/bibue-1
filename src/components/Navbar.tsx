@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
-import { useAuth } from "@/contexts/AuthContext";
 import bibueTower from "@/assets/bibue-tower.png";
 
 // Primary nav items (Community is now on page, not in navbar)
