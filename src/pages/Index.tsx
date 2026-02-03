@@ -74,8 +74,9 @@ const Index = () => {
   }, [seasonalAnime, user]);
 
   return (
-    <PullToRefresh onRefresh={handleRefresh}>
+    <>
       <FloatingNav />
+      <PullToRefresh onRefresh={handleRefresh}>
       
       {/* Hero Section - Use FeaturedCarousel on mobile for cleaner look */}
       {isMobile ? (
@@ -358,7 +359,8 @@ const Index = () => {
       </div>
 
       <Footer />
-    </PullToRefresh>
+      </PullToRefresh>
+    </>
   );
 };
 
