@@ -54,7 +54,7 @@ export function Navbar() {
                 alt="Bibue Tower" 
                 className="h-12 sm:h-14 w-auto object-contain brightness-0 dark:brightness-0 dark:invert"
               />
-              <span className="text-xl sm:text-2xl font-sacred font-semibold tracking-wide">
+              <span className="text-2xl sm:text-3xl font-sacred font-semibold tracking-wide">
                 Bibue
               </span>
             </Link>
