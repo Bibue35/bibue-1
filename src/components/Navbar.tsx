@@ -47,14 +47,11 @@ export function Navbar() {
         <div className="w-full px-3 sm:px-4 md:px-6">
           <div className="flex items-center justify-between pointer-events-auto relative">
             {/* Left: Logo */}
-            <Link to="/" className="flex flex-col items-center gap-1">
-              <span className="text-xl sm:text-2xl font-sacred font-semibold tracking-wide">
-                Bibue
-              </span>
+            <Link to="/" className="flex items-center">
               <img 
                 src={bibueLogo} 
-                alt="Bibue Logo" 
-                className="h-6 sm:h-8 w-auto object-contain"
+                alt="Bibue" 
+                className="h-10 sm:h-12 w-auto object-contain"
               />
             </Link>
 
