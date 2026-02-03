@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -36,6 +37,47 @@ interface ProfileInfo {
 
 export function useConversations() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  // Set up realtime subscription for conversations
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel(`conversations-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "direct_messages",
+          filter: `recipient_id=eq.${user.id}`,
+        },
+        () => {
+          // Invalidate conversations when we receive a new message
+          queryClient.invalidateQueries({ queryKey: ["conversations", user.id] });
+          queryClient.invalidateQueries({ queryKey: ["unread-count", user.id] });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "direct_messages",
+          filter: `sender_id=eq.${user.id}`,
+        },
+        () => {
+          // Also refresh when we send messages
+          queryClient.invalidateQueries({ queryKey: ["conversations", user.id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, queryClient]);
 
   return useQuery({
     queryKey: ["conversations", user?.id],
@@ -103,6 +145,38 @@ export function useConversation(partnerId: string | null) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
+  // Set up realtime subscription for this conversation
+  useEffect(() => {
+    if (!user?.id || !partnerId) return;
+
+    const channel = supabase
+      .channel(`messages-${user.id}-${partnerId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "direct_messages",
+        },
+        (payload) => {
+          const newMsg = payload.new as Message;
+          // Only invalidate if the message is part of this conversation
+          if (
+            (newMsg.sender_id === user.id && newMsg.recipient_id === partnerId) ||
+            (newMsg.sender_id === partnerId && newMsg.recipient_id === user.id)
+          ) {
+            queryClient.invalidateQueries({ queryKey: ["messages", user.id, partnerId] });
+            queryClient.invalidateQueries({ queryKey: ["unread-count", user.id] });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, partnerId, queryClient]);
+
   const messagesQuery = useQuery({
     queryKey: ["messages", user?.id, partnerId],
     queryFn: async (): Promise<Message[]> => {
@@ -148,7 +222,6 @@ export function useConversation(partnerId: string | null) {
       }));
     },
     enabled: !!user?.id && !!partnerId,
-    refetchInterval: 5000, // Poll every 5 seconds for new messages
   });
 
   const sendMessage = useMutation({
@@ -184,6 +257,45 @@ export function useConversation(partnerId: string | null) {
 
 export function useUnreadCount() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  // Set up realtime subscription for unread count
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel(`unread-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "direct_messages",
+          filter: `recipient_id=eq.${user.id}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["unread-count", user.id] });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "direct_messages",
+          filter: `recipient_id=eq.${user.id}`,
+        },
+        () => {
+          // When messages are marked as read
+          queryClient.invalidateQueries({ queryKey: ["unread-count", user.id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, queryClient]);
 
   return useQuery({
     queryKey: ["unread-count", user?.id],
@@ -200,6 +312,5 @@ export function useUnreadCount() {
       return count || 0;
     },
     enabled: !!user?.id,
-    refetchInterval: 30000, // Refresh every 30 seconds
   });
 }
