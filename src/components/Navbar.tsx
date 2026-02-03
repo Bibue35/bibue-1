@@ -170,15 +170,16 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu - improved styling */}
+        {/* Mobile Menu */}
         <div
           className={cn(
             "md:hidden fixed top-14 sm:top-16 left-3 right-3 sm:left-4 sm:right-4 bg-background/95 backdrop-blur-md border border-border/50 rounded-2xl overflow-hidden transition-all duration-200 pointer-events-auto shadow-lg",
             isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
           )}
         >
-          <div className="p-3 sm:p-4 space-y-0.5 sm:space-y-1">
-            {allLinks.map((link) => (
+          <div className="p-3 sm:p-4 space-y-1">
+            {/* Primary Links */}
+            {primaryLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
@@ -190,6 +191,36 @@ export function Navbar() {
                 )}
               >
                 {link.label}
+              </Link>
+            ))}
+            
+            {/* Divider */}
+            <div className="h-px bg-border/50 my-2" />
+            
+            {/* Community Section */}
+            <div className="px-3 sm:px-4 py-1">
+              <span className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">Community</span>
+            </div>
+            {communityLinks.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                className={cn(
+                  "flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-medium transition-colors",
+                  location.pathname === link.href
+                    ? "bg-foreground/10 text-foreground"
+                    : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+                )}
+              >
+                {link.label}
+                {link.href === "/messages" && user && (unreadCount ?? 0) > 0 && (
+                  <Badge 
+                    variant="default" 
+                    className="h-5 min-w-5 px-1.5 text-xs"
+                  >
+                    {unreadCount && unreadCount > 9 ? "9+" : unreadCount}
+                  </Badge>
+                )}
               </Link>
             ))}
           </div>
