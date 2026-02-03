@@ -41,20 +41,20 @@ export function FloatingNav() {
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
           isScrolled 
-            ? "bg-background/80 backdrop-blur-md border-b border-border/10" 
-            : "bg-transparent"
+            ? "bg-background/90 backdrop-blur-lg border-b border-border/20 shadow-sm" 
+            : "bg-background/50 backdrop-blur-sm"
         )}
       >
-        <div className="w-full px-4 md:px-6 py-3">
+        <div className="w-full px-3 sm:px-4 md:px-6 py-2.5 sm:py-3">
           <div className="flex items-center justify-between">
             {/* Logo - left side */}
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-1.5 sm:gap-2">
               <img 
                 src={bibueTower} 
                 alt="Bibue Tower" 
-                className="h-12 sm:h-14 w-auto object-contain brightness-0 dark:brightness-0 dark:invert"
+                className="h-8 sm:h-12 md:h-14 w-auto object-contain brightness-0 dark:brightness-0 dark:invert"
               />
-              <span className="text-2xl sm:text-3xl font-sacred font-semibold tracking-wide">
+              <span className="text-lg sm:text-2xl md:text-3xl font-sacred font-semibold tracking-wide">
                 Bibue
               </span>
             </Link>
