@@ -11,7 +11,7 @@ import {
   Collapsible,
   CollapsibleContent,
 } from "@/components/ui/collapsible";
-import bibueLogo from "@/assets/bibue-logo.png";
+import bibueLogo from "@/assets/bibue-logo.jpg";
 
 export function CollapsibleNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -103,12 +103,12 @@ export function CollapsibleNavbar() {
       {/* Fixed Logo - Always Visible */}
       <Link 
         to="/" 
-        className="fixed top-3 left-3 sm:top-4 sm:left-4 z-[60] flex items-center"
+        className="fixed top-2 left-3 sm:top-3 sm:left-4 z-[60] flex items-center"
       >
         <img 
           src={bibueLogo} 
           alt="Bibue" 
-          className="h-12 sm:h-14 w-auto object-contain dark:invert"
+          className="h-16 sm:h-20 w-auto object-contain [filter:invert(1)_brightness(2)] dark:[filter:invert(0)_brightness(0)]"
         />
       </Link>
 

@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import bibueLogo from "@/assets/bibue-logo.png";
+import bibueLogo from "@/assets/bibue-logo.jpg";
 
 // Primary nav items shown directly
 const primaryLinks = [
@@ -51,7 +51,7 @@ export function Navbar() {
               <img 
                 src={bibueLogo} 
                 alt="Bibue" 
-                className="h-12 sm:h-14 w-auto object-contain dark:invert"
+                className="h-16 sm:h-20 w-auto object-contain [filter:invert(1)_brightness(2)] dark:[filter:invert(0)_brightness(0)]"
               />
             </Link>
 
