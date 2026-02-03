@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useConversations, useConversation } from "@/hooks/useMessages";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ interface MessageInboxProps {
 
 export function MessageInbox({ initialPartnerId }: MessageInboxProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(
     initialPartnerId || null
   );
@@ -140,13 +142,21 @@ export function MessageInbox({ initialPartnerId }: MessageInboxProps) {
   // Conversation view
   const partner = conversations?.find((c) => c.partnerId === selectedPartnerId);
 
+  const handleBack = () => {
+    if (initialPartnerId) {
+      // Navigated here via URL, go back to messages list
+      navigate("/messages");
+    }
+    setSelectedPartnerId(null);
+  };
+
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="flex-row items-center gap-3 space-y-0 border-b">
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => setSelectedPartnerId(null)}
+          onClick={handleBack}
           className="shrink-0"
         >
           <ArrowLeft className="h-4 w-4" />
