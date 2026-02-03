@@ -52,7 +52,7 @@ export function Navbar() {
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 py-3 sm:py-4 pointer-events-none">
         <div className="w-full px-3 sm:px-4 md:px-6">
-          <div className="flex items-center justify-between pointer-events-auto relative">
+          <div className="flex items-center gap-4 pointer-events-auto relative">
             {/* Left: Mobile menu + Logo */}
             <div className="flex items-center gap-1 sm:gap-2">
               {/* Mobile Menu Button - now on left */}
@@ -85,8 +85,8 @@ export function Navbar() {
               </Link>
             </div>
 
-            {/* Center: Navigation - absolutely centered */}
-            <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+            {/* Center: Navigation */}
+            <div className="hidden md:flex items-center gap-1">
               {primaryLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -106,14 +106,15 @@ export function Navbar() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
+                    type="button"
                     className={cn(
-                      "flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-full transition-all duration-300 relative",
+                      "flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-full transition-all duration-300 relative cursor-pointer",
                       isCommunityActive
                         ? "text-foreground bg-foreground/10"
                         : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
                     )}
                   >
-                    Community 
+                    <span>Community</span>
                     {user && (unreadCount ?? 0) > 0 && (
                       <Badge 
                         variant="default" 
@@ -149,11 +150,10 @@ export function Navbar() {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-
             </div>
 
             {/* Right: Icons */}
-            <div className="flex items-center gap-0.5 sm:gap-1">
+            <div className="flex items-center gap-0.5 sm:gap-1 ml-auto">
               <Button
                 variant="ghost"
                 size="icon"
