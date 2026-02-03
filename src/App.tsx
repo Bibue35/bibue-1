@@ -10,6 +10,7 @@ import { MiniPlayerProvider } from "@/contexts/MiniPlayerContext";
 import { IncognitoOverlay } from "@/components/IncognitoOverlay";
 import { MiniPlayer } from "@/components/MiniPlayer";
 import { MessageNotificationProvider } from "@/components/MessageNotificationProvider";
+import { CommunityButton } from "@/components/CommunityButton";
 import Index from "./pages/Index";
 import AnimePage from "./pages/AnimePage";
 import MangaPage from "./pages/MangaPage";
@@ -48,6 +49,7 @@ const App = () => (
               <Sonner />
               <BrowserRouter>
                 <MessageNotificationProvider>
+                  <CommunityButton />
                   <MiniPlayer />
                   <Routes>
                     <Route path="/" element={<Index />} />
