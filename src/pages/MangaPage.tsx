@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Grid, List, Bookmark, Sparkles, Loader2, ArrowUpDown, Flame, TrendingUp, Trophy, Star, Zap } from "lucide-react";
+import { Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Trophy, Star, Zap, Filter, ChevronDown, ChevronUp, Calendar } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
@@ -10,16 +10,10 @@ import { ContentSection } from "@/components/ContentSection";
 import { SearchDropdown } from "@/components/SearchDropdown";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { CardSkeletonRow } from "@/components/skeletons";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useTopManga, useSearchManga, useTrendingManhwa, useTrendingManhua } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
@@ -38,6 +32,8 @@ export default function MangaPage() {
   const [localSearch, setLocalSearch] = useState(searchParams.get("q") || "");
   const [typeFilter, setTypeFilter] = useState<"all" | "manga" | "manhwa" | "manhua">(filterParam || "all");
   const [sortBy, setSortBy] = useState<SortOption>(sortParam || "popularity");
+  const [isFiltersOpen, setIsFiltersOpen] = useState(true);
+  const [timePeriod, setTimePeriod] = useState<'day' | 'week' | 'month' | '6months' | 'year' | 'alltime'>('alltime');
   const resultsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
@@ -341,50 +337,137 @@ export default function MangaPage() {
         </ContentSection>
       )}
 
-      {/* View Toggle & Sort */}
+      {/* Collapsible Filters Section */}
       <section className="py-4" ref={resultsRef}>
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between gap-4">
-            {/* Sort Dropdown */}
-            <div className="flex items-center gap-2">
-              <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
-              <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
-                <SelectTrigger className="w-[140px] rounded-full h-9">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="popularity">Popularity</SelectItem>
-                  <SelectItem value="score">Score</SelectItem>
-                  <SelectItem value="newest">Date</SelectItem>
-                </SelectContent>
-              </Select>
+          <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-primary/10">
+                  <Filter className="w-4 h-4 text-primary" />
+                </div>
+                <h3 className="text-base sm:text-lg font-semibold">Browse & Filter</h3>
+              </div>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8">
+                  {isFiltersOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </Button>
+              </CollapsibleTrigger>
             </div>
+            
+            <CollapsibleContent className="space-y-4 transition-all duration-300">
+              {/* Type Filter */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Type:</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {(["all", "manga", "manhwa", "manhua"] as const).map((f) => (
+                    <Button
+                      key={f}
+                      variant={typeFilter === f ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setTypeFilter(f)}
+                      className={cn(
+                        "rounded-full text-xs capitalize h-8",
+                        typeFilter !== f && "glass-button"
+                      )}
+                    >
+                      {f === "all" ? "All" : f}
+                    </Button>
+                  ))}
+                </div>
+              </div>
 
-            {/* View Toggle */}
-            <div className="flex items-center gap-2">
-              <Button
-                variant={viewMode === "grid" ? "outline" : "ghost"}
-                size="icon"
-                onClick={() => setViewMode("grid")}
-                className="rounded-full"
-              >
-                <Grid className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "outline" : "ghost"}
-                size="icon"
-                onClick={() => setViewMode("list")}
-                className="rounded-full"
-              >
-                <List className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+              {/* Sort Filter */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Sort by:</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {([
+                    { value: 'popularity', label: 'Popular' },
+                    { value: 'score', label: 'Top Rated' },
+                    { value: 'newest', label: 'Newest' },
+                  ] as const).map((sort) => (
+                    <Button
+                      key={sort.value}
+                      variant={sortBy === sort.value ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setSortBy(sort.value)}
+                      className={cn(
+                        "rounded-full text-xs h-8",
+                        sortBy !== sort.value && "glass-button"
+                      )}
+                    >
+                      {sort.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Time Period Filter */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Time Period:</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {([
+                    { value: 'day', label: 'Today' },
+                    { value: 'week', label: 'This Week' },
+                    { value: 'month', label: 'This Month' },
+                    { value: '6months', label: '6 Months' },
+                    { value: 'year', label: 'This Year' },
+                    { value: 'alltime', label: 'All Time' },
+                  ] as const).map((period) => (
+                    <Button
+                      key={period.value}
+                      variant={timePeriod === period.value ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setTimePeriod(period.value)}
+                      className={cn(
+                        "rounded-full text-xs h-8",
+                        timePeriod !== period.value && "glass-button"
+                      )}
+                    >
+                      {period.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* View Mode Toggle */}
+              <div className="flex items-center justify-between pt-2 border-t border-border/30">
+                <span className="text-xs text-muted-foreground">View mode:</span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={viewMode === "grid" ? "outline" : "ghost"}
+                    size="icon"
+                    onClick={() => setViewMode("grid")}
+                    className="rounded-full h-8 w-8"
+                  >
+                    <Grid className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === "list" ? "outline" : "ghost"}
+                    size="icon"
+                    onClick={() => setViewMode("list")}
+                    className="rounded-full h-8 w-8"
+                  >
+                    <List className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       </section>
 
       {/* Active Filters Chips */}
-      {(typeFilter !== "all" || sortBy !== "popularity" || genreId) && (
+      {(typeFilter !== "all" || sortBy !== "popularity" || timePeriod !== 'alltime' || genreId) && (
         <section className="pb-2">
           <div className="container mx-auto px-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -403,7 +486,16 @@ export default function MangaPage() {
                   onClick={() => setSortBy("popularity")}
                   className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                 >
-                  Sort: {sortBy === "score" ? "Score" : "Date"}
+                  Sort: {sortBy === "score" ? "Top Rated" : "Newest"}
+                  <span className="text-primary/60">×</span>
+                </button>
+              )}
+              {timePeriod !== 'alltime' && (
+                <button
+                  onClick={() => setTimePeriod('alltime')}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                >
+                  Period: {timePeriod === 'day' ? 'Today' : timePeriod === 'week' ? 'This Week' : timePeriod === 'month' ? 'This Month' : timePeriod === '6months' ? '6 Months' : 'This Year'}
                   <span className="text-primary/60">×</span>
                 </button>
               )}
