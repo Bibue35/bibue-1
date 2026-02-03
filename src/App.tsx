@@ -20,6 +20,7 @@ import CommunityPage from "./pages/CommunityPage";
 import WatchlistPage from "./pages/WatchlistPage";
 import RecommendationsPage from "./pages/RecommendationsPage";
 import ClassicsPage from "./pages/ClassicsPage";
+import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -55,6 +56,7 @@ const App = () => (
                   <Route path="/watchlist" element={<WatchlistPage />} />
                   <Route path="/recommendations" element={<RecommendationsPage />} />
                   <Route path="/classics" element={<ClassicsPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>

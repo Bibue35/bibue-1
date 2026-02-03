@@ -178,9 +178,11 @@ export function UserMenu() {
           </DropdownMenuSubContent>
         </DropdownMenuSub>
 
-        <DropdownMenuItem className="gap-3 px-3 cursor-pointer">
-          <Settings className="w-4 h-4" />
-          <span>Account Settings</span>
+        <DropdownMenuItem asChild className="gap-3 px-3 cursor-pointer">
+          <Link to="/settings">
+            <Settings className="w-4 h-4" />
+            <span>Account Settings</span>
+          </Link>
         </DropdownMenuItem>
         
         <DropdownMenuSeparator />
