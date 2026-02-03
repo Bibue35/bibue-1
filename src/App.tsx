@@ -23,6 +23,7 @@ import RecommendationsPage from "./pages/RecommendationsPage";
 import ClassicsPage from "./pages/ClassicsPage";
 import SettingsPage from "./pages/SettingsPage";
 import MessagesPage from "./pages/MessagesPage";
+import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -62,6 +63,7 @@ const App = () => (
                   <Route path="/recommendations" element={<RecommendationsPage />} />
                   <Route path="/classics" element={<ClassicsPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/admin" element={<AdminPage />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
