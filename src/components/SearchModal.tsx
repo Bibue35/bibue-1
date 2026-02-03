@@ -2,9 +2,56 @@ import { useState, useEffect, useCallback } from "react";
 import { Search, X, Film, BookOpen, Loader2, Clock, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSearchAnime, useSearchManga } from "@/hooks/useAnimeData";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const RECENT_SEARCHES_KEY = "recentSearches";
 const MAX_RECENT_SEARCHES = 8;
+
+// Common abbreviation mappings for better search results
+const ABBREVIATION_MAP: Record<string, string> = {
+  "jjk": "jujutsu kaisen",
+  "aot": "attack on titan",
+  "mha": "my hero academia",
+  "bnha": "boku no hero academia",
+  "opm": "one punch man",
+  "op": "one piece",
+  "ds": "demon slayer",
+  "kny": "kimetsu no yaiba",
+  "fma": "fullmetal alchemist",
+  "fmab": "fullmetal alchemist brotherhood",
+  "csm": "chainsaw man",
+  "sao": "sword art online",
+  "snk": "shingeki no kyojin",
+  "hxh": "hunter x hunter",
+  "dn": "death note",
+  "re:zero": "re zero",
+  "rezero": "re zero",
+  "slime": "that time i got reincarnated as a slime",
+  "konosuba": "kono subarashii sekai ni shukufuku wo",
+  "oregairu": "yahari ore no seishun",
+  "bunny girl": "seishun buta yarou",
+  "sxf": "spy x family",
+  "spyxfamily": "spy x family",
+  "spy family": "spy x family",
+  "solo": "solo leveling",
+  "sl": "solo leveling",
+  "bc": "black clover",
+  "dr stone": "dr. stone",
+  "drstone": "dr. stone",
+  "mob": "mob psycho 100",
+  "mp100": "mob psycho 100",
+  "tte": "the promised neverland",
+  "tpn": "the promised neverland",
+  "tbhk": "toilet-bound hanako-kun",
+  "jojo": "jojo's bizarre adventure",
+  "jojos": "jojo's bizarre adventure",
+};
+
+// Expand search query using abbreviation map
+function expandSearchQuery(query: string): string {
+  const lowerQuery = query.toLowerCase().trim();
+  return ABBREVIATION_MAP[lowerQuery] || query;
+}
 
 function getRecentSearches(): string[] {
   try {
@@ -38,9 +85,12 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const navigate = useNavigate();
 
+  // Expand abbreviations for better search
+  const expandedQuery = expandSearchQuery(query);
+
   // Search both anime and manga simultaneously
-  const { data: animeResults, isLoading: animeLoading } = useSearchAnime(query, query.trim().length > 0);
-  const { data: mangaResults, isLoading: mangaLoading } = useSearchManga(query, query.trim().length > 0);
+  const { data: animeResults, isLoading: animeLoading } = useSearchAnime(expandedQuery, expandedQuery.trim().length > 0);
+  const { data: mangaResults, isLoading: mangaLoading } = useSearchManga(expandedQuery, expandedQuery.trim().length > 0);
 
   const isLoading = animeLoading || mangaLoading;
   const hasResults = (animeResults && animeResults.length > 0) || (mangaResults && mangaResults.length > 0);
@@ -81,19 +131,22 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   if (!isOpen) return null;
 
+  const animeCount = animeResults?.length || 0;
+  const mangaCount = mangaResults?.length || 0;
+
   return (
     <div className="fixed inset-0 z-[100]" onClick={onClose}>
       {/* Backdrop */}
       <div className="absolute inset-0 bg-background/80 backdrop-blur-xl animate-fade-in" />
 
       {/* Modal */}
-      <div className="relative z-10 flex flex-col items-center pt-[10vh] px-4 animate-fade-up pointer-events-none">
+      <div className="relative z-10 flex flex-col items-center pt-[10vh] px-4 animate-fade-up pointer-events-none h-full">
         <div 
-          className="w-full max-w-2xl pointer-events-auto"
+          className="w-full max-w-2xl pointer-events-auto flex flex-col max-h-[80vh]"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Search Input */}
-          <div className="relative">
+          <div className="relative flex-shrink-0">
             <div className="liquid-glass-strong rounded-2xl">
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
@@ -118,122 +171,127 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
           {/* Results */}
           {query.trim().length > 0 && (
-            <div className="mt-4 liquid-glass-strong rounded-2xl max-h-[60vh] overflow-y-auto custom-scrollbar">
-              {isLoading && !hasResults ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                </div>
-              ) : hasResults ? (
-                <div className="p-2 space-y-4">
-                  {/* Anime Section */}
-                  {animeResults && animeResults.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground">
-                        <Film className="w-4 h-4" />
-                        <span>Anime</span>
-                        <span className="text-xs opacity-60">({animeResults.length})</span>
-                      </div>
+            <div className="mt-4 liquid-glass-strong rounded-2xl flex-1 min-h-0 overflow-hidden">
+              <ScrollArea className="h-full max-h-[calc(80vh-100px)]">
+                {isLoading && !hasResults ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  </div>
+                ) : hasResults ? (
+                  <div className="p-3 space-y-4">
+                    {/* Anime Section */}
+                    {animeResults && animeResults.length > 0 && (
                       <div>
-                        {animeResults.slice(0, 5).map((item) => (
-                          <button
-                            key={`anime-${item.anilist_id}`}
-                            onClick={() => handleSelectResult("anime", item)}
-                            className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-all duration-300 text-left group"
-                          >
-                            <img
-                              src={item.images.webp.image_url}
-                              alt={item.title}
-                              className="w-12 h-16 object-cover rounded-lg"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-medium truncate group-hover:text-foreground/80 transition-colors">
-                                {item.title}
-                              </h3>
-                              <p className="text-sm text-muted-foreground truncate">
-                                {item.title_japanese}
-                              </p>
-                              <div className="flex items-center gap-2 mt-1">
-                                {item.score && (
-                                  <span className="text-xs px-2 py-0.5 rounded-full bg-foreground/10 text-foreground">
-                                    ★ {item.score}
-                                  </span>
-                                )}
-                                {item.episodes && (
-                                  <span className="text-xs text-muted-foreground">
-                                    {item.episodes} eps
-                                  </span>
-                                )}
+                        <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground sticky top-0 bg-card/80 backdrop-blur-sm rounded-lg">
+                          <Film className="w-4 h-4" />
+                          <span>Anime</span>
+                          <span className="text-xs opacity-60">({animeCount})</span>
+                        </div>
+                        <div className="space-y-1">
+                          {animeResults.slice(0, 8).map((item) => (
+                            <button
+                              key={`anime-${item.anilist_id}`}
+                              onClick={() => handleSelectResult("anime", item)}
+                              className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-all duration-300 text-left group"
+                            >
+                              <img
+                                src={item.images.webp.image_url}
+                                alt={item.title}
+                                className="w-12 h-16 object-cover rounded-lg flex-shrink-0"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-medium truncate group-hover:text-foreground/80 transition-colors">
+                                  {item.title}
+                                </h3>
+                                <p className="text-sm text-muted-foreground truncate">
+                                  {item.title_japanese}
+                                </p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  {item.score && (
+                                    <span className="text-xs px-2 py-0.5 rounded-full bg-foreground/10 text-foreground">
+                                      ★ {item.score}
+                                    </span>
+                                  )}
+                                  {item.episodes && (
+                                    <span className="text-xs text-muted-foreground">
+                                      {item.episodes} eps
+                                    </span>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          </button>
-                        ))}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Manga Section */}
-                  {mangaResults && mangaResults.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground border-t border-border/50 pt-4">
-                        <BookOpen className="w-4 h-4" />
-                        <span>Manga</span>
-                        <span className="text-xs opacity-60">({mangaResults.length})</span>
-                      </div>
+                    {/* Manga Section */}
+                    {mangaResults && mangaResults.length > 0 && (
                       <div>
-                        {mangaResults.slice(0, 5).map((item) => (
-                          <button
-                            key={`manga-${item.anilist_id}`}
-                            onClick={() => handleSelectResult("manga", item)}
-                            className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-all duration-300 text-left group"
-                          >
-                            <img
-                              src={item.images.webp.image_url}
-                              alt={item.title}
-                              className="w-12 h-16 object-cover rounded-lg"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-medium truncate group-hover:text-foreground/80 transition-colors">
-                                {item.title}
-                              </h3>
-                              <p className="text-sm text-muted-foreground truncate">
-                                {item.title_japanese}
-                              </p>
-                              <div className="flex items-center gap-2 mt-1">
-                                {item.score && (
-                                  <span className="text-xs px-2 py-0.5 rounded-full bg-foreground/10 text-foreground">
-                                    ★ {item.score}
-                                  </span>
-                                )}
-                                {item.chapters && (
-                                  <span className="text-xs text-muted-foreground">
-                                    {item.chapters} ch
-                                  </span>
-                                )}
-                                {item.type && (
-                                  <span className="text-xs text-muted-foreground capitalize">
-                                    {item.type}
-                                  </span>
-                                )}
+                        <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground sticky top-0 bg-card/80 backdrop-blur-sm rounded-lg border-t border-border/50 mt-2">
+                          <BookOpen className="w-4 h-4" />
+                          <span>Manga / Manhwa / Manhua</span>
+                          <span className="text-xs opacity-60">({mangaCount})</span>
+                        </div>
+                        <div className="space-y-1">
+                          {mangaResults.slice(0, 8).map((item) => (
+                            <button
+                              key={`manga-${item.anilist_id}`}
+                              onClick={() => handleSelectResult("manga", item)}
+                              className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-all duration-300 text-left group"
+                            >
+                              <img
+                                src={item.images.webp.image_url}
+                                alt={item.title}
+                                className="w-12 h-16 object-cover rounded-lg flex-shrink-0"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-medium truncate group-hover:text-foreground/80 transition-colors">
+                                  {item.title}
+                                </h3>
+                                <p className="text-sm text-muted-foreground truncate">
+                                  {item.title_japanese}
+                                </p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  {item.score && (
+                                    <span className="text-xs px-2 py-0.5 rounded-full bg-foreground/10 text-foreground">
+                                      ★ {item.score}
+                                    </span>
+                                  )}
+                                  {item.chapters && (
+                                    <span className="text-xs text-muted-foreground">
+                                      {item.chapters} ch
+                                    </span>
+                                  )}
+                                  {item.type && (
+                                    <span className="text-xs text-muted-foreground capitalize">
+                                      {item.type}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          </button>
-                        ))}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="py-12 text-center text-muted-foreground">
-                  <p className="mb-1">No results found for "{query.trim()}"</p>
-                  <p className="text-sm opacity-70">Try checking your spelling or using different keywords</p>
-                </div>
-              )}
+                    )}
+                  </div>
+                ) : (
+                  <div className="py-12 text-center text-muted-foreground">
+                    <p className="mb-1">No results found for "{query.trim()}"</p>
+                    <p className="text-sm opacity-70">Try checking your spelling or using different keywords</p>
+                    {query.trim().toLowerCase() !== expandedQuery.toLowerCase() && (
+                      <p className="text-xs mt-2 text-primary">Searched for: "{expandedQuery}"</p>
+                    )}
+                  </div>
+                )}
+              </ScrollArea>
             </div>
           )}
 
           {/* Recent searches when empty */}
           {query.trim().length === 0 && (
-            <div className="mt-4">
+            <div className="mt-4 flex-shrink-0">
               {recentSearches.length > 0 ? (
                 <div className="liquid-glass-strong rounded-2xl p-4">
                   <div className="flex items-center justify-between mb-3">
@@ -265,6 +323,9 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 <div className="text-center text-muted-foreground">
                   <p className="font-jp text-lg mb-2">検索してください</p>
                   <p className="text-sm">Start typing to search anime & manga</p>
+                  <p className="text-xs mt-2 opacity-60">
+                    Tip: Try abbreviations like "jjk", "aot", "mha"
+                  </p>
                 </div>
               )}
             </div>
