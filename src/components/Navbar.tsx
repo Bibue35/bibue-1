@@ -52,7 +52,7 @@ export function Navbar() {
               <img 
                 src={bibueTower} 
                 alt="Bibue Tower" 
-                className="h-10 sm:h-12 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
+                className="h-12 sm:h-14 w-auto object-contain brightness-0 dark:brightness-0 dark:invert"
               />
               <span className="text-xl sm:text-2xl font-sacred font-semibold tracking-wide">
                 Bibue
