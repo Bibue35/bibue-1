@@ -47,19 +47,35 @@ export function Navbar() {
       <nav className="fixed top-0 left-0 right-0 z-50 py-3 sm:py-4 pointer-events-none">
         <div className="w-full px-3 sm:px-4 md:px-6">
           <div className="flex items-center justify-between pointer-events-auto relative">
-            {/* Left: Logo */}
-            <Link to="/" className="flex items-center gap-2">
-              <div className="h-12 sm:h-14 w-auto flex items-center justify-center">
-                <img 
-                  src={bibueTower} 
-                  alt="Bibue Tower" 
-                  className="h-full w-auto object-contain dark:brightness-0 dark:invert"
-                />
-              </div>
-              <span className="text-2xl sm:text-3xl font-sacred font-semibold tracking-wide">
-                Bibue
-              </span>
-            </Link>
+            {/* Left: Mobile menu + Logo */}
+            <div className="flex items-center gap-1 sm:gap-2">
+              {/* Mobile Menu Button - now on left */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden rounded-full h-9 w-9 sm:h-10 sm:w-10"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
+                )}
+              </Button>
+
+              <Link to="/" className="flex items-center gap-2">
+                <div className="h-12 sm:h-14 w-auto flex items-center justify-center">
+                  <img 
+                    src={bibueTower} 
+                    alt="Bibue Tower" 
+                    className="h-full w-auto object-contain dark:brightness-0 dark:invert"
+                  />
+                </div>
+                <span className="text-2xl sm:text-3xl font-sacred font-semibold tracking-wide">
+                  Bibue
+                </span>
+              </Link>
+            </div>
 
             {/* Center: Navigation - absolutely centered */}
             <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
@@ -109,7 +125,7 @@ export function Navbar() {
               </DropdownMenu>
             </div>
 
-            {/* Right: Icons - tighter spacing on mobile */}
+            {/* Right: Icons - Sign in is now the rightmost item */}
             <div className="flex items-center gap-0.5 sm:gap-1">
               <Button
                 variant="ghost"
@@ -123,19 +139,6 @@ export function Navbar() {
               <ThemeSelector />
               
               <UserMenu />
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden rounded-full h-9 w-9 sm:h-10 sm:w-10"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              >
-                {isMobileMenuOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
-              </Button>
             </div>
           </div>
         </div>
