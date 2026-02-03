@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Search, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
-import bibueLogo from "@/assets/bibue-logo.jpg";
 import bibueTower from "@/assets/bibue-tower.png";
 
 const navLinks = [
@@ -19,16 +18,37 @@ const navLinks = [
 export function FloatingNav() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location]);
 
   return (
     <>
-      {/* Floating nav - no background, just floating elements */}
-      <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
-        <div className="w-full px-4 md:px-6 py-4">
-          <div className="flex items-center justify-between pointer-events-auto">
+      {/* Floating nav - subtle background on scroll */}
+      <nav
+        className={cn(
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+          isScrolled 
+            ? "bg-background/80 backdrop-blur-md border-b border-border/10" 
+            : "bg-transparent"
+        )}
+      >
+        <div className="w-full px-4 md:px-6 py-3">
+          <div className="flex items-center justify-between">
             {/* Logo - left side */}
-            <Link to="/" className="flex items-center gap-2 drop-shadow-sm">
+            <Link to="/" className="flex items-center gap-2">
               <img 
                 src={bibueTower} 
                 alt="Bibue Tower" 
@@ -40,7 +60,7 @@ export function FloatingNav() {
             </Link>
 
             {/* Center nav links - desktop only, absolutely centered */}
-            <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+            <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -55,7 +75,7 @@ export function FloatingNav() {
                   {link.label}
                 </Link>
               ))}
-            </nav>
+            </div>
 
             {/* Right side icons */}
             <div className="flex items-center gap-0.5">
@@ -63,7 +83,7 @@ export function FloatingNav() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsSearchOpen(true)}
-                className="rounded-full hover:bg-foreground/5"
+                className="rounded-full hover:bg-foreground/10"
               >
                 <Search className="w-5 h-5" />
               </Button>
@@ -75,7 +95,7 @@ export function FloatingNav() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden rounded-full hover:bg-foreground/5"
+                className="md:hidden rounded-full hover:bg-foreground/10"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -83,12 +103,12 @@ export function FloatingNav() {
             </div>
           </div>
         </div>
-      </div>
+      </nav>
 
       {/* Mobile menu dropdown */}
       <div
         className={cn(
-          "fixed top-16 left-4 right-4 z-50 bg-background/90 backdrop-blur-md border border-border/30 rounded-2xl overflow-hidden transition-all duration-200 shadow-lg",
+          "fixed top-16 left-4 right-4 z-50 bg-background/95 backdrop-blur-md border border-border/30 rounded-2xl overflow-hidden transition-all duration-200 shadow-lg",
           isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
         )}
       >
