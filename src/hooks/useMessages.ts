@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -144,12 +144,48 @@ export function useConversations() {
 export function useConversation(partnerId: string | null) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const [isPartnerTyping, setIsPartnerTyping] = useState(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   // Set up realtime subscription for this conversation
   useEffect(() => {
     if (!user?.id || !partnerId) return;
 
-    const channel = supabase
+    // Create a unique channel for this conversation pair
+    const channelName = [user.id, partnerId].sort().join("-");
+    const channel = supabase.channel(`typing-${channelName}`);
+    channelRef.current = channel;
+
+    channel
+      .on("broadcast", { event: "typing" }, (payload) => {
+        // Only show typing if it's from the partner
+        if (payload.payload?.userId === partnerId) {
+          setIsPartnerTyping(true);
+          
+          // Clear existing timeout
+          if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+          }
+          
+          // Hide typing indicator after 3 seconds of no typing events
+          typingTimeoutRef.current = setTimeout(() => {
+            setIsPartnerTyping(false);
+          }, 3000);
+        }
+      })
+      .on("broadcast", { event: "stop_typing" }, (payload) => {
+        if (payload.payload?.userId === partnerId) {
+          setIsPartnerTyping(false);
+          if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+          }
+        }
+      })
+      .subscribe();
+
+    // Also subscribe to message changes
+    const messageChannel = supabase
       .channel(`messages-${user.id}-${partnerId}`)
       .on(
         "postgres_changes",
@@ -160,22 +196,52 @@ export function useConversation(partnerId: string | null) {
         },
         (payload) => {
           const newMsg = payload.new as Message;
-          // Only invalidate if the message is part of this conversation
           if (
             (newMsg.sender_id === user.id && newMsg.recipient_id === partnerId) ||
             (newMsg.sender_id === partnerId && newMsg.recipient_id === user.id)
           ) {
             queryClient.invalidateQueries({ queryKey: ["messages", user.id, partnerId] });
             queryClient.invalidateQueries({ queryKey: ["unread-count", user.id] });
+            // Stop showing typing when message is received
+            if (newMsg.sender_id === partnerId) {
+              setIsPartnerTyping(false);
+            }
           }
         }
       )
       .subscribe();
 
     return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
       supabase.removeChannel(channel);
+      supabase.removeChannel(messageChannel);
+      channelRef.current = null;
     };
   }, [user?.id, partnerId, queryClient]);
+
+  // Function to broadcast typing status
+  const sendTypingIndicator = useCallback(() => {
+    if (!user?.id || !partnerId || !channelRef.current) return;
+    
+    channelRef.current.send({
+      type: "broadcast",
+      event: "typing",
+      payload: { userId: user.id },
+    });
+  }, [user?.id, partnerId]);
+
+  // Function to broadcast stop typing
+  const sendStopTyping = useCallback(() => {
+    if (!user?.id || !partnerId || !channelRef.current) return;
+    
+    channelRef.current.send({
+      type: "broadcast",
+      event: "stop_typing",
+      payload: { userId: user.id },
+    });
+  }, [user?.id, partnerId]);
 
   const messagesQuery = useQuery({
     queryKey: ["messages", user?.id, partnerId],
@@ -242,6 +308,7 @@ export function useConversation(partnerId: string | null) {
       return data;
     },
     onSuccess: () => {
+      sendStopTyping();
       queryClient.invalidateQueries({ queryKey: ["messages", user?.id, partnerId] });
       queryClient.invalidateQueries({ queryKey: ["conversations", user?.id] });
     },
@@ -252,6 +319,9 @@ export function useConversation(partnerId: string | null) {
     isLoading: messagesQuery.isLoading,
     sendMessage: sendMessage.mutate,
     isSending: sendMessage.isPending,
+    isPartnerTyping,
+    sendTypingIndicator,
+    sendStopTyping,
   };
 }
 
