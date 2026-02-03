@@ -34,16 +34,9 @@ export function FloatingNav() {
                 alt="Bibue Tower" 
                 className="h-10 sm:h-12 w-auto object-contain dark:invert"
               />
-              <div className="flex flex-col items-center gap-1">
-                <span className="text-2xl font-sacred font-semibold tracking-wide">
-                  Bibue
-                </span>
-                <img 
-                  src={bibueLogo} 
-                  alt="Bibue Logo" 
-                  className="h-6 sm:h-8 w-auto object-contain"
-                />
-              </div>
+              <span className="text-2xl font-sacred font-semibold tracking-wide">
+                Bibue
+              </span>
             </Link>
 
             {/* Center nav links - desktop only */}
