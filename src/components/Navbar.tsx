@@ -68,7 +68,9 @@ export function Navbar() {
                   <img 
                     src={bibueTower} 
                     alt="Bibue Tower" 
-                    className="h-full w-auto object-contain dark:invert"
+                    className="h-full w-auto object-contain dark:invert logo-stable"
+                    loading="eager"
+                    decoding="sync"
                   />
                 </div>
                 <span className="text-2xl sm:text-3xl font-sacred font-semibold tracking-wide">
