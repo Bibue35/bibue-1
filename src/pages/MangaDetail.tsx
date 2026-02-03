@@ -16,7 +16,7 @@ import { formatDistanceToNow } from "date-fns";
 import { validateComment } from "@/lib/validation";
 import { MangaReader } from "@/components/MangaReader";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
-import bibueLogo from "@/assets/bibue-logo.png";
+import bibueLogo from "@/assets/bibue-logo-horizontal.png";
 
 export default function MangaDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -144,7 +144,7 @@ export default function MangaDetailPage() {
           <img 
             src={bibueLogo} 
             alt="Bibue" 
-            className="h-20 sm:h-24 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
+            className="h-10 sm:h-12 md:h-14 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
           />
         </Link>
         <Link to="/manga" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
