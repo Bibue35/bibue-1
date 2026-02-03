@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { User, LogOut, Settings, EyeOff, Eye, Globe, Check } from "lucide-react";
+import { Link } from "react-router-dom";
+import { User, LogOut, Settings, EyeOff, Eye, Globe, Check, Bookmark, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,6 +13,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIncognito } from "@/contexts/IncognitoContext";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
@@ -30,12 +32,23 @@ const languages: { code: Language; flag: string; name: string }[] = [
 ];
 
 export function UserMenu() {
-  const { user, signOut, loading } = useAuth();
+  const { user, profile, signOut, loading } = useAuth();
   const { isIncognito, toggleIncognito } = useIncognito();
   const { language, setLanguage } = useLanguage();
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const currentLanguage = languages.find((l) => l.code === language);
+
+  // Get user initials for avatar fallback
+  const getInitials = () => {
+    if (profile?.username) {
+      return profile.username.slice(0, 2).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.slice(0, 2).toUpperCase();
+    }
+    return "U";
+  };
 
   if (loading) {
     return (
@@ -53,7 +66,7 @@ export function UserMenu() {
           className="rounded-full gap-2"
         >
           <User className="w-4 h-4" />
-          Sign In
+          <span className="hidden sm:inline">Sign In</span>
         </Button>
         <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
       </>
@@ -66,22 +79,58 @@ export function UserMenu() {
         <Button
           variant="ghost"
           size="icon"
-          className="rounded-full hover:bg-foreground/5"
+          className="rounded-full hover:bg-foreground/5 h-9 w-9 sm:h-10 sm:w-10"
         >
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-            <User className="w-4 h-4 text-primary" />
-          </div>
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.username || "User"} />
+            <AvatarFallback className="bg-primary/20 text-primary text-xs font-medium">
+              {getInitials()}
+            </AvatarFallback>
+          </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <div className="px-2 py-1.5">
-          <p className="text-sm font-medium truncate">
-            {user.email}
-          </p>
+      <DropdownMenuContent align="end" className="w-64 bg-popover border border-border shadow-lg">
+        {/* Profile Header */}
+        <div className="px-3 py-3 flex items-center gap-3">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.username || "User"} />
+            <AvatarFallback className="bg-primary/20 text-primary font-medium">
+              {getInitials()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">
+              {profile?.username || "User"}
+            </p>
+            <p className="text-xs text-muted-foreground truncate">
+              {user.email}
+            </p>
+          </div>
         </div>
         <DropdownMenuSeparator />
         
-        <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+        {/* Quick Links */}
+        <DropdownMenuLabel className="text-xs text-muted-foreground font-normal px-3">
+          Library
+        </DropdownMenuLabel>
+        
+        <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
+          <Link to="/watchlist">
+            <Bookmark className="w-4 h-4" />
+            <span>My Watchlist</span>
+          </Link>
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
+          <Link to="/recommendations">
+            <Heart className="w-4 h-4" />
+            <span>For You</span>
+          </Link>
+        </DropdownMenuItem>
+        
+        <DropdownMenuSeparator />
+        
+        <DropdownMenuLabel className="text-xs text-muted-foreground font-normal px-3">
           Settings
         </DropdownMenuLabel>
         
@@ -89,7 +138,7 @@ export function UserMenu() {
         <DropdownMenuItem 
           onClick={toggleIncognito}
           className={cn(
-            "gap-2 cursor-pointer",
+            "gap-3 cursor-pointer px-3",
             isIncognito && "bg-primary/10"
           )}
         >
@@ -104,12 +153,12 @@ export function UserMenu() {
 
         {/* Language Submenu */}
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger className="gap-2">
+          <DropdownMenuSubTrigger className="gap-3 px-3">
             <Globe className="w-4 h-4" />
             <span className="flex-1">Language</span>
             <span className="text-xs text-muted-foreground">{currentLanguage?.flag}</span>
           </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent className="w-48">
+          <DropdownMenuSubContent className="w-48 bg-popover border border-border shadow-lg">
             {languages.map((lang) => (
               <DropdownMenuItem
                 key={lang.code}
@@ -129,15 +178,15 @@ export function UserMenu() {
           </DropdownMenuSubContent>
         </DropdownMenuSub>
 
-        <DropdownMenuItem className="gap-2">
+        <DropdownMenuItem className="gap-3 px-3 cursor-pointer">
           <Settings className="w-4 h-4" />
-          More Settings
+          <span>Account Settings</span>
         </DropdownMenuItem>
         
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={signOut} className="gap-2 text-destructive">
+        <DropdownMenuItem onClick={signOut} className="gap-3 px-3 text-destructive cursor-pointer focus:text-destructive">
           <LogOut className="w-4 h-4" />
-          Sign Out
+          <span>Sign Out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
