@@ -26,9 +26,9 @@ export function CollapsibleNavbar() {
   const { t } = useLanguage();
 
   const navLinks = [
-    { href: "/", label: t("nav.home") },
     { href: "/anime", label: t("nav.anime") },
     { href: "/manga", label: t("nav.manga") },
+    { href: "/news", label: t("nav.news") },
     { href: "/rankings", label: t("nav.rankings") },
   ];
 
