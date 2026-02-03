@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Filter, Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History, ChevronDown, ChevronUp, Calendar } from "lucide-react";
+import { Filter, Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History, ChevronDown, ChevronUp } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
@@ -31,7 +31,7 @@ export default function AnimePage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [localSearch, setLocalSearch] = useState(searchParams.get("q") || "");
   const [isFiltersOpen, setIsFiltersOpen] = useState(true);
-  const [timePeriod, setTimePeriod] = useState<'day' | 'week' | 'month' | '6months' | 'year' | 'alltime'>('alltime');
+  const [sortBy, setSortBy] = useState<'score' | 'popularity' | 'trending'>('popularity');
   const resultsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
@@ -80,11 +80,29 @@ export default function AnimePage() {
     return (b.members || 0) - (a.members || 0);
   });
 
-  const displayAnime = isSearching 
-    ? searchResults 
-    : initialFilter === 'seasonal' 
-      ? seasonalAnime 
-      : topAnime;
+  // Sort the display anime based on sortBy selection
+  const sortedDisplayAnime = useMemo(() => {
+    const baseData = isSearching 
+      ? searchResults 
+      : initialFilter === 'seasonal' 
+        ? seasonalAnime 
+        : topAnime;
+    
+    if (!baseData) return [];
+    
+    const list = [...baseData];
+    switch (sortBy) {
+      case 'score':
+        return list.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+      case 'trending':
+        return list.sort((a, b) => (b.favorites ?? 0) - (a.favorites ?? 0));
+      case 'popularity':
+      default:
+        return list.sort((a, b) => (b.members ?? 0) - (a.members ?? 0));
+    }
+  }, [isSearching, searchResults, initialFilter, seasonalAnime, topAnime, sortBy]);
+
+  const displayAnime = sortedDisplayAnime;
   const isLoading = isSearching ? searchLoading : (initialFilter === 'seasonal' ? seasonalLoading : topLoading);
 
   return (
@@ -312,32 +330,29 @@ export default function AnimePage() {
                 </div>
               </div>
 
-              {/* Time Period Filter */}
+              {/* Sort Filter */}
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Time Period:</span>
+                  <TrendingUp className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Sort by:</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {([
-                    { value: 'day', label: 'Today' },
-                    { value: 'week', label: 'This Week' },
-                    { value: 'month', label: 'This Month' },
-                    { value: '6months', label: '6 Months' },
-                    { value: 'year', label: 'This Year' },
-                    { value: 'alltime', label: 'All Time' },
-                  ] as const).map((period) => (
+                    { value: 'popularity', label: 'Most Popular' },
+                    { value: 'score', label: 'Top Rated' },
+                    { value: 'trending', label: 'Trending' },
+                  ] as const).map((sort) => (
                     <Button
-                      key={period.value}
-                      variant={timePeriod === period.value ? "default" : "ghost"}
+                      key={sort.value}
+                      variant={sortBy === sort.value ? "default" : "ghost"}
                       size="sm"
-                      onClick={() => setTimePeriod(period.value)}
+                      onClick={() => setSortBy(sort.value)}
                       className={cn(
                         "rounded-full text-xs h-8",
-                        timePeriod !== period.value && "glass-button"
+                        sortBy !== sort.value && "glass-button"
                       )}
                     >
-                      {period.label}
+                      {sort.label}
                     </Button>
                   ))}
                 </div>
@@ -371,7 +386,7 @@ export default function AnimePage() {
       </section>
 
       {/* Active Filters Chips */}
-      {(filter || timePeriod !== 'alltime' || genreId) && (
+      {(filter || sortBy !== 'popularity' || genreId) && (
         <section className="pb-2">
           <div className="container mx-auto px-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -385,12 +400,12 @@ export default function AnimePage() {
                   <span className="text-primary/60">×</span>
                 </button>
               )}
-              {timePeriod !== 'alltime' && (
+              {sortBy !== 'popularity' && (
                 <button
-                  onClick={() => setTimePeriod('alltime')}
+                  onClick={() => setSortBy('popularity')}
                   className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                 >
-                  Period: {timePeriod === 'day' ? 'Today' : timePeriod === 'week' ? 'This Week' : timePeriod === 'month' ? 'This Month' : timePeriod === '6months' ? '6 Months' : 'This Year'}
+                  Sort: {sortBy === 'score' ? 'Top Rated' : 'Trending'}
                   <span className="text-primary/60">×</span>
                 </button>
               )}
