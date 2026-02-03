@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
-import bibueLogo from "@/assets/bibue-logo.jpg";
+import bibueLogo from "@/assets/bibue-logo.png";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -34,7 +34,7 @@ export function FloatingNav() {
               <img 
                 src={bibueLogo} 
                 alt="Bibue" 
-                className="h-8 sm:h-10 w-auto object-contain dark:invert"
+                className="h-12 sm:h-14 w-auto object-contain dark:invert"
               />
             </Link>
 
