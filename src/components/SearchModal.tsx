@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Search, X, Film, BookOpen, Loader2, Clock, Trash2 } from "lucide-react";
+import { Search, X, Film, BookOpen, Loader2, Clock, Trash2, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Fuse from "fuse.js";
 import { useSearchAnime, useSearchManga } from "@/hooks/useAnimeData";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 
 const RECENT_SEARCHES_KEY = "recentSearches";
 const MAX_RECENT_SEARCHES = 8;
@@ -219,7 +220,11 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground sticky top-0 bg-card/80 backdrop-blur-sm rounded-lg">
                           <Film className="w-4 h-4" />
                           <span>Anime</span>
-                          <span className="text-xs opacity-60">({animeCount})</span>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 flex items-center gap-1">
+                            <Sparkles className="w-2.5 h-2.5" />
+                            Newest
+                          </Badge>
+                          <span className="text-xs opacity-60 ml-auto">({animeCount})</span>
                         </div>
                         <div className="space-y-1">
                           {animeResults.slice(0, 8).map((item) => (
@@ -265,7 +270,11 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground sticky top-0 bg-card/80 backdrop-blur-sm rounded-lg border-t border-border/50 mt-2">
                           <BookOpen className="w-4 h-4" />
                           <span>Manga / Manhwa / Manhua</span>
-                          <span className="text-xs opacity-60">({mangaCount})</span>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 flex items-center gap-1">
+                            <Sparkles className="w-2.5 h-2.5" />
+                            Newest
+                          </Badge>
+                          <span className="text-xs opacity-60 ml-auto">({mangaCount})</span>
                         </div>
                         <div className="space-y-1">
                           {mangaResults.slice(0, 8).map((item) => (

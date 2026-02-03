@@ -429,18 +429,18 @@ export async function getAnimeById(id: number, language: SupportedLanguage = "en
   return toAnime(data.Media, language);
 }
 
-export async function searchAnime(searchQuery: string, page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Anime[]> {
+export async function searchAnime(searchQuery: string, page = 1, limit = 25, language: SupportedLanguage = "en", sort: "SEARCH_MATCH" | "START_DATE_DESC" | "POPULARITY_DESC" = "START_DATE_DESC"): Promise<Anime[]> {
   const query = `
-    query ($search: String, $page: Int, $perPage: Int) {
+    query ($search: String, $page: Int, $perPage: Int, $sort: [MediaSort]) {
       Page(page: $page, perPage: $perPage) {
-        media(search: $search, type: ANIME, sort: [SEARCH_MATCH], isAdult: false) {
+        media(search: $search, type: ANIME, sort: $sort, isAdult: false) {
           ${MEDIA_FRAGMENT}
         }
       }
     }
   `;
 
-  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { search: searchQuery, page, perPage: limit });
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { search: searchQuery, page, perPage: limit, sort: [sort] });
   return data.Page.media.map(m => toAnime(m, language));
 }
 
@@ -681,7 +681,8 @@ export async function searchManga(
   page = 1,
   limit = 25,
   filter?: "manga" | "novels" | "lightnovels" | "oneshots" | "doujin" | "manhwa" | "manhua",
-  language: SupportedLanguage = "en"
+  language: SupportedLanguage = "en",
+  sort: "SEARCH_MATCH" | "START_DATE_DESC" | "POPULARITY_DESC" = "START_DATE_DESC"
 ): Promise<Manga[]> {
   let format: string | undefined;
   let countryOfOrigin: string | undefined;
@@ -693,9 +694,9 @@ export async function searchManga(
   else if (filter === "manhua") countryOfOrigin = "CN";
 
   const query = `
-    query ($search: String, $page: Int, $perPage: Int, $format: MediaFormat, $countryOfOrigin: CountryCode) {
+    query ($search: String, $page: Int, $perPage: Int, $format: MediaFormat, $countryOfOrigin: CountryCode, $sort: [MediaSort]) {
       Page(page: $page, perPage: $perPage) {
-        media(search: $search, type: MANGA, sort: [SEARCH_MATCH], format: $format, countryOfOrigin: $countryOfOrigin, isAdult: false) {
+        media(search: $search, type: MANGA, sort: $sort, format: $format, countryOfOrigin: $countryOfOrigin, isAdult: false) {
           ${MEDIA_FRAGMENT}
         }
       }
@@ -708,6 +709,7 @@ export async function searchManga(
     perPage: limit,
     format,
     countryOfOrigin,
+    sort: [sort],
   });
   return data.Page.media.map(m => toManga(m, language));
 }
