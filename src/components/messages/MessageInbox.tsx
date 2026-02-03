@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useConversations, useConversation } from "@/hooks/useMessages";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -21,16 +21,53 @@ export function MessageInbox({ initialPartnerId }: MessageInboxProps) {
     initialPartnerId || null
   );
   const [newMessage, setNewMessage] = useState("");
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { data: conversations, isLoading: conversationsLoading } = useConversations();
-  const { messages, isLoading: messagesLoading, sendMessage, isSending } = useConversation(
-    selectedPartnerId
-  );
+  const { 
+    messages, 
+    isLoading: messagesLoading, 
+    sendMessage, 
+    isSending,
+    isPartnerTyping,
+    sendTypingIndicator,
+    sendStopTyping,
+  } = useConversation(selectedPartnerId);
+
+  // Handle typing indicator
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+    
+    // Send typing indicator
+    sendTypingIndicator();
+    
+    // Clear previous timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
+    // Stop typing after 2 seconds of no input
+    typingTimeoutRef.current = setTimeout(() => {
+      sendStopTyping();
+    }, 2000);
+  };
+
+  // Cleanup typing timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleSend = () => {
     if (!newMessage.trim()) return;
     sendMessage(newMessage.trim());
     setNewMessage("");
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -161,15 +198,33 @@ export function MessageInbox({ initialPartnerId }: MessageInboxProps) {
                 </div>
               );
             })}
+            
+            {/* Typing Indicator */}
+            {isPartnerTyping && (
+              <div className="flex justify-start">
+                <div className="bg-muted rounded-lg px-4 py-2">
+                  <div className="flex items-center gap-1">
+                    <span className="w-2 h-2 bg-muted-foreground/60 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="w-2 h-2 bg-muted-foreground/60 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="w-2 h-2 bg-muted-foreground/60 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </ScrollArea>
 
       <div className="p-4 border-t">
+        {isPartnerTyping && (
+          <p className="text-xs text-muted-foreground mb-2">
+            {partner?.partnerUsername || "User"} is typing...
+          </p>
+        )}
         <div className="flex gap-2">
           <Input
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             placeholder="Type a message..."
             disabled={isSending}
