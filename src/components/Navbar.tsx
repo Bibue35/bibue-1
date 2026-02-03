@@ -23,12 +23,13 @@ const primaryLinks = [
   { href: "/", label: "Home" },
   { href: "/anime", label: "Anime" },
   { href: "/manga", label: "Manga" },
+  { href: "/community", label: "Community" },
 ];
 
 // Secondary items in "More" dropdown
 const moreLinks = [
   { href: "/rankings", label: "Rankings" },
-  { href: "/community", label: "Community" },
+  { href: "/news", label: "News" },
 ];
 
 // All links for mobile menu
