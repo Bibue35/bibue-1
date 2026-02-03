@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Menu, X, ChevronDown } from "lucide-react";
+import { Search, Menu, X, ChevronDown, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUnreadCount } from "@/hooks/useMessages";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +38,8 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
+  const { data: unreadCount } = useUnreadCount();
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -137,6 +142,27 @@ export function Navbar() {
               >
                 <Search className="w-5 h-5 sm:w-6 sm:h-6" />
               </Button>
+
+              {/* Messages Icon with Badge */}
+              {user && (
+                <Link to="/messages">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full hover:bg-foreground/5 text-muted-foreground hover:text-foreground h-9 w-9 sm:h-10 sm:w-10 relative"
+                  >
+                    <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                    {(unreadCount ?? 0) > 0 && (
+                      <Badge 
+                        variant="default" 
+                        className="absolute -top-1 -right-1 h-5 min-w-5 px-1.5 text-xs flex items-center justify-center"
+                      >
+                        {unreadCount && unreadCount > 9 ? "9+" : unreadCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </Link>
+              )}
 
               <ThemeSelector />
               
