@@ -25,7 +25,26 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
     return null;
   };
 
+  // Format upcoming release date (e.g., "Jan 15" or "Apr 2026")
+  const getUpcomingDate = () => {
+    if (anime.status === "NOT_YET_RELEASED" && anime.aired?.from) {
+      const date = new Date(anime.aired.from);
+      const month = date.toLocaleString('en-US', { month: 'short' });
+      const day = date.getDate();
+      const year = date.getFullYear();
+      const currentYear = new Date().getFullYear();
+      
+      // If it's this year, show "Jan 15", otherwise show "Apr 2026"
+      if (year === currentYear) {
+        return `${month} ${day}`;
+      }
+      return `${month} ${year}`;
+    }
+    return null;
+  };
+
   const airedYear = getAiredInfo();
+  const upcomingDate = getUpcomingDate();
   const episodeCount = anime.episodes;
 
   if (variant === "compact") {
@@ -143,10 +162,12 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
 
         {/* Metadata underneath - always visible */}
         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-[10px] sm:text-xs text-muted-foreground">
-          {anime.status && (
-            <span>{anime.status === "Currently Airing" ? "TV" : anime.status}</span>
+          {anime.status === "NOT_YET_RELEASED" && upcomingDate ? (
+            <span className="text-primary font-medium">{upcomingDate}</span>
+          ) : anime.status && (
+            <span>{anime.status === "Currently Airing" ? "TV" : anime.status === "RELEASING" ? "Airing" : anime.status === "FINISHED" ? "Finished" : anime.status}</span>
           )}
-          {airedYear && (
+          {airedYear && anime.status !== "NOT_YET_RELEASED" && (
             <>
               <span>•</span>
               <span>{airedYear}</span>
