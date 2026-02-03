@@ -1,18 +1,22 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Filter, Grid, List, Bookmark, Sparkles, Loader2 } from "lucide-react";
+import { Filter, Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
+import { MobileAnimeCard } from "@/components/MobileAnimeCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { GenreSection } from "@/components/GenreSection";
+import { ContentSection } from "@/components/ContentSection";
 import { SearchDropdown } from "@/components/SearchDropdown";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTopAnime, useSeasonalAnime, useSearchAnime } from "@/hooks/useAnimeData";
+import { CardSkeletonRow } from "@/components/skeletons";
+import { useTopAnime, useSeasonalAnime, useSearchAnime, useClassicAnime, useAllTimeTopAnime } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
 export default function AnimePage() {
@@ -27,6 +31,7 @@ export default function AnimePage() {
   const [localSearch, setLocalSearch] = useState(searchParams.get("q") || "");
   const resultsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   
   // Debounce search input (150ms default for faster response)
   const debouncedSearch = useDebounce(localSearch.trim());
@@ -54,10 +59,17 @@ export default function AnimePage() {
   const handleRefresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["topAnime"] });
     await queryClient.invalidateQueries({ queryKey: ["seasonalAnime"] });
+    await queryClient.invalidateQueries({ queryKey: ["classicAnime"] });
+    await queryClient.invalidateQueries({ queryKey: ["allTimeTopAnime"] });
   }, [queryClient]);
 
   const { data: topAnime, isLoading: topLoading } = useTopAnime(1, filter);
+  const { data: popularAnime, isLoading: popularLoading } = useTopAnime(1, 'bypopularity');
+  const { data: upcomingAnime, isLoading: upcomingLoading } = useTopAnime(1, 'upcoming');
+  const { data: airingAnime, isLoading: airingLoading } = useTopAnime(1, 'airing');
   const { data: seasonalAnime, isLoading: seasonalLoading } = useSeasonalAnime();
+  const { data: classicAnime, isLoading: classicLoading } = useClassicAnime(1);
+  const { data: allTimeTop, isLoading: allTimeLoading } = useAllTimeTopAnime(1);
   const { data: searchResults, isLoading: searchLoading } = useSearchAnime(debouncedSearch, !!debouncedSearch);
   
   const sortedSeasonalAnime = seasonalAnime?.slice().sort((a, b) => {
@@ -124,27 +136,162 @@ export default function AnimePage() {
         </section>
       )}
 
+      {/* Trending Now - Hide when searching */}
+      {!isSearching && (
+        <ContentSection
+          title="Trending Now"
+          titleJp="トレンド"
+          icon={Flame}
+          linkTo="/anime?filter=airing"
+          compact
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {airingLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-44" />
+            ) : (
+              airingAnime?.slice(0, 10).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
       {/* This Season - Hide when searching */}
       {!isSearching && (
-        <section className="py-4">
-          <div className="container mx-auto px-4">
-            <HorizontalScroll title="This Season" titleJp="今季">
-              {seasonalLoading ? (
-                Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="flex-shrink-0 w-36 sm:w-44">
-                    <Skeleton className="aspect-[2/3] rounded-2xl" />
-                  </div>
-                ))
-              ) : (
-                sortedSeasonalAnime?.slice(0, 12).map((anime, index) => (
-                  <div key={anime.anilist_id} className="flex-shrink-0 w-36 sm:w-44">
+        <ContentSection
+          title="This Season"
+          titleJp="今季"
+          icon={Sparkles}
+          linkTo="/anime?filter=seasonal"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {seasonalLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              sortedSeasonalAnime?.slice(0, 12).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
                     <AnimeCard anime={anime} index={index} />
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          </div>
-        </section>
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* Most Popular - Hide when searching */}
+      {!isSearching && (
+        <ContentSection
+          title="Most Popular"
+          titleJp="人気アニメ"
+          icon={TrendingUp}
+          linkTo="/rankings?type=anime"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {popularLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              popularAnime?.slice(0, 12).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* Coming Soon - Hide when searching */}
+      {!isSearching && (
+        <ContentSection
+          title="Coming Soon"
+          titleJp="近日公開"
+          icon={Clock}
+          linkTo="/anime?filter=upcoming"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {upcomingLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              upcomingAnime?.slice(0, 12).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* All-Time Top Rated - Hide when searching */}
+      {!isSearching && (
+        <ContentSection
+          title="All-Time Top Rated"
+          titleJp="歴代最高"
+          icon={Trophy}
+          linkTo="/rankings?type=anime&sort=score"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {allTimeLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              allTimeTop?.slice(0, 12).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* Classic Anime - Hide when searching */}
+      {!isSearching && (
+        <ContentSection
+          title="Classic Anime"
+          titleJp="クラシック"
+          icon={History}
+          linkTo="/classics"
+          linkText="Browse by Decade"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {classicLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              classicAnime?.slice(0, 12).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
       )}
 
       {/* Filters */}
