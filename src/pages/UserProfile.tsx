@@ -12,6 +12,7 @@ import { FollowButton } from "@/components/community/FollowButton";
 import { FollowersModal } from "@/components/community/FollowersModal";
 import { UserBadge } from "@/components/community/UserBadge";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { SendMessageDialog } from "@/components/messages/SendMessageDialog";
 import { useFollow } from "@/hooks/useFollow";
 import { useUserBadges } from "@/hooks/useUserBadges";
 import { useUserReputation } from "@/hooks/useUserReputation";
@@ -27,6 +28,7 @@ const UserProfile = () => {
   const { user: currentUser } = useAuth();
   const [followersModalOpen, setFollowersModalOpen] = useState(false);
   const [followersModalTab, setFollowersModalTab] = useState<"followers" | "following">("followers");
+  const [messageDialogOpen, setMessageDialogOpen] = useState(false);
 
   // Fetch profile data
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -159,7 +161,11 @@ const UserProfile = () => {
                 ) : (
                   <>
                     <FollowButton userId={userId!} />
-                    <Button variant="outline" size="icon">
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => setMessageDialogOpen(true)}
+                    >
                       <MessageSquare className="w-4 h-4" />
                     </Button>
                   </>
@@ -291,6 +297,17 @@ const UserProfile = () => {
           username={profile.username || "User"}
           defaultTab={followersModalTab}
         />
+
+        {/* Send Message Dialog */}
+        {!isOwnProfile && (
+          <SendMessageDialog
+            open={messageDialogOpen}
+            onOpenChange={setMessageDialogOpen}
+            recipientId={userId!}
+            recipientUsername={profile.username}
+            recipientAvatar={profile.avatar_url}
+          />
+        )}
       </main>
 
       <Footer />

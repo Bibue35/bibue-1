@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { User, LogOut, Settings, EyeOff, Eye, Globe, Check, Bookmark, Heart } from "lucide-react";
+import { User, LogOut, Settings, EyeOff, Eye, Globe, Check, Bookmark, Heart, MessageCircle, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,9 +14,11 @@ import {
   DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIncognito } from "@/contexts/IncognitoContext";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
+import { useUnreadCount } from "@/hooks/useMessages";
 import { AuthModal } from "./AuthModal";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +37,7 @@ export function UserMenu() {
   const { user, profile, signOut, loading } = useAuth();
   const { isIncognito, toggleIncognito } = useIncognito();
   const { language, setLanguage } = useLanguage();
+  const { data: unreadCount } = useUnreadCount();
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const currentLanguage = languages.find((l) => l.code === language);
@@ -125,6 +128,25 @@ export function UserMenu() {
           <Link to="/recommendations">
             <Heart className="w-4 h-4" />
             <span>For You</span>
+          </Link>
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
+          <Link to="/messages">
+            <MessageCircle className="w-4 h-4" />
+            <span className="flex-1">Messages</span>
+            {(unreadCount ?? 0) > 0 && (
+              <Badge variant="default" className="h-5 min-w-5 px-1.5 text-xs">
+                {unreadCount}
+              </Badge>
+            )}
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
+          <Link to="/community">
+            <Users className="w-4 h-4" />
+            <span>Community</span>
           </Link>
         </DropdownMenuItem>
         
