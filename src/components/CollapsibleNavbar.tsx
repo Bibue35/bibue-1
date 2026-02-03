@@ -100,32 +100,12 @@ export function CollapsibleNavbar() {
 
   return (
     <>
-      {/* Fixed Logo - Always Visible */}
-      <Link 
-        to="/" 
-        className={cn(
-          "fixed top-4 left-4 z-[60] flex items-center gap-2 transition-all duration-300",
-          !isVisible && "opacity-0 pointer-events-none"
-        )}
-      >
-        <div className="h-12 sm:h-14 w-auto flex items-center justify-center">
-          <img 
-            src={bibueTower} 
-            alt="Bibue Tower" 
-            className="h-full w-auto object-contain dark:brightness-0 dark:invert"
-          />
-        </div>
-        <span className="text-2xl sm:text-3xl font-sacred font-semibold tracking-wide">
-          Bibue
-        </span>
-      </Link>
-
       <nav
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out",
           isScrolled
             ? "liquid-glass-strong py-2"
-            : "bg-transparent py-4",
+            : "bg-transparent py-3",
           !isVisible && "transform -translate-y-full pointer-events-none"
         )}
         style={{
@@ -136,10 +116,19 @@ export function CollapsibleNavbar() {
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
-            {/* Left spacer for centering nav links */}
-            <div className="hidden md:block flex-1" />
-
-            {/* Desktop Navigation - Collapsible */}
+            {/* Logo - now part of navbar */}
+            <Link to="/" className="flex items-center gap-1.5">
+              <div className="h-8 sm:h-10 w-auto flex items-center justify-center">
+                <img 
+                  src={bibueTower} 
+                  alt="Bibue Tower" 
+                  className="h-full w-auto object-contain dark:brightness-0 dark:invert"
+                />
+              </div>
+              <span className="text-lg sm:text-xl font-sacred font-semibold tracking-wide">
+                Bibue
+              </span>
+            </Link>
             <Collapsible
               open={isNavExpanded}
               onOpenChange={setIsNavExpanded}
@@ -168,8 +157,8 @@ export function CollapsibleNavbar() {
               </CollapsibleContent>
             </Collapsible>
 
-            {/* Right side - flex-1 to match left spacer */}
-            <div className="flex-1 flex items-center justify-end gap-1.5">
+            {/* Right side actions */}
+            <div className="flex items-center gap-1.5">
               <Button
                 variant="ghost"
                 size="icon"
