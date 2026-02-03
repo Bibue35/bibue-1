@@ -34,7 +34,7 @@ export function FloatingNav() {
               <img 
                 src={bibueLogo} 
                 alt="Bibue" 
-                className="h-16 sm:h-20 w-auto object-contain [filter:invert(1)_brightness(2)] dark:[filter:invert(0)_brightness(0)]"
+                className="h-16 sm:h-20 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
               />
             </Link>
 
