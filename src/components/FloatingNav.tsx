@@ -22,18 +22,24 @@ export function FloatingNav() {
 
   return (
     <>
+      {/* Fixed Logo - Always Visible */}
+      <Link 
+        to="/" 
+        className="fixed top-2 left-3 sm:top-3 sm:left-4 z-[60] flex items-center"
+      >
+        <img 
+          src={bibueLogo} 
+          alt="Bibue" 
+          className="h-20 sm:h-24 md:h-28 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
+        />
+      </Link>
+
       {/* Fixed navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 py-3 sm:py-4">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
-            {/* Left - Logo */}
-            <Link to="/" className="flex items-center">
-              <img 
-                src={bibueLogo} 
-                alt="Bibue" 
-                className="h-20 sm:h-24 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert"
-              />
-            </Link>
+            {/* Left spacer for logo */}
+            <div className="w-24 sm:w-28 md:w-32" />
 
             {/* Center nav links - desktop only */}
             <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
