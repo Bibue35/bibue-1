@@ -1,26 +1,26 @@
 # Bibue Platform Enhancement Plan
 
 ## Overview
-This plan outlines the Bibue platform with two distinct celestial themes (Sunlight and Moonlight) and an immersive viewing experience.
+This plan outlines the Bibue platform with clean light and dark modes and an immersive viewing experience.
 
 ---
 
 ## 1. Theme System (Completed)
 
-### 1.1 Sunlight Theme (Light Mode)
-Warm, radiant effects evoking golden warmth and daylight:
-- `.sun-glow` - Warm golden outer glow
-- `.sun-corona` - Subtle corona effect around images
+### 1.1 Light Mode
+Warm effects for light backgrounds:
+- `.sun-glow` - Warm outer glow
+- `.sun-corona` - Subtle glow effect around images
 - `.sun-rays-hover` - Animated light rays on hover
 - `.sunburst-button` - Buttons with warm gradient
 
-### 1.2 Moonlight Theme (Dark Mode)
-Cool, ethereal effects evoking silver moonlight and night sky:
+### 1.2 Dark Mode
+Cool effects for dark backgrounds:
 - `.moon-glow` - Cool silvery-blue outer glow
-- `.moon-reflection` - Shimmer effect like moonlight on water
-- `.moon-phase-hover` - Crescent moon-inspired hover illumination
+- `.moon-reflection` - Shimmer effect
+- `.moon-phase-hover` - Hover illumination
 - `.moonbeam-button` - Buttons with cool gradients
-- `.starfield` - Subtle star twinkle effect
+- `.starfield` - Subtle twinkle effect
 
 ---
 
