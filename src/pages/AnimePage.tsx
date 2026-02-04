@@ -10,6 +10,7 @@ import { GenreSection } from "@/components/GenreSection";
 import { ContentSection } from "@/components/ContentSection";
 import { SearchDropdown } from "@/components/SearchDropdown";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { ScheduleSection } from "@/components/ScheduleSection";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardSkeletonRow } from "@/components/skeletons";
@@ -181,6 +182,9 @@ export default function AnimePage() {
           </HorizontalScroll>
         </ContentSection>
       )}
+
+      {/* Today's Schedule - Hide when searching */}
+      {!isSearching && <ScheduleSection />}
 
       {/* This Season - Hide when searching */}
       {!isSearching && (
