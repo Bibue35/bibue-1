@@ -5,9 +5,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Bibue Design System - Divine Liquid Glass */
-/* Light Mode: Sunlight (Divine Radiance) | Dark Mode: Moonlight (Heavenly Glow) */
-/* Inspired by the name "Bibue" - Biblical divine aesthetics with celestial light */
+/* Bibue Design System - Liquid Glass */
+/* Light Mode: Warm | Dark Mode: Cool */
 
 @layer base {
   :root {
@@ -88,7 +87,7 @@
   }
 
   .dark {
-    /* Moonlight Mode - Deep Ocean & Silver */
+    /* Dark Mode - Deep & Cool */
     --background: 230 25% 6%;
     --foreground: 215 30% 92%;
 
@@ -118,7 +117,7 @@
     --input: 230 20% 18%;
     --ring: 215 85% 65%;
 
-    /* Moonlight Liquid Glass - Deep ocean with silver shimmer */
+    /* Dark Liquid Glass */
     --glass-bg: 230 28% 10% / 0.85;
     --glass-border: 220 25% 25% / 0.35;
     --glass-highlight: 215 45% 90% / 0.1;
@@ -126,21 +125,21 @@
     --glass-blur: 48px;
     --glass-refraction: 215 40% 85% / 0.08;
 
-    /* Moonlight specular - ethereal silver-blue edge */
+    /* Dark specular */
     --specular-color: 215 55% 70% / 0.18;
     --specular-inner: 230 30% 55% / 0.12;
 
-    /* Moonlight shadow gradient - deep ocean depths */
+    /* Dark shadow gradient */
     --reflection-start: 215 40% 90% / 0.15;
     --reflection-mid: 230 28% 50% / 0.06;
     --reflection-end: 230 60% 5% / 0.5;
 
-    /* Divine moonlight glow - cool silver luminance */
+    /* Dark glow effects */
     --divine-glow: 215 65% 55% / 0.25;
     --divine-radiance: 210 60% 70% / 0.3;
     --divine-halo: 220 55% 80% / 0.22;
 
-    /* Legacy moonbeam for compatibility */
+    /* Legacy compatibility */
     --moonbeam-glow: 215 65% 55% / 0.25;
     --moonbeam-highlight: 210 60% 70% / 0.3;
 
@@ -211,7 +210,7 @@
     overflow: hidden;
   }
 
-  /* Sunlight/Moonlight reflection overlay */
+  /* Reflection overlay */
   .liquid-glass::before {
     content: '';
     position: absolute;
@@ -310,7 +309,7 @@
     opacity: 0.6;
   }
 
-  /* Glass button with sunlight/moonlight refraction */
+  /* Glass button with refraction */
   .glass-button {
     background: hsl(var(--glass-bg));
     backdrop-filter: blur(20px) saturate(180%);
@@ -354,7 +353,7 @@
     opacity: 0.8;
   }
 
-  /* Divine radiance hover effect - Celestial glow inspired by Bibue */
+  /* Hover glow effect */
   .divine-hover {
     position: relative;
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -533,13 +532,11 @@
 
   /* ============================================
    * THEME-SPECIFIC EFFECTS
-   * Sunlight (Light) | Moonlight (Dark) | Divine
+   * Light Mode | Dark Mode
    * ============================================ */
 
-  /* === SUNLIGHT THEME EFFECTS (Light Mode Only) === */
-  /* Warm, radiant effects evoking golden warmth and daylight */
-  /* Only active when NOT in .dark or .divine modes */
-  /* Using html element which is where next-themes applies the class */
+  /* === LIGHT MODE EFFECTS === */
+  /* Warm effects for light mode */
   
   html:not(.dark):not(.divine) .sun-glow {
     position: relative;
@@ -670,8 +667,8 @@
     transform: translateY(-2px);
   }
 
-  /* === MOONLIGHT THEME EFFECTS (Dark Mode) === */
-  /* Cool, ethereal effects evoking silver moonlight and night sky */
+  /* === DARK MODE EFFECTS === */
+  /* Cool effects for dark mode */
   
   .dark .moon-glow {
     position: relative;
