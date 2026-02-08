@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, Users, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthModal } from "./AuthModal";
 import bibueTower from "@/assets/bibue-tower.png";
 
 export function CollapsibleNavbar() {
@@ -14,9 +16,11 @@ export function CollapsibleNavbar() {
   const [isVisible, setIsVisible] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const location = useLocation();
   const scrollRef = useRef(0);
   const { t } = useLanguage();
+  const { user } = useAuth();
 
   const navLinks = [
     { href: "/anime", label: t("nav.anime") },
@@ -25,7 +29,6 @@ export function CollapsibleNavbar() {
     { href: "/rankings", label: "Rankings" },
   ];
 
-  // When mobile menu opens, ensure navbar stays visible
   useEffect(() => {
     if (isMobileMenuOpen) {
       setIsVisible(true);
@@ -85,7 +88,6 @@ export function CollapsibleNavbar() {
         }}
       >
         <div className="container mx-auto px-3 sm:px-4">
-          {/* 3-column grid: left (logo) | center (nav) | right (actions) */}
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
             {/* Left: hamburger (mobile) + Logo */}
             <div className="flex items-center gap-1">
@@ -118,7 +120,7 @@ export function CollapsibleNavbar() {
               </Link>
             </div>
 
-            {/* Center: nav links — desktop/tablet only, truly centered */}
+            {/* Center: nav links — desktop only */}
             <div className="hidden md:flex items-center justify-center gap-1">
               {navLinks.map((link) => (
                 <Link
@@ -136,9 +138,8 @@ export function CollapsibleNavbar() {
               ))}
             </div>
 
-            {/* Right: actions — balanced with left side */}
+            {/* Right: desktop actions + user avatar always visible */}
             <div className="flex items-center justify-end gap-1">
-              {/* Search — desktop/tablet only */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -149,7 +150,6 @@ export function CollapsibleNavbar() {
                 <Search className="w-5 h-5" />
               </Button>
 
-              {/* Theme toggle — desktop/tablet only */}
               <div className="hidden md:block">
                 <ThemeSelector />
               </div>
@@ -169,7 +169,7 @@ export function CollapsibleNavbar() {
           )}
         >
           <div className="p-3 space-y-0.5">
-            {/* Search — mobile only */}
+            {/* Search */}
             <button
               onClick={() => {
                 setIsSearchOpen(true);
@@ -181,6 +181,7 @@ export function CollapsibleNavbar() {
               {t("nav.search")}
             </button>
 
+            {/* Nav links */}
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -197,16 +198,45 @@ export function CollapsibleNavbar() {
               </Link>
             ))}
 
-            {/* Theme toggle in mobile menu */}
-            <div className="md:hidden flex items-center justify-between px-4 py-3 rounded-xl">
+            {/* Community */}
+            <Link
+              to="/community"
+              className={cn(
+                "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors",
+                location.pathname === "/community"
+                  ? "bg-foreground/10 text-foreground"
+                  : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+              )}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <Users className="w-4 h-4" />
+              Community
+            </Link>
+
+            {/* Theme toggle */}
+            <div className="flex items-center justify-between px-4 py-3 rounded-xl">
               <span className="text-sm font-medium text-muted-foreground">Theme</span>
               <ThemeSelector />
             </div>
+
+            {/* Sign In — only when logged out */}
+            {!user && (
+              <button
+                onClick={() => {
+                  setAuthModalOpen(true);
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-primary hover:bg-primary/5 transition-colors"
+              >
+                <LogIn className="w-4 h-4" />
+                Sign In
+              </button>
+            )}
           </div>
         </div>
       </nav>
 
-      {/* Mobile Menu Backdrop - outside nav to avoid pointer-events issues */}
+      {/* Mobile Menu Backdrop */}
       {isMobileMenuOpen && (
         <div
           className="md:hidden fixed inset-0 z-[49] bg-black/40 backdrop-blur-sm"
@@ -215,6 +245,7 @@ export function CollapsibleNavbar() {
       )}
 
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </>
   );
 }
