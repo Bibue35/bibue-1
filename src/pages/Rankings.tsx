@@ -7,6 +7,7 @@ import { AnimeCard } from "@/components/AnimeCard";
 import { MangaCard } from "@/components/MangaCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SectionError } from "@/components/SectionError";
 import { useTopAnime, useTopManga } from "@/hooks/useAnimeData";
 import { cn } from "@/lib/utils";
 
@@ -23,11 +24,13 @@ export default function RankingsPage() {
     setSearchParams({ type: activeType });
   }, [activeType, setSearchParams]);
 
-  const { data: animeData, isLoading: animeLoading } = useTopAnime(1, animeFilter);
-  const { data: mangaData, isLoading: mangaLoading } = useTopManga(1, mangaFilter);
+  const { data: animeData, isLoading: animeLoading, error: animeError, refetch: refetchAnime } = useTopAnime(1, animeFilter);
+  const { data: mangaData, isLoading: mangaLoading, error: mangaError, refetch: refetchManga } = useTopManga(1, mangaFilter);
 
   const data = activeType === "anime" ? animeData : mangaData;
   const isLoading = activeType === "anime" ? animeLoading : mangaLoading;
+  const error = activeType === "anime" ? animeError : mangaError;
+  const refetch = activeType === "anime" ? refetchAnime : refetchManga;
 
   // Get rank badge styling
   const getRankBadge = (index: number) => {
@@ -161,7 +164,9 @@ export default function RankingsPage() {
       {/* Rankings Grid with enhanced visibility */}
       <section className="py-8 sm:py-16">
         <div className="container mx-auto px-3 sm:px-4">
-          {isLoading ? (
+          {error ? (
+            <SectionError message="Failed to load rankings" onRetry={() => refetch()} />
+          ) : isLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
               {Array.from({ length: 25 }).map((_, i) => (
                 <div key={i} className="space-y-4">
