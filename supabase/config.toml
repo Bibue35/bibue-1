@@ -1,1 +1,7 @@
 project_id = "dsquhilpqcwqydsfhooi"
+
+[functions.anilist-oauth-callback]
+verify_jwt = false
+
+[functions.mal-oauth-callback]
+verify_jwt = false
