@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Trophy, Star, Zap, Users, Swords, Heart, Wand2, BookOpen, CheckCircle, RefreshCw } from "lucide-react";
+import { SectionError } from "@/components/SectionError";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
@@ -102,22 +103,22 @@ export default function MangaPage() {
 
   // Fetch data based on type filter
   const { data: allManga, isLoading: allLoading } = useTopManga(1, undefined);
-  const { data: mangaOnly, isLoading: mangaLoading } = useTopManga(1, 'manga');
-  const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
-  const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua');
-  const { data: trendingManhwa, isLoading: trendingManhwaLoading } = useTrendingManhwa(1);
-  const { data: trendingManhua, isLoading: trendingManhuaLoading } = useTrendingManhua(1);
-  const { data: newThisWeek, isLoading: newThisWeekLoading } = useNewThisWeekManga(1);
-  const { data: completedManga, isLoading: completedLoading } = useCompletedManga(1);
+  const { data: mangaOnly, isLoading: mangaLoading, isError: mangaError, refetch: refetchManga } = useTopManga(1, 'manga');
+  const { data: manhwa, isLoading: manhwaLoading, isError: manhwaError, refetch: refetchManhwa } = useTopManga(1, 'manhwa');
+  const { data: manhua, isLoading: manhuaLoading, isError: manhuaError, refetch: refetchManhua } = useTopManga(1, 'manhua');
+  const { data: trendingManhwa, isLoading: trendingManhwaLoading, isError: trendingManhwaError, refetch: refetchTrendingManhwa } = useTrendingManhwa(1);
+  const { data: trendingManhua, isLoading: trendingManhuaLoading, isError: trendingManhuaError, refetch: refetchTrendingManhua } = useTrendingManhua(1);
+  const { data: newThisWeek, isLoading: newThisWeekLoading, isError: newThisWeekError, refetch: refetchNewThisWeek } = useNewThisWeekManga(1);
+  const { data: completedManga, isLoading: completedLoading, isError: completedError, refetch: refetchCompleted } = useCompletedManga(1);
   const { data: searchResults, isLoading: searchLoading } = useSearchManga(
     debouncedSearch,
     isSearching,
     typeFilter === "all" ? undefined : typeFilter,
   );
-  const { data: actionManga, isLoading: actionMangaLoading } = useMangaByGenre("Action", 1);
-  const { data: romanceManga, isLoading: romanceMangaLoading } = useMangaByGenre("Romance", 1);
-  const { data: fantasyManga, isLoading: fantasyMangaLoading } = useMangaByGenre("Fantasy", 1);
-  const { data: recentlyUpdatedManga, isLoading: recentlyUpdatedMangaLoading } = useRecentlyUpdatedManga(1);
+  const { data: actionManga, isLoading: actionMangaLoading, isError: actionMangaError, refetch: refetchActionManga } = useMangaByGenre("Action", 1);
+  const { data: romanceManga, isLoading: romanceMangaLoading, isError: romanceMangaError, refetch: refetchRomanceManga } = useMangaByGenre("Romance", 1);
+  const { data: fantasyManga, isLoading: fantasyMangaLoading, isError: fantasyMangaError, refetch: refetchFantasyManga } = useMangaByGenre("Fantasy", 1);
+  const { data: recentlyUpdatedManga, isLoading: recentlyUpdatedMangaLoading, isError: recentlyUpdatedMangaError, refetch: refetchRecentlyUpdatedManga } = useRecentlyUpdatedManga(1);
 
   // Select the correct data based on filter
   const getFilteredManga = () => {
@@ -255,17 +256,21 @@ export default function MangaPage() {
           icon={RefreshCw}
           linkTo="/manga"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {recentlyUpdatedMangaLoading ? (
-              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              recentlyUpdatedManga?.slice(0, 12).map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {recentlyUpdatedMangaError ? (
+            <SectionError onRetry={() => refetchRecentlyUpdatedManga()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {recentlyUpdatedMangaLoading ? (
+                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                recentlyUpdatedManga?.slice(0, 12).map((manga, index) => (
+                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    <MangaCard manga={manga} index={index} />
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -277,17 +282,21 @@ export default function MangaPage() {
           icon={TrendingUp}
           linkTo="/manga?filter=manga"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {mangaLoading ? (
-              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              mangaOnly?.slice(0, 12).map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {mangaError ? (
+            <SectionError onRetry={() => refetchManga()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {mangaLoading ? (
+                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                mangaOnly?.slice(0, 12).map((manga, index) => (
+                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    <MangaCard manga={manga} index={index} />
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -299,17 +308,21 @@ export default function MangaPage() {
           icon={Trophy}
           linkTo="/manga?filter=manga&sort=score"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {mangaLoading ? (
-              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              topRatedManga?.map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {mangaError ? (
+            <SectionError onRetry={() => refetchManga()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {mangaLoading ? (
+                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                topRatedManga?.map((manga, index) => (
+                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    <MangaCard manga={manga} index={index} />
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -321,17 +334,21 @@ export default function MangaPage() {
           icon={Zap}
           linkTo="/manga?filter=manhwa"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {trendingManhwaLoading ? (
-              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              trendingManhwa?.slice(0, 12).map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {trendingManhwaError ? (
+            <SectionError onRetry={() => refetchTrendingManhwa()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {trendingManhwaLoading ? (
+                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                trendingManhwa?.slice(0, 12).map((manga, index) => (
+                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    <MangaCard manga={manga} index={index} />
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -343,17 +360,21 @@ export default function MangaPage() {
           icon={Star}
           linkTo="/manga?filter=manhwa&sort=score"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {manhwaLoading ? (
-              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              topRatedManhwa?.map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {manhwaError ? (
+            <SectionError onRetry={() => refetchManhwa()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {manhwaLoading ? (
+                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                topRatedManhwa?.map((manga, index) => (
+                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    <MangaCard manga={manga} index={index} />
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -365,17 +386,21 @@ export default function MangaPage() {
           icon={Zap}
           linkTo="/manga?filter=manhua"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {trendingManhuaLoading ? (
-              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              trendingManhua?.slice(0, 12).map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {trendingManhuaError ? (
+            <SectionError onRetry={() => refetchTrendingManhua()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {trendingManhuaLoading ? (
+                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                trendingManhua?.slice(0, 12).map((manga, index) => (
+                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    <MangaCard manga={manga} index={index} />
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -387,17 +412,21 @@ export default function MangaPage() {
           icon={Star}
           linkTo="/manga?filter=manhua&sort=score"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {manhuaLoading ? (
-              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              topRatedManhua?.map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {manhuaError ? (
+            <SectionError onRetry={() => refetchManhua()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {manhuaLoading ? (
+                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                topRatedManhua?.map((manga, index) => (
+                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    <MangaCard manga={manga} index={index} />
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -409,17 +438,21 @@ export default function MangaPage() {
           icon={BookOpen}
           linkTo="/manga?collection=new"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {newThisWeekLoading ? (
-              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              newThisWeek?.slice(0, 12).map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {newThisWeekError ? (
+            <SectionError onRetry={() => refetchNewThisWeek()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {newThisWeekLoading ? (
+                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                newThisWeek?.slice(0, 12).map((manga, index) => (
+                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    <MangaCard manga={manga} index={index} />
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -431,17 +464,21 @@ export default function MangaPage() {
           icon={CheckCircle}
           linkTo="/manga?collection=completed"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {completedLoading ? (
-              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              completedManga?.slice(0, 12).map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {completedError ? (
+            <SectionError onRetry={() => refetchCompleted()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {completedLoading ? (
+                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                completedManga?.slice(0, 12).map((manga, index) => (
+                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    <MangaCard manga={manga} index={index} />
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -453,17 +490,21 @@ export default function MangaPage() {
           icon={Swords}
           linkTo="/manga?genre=1"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {actionMangaLoading ? (
-              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              actionManga?.slice(0, 12).map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {actionMangaError ? (
+            <SectionError onRetry={() => refetchActionManga()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {actionMangaLoading ? (
+                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                actionManga?.slice(0, 12).map((manga, index) => (
+                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    <MangaCard manga={manga} index={index} />
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -475,17 +516,21 @@ export default function MangaPage() {
           icon={Heart}
           linkTo="/manga?genre=22"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {romanceMangaLoading ? (
-              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              romanceManga?.slice(0, 12).map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {romanceMangaError ? (
+            <SectionError onRetry={() => refetchRomanceManga()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {romanceMangaLoading ? (
+                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                romanceManga?.slice(0, 12).map((manga, index) => (
+                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    <MangaCard manga={manga} index={index} />
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -497,17 +542,21 @@ export default function MangaPage() {
           icon={Wand2}
           linkTo="/manga?genre=10"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {fantasyMangaLoading ? (
-              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              fantasyManga?.slice(0, 12).map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {fantasyMangaError ? (
+            <SectionError onRetry={() => refetchFantasyManga()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {fantasyMangaLoading ? (
+                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                fantasyManga?.slice(0, 12).map((manga, index) => (
+                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    <MangaCard manga={manga} index={index} />
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 

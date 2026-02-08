@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History, Users, Swords, Heart, Wand2, Rocket, RefreshCw } from "lucide-react";
+import { SectionError } from "@/components/SectionError";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
@@ -95,18 +96,18 @@ export default function AnimePage() {
   }, [queryClient]);
 
   const { data: topAnime, isLoading: topLoading } = useTopAnime(1, filter);
-  const { data: popularAnime, isLoading: popularLoading } = useTopAnime(1, 'bypopularity');
-  const { data: upcomingAnime, isLoading: upcomingLoading } = useTopAnime(1, 'upcoming');
-  const { data: airingAnime, isLoading: airingLoading } = useTopAnime(1, 'airing');
-  const { data: seasonalAnime, isLoading: seasonalLoading } = useSeasonalAnime();
-  const { data: classicAnime, isLoading: classicLoading } = useClassicAnime(1);
+  const { data: popularAnime, isLoading: popularLoading, isError: popularError, refetch: refetchPopular } = useTopAnime(1, 'bypopularity');
+  const { data: upcomingAnime, isLoading: upcomingLoading, isError: upcomingError, refetch: refetchUpcoming } = useTopAnime(1, 'upcoming');
+  const { data: airingAnime, isLoading: airingLoading, isError: airingError, refetch: refetchAiring } = useTopAnime(1, 'airing');
+  const { data: seasonalAnime, isLoading: seasonalLoading, isError: seasonalError, refetch: refetchSeasonal } = useSeasonalAnime();
+  const { data: classicAnime, isLoading: classicLoading, isError: classicError, refetch: refetchClassic } = useClassicAnime(1);
   const { data: searchResults, isLoading: searchLoading } = useSearchAnime(debouncedSearch, !!debouncedSearch);
-  const { data: allTimeTop, isLoading: allTimeTopLoading } = useAllTimeTopAnime(1);
-  const { data: actionAnime, isLoading: actionLoading } = useAnimeByGenre("Action", 1);
-  const { data: romanceAnime, isLoading: romanceLoading } = useAnimeByGenre("Romance", 1);
-  const { data: fantasyAnime, isLoading: fantasyLoading } = useAnimeByGenre("Fantasy", 1);
-  const { data: sciFiAnime, isLoading: sciFiLoading } = useAnimeByGenre("Sci-Fi", 1);
-  const { data: recentlyUpdatedAnime, isLoading: recentlyUpdatedLoading } = useRecentlyUpdatedAnime(1);
+  const { data: allTimeTop, isLoading: allTimeTopLoading, isError: allTimeTopError, refetch: refetchAllTimeTop } = useAllTimeTopAnime(1);
+  const { data: actionAnime, isLoading: actionLoading, isError: actionError, refetch: refetchAction } = useAnimeByGenre("Action", 1);
+  const { data: romanceAnime, isLoading: romanceLoading, isError: romanceError, refetch: refetchRomance } = useAnimeByGenre("Romance", 1);
+  const { data: fantasyAnime, isLoading: fantasyLoading, isError: fantasyError, refetch: refetchFantasy } = useAnimeByGenre("Fantasy", 1);
+  const { data: sciFiAnime, isLoading: sciFiLoading, isError: sciFiError, refetch: refetchSciFi } = useAnimeByGenre("Sci-Fi", 1);
+  const { data: recentlyUpdatedAnime, isLoading: recentlyUpdatedLoading, isError: recentlyUpdatedError, refetch: refetchRecentlyUpdated } = useRecentlyUpdatedAnime(1);
   
   const sortedSeasonalAnime = seasonalAnime?.slice().sort((a, b) => {
     const aIsAiring = a.status === "Currently Airing" ? 1 : 0;
@@ -217,21 +218,25 @@ export default function AnimePage() {
           linkTo="/anime?filter=airing"
           compact
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {airingLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-44" />
-            ) : (
-              airingAnime?.slice(0, 10).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {airingError ? (
+            <SectionError onRetry={() => refetchAiring()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {airingLoading ? (
+                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-44" />
+              ) : (
+                airingAnime?.slice(0, 10).map((anime, index) => (
+                  <div key={anime.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
+                    {isMobile ? (
+                      <MobileAnimeCard anime={anime} index={index} />
+                    ) : (
+                      <AnimeCard anime={anime} index={index} />
+                    )}
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -244,21 +249,25 @@ export default function AnimePage() {
           linkTo="/anime?filter=airing"
           compact
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {recentlyUpdatedLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-44" />
-            ) : (
-              recentlyUpdatedAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {recentlyUpdatedError ? (
+            <SectionError onRetry={() => refetchRecentlyUpdated()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {recentlyUpdatedLoading ? (
+                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-44" />
+              ) : (
+                recentlyUpdatedAnime?.slice(0, 12).map((anime, index) => (
+                  <div key={anime.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
+                    {isMobile ? (
+                      <MobileAnimeCard anime={anime} index={index} />
+                    ) : (
+                      <AnimeCard anime={anime} index={index} />
+                    )}
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -273,21 +282,25 @@ export default function AnimePage() {
           icon={Sparkles}
           linkTo="/anime?filter=seasonal"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {seasonalLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              sortedSeasonalAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {seasonalError ? (
+            <SectionError onRetry={() => refetchSeasonal()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {seasonalLoading ? (
+                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                sortedSeasonalAnime?.slice(0, 12).map((anime, index) => (
+                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    {isMobile ? (
+                      <MobileAnimeCard anime={anime} index={index} />
+                    ) : (
+                      <AnimeCard anime={anime} index={index} />
+                    )}
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -299,21 +312,25 @@ export default function AnimePage() {
           icon={TrendingUp}
           linkTo="/anime?filter=bypopularity"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {popularLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              popularAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {popularError ? (
+            <SectionError onRetry={() => refetchPopular()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {popularLoading ? (
+                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                popularAnime?.slice(0, 12).map((anime, index) => (
+                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    {isMobile ? (
+                      <MobileAnimeCard anime={anime} index={index} />
+                    ) : (
+                      <AnimeCard anime={anime} index={index} />
+                    )}
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -325,21 +342,25 @@ export default function AnimePage() {
           icon={Clock}
           linkTo="/anime?filter=upcoming"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {upcomingLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              upcomingAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {upcomingError ? (
+            <SectionError onRetry={() => refetchUpcoming()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {upcomingLoading ? (
+                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                upcomingAnime?.slice(0, 12).map((anime, index) => (
+                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    {isMobile ? (
+                      <MobileAnimeCard anime={anime} index={index} />
+                    ) : (
+                      <AnimeCard anime={anime} index={index} />
+                    )}
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -352,21 +373,25 @@ export default function AnimePage() {
           linkTo="/classics"
           linkText="Browse by Decade"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {classicLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              classicAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {classicError ? (
+            <SectionError onRetry={() => refetchClassic()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {classicLoading ? (
+                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                classicAnime?.slice(0, 12).map((anime, index) => (
+                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    {isMobile ? (
+                      <MobileAnimeCard anime={anime} index={index} />
+                    ) : (
+                      <AnimeCard anime={anime} index={index} />
+                    )}
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -378,21 +403,25 @@ export default function AnimePage() {
           icon={Trophy}
           linkTo="/rankings"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {allTimeTopLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              allTimeTop?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {allTimeTopError ? (
+            <SectionError onRetry={() => refetchAllTimeTop()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {allTimeTopLoading ? (
+                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                allTimeTop?.slice(0, 12).map((anime, index) => (
+                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    {isMobile ? (
+                      <MobileAnimeCard anime={anime} index={index} />
+                    ) : (
+                      <AnimeCard anime={anime} index={index} />
+                    )}
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -404,21 +433,25 @@ export default function AnimePage() {
           icon={Swords}
           linkTo="/anime?genre=1"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {actionLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              actionAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {actionError ? (
+            <SectionError onRetry={() => refetchAction()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {actionLoading ? (
+                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                actionAnime?.slice(0, 12).map((anime, index) => (
+                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    {isMobile ? (
+                      <MobileAnimeCard anime={anime} index={index} />
+                    ) : (
+                      <AnimeCard anime={anime} index={index} />
+                    )}
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -430,21 +463,25 @@ export default function AnimePage() {
           icon={Heart}
           linkTo="/anime?genre=22"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {romanceLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              romanceAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {romanceError ? (
+            <SectionError onRetry={() => refetchRomance()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {romanceLoading ? (
+                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                romanceAnime?.slice(0, 12).map((anime, index) => (
+                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    {isMobile ? (
+                      <MobileAnimeCard anime={anime} index={index} />
+                    ) : (
+                      <AnimeCard anime={anime} index={index} />
+                    )}
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -456,21 +493,25 @@ export default function AnimePage() {
           icon={Wand2}
           linkTo="/anime?genre=10"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {fantasyLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              fantasyAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {fantasyError ? (
+            <SectionError onRetry={() => refetchFantasy()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {fantasyLoading ? (
+                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                fantasyAnime?.slice(0, 12).map((anime, index) => (
+                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    {isMobile ? (
+                      <MobileAnimeCard anime={anime} index={index} />
+                    ) : (
+                      <AnimeCard anime={anime} index={index} />
+                    )}
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
@@ -482,21 +523,25 @@ export default function AnimePage() {
           icon={Rocket}
           linkTo="/anime?genre=24"
         >
-          <HorizontalScroll showArrows={!isMobile}>
-            {sciFiLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              sciFiAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
+          {sciFiError ? (
+            <SectionError onRetry={() => refetchSciFi()} />
+          ) : (
+            <HorizontalScroll showArrows={!isMobile}>
+              {sciFiLoading ? (
+                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+              ) : (
+                sciFiAnime?.slice(0, 12).map((anime, index) => (
+                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                    {isMobile ? (
+                      <MobileAnimeCard anime={anime} index={index} />
+                    ) : (
+                      <AnimeCard anime={anime} index={index} />
+                    )}
+                  </div>
+                ))
+              )}
+            </HorizontalScroll>
+          )}
         </ContentSection>
       )}
 
