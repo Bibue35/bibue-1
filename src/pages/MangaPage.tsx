@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Trophy, Star, Zap, Users } from "lucide-react";
+import { Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Trophy, Star, Zap, Users, Swords, Heart, Wand2, BookOpen, CheckCircle } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
@@ -13,7 +13,7 @@ import { CardSkeletonRow } from "@/components/skeletons";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTopManga, useSearchManga, useTrendingManhwa, useTrendingManhua, useNewThisWeekManga, useCompletedManga } from "@/hooks/useAnimeData";
+import { useTopManga, useSearchManga, useTrendingManhwa, useTrendingManhua, useNewThisWeekManga, useCompletedManga, useMangaByGenre } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -94,6 +94,9 @@ export default function MangaPage() {
     await queryClient.invalidateQueries({ queryKey: ["topManga"] });
     await queryClient.invalidateQueries({ queryKey: ["trendingManhwa"] });
     await queryClient.invalidateQueries({ queryKey: ["trendingManhua"] });
+    await queryClient.invalidateQueries({ queryKey: ["mangaByGenre"] });
+    await queryClient.invalidateQueries({ queryKey: ["newThisWeekManga"] });
+    await queryClient.invalidateQueries({ queryKey: ["completedManga"] });
   }, [queryClient]);
 
   // Fetch data based on type filter
@@ -110,6 +113,9 @@ export default function MangaPage() {
     isSearching,
     typeFilter === "all" ? undefined : typeFilter,
   );
+  const { data: actionManga, isLoading: actionMangaLoading } = useMangaByGenre("Action", 1);
+  const { data: romanceManga, isLoading: romanceMangaLoading } = useMangaByGenre("Romance", 1);
+  const { data: fantasyManga, isLoading: fantasyMangaLoading } = useMangaByGenre("Fantasy", 1);
 
   // Select the correct data based on filter
   const getFilteredManga = () => {
@@ -362,6 +368,116 @@ export default function MangaPage() {
               <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
               topRatedManhua?.map((manga, index) => (
+                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaCard manga={manga} index={index} />
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* New This Week */}
+      {!isSearching && (
+        <ContentSection
+          title="New This Week"
+          titleJp="今週の新作"
+          icon={BookOpen}
+          linkTo="/manga?collection=new"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {newThisWeekLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              newThisWeek?.slice(0, 12).map((manga, index) => (
+                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaCard manga={manga} index={index} />
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* Completed Manga */}
+      {!isSearching && (
+        <ContentSection
+          title="Completed Series"
+          titleJp="完結作品"
+          icon={CheckCircle}
+          linkTo="/manga?collection=completed"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {completedLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              completedManga?.slice(0, 12).map((manga, index) => (
+                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaCard manga={manga} index={index} />
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* Action Manga */}
+      {!isSearching && (
+        <ContentSection
+          title="Action"
+          titleJp="アクション"
+          icon={Swords}
+          linkTo="/manga?genre=1"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {actionMangaLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              actionManga?.slice(0, 12).map((manga, index) => (
+                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaCard manga={manga} index={index} />
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* Romance Manga */}
+      {!isSearching && (
+        <ContentSection
+          title="Romance"
+          titleJp="ロマンス"
+          icon={Heart}
+          linkTo="/manga?genre=22"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {romanceMangaLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              romanceManga?.slice(0, 12).map((manga, index) => (
+                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaCard manga={manga} index={index} />
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* Fantasy Manga */}
+      {!isSearching && (
+        <ContentSection
+          title="Fantasy"
+          titleJp="ファンタジー"
+          icon={Wand2}
+          linkTo="/manga?genre=10"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {fantasyMangaLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              fantasyManga?.slice(0, 12).map((manga, index) => (
                 <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                   <MangaCard manga={manga} index={index} />
                 </div>
