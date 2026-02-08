@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Filter, Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History, ChevronDown, ChevronUp } from "lucide-react";
+import { Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
 import { MobileAnimeCard } from "@/components/MobileAnimeCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
-import { GenreSection } from "@/components/GenreSection";
-import { CategoryBar } from "@/components/CategoryBar";
+import { BrowseFilterBar } from "@/components/BrowseFilterBar";
 import { ContentSection } from "@/components/ContentSection";
 import { SearchDropdown } from "@/components/SearchDropdown";
 import { PullToRefresh } from "@/components/PullToRefresh";
@@ -15,7 +14,6 @@ import { ScheduleSection } from "@/components/ScheduleSection";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardSkeletonRow } from "@/components/skeletons";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useTopAnime, useSeasonalAnime, useSearchAnime, useClassicAnime } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
@@ -32,7 +30,7 @@ export default function AnimePage() {
   );
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [localSearch, setLocalSearch] = useState(searchParams.get("q") || "");
-  const [isFiltersOpen, setIsFiltersOpen] = useState(true);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [sortBy, setSortBy] = useState<'score' | 'popularity' | 'trending'>('popularity');
   const resultsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
@@ -172,11 +170,19 @@ export default function AnimePage() {
       </section>
 
 
-      {/* Categories - Hide when searching */}
+      {/* Browse & Filter - Hide when searching */}
       {!isSearching && (
-        <section className="py-1">
+        <section className="py-2">
           <div className="container mx-auto px-3 sm:px-4">
-            <CategoryBar type="anime" />
+            <BrowseFilterBar
+              type="anime"
+              filter={filter}
+              sortBy={sortBy}
+              viewMode={viewMode}
+              onFilterChange={(f) => { isUserAction.current = true; handleFilterChange(f as typeof filter); }}
+              onSortChange={(s) => { isUserAction.current = true; setSortBy(s); }}
+              onViewModeChange={setViewMode}
+            />
           </div>
         </section>
       )}
@@ -316,103 +322,8 @@ export default function AnimePage() {
         </ContentSection>
       )}
 
-      {/* Collapsible Filters Section */}
-      <section className="py-4" ref={resultsRef}>
-        <div className="container mx-auto px-4">
-          <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-primary/10">
-                  <Filter className="w-4 h-4 text-primary" />
-                </div>
-                <h3 className="text-base sm:text-lg font-semibold">Browse & Filter</h3>
-              </div>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8">
-                  {isFiltersOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </Button>
-              </CollapsibleTrigger>
-            </div>
-            
-            <CollapsibleContent className="space-y-4 transition-all duration-300">
-              {/* Status/Type Filter */}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <Trophy className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Status:</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {([undefined, 'airing', 'upcoming', 'bypopularity', 'favorite'] as const).map((f) => (
-                    <Button
-                      key={f || 'all'}
-                      variant={filter === f ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => handleFilterChange(f)}
-                      className={cn(
-                        "rounded-full text-xs capitalize h-8",
-                        filter !== f && "glass-button"
-                      )}
-                    >
-                      {f === undefined ? "Top Rated" : f === 'bypopularity' ? "Popular" : f}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Sort Filter */}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Sort by:</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {([
-                    { value: 'popularity', label: 'Most Popular' },
-                    { value: 'score', label: 'Top Rated' },
-                    { value: 'trending', label: 'Trending' },
-                  ] as const).map((sort) => (
-                    <Button
-                      key={sort.value}
-                      variant={sortBy === sort.value ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => { isUserAction.current = true; setSortBy(sort.value); }}
-                      className={cn(
-                        "rounded-full text-xs h-8",
-                        sortBy !== sort.value && "glass-button"
-                      )}
-                    >
-                      {sort.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              {/* View Mode Toggle */}
-              <div className="flex items-center justify-between pt-2 border-t border-border/30">
-                <span className="text-xs text-muted-foreground">View mode:</span>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant={viewMode === "grid" ? "outline" : "ghost"}
-                    size="icon"
-                    onClick={() => setViewMode("grid")}
-                    className="rounded-full h-8 w-8"
-                  >
-                    <Grid className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === "list" ? "outline" : "ghost"}
-                    size="icon"
-                    onClick={() => setViewMode("list")}
-                    className="rounded-full h-8 w-8"
-                  >
-                    <List className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-        </div>
-      </section>
+      {/* Results anchor */}
+      <div ref={resultsRef} />
 
       {/* Active Filters Chips */}
       {(filter || sortBy !== 'popularity' || genreId) && (

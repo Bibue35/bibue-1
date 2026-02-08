@@ -1,17 +1,15 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Trophy, Star, Zap, Filter, ChevronDown, ChevronUp } from "lucide-react";
+import { Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Trophy, Star, Zap } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
-import { GenreSection } from "@/components/GenreSection";
-import { CategoryBar } from "@/components/CategoryBar";
+import { BrowseFilterBar } from "@/components/BrowseFilterBar";
 import { ContentSection } from "@/components/ContentSection";
 import { SearchDropdown } from "@/components/SearchDropdown";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { CardSkeletonRow } from "@/components/skeletons";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -208,33 +206,23 @@ export default function MangaPage() {
               </Button>
             </div>
 
-            {/* Type Filter Buttons - Manga/Manhwa/Manhua */}
-            <div className="flex flex-wrap justify-center gap-2 mt-4">
-              {(["all", "manga", "manhwa", "manhua"] as const).map((filter) => (
-                <Button
-                  key={filter}
-                  variant={typeFilter === filter ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => handleTypeFilter(filter)}
-                  className={cn(
-                    "rounded-full capitalize",
-                    typeFilter !== filter && "glass-button"
-                  )}
-                >
-                  {filter === "all" ? "All" : filter}
-                </Button>
-              ))}
-            </div>
           </div>
         </div>
       </section>
 
-
-      {/* Categories - Hide when searching */}
+      {/* Browse & Filter - Hide when searching */}
       {!isSearching && (
-        <section className="py-1">
+        <section className="py-2">
           <div className="container mx-auto px-3 sm:px-4">
-            <CategoryBar type="manga" />
+            <BrowseFilterBar
+              type="manga"
+              typeFilter={typeFilter}
+              sortBy={sortBy}
+              viewMode={viewMode}
+              onTypeFilterChange={(f) => { isUserAction.current = true; setTypeFilter(f); }}
+              onSortChange={(s) => { isUserAction.current = true; setSortBy(s); }}
+              onViewModeChange={setViewMode}
+            />
           </div>
         </section>
       )}
@@ -371,103 +359,8 @@ export default function MangaPage() {
         </ContentSection>
       )}
 
-      {/* Collapsible Filters Section */}
-      <section className="py-4" ref={resultsRef}>
-        <div className="container mx-auto px-4">
-          <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-primary/10">
-                  <Filter className="w-4 h-4 text-primary" />
-                </div>
-                <h3 className="text-base sm:text-lg font-semibold">Browse & Filter</h3>
-              </div>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8">
-                  {isFiltersOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </Button>
-              </CollapsibleTrigger>
-            </div>
-            
-            <CollapsibleContent className="space-y-4 transition-all duration-300">
-              {/* Type Filter */}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <Trophy className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Type:</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {(["all", "manga", "manhwa", "manhua"] as const).map((f) => (
-                    <Button
-                      key={f}
-                      variant={typeFilter === f ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => { isUserAction.current = true; setTypeFilter(f); }}
-                      className={cn(
-                        "rounded-full text-xs capitalize h-8",
-                        typeFilter !== f && "glass-button"
-                      )}
-                    >
-                      {f === "all" ? "All" : f}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Sort Filter */}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Sort by:</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {([
-                    { value: 'popularity', label: 'Popular' },
-                    { value: 'score', label: 'Top Rated' },
-                    { value: 'newest', label: 'Newest' },
-                  ] as const).map((sort) => (
-                    <Button
-                      key={sort.value}
-                      variant={sortBy === sort.value ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => { isUserAction.current = true; setSortBy(sort.value); }}
-                      className={cn(
-                        "rounded-full text-xs h-8",
-                        sortBy !== sort.value && "glass-button"
-                      )}
-                    >
-                      {sort.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              {/* View Mode Toggle */}
-              <div className="flex items-center justify-between pt-2 border-t border-border/30">
-                <span className="text-xs text-muted-foreground">View mode:</span>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant={viewMode === "grid" ? "outline" : "ghost"}
-                    size="icon"
-                    onClick={() => setViewMode("grid")}
-                    className="rounded-full h-8 w-8"
-                  >
-                    <Grid className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === "list" ? "outline" : "ghost"}
-                    size="icon"
-                    onClick={() => setViewMode("list")}
-                    className="rounded-full h-8 w-8"
-                  >
-                    <List className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-        </div>
-      </section>
+      {/* Results anchor */}
+      <div ref={resultsRef} />
 
       {/* Active Filters Chips */}
       {(typeFilter !== "all" || sortBy !== "popularity" || genreId) && (
