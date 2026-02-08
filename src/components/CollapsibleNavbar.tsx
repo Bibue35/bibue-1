@@ -29,6 +29,12 @@ export function CollapsibleNavbar() {
     { href: "/recommendations", label: "For You" },
   ];
 
+  // Mobile menu only shows non-swipable pages
+  const mobileMenuLinks = [
+    { href: "/news", label: t("nav.news") },
+    { href: "/recommendations", label: "For You" },
+  ];
+
   useEffect(() => {
     if (isMobileMenuOpen) {
       setIsVisible(true);
@@ -169,7 +175,7 @@ export function CollapsibleNavbar() {
           )}
         >
           <div className="p-3 space-y-0.5">
-            {navLinks.map((link) => (
+            {mobileMenuLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}

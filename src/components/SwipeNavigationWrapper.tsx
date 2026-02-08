@@ -1,30 +1,55 @@
 import { memo } from "react";
-import { useAuth } from "@/contexts/AuthContext";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
+import { useLocation } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface SwipeNavigationWrapperProps {
   children: React.ReactNode;
 }
 
+/** Swipable tab routes — must match useSwipeNavigation */
+const TAB_ROUTES = ["/anime", "/", "/manga"];
+
 /**
  * Wraps page content with swipe-between-tabs navigation.
- * Only active for authenticated users on swipable tab pages.
+ * Swipe right → Anime, swipe left → Manga.
+ * Shows subtle edge vignettes on swipable pages (mobile only).
  */
 export const SwipeNavigationWrapper = memo(function SwipeNavigationWrapper({
   children,
 }: SwipeNavigationWrapperProps) {
-  const { user } = useAuth();
   const { containerRef, indicatorRef, isSwipablePage } = useSwipeNavigation({
-    enabled: !!user,
+    enabled: true,
     threshold: 80,
   });
+  const isMobile = useIsMobile();
+  const location = useLocation();
 
-  // For non-auth users or non-swipable pages, just render children
-  if (!user) return <>{children}</>;
+  const currentIndex = TAB_ROUTES.indexOf(location.pathname);
+  const canSwipeRight = currentIndex > 0;
+  const canSwipeLeft = currentIndex < TAB_ROUTES.length - 1 && currentIndex !== -1;
 
   return (
     <div ref={containerRef} className="relative min-h-screen" style={{ touchAction: "pan-y" }}>
       {children}
+
+      {/* Edge vignette hints — mobile only, on swipable pages */}
+      {isMobile && isSwipablePage && canSwipeRight && (
+        <div
+          className="fixed left-0 top-0 bottom-0 w-5 z-40 pointer-events-none"
+          style={{
+            background: "linear-gradient(to right, hsl(var(--foreground) / 0.06), transparent)",
+          }}
+        />
+      )}
+      {isMobile && isSwipablePage && canSwipeLeft && (
+        <div
+          className="fixed right-0 top-0 bottom-0 w-5 z-40 pointer-events-none"
+          style={{
+            background: "linear-gradient(to left, hsl(var(--foreground) / 0.06), transparent)",
+          }}
+        />
+      )}
 
       {/* Navigation indicator pill */}
       <div
