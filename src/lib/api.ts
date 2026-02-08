@@ -103,37 +103,60 @@ class RateLimitError extends Error {
   }
 }
 
-// AniList GraphQL query helper with rate limit handling
+// AniList GraphQL query helper with retry + exponential backoff
 async function anilistQuery<T>(query: string, variables: Record<string, unknown> = {}): Promise<T> {
-  const response = await fetch(ANILIST_API, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({ query, variables }),
-  });
+  const MAX_RETRIES = 3;
+  const BASE_DELAY = 1000; // 1 second
 
-  // Handle rate limiting (429 Too Many Requests)
-  if (response.status === 429) {
-    const retryAfter = parseInt(response.headers.get('Retry-After') || '60', 10);
-    console.warn(`[API] Rate limit hit. Retry after ${retryAfter}s`);
-    throw new RateLimitError(retryAfter);
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const response = await fetch(ANILIST_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({ query, variables }),
+      });
+
+      // Handle rate limiting (429 Too Many Requests)
+      if (response.status === 429) {
+        const retryAfter = parseInt(response.headers.get('Retry-After') || '60', 10);
+        console.warn(`[API] Rate limit hit. Retry after ${retryAfter}s`);
+        if (attempt < MAX_RETRIES) {
+          await new Promise(r => setTimeout(r, retryAfter * 1000));
+          continue;
+        }
+        throw new RateLimitError(retryAfter);
+      }
+
+      if (!response.ok) {
+        console.error(`[API] AniList error: ${response.status}`);
+        if (attempt < MAX_RETRIES && response.status >= 500) {
+          await new Promise(r => setTimeout(r, BASE_DELAY * Math.pow(2, attempt)));
+          continue;
+        }
+        throw new Error(`Failed to fetch data. Please try again later.`);
+      }
+
+      const json = await response.json();
+      if (json.errors) {
+        console.error('[API] AniList query error:', json.errors[0]?.message);
+        throw new Error('Failed to fetch data. Please try again later.');
+      }
+      return json.data;
+    } catch (error) {
+      // Network errors (Load failed, TypeError, etc.) — retry
+      if (attempt < MAX_RETRIES && !(error instanceof RateLimitError) && (error instanceof TypeError || (error as Error).message === 'Load failed')) {
+        console.warn(`[API] Network error, retrying (${attempt + 1}/${MAX_RETRIES})...`);
+        await new Promise(r => setTimeout(r, BASE_DELAY * Math.pow(2, attempt)));
+        continue;
+      }
+      throw error;
+    }
   }
 
-  if (!response.ok) {
-    // Don't expose internal error details to users
-    console.error(`[API] AniList error: ${response.status}`);
-    throw new Error(`Failed to fetch data. Please try again later.`);
-  }
-
-  const json = await response.json();
-  if (json.errors) {
-    // Log error details for debugging but show generic message to user
-    console.error('[API] AniList query error:', json.errors[0]?.message);
-    throw new Error('Failed to fetch data. Please try again later.');
-  }
-  return json.data;
+  throw new Error('Failed to fetch data after multiple retries.');
 }
 
 // Convert AniList media to our Anime format
