@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsModeratorOrAdmin } from "@/hooks/useModeration";
-import { Navbar } from "@/components/Navbar";
+import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReportQueue } from "@/components/admin/ReportQueue";
@@ -27,7 +27,7 @@ export default function AdminPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
+        <CollapsibleNavbar />
         <div className="container mx-auto py-20">
           <div className="flex flex-col items-center justify-center gap-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -42,7 +42,7 @@ export default function AdminPage() {
   if (!user || !hasAccess) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
+        <CollapsibleNavbar />
         <div className="container mx-auto py-20">
           <div className="flex flex-col items-center justify-center gap-4">
             <AlertTriangle className="h-12 w-12 text-destructive" />
@@ -60,7 +60,7 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <CollapsibleNavbar />
       <main className="container mx-auto py-8 px-4">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">

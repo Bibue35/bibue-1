@@ -2,7 +2,7 @@
  * Bibue - Anime & Manga Platform
  * Main landing page with modern mobile-first design
  */
-import { FloatingNav } from "@/components/FloatingNav";
+import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { HeroSection } from "@/components/HeroSection";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { AnimeCard } from "@/components/AnimeCard";
@@ -75,7 +75,7 @@ const Index = () => {
 
   return (
     <>
-      <FloatingNav />
+      <CollapsibleNavbar />
       <PullToRefresh onRefresh={handleRefresh}>
       
       {/* Hero Section - Use FeaturedCarousel on mobile for cleaner look */}
