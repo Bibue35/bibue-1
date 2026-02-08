@@ -124,24 +124,33 @@ Deno.serve(async (req) => {
         );
       }
 
-      // We need the Bibue user_id. Pass it via state or cookie.
-      // For now, return success page that posts message to opener
+      // Determine allowed origin for postMessage security
+      const allowedOrigin = Deno.env.get("ALLOWED_ORIGIN") || "";
+      // Escape values for safe HTML embedding
+      const safeUsername = anilistUser.name.replace(/[<>"'&]/g, '');
+      const safeOrigin = allowedOrigin.replace(/[<>"'&]/g, '');
+
+      const postMessageScript = allowedOrigin
+        ? `window.opener.postMessage(payload, '${safeOrigin}');`
+        : `window.opener.postMessage(payload, '*');`; // fallback if ALLOWED_ORIGIN not set
+
       return new Response(
         `<html><body>
           <h1>AniList Connected!</h1>
-          <p>Linked as ${anilistUser.name}</p>
+          <p>Linked as ${safeUsername}</p>
           <script>
             if (window.opener) {
-              window.opener.postMessage({
+              var payload = {
                 type: 'anilist-oauth-callback',
                 accessToken: '${tokenData.access_token}',
                 refreshToken: '${tokenData.refresh_token || ""}',
                 expiresIn: ${tokenData.expires_in || 0},
                 userId: '${anilistUser.id}',
-                username: '${anilistUser.name}'
-              }, '*');
+                username: '${safeUsername}'
+              };
+              ${postMessageScript}
             }
-            setTimeout(() => window.close(), 2000);
+            setTimeout(function() { window.close(); }, 2000);
           </script>
         </body></html>`,
         { headers: { "Content-Type": "text/html" } }

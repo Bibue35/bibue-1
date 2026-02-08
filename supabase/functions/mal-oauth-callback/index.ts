@@ -96,19 +96,28 @@ Deno.serve(async (req) => {
       });
     }
 
-    // The code_verifier is passed back from the frontend via postMessage flow
+    // Determine allowed origin for postMessage security
+    const allowedOrigin = Deno.env.get("ALLOWED_ORIGIN") || "";
+    const safeOrigin = allowedOrigin.replace(/[<>"'&]/g, '');
+    const safeCode = String(code).replace(/[<>"'&]/g, '');
+
+    const postMessageScript = allowedOrigin
+      ? `window.opener.postMessage(payload, '${safeOrigin}');`
+      : `window.opener.postMessage(payload, '*');`; // fallback if ALLOWED_ORIGIN not set
+
     return new Response(
       `<html><body>
         <h1>Connecting to MyAnimeList...</h1>
         <p>Processing authorization code...</p>
         <script>
           if (window.opener) {
-            window.opener.postMessage({
+            var payload = {
               type: 'mal-oauth-code',
-              code: '${code}'
-            }, '*');
+              code: '${safeCode}'
+            };
+            ${postMessageScript}
           }
-          setTimeout(() => window.close(), 2000);
+          setTimeout(function() { window.close(); }, 2000);
         </script>
       </body></html>`,
       { headers: { "Content-Type": "text/html" } }

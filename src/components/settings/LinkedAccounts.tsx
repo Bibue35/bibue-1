@@ -74,6 +74,12 @@ export function LinkedAccounts() {
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
+      // CRITICAL: Validate message origin to prevent token interception
+      const expectedOrigin = new URL(import.meta.env.VITE_SUPABASE_URL).origin;
+      if (event.origin !== expectedOrigin) {
+        return;
+      }
+
       if (event.data?.type === "anilist-oauth-callback") {
         try {
           const session = await supabase.auth.getSession();
