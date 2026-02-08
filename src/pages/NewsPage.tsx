@@ -1,4 +1,3 @@
-import { Newspaper } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { useNewsData } from "@/hooks/useNewsData";
@@ -14,19 +13,14 @@ export default function NewsPage() {
       <CollapsibleNavbar />
 
       {/* Hero */}
-      <section className="pt-32 pb-16">
-        <div className="container mx-auto px-4">
+      <section className="pt-28 sm:pt-32 pb-6 sm:pb-8">
+        <div className="container mx-auto px-3 sm:px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="w-16 h-16 rounded-2xl liquid-glass flex items-center justify-center sunbeam-hover">
-                <Newspaper className="w-8 h-8" />
-              </div>
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
               Latest News
             </h1>
-            <p className="font-jp text-xl text-muted-foreground mb-2">最新ニュース</p>
-            <p className="text-muted-foreground text-lg">
+            <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-2">最新ニュース</p>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Stay updated with the latest anime and manga news, announcements, and industry updates.
             </p>
           </div>
@@ -34,8 +28,8 @@ export default function NewsPage() {
       </section>
 
       {/* Featured News */}
-      <section className="py-8">
-        <div className="container mx-auto px-4">
+      <section className="py-4 sm:py-8">
+        <div className="container mx-auto px-3 sm:px-4">
           {isLoading ? (
             <FeaturedNewsSkeleton />
           ) : featuredNews.length > 0 ? (
@@ -65,9 +59,9 @@ export default function NewsPage() {
       </section>
 
       {/* News List */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-8">More News</h2>
+      <section className="py-8 sm:py-16">
+        <div className="container mx-auto px-3 sm:px-4">
+          <h2 className="text-lg sm:text-2xl font-bold mb-4 sm:mb-8">More News</h2>
           
           {isLoading ? (
             <NewsGridSkeleton />

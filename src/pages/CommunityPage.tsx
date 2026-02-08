@@ -49,13 +49,14 @@ const CommunityPage = () => {
     <div className="min-h-screen bg-background">
       <CollapsibleNavbar />
       
-      <main className="pt-28 pb-16">
-        <div className="container mx-auto px-4">
+      <main className="pt-28 sm:pt-32 pb-8 sm:pb-16">
+        <div className="container mx-auto px-3 sm:px-4">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">Community</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-2 sm:mb-3 font-sacred">Community</h1>
+              <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-1">コミュニティ</p>
+              <p className="text-sm sm:text-base text-muted-foreground">
                 Discuss anime, manga, and connect with fellow fans
               </p>
             </div>
