@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
+import { useIncognito } from "@/contexts/IncognitoContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import bibueTower from "@/assets/bibue-tower.png";
 
 // Primary nav items (Community is now on page, not in navbar)
@@ -21,6 +24,11 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
+  const { isIncognito } = useIncognito();
+  const { user } = useAuth();
+  const isMobile = useIsMobile();
+
+  const showIncognitoIcon = isMobile && user && isIncognito;
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -83,6 +91,11 @@ export function Navbar() {
 
             {/* Right: Icons */}
             <div className="flex items-center gap-0.5 sm:gap-1 ml-auto">
+              {showIncognitoIcon && (
+                <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10" title="Incognito Mode Active">
+                  <EyeOff className="w-4 h-4 text-primary" />
+                </div>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
