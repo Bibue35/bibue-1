@@ -37,11 +37,6 @@ const animeCategories: Category[] = [
 ];
 
 const mangaCategories: Category[] = [
-  // Curated collections first
-  { id: "popular-manga", label: "⭐ Popular Manga", type: "collection", param: "filter=manga" },
-  { id: "trending-manhwa", label: "🇰🇷 Manhwa", type: "collection", param: "filter=manhwa" },
-  { id: "trending-manhua", label: "🇨🇳 Manhua", type: "collection", param: "filter=manhua" },
-  { id: "top-rated", label: "🏆 Top Rated", type: "collection", param: "filter=manga&sort=score" },
   // Genres
   { id: "g-action", label: "Action", type: "genre", param: "1" },
   { id: "g-adventure", label: "Adventure", type: "genre", param: "2" },
