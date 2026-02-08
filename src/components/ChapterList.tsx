@@ -1,5 +1,6 @@
 import { Star, Calendar, BookOpen, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useExpandTransition } from "./ExpandTransition";
 
 interface Chapter {
   number: number;
@@ -17,15 +18,27 @@ interface ChapterListProps {
 }
 
 export function ChapterList({ chapters, selectedChapter, onSelectChapter, mangaTitle }: ChapterListProps) {
+  const { trigger, overlay } = useExpandTransition(() => {
+    if (pendingChapter.current !== null) {
+      onSelectChapter(pendingChapter.current);
+      pendingChapter.current = null;
+    }
+  });
+  const pendingChapter = { current: null as number | null };
+
   return (
     <div className="space-y-2">
+      {overlay}
       {chapters.map((chapter) => {
         const isSelected = selectedChapter === chapter.number;
         
         return (
           <button
             key={chapter.number}
-            onClick={() => onSelectChapter(chapter.number)}
+            onClick={(e) => {
+              pendingChapter.current = chapter.number;
+              trigger(e);
+            }}
             className={cn(
               "w-full text-left group cursor-pointer rounded-xl p-3 transition-all duration-300",
               "liquid-glass-subtle hover:bg-foreground/5",
