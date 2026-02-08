@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AnimeDetailModal } from "./AnimeDetailModal";
 import { HeroSkeleton } from "./skeletons";
-
+import { useIsMobile } from "@/hooks/use-mobile";
 interface FeaturedCarouselProps {
   items: Anime[];
   isLoading?: boolean;
@@ -27,6 +27,12 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
   const navigate = useNavigate();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
+
+  // Touch swipe state
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const isTouchSwiping = useRef(false);
 
   const currentItem = items[currentIndex];
 
@@ -95,6 +101,36 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
     }
   }, [currentItem]);
 
+  // Touch swipe handlers for mobile carousel navigation
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    isTouchSwiping.current = false;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const diffX = e.touches[0].clientX - touchStartX.current;
+    const diffY = e.touches[0].clientY - touchStartY.current;
+    if (!isTouchSwiping.current && Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 10) {
+      isTouchSwiping.current = true;
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!isTouchSwiping.current) return;
+    const diffX = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(diffX) > 50) {
+      if (diffX < 0) {
+        handleNext();
+      } else {
+        handlePrev();
+      }
+      // Haptic feedback
+      if ("vibrate" in navigator) navigator.vibrate(15);
+    }
+    isTouchSwiping.current = false;
+  }, [handleNext, handlePrev]);
+
   if (isLoading) {
     return <HeroSkeleton variant="carousel" />;
   }
@@ -104,7 +140,13 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
   return (
     <>
       {/* Hero with scroll parallax - simplified for performance */}
-      <div ref={containerRef} className="relative py-4 sm:py-6">
+      <div
+        ref={containerRef}
+        className="relative py-4 sm:py-6"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="relative group mx-auto">
           {/* Main hero card - removed 3D tilt for performance */}
           <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-xl">
@@ -196,18 +238,25 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
 
           {/* Carousel indicators */}
           {items.length > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-4">
+            <div className="flex items-center justify-center gap-2.5 sm:gap-2 mt-4">
               {items.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentIndex(i)}
                   className={cn(
-                    "h-2 rounded-full transition-all duration-300",
+                    "rounded-full transition-all duration-300 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center",
                     i === currentIndex
-                      ? "bg-primary w-8"
-                      : "bg-muted-foreground/30 w-2 hover:bg-muted-foreground/50"
+                      ? "sm:w-8 sm:h-2"
+                      : "sm:w-2 sm:h-2"
                   )}
-                />
+                >
+                  <span className={cn(
+                    "block rounded-full transition-all duration-300",
+                    i === currentIndex
+                      ? "bg-primary w-8 h-2"
+                      : "bg-muted-foreground/30 w-2.5 h-2.5 sm:w-2 sm:h-2 hover:bg-muted-foreground/50"
+                  )} />
+                </button>
               ))}
             </div>
           )}

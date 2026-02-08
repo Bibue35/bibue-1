@@ -57,7 +57,7 @@ export function GenreSection({ type, className }: GenreSectionProps) {
     <section className={cn("", className)}>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger className="w-full">
-          <div className="flex items-center justify-between py-2 cursor-pointer group">
+          <div className="flex items-center justify-between py-3 sm:py-2 cursor-pointer group min-h-[44px]">
             <div className="flex items-center gap-3 text-left">
               <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
                 Browse by Genre
@@ -76,12 +76,12 @@ export function GenreSection({ type, className }: GenreSectionProps) {
         </CollapsibleTrigger>
         
         <CollapsibleContent className="data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 pb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 pb-4">
             {genres.map((genre) => (
               <Link
                 key={genre.id}
                 to={`${basePath}?genre=${genre.id}`}
-                className="genre-pill group flex items-center justify-center py-3 text-center"
+                className="genre-pill group flex items-center justify-center py-3.5 sm:py-3 text-center min-h-[44px] active:scale-95 transition-transform"
               >
                 <span className="group-hover:text-foreground transition-colors">
                   {genre.name}
