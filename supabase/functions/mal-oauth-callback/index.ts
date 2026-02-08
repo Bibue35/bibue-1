@@ -67,7 +67,8 @@ Deno.serve(async (req) => {
 
     const redirectUri = `${Deno.env.get("SUPABASE_URL")}/functions/v1/mal-oauth-callback`;
     const codeVerifier = generateCodeVerifier();
-    const codeChallenge = await generateCodeChallenge(codeVerifier);
+    // MAL works best with "plain" PKCE: challenge = verifier
+    const codeChallenge = codeVerifier;
 
     // Check if this is a mobile/redirect flow - encode verifier + token in state
     const mode = url.searchParams.get("mode"); // "redirect" or "popup"
@@ -82,7 +83,7 @@ Deno.serve(async (req) => {
     }
 
     const malAuthUrl =
-      `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+      `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}&code_challenge=${codeChallenge}&code_challenge_method=plain`;
 
     return new Response(
       JSON.stringify({
