@@ -32,6 +32,7 @@ const ClassicsPage = lazy(() => import("./pages/ClassicsPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const MessagesPage = lazy(() => import("./pages/MessagesPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
+const StatsPage = lazy(() => import("./pages/StatsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Minimal loading fallback for route transitions
@@ -92,6 +93,7 @@ const App = () => (
                           <Route path="/recommendations" element={<RecommendationsPage />} />
                           <Route path="/classics" element={<ClassicsPage />} />
                           <Route path="/settings" element={<SettingsPage />} />
+                          <Route path="/stats" element={<StatsPage />} />
                           <Route path="/admin" element={<AdminPage />} />
                           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                           <Route path="*" element={<NotFound />} />

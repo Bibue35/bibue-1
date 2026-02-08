@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { User, LogOut, Settings, EyeOff, Eye, Globe, Check, Bookmark, Heart, MessageCircle, Users } from "lucide-react";
+import { User, LogOut, Settings, EyeOff, Eye, Globe, Check, Bookmark, Heart, MessageCircle, Users, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -147,6 +147,13 @@ export function UserMenu() {
           <Link to="/community">
             <Users className="w-4 h-4" />
             <span>Community</span>
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
+          <Link to="/stats">
+            <BarChart3 className="w-4 h-4" />
+            <span>My Stats</span>
           </Link>
         </DropdownMenuItem>
         

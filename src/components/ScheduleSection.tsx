@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { AnimeCard } from "@/components/AnimeCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EpisodeCountdown } from "@/components/EpisodeCountdown";
 import { Link } from "react-router-dom";
 import { useScheduleByDay } from "@/hooks/useAnimeData";
 import { cn } from "@/lib/utils";
@@ -91,8 +92,8 @@ export function ScheduleSection() {
           <HorizontalScroll title="" titleJp="">
             {scheduleData.map((item, index) => (
               <div key={item.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                {/* Airing time badge */}
-                <div className="mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2">
+                {/* Airing time badge + countdown */}
+                <div className="mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2 flex-wrap">
                   <span className="text-[10px] sm:text-xs font-medium px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-primary/10 text-primary">
                     {item.airingTime}
                   </span>
@@ -102,6 +103,11 @@ export function ScheduleSection() {
                     </span>
                   )}
                 </div>
+                {item.airingAt && (
+                  <div className="mb-1">
+                    <EpisodeCountdown airingAt={item.airingAt} compact />
+                  </div>
+                )}
                 <AnimeCard anime={item.anime} index={index} />
               </div>
             ))}
