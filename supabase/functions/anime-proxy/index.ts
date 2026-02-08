@@ -52,6 +52,11 @@ serve(async (req) => {
     const url = new URL(req.url);
     
     // Support both GET query params and POST body
+    const validActions = ["search", "info", "episodes", "watch", "servers", "category", "home", "schedule", "genre", "producer"];
+    const validCategories = ["top-airing", "most-popular", "most-favorite", "completed", "recently-updated", "recently-added", "top-upcoming", "subbed-anime", "dubbed-anime", "movie", "special", "ova", "ona", "tv"];
+    const validServers = ["hd-1", "hd-2", "megacloud", "streamsb"];
+    const validAudio = ["sub", "dub", "raw"];
+
     let action: string | null = null;
     let query: string | null = null;
     let id: string | null = null;
@@ -88,6 +93,29 @@ serve(async (req) => {
         );
       }
     }
+
+    // Sanitize and validate inputs
+    if (query && (typeof query !== "string" || query.length > 200)) {
+      return new Response(JSON.stringify({ error: "Invalid query parameter" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    if (id && (typeof id !== "string" || id.length > 200)) {
+      return new Response(JSON.stringify({ error: "Invalid id parameter" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    if (episodeId && (typeof episodeId !== "string" || episodeId.length > 200)) {
+      return new Response(JSON.stringify({ error: "Invalid episodeId parameter" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    // Validate constrained params
+    if (!validCategories.includes(category)) category = "top-airing";
+    if (!validServers.includes(server)) server = "hd-1";
+    if (!validAudio.includes(audioType)) audioType = "sub";
+    const pageNum = parseInt(page, 10);
+    if (isNaN(pageNum) || pageNum < 1 || pageNum > 100) page = "1";
 
     let endpoint = "";
     let cacheKey = "";

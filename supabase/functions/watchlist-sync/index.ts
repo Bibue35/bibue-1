@@ -213,10 +213,28 @@ Deno.serve(async (req) => {
 
     const userId = claims.claims.sub as string;
     const body = await req.json();
-    const { provider, mediaTypes = ["anime", "manga"], mode = "merge" } = body;
+    const { provider, mode = "merge" } = body;
 
     if (!provider || !["anilist", "mal"].includes(provider)) {
-      return new Response(JSON.stringify({ error: "Invalid provider" }), {
+      return new Response(JSON.stringify({ error: "Invalid provider. Must be 'anilist' or 'mal'." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (!["merge", "skip", "overwrite"].includes(mode)) {
+      return new Response(JSON.stringify({ error: "Invalid mode. Must be 'merge', 'skip', or 'overwrite'." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate and sanitize mediaTypes
+    const rawMediaTypes = Array.isArray(body.mediaTypes) ? body.mediaTypes : ["anime", "manga"];
+    const validMediaTypes = ["anime", "manga"];
+    const mediaTypes = [...new Set(rawMediaTypes.filter((t: unknown) => typeof t === "string" && validMediaTypes.includes(t)))];
+    if (mediaTypes.length === 0) {
+      return new Response(JSON.stringify({ error: "Invalid mediaTypes. Must include 'anime' and/or 'manga'." }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

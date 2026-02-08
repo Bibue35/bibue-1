@@ -1,17 +1,53 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { title, titleRomaji, titleEnglish, titleNative } = await req.json();
+    // Authentication check
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
+    if (claimsError || !claims?.claims?.sub) {
+      return new Response(JSON.stringify({ error: "Invalid token" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const body = await req.json();
+
+    // Input validation
+    const title = typeof body.title === "string" ? body.title.slice(0, 500) : "";
+    const titleRomaji = typeof body.titleRomaji === "string" ? body.titleRomaji.slice(0, 500) : "";
+    const titleEnglish = typeof body.titleEnglish === "string" ? body.titleEnglish.slice(0, 500) : "";
+    const titleNative = typeof body.titleNative === "string" ? body.titleNative.slice(0, 500) : "";
+
+    if (!title && !titleRomaji && !titleEnglish && !titleNative) {
+      return new Response(JSON.stringify({ error: "At least one title field is required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -71,18 +107,15 @@ Respond in JSON format with this structure:
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
+      console.error("AI gateway error:", response.status);
       throw new Error(`AI gateway error: ${response.status}`);
     }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
 
-    // Parse the JSON response from AI
     let validationResult;
     try {
-      // Extract JSON from the response (in case it's wrapped in markdown code blocks)
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         validationResult = JSON.parse(jsonMatch[0]);
@@ -100,8 +133,8 @@ Respond in JSON format with this structure:
   } catch (error) {
     console.error("Title validation error:", error);
     return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : "Unknown error",
-      isValid: true // Default to valid on error to not block UI
+      error: "An error occurred during validation",
+      isValid: true
     }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
