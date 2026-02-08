@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Trophy, Star, Zap } from "lucide-react";
+import { Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Trophy, Star, Zap, Users } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
@@ -17,6 +17,7 @@ import { useTopManga, useSearchManga, useTrendingManhwa, useTrendingManhua, useN
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 type SortOption = "popularity" | "score" | "newest";
@@ -37,6 +38,7 @@ export default function MangaPage() {
   const resultsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
+  const { user } = useAuth();
 
   // Debounce search input (150ms default for faster response)
   const debouncedSearch = useDebounce(localSearch.trim());
@@ -190,14 +192,24 @@ export default function MangaPage() {
               placeholder="Search manga, manhwa, manhua..."
             />
 
-            {/* Action Buttons - For You & Saved */}
+            {/* Action Buttons */}
             <div className="flex flex-wrap justify-center gap-2 mt-6">
-              <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
-                <Link to="/recommendations">
-                  <Sparkles className="w-4 h-4" />
-                  For You
-                </Link>
-              </Button>
+              {user ? (
+                <>
+                  <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
+                    <Link to="/recommendations">
+                      <Sparkles className="w-4 h-4" />
+                      For You
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
+                    <Link to="/community">
+                      <Users className="w-4 h-4" />
+                      Community
+                    </Link>
+                  </Button>
+                </>
+              ) : null}
               <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
                 <Link to="/watchlist?type=manga">
                   <Bookmark className="w-4 h-4" />
