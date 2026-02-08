@@ -2,7 +2,7 @@ import { useRef, useCallback, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 /** Ordered tab routes for swipe navigation */
-const TAB_ROUTES = ["/anime", "/manga", "/news", "/rankings"];
+const TAB_ROUTES = ["/anime", "/", "/manga"];
 
 interface SwipeNavConfig {
   /** Whether swipe navigation is enabled (auth-gated) */
@@ -66,7 +66,8 @@ export function useSwipeNavigation({
     if (direction && progress > 0.15) {
       const targetIndex = direction === "left" ? currentIndex + 1 : currentIndex - 1;
       if (targetIndex >= 0 && targetIndex < TAB_ROUTES.length) {
-        const tabName = TAB_ROUTES[targetIndex].replace("/", "").replace(/^./, c => c.toUpperCase());
+        const route = TAB_ROUTES[targetIndex];
+        const tabName = route === "/" ? "Home" : route.replace("/", "").replace(/^./, c => c.toUpperCase());
         indicatorRef.current.textContent = tabName;
         indicatorRef.current.style.opacity = `${Math.min(progress * 1.5, 0.9)}`;
         indicatorRef.current.style.transform = `translate3d(${direction === "left" ? "-50%" : "-50%"}, 0, 0) scale(${0.8 + progress * 0.2})`;
