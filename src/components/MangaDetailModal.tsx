@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { BookOpen, X, Star, Copy, Share2, MessageCircle, Send, User, ArrowUpDown, ThumbsUp, History } from "lucide-react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMangaDetails } from "@/hooks/useAnimeData";
 import { formatScore } from "@/lib/api";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -21,6 +19,7 @@ import { useReadingProgress } from "@/hooks/useReadingProgress";
 import { MangaReader } from "./MangaReader";
 import { RelatedMedia } from "./RelatedMedia";
 import { cn } from "@/lib/utils";
+import { ResponsiveModal } from "./ResponsiveModal";
 
 interface MangaDetailModalProps {
   mangaId: number;
@@ -142,13 +141,11 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent hideCloseButton className="max-w-5xl w-[98vw] sm:w-[95vw] max-h-[95vh] sm:max-h-[90vh] p-0 gap-0 bg-background/95 backdrop-blur-xl border-border/50 overflow-hidden rounded-xl sm:rounded-2xl">
-        <VisuallyHidden>
-          <DialogTitle>{manga?.title || "Manga Details"}</DialogTitle>
-        </VisuallyHidden>
-        
-        <ScrollArea className="max-h-[95vh] sm:max-h-[90vh]">
+    <ResponsiveModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title={manga?.title || "Manga Details"}
+    >
           {/* Hero Image Section */}
           <div className="relative h-48 xs:h-56 sm:h-80 overflow-hidden">
             {isLoading ? (
@@ -480,8 +477,6 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
               </TabsContent>
             </Tabs>
           </div>
-        </ScrollArea>
-      </DialogContent>
-    </Dialog>
+    </ResponsiveModal>
   );
 }
