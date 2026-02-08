@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link2, Unlink, ExternalLink, Loader2, CheckCircle2 } from "lucide-react";
+import { Link2, Unlink, ExternalLink, Loader2, CheckCircle2, RefreshCw, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +14,14 @@ interface LinkedAccount {
   provider_username: string | null;
   provider_user_id: string;
   created_at: string;
+}
+
+interface SyncResult {
+  added: number;
+  updated: number;
+  skipped: number;
+  errors: number;
+  total: number;
 }
 
 const PROVIDERS = [
@@ -39,8 +48,9 @@ export function LinkedAccounts() {
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState<string | null>(null);
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState<string | null>(null);
+  const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
 
-  // Fetch linked accounts
   const fetchLinkedAccounts = useCallback(async () => {
     if (!user) return;
     try {
@@ -62,11 +72,9 @@ export function LinkedAccounts() {
     fetchLinkedAccounts();
   }, [fetchLinkedAccounts]);
 
-  // Listen for OAuth callback messages from popup
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
       if (event.data?.type === "anilist-oauth-callback") {
-        // Save the AniList account via edge function
         try {
           const session = await supabase.auth.getSession();
           const token = session.data.session?.access_token;
@@ -103,7 +111,6 @@ export function LinkedAccounts() {
       }
 
       if (event.data?.type === "mal-oauth-code") {
-        // Exchange the code for token via edge function
         try {
           const codeVerifier = sessionStorage.getItem("mal_code_verifier");
           if (!codeVerifier) throw new Error("Missing PKCE verifier");
@@ -165,12 +172,10 @@ export function LinkedAccounts() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to initiate");
 
-      // For MAL, store the code verifier for PKCE
       if (providerId === "mal" && data.codeVerifier) {
         sessionStorage.setItem("mal_code_verifier", data.codeVerifier);
       }
 
-      // Open popup for OAuth
       const width = 500;
       const height = 700;
       const left = window.screenX + (window.outerWidth - width) / 2;
@@ -181,7 +186,6 @@ export function LinkedAccounts() {
         `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`
       );
 
-      // Monitor popup close
       if (popup) {
         const interval = setInterval(() => {
           if (popup.closed) {
@@ -218,12 +222,55 @@ export function LinkedAccounts() {
     }
   };
 
+  const handleSync = async (providerId: string) => {
+    if (!user) return;
+    setSyncing(providerId);
+    setSyncResult(null);
+
+    try {
+      const session = await supabase.auth.getSession();
+      const token = session.data.session?.access_token;
+      if (!token) throw new Error("Not authenticated");
+
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/watchlist-sync`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            provider: providerId,
+            mediaTypes: ["anime", "manga"],
+            mode: "merge",
+          }),
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Sync failed");
+
+      const result = data.result as SyncResult;
+      setSyncResult(result);
+
+      toast({
+        title: "Sync complete!",
+        description: `Added ${result.added}, updated ${result.updated} of ${result.total} items`,
+      });
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Sync failed", description: err.message });
+    } finally {
+      setSyncing(null);
+    }
+  };
+
   const getLinkedAccount = (providerId: string) =>
     linkedAccounts.find((a) => a.provider === providerId);
 
   if (loading) {
     return (
-      <Card>
+      <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Link2 className="w-5 h-5" />
@@ -238,7 +285,7 @@ export function LinkedAccounts() {
   }
 
   return (
-    <Card>
+    <Card className="mb-6">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Link2 className="w-5 h-5" />
@@ -253,6 +300,7 @@ export function LinkedAccounts() {
           const linked = getLinkedAccount(provider.id);
           const isConnecting = connecting === provider.id;
           const isDisconnecting = disconnecting === provider.id;
+          const isSyncing = syncing === provider.id;
 
           return (
             <div key={provider.id}>
@@ -295,45 +343,91 @@ export function LinkedAccounts() {
                   </div>
                 </div>
 
-                {linked ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDisconnect(provider.id)}
-                    disabled={isDisconnecting}
-                    className="shrink-0 text-destructive hover:text-destructive"
-                  >
-                    {isDisconnecting ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <>
-                        <Unlink className="w-4 h-4 mr-1.5" />
-                        Disconnect
-                      </>
-                    )}
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleConnect(provider.id)}
-                    disabled={isConnecting}
-                    className="shrink-0"
-                  >
-                    {isConnecting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
-                        Connecting...
-                      </>
-                    ) : (
-                      <>
-                        <Link2 className="w-4 h-4 mr-1.5" />
-                        Connect
-                      </>
-                    )}
-                  </Button>
-                )}
+                <div className="flex items-center gap-2 shrink-0">
+                  {linked && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleSync(provider.id)}
+                      disabled={isSyncing || !!syncing}
+                    >
+                      {isSyncing ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                          Syncing...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-4 h-4 mr-1.5" />
+                          Import
+                        </>
+                      )}
+                    </Button>
+                  )}
+
+                  {linked ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDisconnect(provider.id)}
+                      disabled={isDisconnecting || isSyncing}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      {isDisconnecting ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <Unlink className="w-4 h-4 mr-1.5" />
+                          Disconnect
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleConnect(provider.id)}
+                      disabled={isConnecting}
+                    >
+                      {isConnecting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                          Connecting...
+                        </>
+                      ) : (
+                        <>
+                          <Link2 className="w-4 h-4 mr-1.5" />
+                          Connect
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
               </div>
+
+              {/* Sync progress / result */}
+              {isSyncing && (
+                <div className="mt-3 space-y-2">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Importing your list from {provider.name}...</span>
+                  </div>
+                  <Progress value={undefined} className="h-1.5" />
+                </div>
+              )}
+
+              {syncResult && syncing === null && !isSyncing && (
+                <div className="mt-3 p-3 rounded-lg bg-muted/50 text-xs space-y-1">
+                  <p className="font-medium text-sm">Import Complete</p>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground">
+                    <span>📥 {syncResult.added} added</span>
+                    <span>🔄 {syncResult.updated} updated</span>
+                    {syncResult.skipped > 0 && <span>⏭️ {syncResult.skipped} skipped</span>}
+                    {syncResult.errors > 0 && <span className="text-destructive">❌ {syncResult.errors} errors</span>}
+                    <span>📊 {syncResult.total} total</span>
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
