@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History, Users, Swords, Heart, Wand2, Rocket } from "lucide-react";
+import { Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History, Users, Swords, Heart, Wand2, Rocket, RefreshCw } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
@@ -14,7 +14,7 @@ import { ScheduleSection } from "@/components/ScheduleSection";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardSkeletonRow } from "@/components/skeletons";
-import { useTopAnime, useSeasonalAnime, useSearchAnime, useClassicAnime, useAllTimeTopAnime, useAnimeByGenre } from "@/hooks/useAnimeData";
+import { useTopAnime, useSeasonalAnime, useSearchAnime, useClassicAnime, useAllTimeTopAnime, useAnimeByGenre, useRecentlyUpdatedAnime } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -91,6 +91,7 @@ export default function AnimePage() {
     await queryClient.invalidateQueries({ queryKey: ["classicAnime"] });
     await queryClient.invalidateQueries({ queryKey: ["allTimeTopAnime"] });
     await queryClient.invalidateQueries({ queryKey: ["animeByGenre"] });
+    await queryClient.invalidateQueries({ queryKey: ["recentlyUpdatedAnime"] });
   }, [queryClient]);
 
   const { data: topAnime, isLoading: topLoading } = useTopAnime(1, filter);
@@ -105,6 +106,7 @@ export default function AnimePage() {
   const { data: romanceAnime, isLoading: romanceLoading } = useAnimeByGenre("Romance", 1);
   const { data: fantasyAnime, isLoading: fantasyLoading } = useAnimeByGenre("Fantasy", 1);
   const { data: sciFiAnime, isLoading: sciFiLoading } = useAnimeByGenre("Sci-Fi", 1);
+  const { data: recentlyUpdatedAnime, isLoading: recentlyUpdatedLoading } = useRecentlyUpdatedAnime(1);
   
   const sortedSeasonalAnime = seasonalAnime?.slice().sort((a, b) => {
     const aIsAiring = a.status === "Currently Airing" ? 1 : 0;
@@ -220,6 +222,33 @@ export default function AnimePage() {
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-44" />
             ) : (
               airingAnime?.slice(0, 10).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* Recently Updated */}
+      {!isSearching && !genreId && (
+        <ContentSection
+          title="Recently Updated"
+          titleJp="最近更新"
+          icon={RefreshCw}
+          linkTo="/anime?filter=airing"
+          compact
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {recentlyUpdatedLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-44" />
+            ) : (
+              recentlyUpdatedAnime?.slice(0, 12).map((anime, index) => (
                 <div key={anime.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
                   {isMobile ? (
                     <MobileAnimeCard anime={anime} index={index} />

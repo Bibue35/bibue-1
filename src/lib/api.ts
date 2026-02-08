@@ -383,6 +383,38 @@ export async function getAnimeByDecade(decade: "70s" | "80s" | "90s" | "2000s" |
   return getAnimeByYearRange(start, end, page, limit, "SCORE_DESC", language);
 }
 
+// Get recently updated anime (currently airing, sorted by most recently updated)
+export async function getRecentlyUpdatedAnime(page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Anime[]> {
+  const query = `
+    query ($page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: ANIME, status: RELEASING, sort: [UPDATED_AT_DESC], isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit });
+  return data.Page.media.map(m => toAnime(m, language));
+}
+
+// Get recently updated manga (currently releasing, sorted by most recently updated)
+export async function getRecentlyUpdatedManga(page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Manga[]> {
+  const query = `
+    query ($page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: MANGA, status: RELEASING, sort: [UPDATED_AT_DESC], isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit });
+  return data.Page.media.map(m => toManga(m, language));
+}
+
 // Get anime by genre with expanded options
 export async function getAnimeByGenre(
   genre: string,
