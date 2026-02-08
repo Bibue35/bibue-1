@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, Play, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useExpandTransition } from "./ExpandTransition";
 
 interface Episode {
   number: number;
@@ -26,9 +27,19 @@ export function CollapsibleEpisodeList({
 }: CollapsibleEpisodeListProps) {
   const [isOpen, setIsOpen] = useState(false);
   const currentEpisode = episodes.find(ep => ep.number === selectedEpisode);
+  const pendingEp = { current: null as number | null };
+
+  const { trigger, overlay } = useExpandTransition(() => {
+    if (pendingEp.current !== null) {
+      onSelectEpisode(pendingEp.current);
+      pendingEp.current = null;
+      setIsOpen(false);
+    }
+  });
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
+      {overlay}
       {/* Trigger - Always visible bottom bar */}
       <CollapsibleTrigger asChild>
         <button className="w-full flex items-center justify-between px-3 sm:px-4 md:px-6 py-2 sm:py-3 bg-black/80 backdrop-blur-sm hover:bg-black/90 transition-colors">
@@ -86,9 +97,9 @@ export function CollapsibleEpisodeList({
                 return (
                   <button
                     key={ep.number}
-                    onClick={() => {
-                      onSelectEpisode(ep.number);
-                      setIsOpen(false);
+                    onClick={(e) => {
+                      pendingEp.current = ep.number;
+                      trigger(e);
                     }}
                     className={cn(
                       "flex-shrink-0 w-28 sm:w-32 md:w-40 group/card text-left rounded-md sm:rounded-lg overflow-hidden transition-all duration-200",

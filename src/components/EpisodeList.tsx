@@ -1,5 +1,6 @@
 import { Star, Calendar, Play, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useExpandTransition } from "./ExpandTransition";
 
 interface Episode {
   number: number;
@@ -18,15 +19,27 @@ interface EpisodeListProps {
 }
 
 export function EpisodeList({ episodes, selectedEpisode, onSelectEpisode, animeTitle }: EpisodeListProps) {
+  const { trigger, overlay } = useExpandTransition(() => {
+    if (pendingEpisode.current !== null) {
+      onSelectEpisode(pendingEpisode.current);
+      pendingEpisode.current = null;
+    }
+  });
+  const pendingEpisode = { current: null as number | null };
+
   return (
     <div className="space-y-2">
+      {overlay}
       {episodes.map((episode) => {
         const isSelected = selectedEpisode === episode.number;
         
         return (
           <button
             key={episode.number}
-            onClick={() => onSelectEpisode(episode.number)}
+            onClick={(e) => {
+              pendingEpisode.current = episode.number;
+              trigger(e);
+            }}
             className={cn(
               "w-full text-left group cursor-pointer rounded-xl p-3 transition-all duration-300",
               "liquid-glass-subtle hover:bg-foreground/5",
