@@ -13,6 +13,7 @@ import { MiniPlayer } from "@/components/MiniPlayer";
 import { MessageNotificationProvider } from "@/components/MessageNotificationProvider";
 import { CommunityButton } from "@/components/CommunityButton";
 import { AnimatedRoutes } from "@/components/AnimatedRoutes";
+import { SwipeNavigationWrapper } from "@/components/SwipeNavigationWrapper";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy load all page components for code splitting
@@ -73,28 +74,30 @@ const App = () => (
                   {/* CommunityButton moved into navbar */}
                   <MiniPlayer />
                   <Suspense fallback={<PageLoader />}>
-                    <AnimatedRoutes>
-                      <Routes>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/anime" element={<AnimePage />} />
-                        <Route path="/anime/:id" element={<AnimeDetail />} />
-                        <Route path="/manga" element={<MangaPage />} />
-                        <Route path="/manga/:id" element={<MangaDetail />} />
-                        {/* Rankings removed - embedded in anime/manga pages */}
-                        <Route path="/news" element={<NewsPage />} />
-                        <Route path="/community" element={<CommunityPage />} />
-                        <Route path="/user/:userId" element={<UserProfile />} />
-                        <Route path="/messages" element={<MessagesPage />} />
-                        <Route path="/messages/:partnerId" element={<MessagesPage />} />
-                        <Route path="/watchlist" element={<WatchlistPage />} />
-                        <Route path="/recommendations" element={<RecommendationsPage />} />
-                        <Route path="/classics" element={<ClassicsPage />} />
-                        <Route path="/settings" element={<SettingsPage />} />
-                        <Route path="/admin" element={<AdminPage />} />
-                        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </AnimatedRoutes>
+                    <SwipeNavigationWrapper>
+                      <AnimatedRoutes>
+                        <Routes>
+                          <Route path="/" element={<Index />} />
+                          <Route path="/anime" element={<AnimePage />} />
+                          <Route path="/anime/:id" element={<AnimeDetail />} />
+                          <Route path="/manga" element={<MangaPage />} />
+                          <Route path="/manga/:id" element={<MangaDetail />} />
+                          {/* Rankings removed - embedded in anime/manga pages */}
+                          <Route path="/news" element={<NewsPage />} />
+                          <Route path="/community" element={<CommunityPage />} />
+                          <Route path="/user/:userId" element={<UserProfile />} />
+                          <Route path="/messages" element={<MessagesPage />} />
+                          <Route path="/messages/:partnerId" element={<MessagesPage />} />
+                          <Route path="/watchlist" element={<WatchlistPage />} />
+                          <Route path="/recommendations" element={<RecommendationsPage />} />
+                          <Route path="/classics" element={<ClassicsPage />} />
+                          <Route path="/settings" element={<SettingsPage />} />
+                          <Route path="/admin" element={<AdminPage />} />
+                          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </AnimatedRoutes>
+                    </SwipeNavigationWrapper>
                   </Suspense>
                 </MessageNotificationProvider>
               </BrowserRouter>
