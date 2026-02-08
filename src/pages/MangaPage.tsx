@@ -245,8 +245,8 @@ export default function MangaPage() {
         </section>
       )}
 
-      {/* Most Popular Manga - Hide when searching */}
-      {!isSearching && (typeFilter === "all" || typeFilter === "manga") && (
+      {/* Most Popular Manga */}
+      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manga") && (
         <ContentSection
           title="Most Popular Manga"
           titleJp="人気漫画"
@@ -267,8 +267,8 @@ export default function MangaPage() {
         </ContentSection>
       )}
 
-      {/* Top Rated Manga - Hide when searching */}
-      {!isSearching && (typeFilter === "all" || typeFilter === "manga") && (
+      {/* Top Rated Manga */}
+      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manga") && (
         <ContentSection
           title="Top Rated Manga"
           titleJp="高評価"
@@ -289,8 +289,8 @@ export default function MangaPage() {
         </ContentSection>
       )}
 
-      {/* Trending Manhwa - Hide when searching */}
-      {!isSearching && (typeFilter === "all" || typeFilter === "manhwa") && (
+      {/* Trending Manhwa */}
+      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhwa") && (
         <ContentSection
           title="Trending Manhwa"
           titleJp="韓国漫画"
@@ -311,8 +311,8 @@ export default function MangaPage() {
         </ContentSection>
       )}
 
-      {/* Top Manhwa - Hide when searching */}
-      {!isSearching && (typeFilter === "all" || typeFilter === "manhwa") && (
+      {/* Top Manhwa */}
+      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhwa") && (
         <ContentSection
           title="Top Manhwa"
           titleJp="韓国トップ"
@@ -333,8 +333,8 @@ export default function MangaPage() {
         </ContentSection>
       )}
 
-      {/* Trending Manhua - Hide when searching */}
-      {!isSearching && (typeFilter === "all" || typeFilter === "manhua") && (
+      {/* Trending Manhua */}
+      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhua") && (
         <ContentSection
           title="Trending Manhua"
           titleJp="中国漫画"
@@ -355,8 +355,8 @@ export default function MangaPage() {
         </ContentSection>
       )}
 
-      {/* Top Manhua - Hide when searching */}
-      {!isSearching && (typeFilter === "all" || typeFilter === "manhua") && (
+      {/* Top Manhua */}
+      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhua") && (
         <ContentSection
           title="Top Manhua"
           titleJp="中国トップ"
@@ -378,7 +378,7 @@ export default function MangaPage() {
       )}
 
       {/* New This Week */}
-      {!isSearching && (
+      {!isSearching && !genreId && (
         <ContentSection
           title="New This Week"
           titleJp="今週の新作"
@@ -400,7 +400,7 @@ export default function MangaPage() {
       )}
 
       {/* Completed Manga */}
-      {!isSearching && (
+      {!isSearching && !genreId && (
         <ContentSection
           title="Completed Series"
           titleJp="完結作品"
@@ -422,7 +422,7 @@ export default function MangaPage() {
       )}
 
       {/* Action Manga */}
-      {!isSearching && (
+      {!isSearching && !genreId && (
         <ContentSection
           title="Action"
           titleJp="アクション"
@@ -444,7 +444,7 @@ export default function MangaPage() {
       )}
 
       {/* Romance Manga */}
-      {!isSearching && (
+      {!isSearching && !genreId && (
         <ContentSection
           title="Romance"
           titleJp="ロマンス"
@@ -466,7 +466,7 @@ export default function MangaPage() {
       )}
 
       {/* Fantasy Manga */}
-      {!isSearching && (
+      {!isSearching && !genreId && (
         <ContentSection
           title="Fantasy"
           titleJp="ファンタジー"

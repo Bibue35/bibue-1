@@ -206,8 +206,8 @@ export default function AnimePage() {
         </section>
       )}
 
-      {/* Trending Now - Hide when searching */}
-      {!isSearching && (
+      {/* Trending Now - Hide when searching or genre filtering */}
+      {!isSearching && !genreId && (
         <ContentSection
           title="Trending Now"
           titleJp="トレンド"
@@ -234,10 +234,10 @@ export default function AnimePage() {
       )}
 
       {/* Today's Schedule - Hide when searching */}
-      {!isSearching && <ScheduleSection />}
+      {!isSearching && !genreId && <ScheduleSection />}
 
-      {/* This Season - Hide when searching */}
-      {!isSearching && (
+      {/* This Season */}
+      {!isSearching && !genreId && (
         <ContentSection
           title="This Season"
           titleJp="今季"
@@ -262,8 +262,8 @@ export default function AnimePage() {
         </ContentSection>
       )}
 
-      {/* Most Popular - Hide when searching */}
-      {!isSearching && (
+      {/* Most Popular */}
+      {!isSearching && !genreId && (
         <ContentSection
           title="Most Popular"
           titleJp="人気アニメ"
@@ -288,8 +288,8 @@ export default function AnimePage() {
         </ContentSection>
       )}
 
-      {/* Coming Soon - Hide when searching */}
-      {!isSearching && (
+      {/* Coming Soon */}
+      {!isSearching && !genreId && (
         <ContentSection
           title="Coming Soon"
           titleJp="近日公開"
@@ -314,8 +314,8 @@ export default function AnimePage() {
         </ContentSection>
       )}
 
-      {/* Classic Anime - Hide when searching */}
-      {!isSearching && (
+      {/* Classic Anime */}
+      {!isSearching && !genreId && (
         <ContentSection
           title="Classic Anime"
           titleJp="クラシック"
@@ -342,7 +342,7 @@ export default function AnimePage() {
       )}
 
       {/* All-Time Top Rated */}
-      {!isSearching && (
+      {!isSearching && !genreId && (
         <ContentSection
           title="All-Time Top Rated"
           titleJp="歴代最高評価"
@@ -368,7 +368,7 @@ export default function AnimePage() {
       )}
 
       {/* Action Anime */}
-      {!isSearching && (
+      {!isSearching && !genreId && (
         <ContentSection
           title="Action"
           titleJp="アクション"
@@ -394,7 +394,7 @@ export default function AnimePage() {
       )}
 
       {/* Romance Anime */}
-      {!isSearching && (
+      {!isSearching && !genreId && (
         <ContentSection
           title="Romance"
           titleJp="ロマンス"
@@ -420,7 +420,7 @@ export default function AnimePage() {
       )}
 
       {/* Fantasy Anime */}
-      {!isSearching && (
+      {!isSearching && !genreId && (
         <ContentSection
           title="Fantasy"
           titleJp="ファンタジー"
@@ -446,7 +446,7 @@ export default function AnimePage() {
       )}
 
       {/* Sci-Fi Anime */}
-      {!isSearching && (
+      {!isSearching && !genreId && (
         <ContentSection
           title="Sci-Fi"
           titleJp="SF"
