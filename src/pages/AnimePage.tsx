@@ -242,7 +242,7 @@ export default function AnimePage() {
           title="Most Popular"
           titleJp="人気アニメ"
           icon={TrendingUp}
-          linkTo="/rankings?type=anime"
+          linkTo="/anime?filter=bypopularity"
         >
           <HorizontalScroll showArrows={!isMobile}>
             {popularLoading ? (

@@ -12,7 +12,7 @@ const navLinks = [
   { href: "/anime", label: "Anime" },
   { href: "/manga", label: "Manga" },
   { href: "/news", label: "News" },
-  { href: "/rankings", label: "Rankings" },
+  { href: "/recommendations", label: "For You" },
 ];
 
 export function FloatingNav() {

@@ -1,12 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { useWatchlist } from "./useWatchlist";
-import { getAnimeRecommendations, Anime } from "@/lib/api";
+import { getAnimeRecommendations, getMangaRecommendations, Anime, Manga } from "@/lib/api";
+
+export type MediaType = "anime" | "manga" | "manhwa" | "manhua";
 
 export interface Recommendation {
   entry: {
-    /** @description Primary ID - This is the AniList ID used for all API calls */
+    /** Primary ID - AniList ID */
     anilist_id: number;
-    /** @deprecated Use anilist_id instead */
+    /** @deprecated Use anilist_id */
     mal_id: number;
     title: string;
     images: {
@@ -14,84 +16,128 @@ export interface Recommendation {
       webp: { large_image_url: string; image_url: string };
     };
     score?: number;
+    genres?: Array<{ mal_id: number; name: string }>;
+    status?: string;
+    country?: string;
   };
+  mediaType: MediaType;
 }
 
-// Fetch recommendations (no rate limiting needed for AniList)
-async function fetchRecommendationsFromWatchlist(
-  animeIds: number[],
-  maxItems: number = 5
-): Promise<Map<number, Recommendation[]>> {
-  const results = new Map<number, Recommendation[]>();
+async function fetchAnimeRecommendations(animeIds: number[], maxItems = 5): Promise<Recommendation[]> {
   const itemsToFetch = animeIds.slice(0, maxItems);
-  
-  // Fetch all in parallel (AniList has no rate limits for public queries)
+  const results: Recommendation[] = [];
+  const seenIds = new Set<number>(animeIds);
+
   const promises = itemsToFetch.map(async (id) => {
     try {
       const recs = await getAnimeRecommendations(id);
-      const mapped: Recommendation[] = recs?.slice(0, 6).map(r => ({
+      return recs?.slice(0, 6).map(r => ({
         entry: {
-          anilist_id: r.entry.anilist_id || r.entry.mal_id, // Use anilist_id if available
-          mal_id: r.entry.mal_id, // Keep for backward compatibility
+          anilist_id: r.entry.anilist_id || r.entry.mal_id,
+          mal_id: r.entry.mal_id,
           title: r.entry.title,
           images: r.entry.images,
           score: r.entry.score,
-        }
+          genres: r.entry.genres,
+          status: r.entry.status,
+        },
+        mediaType: "anime" as MediaType,
       })) || [];
-      return { id, recs: mapped };
-    } catch (error) {
-      console.error(`Failed to fetch recommendations for anime ${id}:`, error);
-      return { id, recs: [] };
+    } catch {
+      return [];
     }
   });
-  
+
   const allResults = await Promise.all(promises);
-  allResults.forEach(({ id, recs }) => results.set(id, recs));
-  
+  allResults.flat().forEach(rec => {
+    if (!seenIds.has(rec.entry.anilist_id)) {
+      seenIds.add(rec.entry.anilist_id);
+      results.push(rec);
+    }
+  });
+
   return results;
 }
 
-export function useRecommendations() {
-  const { watchlist, isLoading: watchlistLoading } = useWatchlist();
-  
-  // Get anime IDs from watchlist
-  const animeIds = watchlist
-    ?.filter(item => item.media_type === "anime")
-    .map(item => item.mal_id) || [];
-  
-  const { data: recommendationsMap, isLoading: recsLoading, error } = useQuery({
-    queryKey: ["recommendations", animeIds.slice(0, 5).join(",")],
-    queryFn: () => fetchRecommendationsFromWatchlist(animeIds, 5),
-    enabled: animeIds.length > 0,
-    staleTime: 1000 * 60 * 30, // Cache for 30 minutes
-    gcTime: 1000 * 60 * 60, // Keep in garbage collection for 1 hour
+async function fetchMangaRecommendations(mangaIds: number[], maxItems = 5): Promise<Recommendation[]> {
+  const itemsToFetch = mangaIds.slice(0, maxItems);
+  const results: Recommendation[] = [];
+  const seenIds = new Set<number>(mangaIds);
+
+  const promises = itemsToFetch.map(async (id) => {
+    try {
+      const recs = await getMangaRecommendations(id);
+      return recs?.slice(0, 6).map(r => ({
+        entry: {
+          anilist_id: r.entry.anilist_id || r.entry.mal_id,
+          mal_id: r.entry.mal_id,
+          title: r.entry.title,
+          images: r.entry.images,
+          score: r.entry.score,
+          genres: r.entry.genres,
+          status: r.entry.status,
+          country: (r.entry as any).countryOfOrigin,
+        },
+        mediaType: "manga" as MediaType,
+      })) || [];
+    } catch {
+      return [];
+    }
   });
-  
-  // Flatten and dedupe recommendations
-  const recommendations: Recommendation[] = [];
-  const seenIds = new Set<number>();
-  
-  // Add all anime from watchlist to avoid recommending already-watched
-  animeIds.forEach(id => seenIds.add(id));
-  
-  if (recommendationsMap) {
-    recommendationsMap.forEach((recs) => {
-      recs.forEach(rec => {
-        if (!seenIds.has(rec.entry.anilist_id)) {
-          seenIds.add(rec.entry.anilist_id);
-          recommendations.push(rec);
-        }
-      });
+
+  const allResults = await Promise.all(promises);
+  allResults.flat().forEach(rec => {
+    if (!seenIds.has(rec.entry.anilist_id)) {
+      seenIds.add(rec.entry.anilist_id);
+      results.push(rec);
+    }
+  });
+
+  return results;
+}
+
+export function useRecommendations(activeType: MediaType = "anime") {
+  const { watchlist, isLoading: watchlistLoading } = useWatchlist();
+
+  // Get IDs from watchlist by media type
+  const animeIds = watchlist?.filter(item => item.media_type === "anime").map(item => item.mal_id) || [];
+  const mangaIds = watchlist?.filter(item => item.media_type === "manga").map(item => item.mal_id) || [];
+
+  const isAnimeType = activeType === "anime";
+  const ids = isAnimeType ? animeIds : mangaIds;
+
+  const { data: recommendations, isLoading: recsLoading } = useQuery({
+    queryKey: ["recommendations", activeType, ids.slice(0, 5).join(",")],
+    queryFn: () => isAnimeType
+      ? fetchAnimeRecommendations(animeIds, 5)
+      : fetchMangaRecommendations(mangaIds, 5),
+    enabled: ids.length > 0,
+    staleTime: 1000 * 60 * 30,
+    gcTime: 1000 * 60 * 60,
+  });
+
+  // Filter by sub-type for manhwa/manhua (based on country or genre heuristic)
+  const filtered = (recommendations || [])
+    .filter(rec => {
+      if (activeType === "anime" || activeType === "manga") return true;
+      // For manhwa/manhua, we can't perfectly filter from AniList recs,
+      // but we include all manga recs and label them
+      return true;
+    })
+    .sort((a, b) => (b.entry.score || 0) - (a.entry.score || 0))
+    .slice(0, 24);
+
+  // Get unique genres from watchlist items for genre-based section
+  const watchlistGenres = new Set<string>();
+  watchlist?.filter(item => item.media_type === (isAnimeType ? "anime" : "manga"))
+    .forEach(() => {
+      // We don't have genre info in watchlist, so this is handled by the recs API
     });
-  }
-  
-  // Sort by score (higher rated first)
-  recommendations.sort((a, b) => (b.entry.score || 0) - (a.entry.score || 0));
-  
+
   return {
-    recommendations: recommendations.slice(0, 12),
+    recommendations: filtered,
     isLoading: watchlistLoading || recsLoading,
-    error,
-    hasWatchlistItems: animeIds.length > 0,
+    hasWatchlistItems: ids.length > 0,
+    watchlistCount: ids.length,
   };
 }

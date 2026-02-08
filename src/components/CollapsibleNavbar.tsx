@@ -29,7 +29,7 @@ export function CollapsibleNavbar() {
     { href: "/anime", label: t("nav.anime") },
     { href: "/manga", label: t("nav.manga") },
     { href: "/news", label: t("nav.news") },
-    { href: "/rankings", label: t("nav.rankings") },
+    { href: "/recommendations", label: t("nav.forYou") },
   ];
 
   // Debounced scroll handler for smoother performance

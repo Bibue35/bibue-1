@@ -10,7 +10,7 @@ export function Footer() {
       links: [
         { label: t("nav.anime"), href: "/anime" },
         { label: t("nav.manga"), href: "/manga" },
-        { label: t("nav.rankings"), href: "/rankings" },
+        { label: t("nav.forYou"), href: "/recommendations" },
         { label: t("nav.community"), href: "/community" },
       ],
     },

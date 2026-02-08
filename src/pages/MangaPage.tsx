@@ -256,7 +256,7 @@ export default function MangaPage() {
           title="Top Rated Manga"
           titleJp="高評価"
           icon={Trophy}
-          linkTo="/rankings?type=manga&sort=score"
+          linkTo="/manga?filter=manga&sort=score"
         >
           <HorizontalScroll showArrows={!isMobile}>
             {mangaLoading ? (
