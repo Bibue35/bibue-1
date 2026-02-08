@@ -14,9 +14,8 @@ if (storedFlavor && storedFlavor !== "default") {
 createRoot(document.getElementById("root")!).render(
   <NextThemesProvider
     attribute="class"
-    defaultTheme="dark"
-    themes={["light", "dark"]}
-    enableSystem={false}
+    defaultTheme="system"
+    enableSystem={true}
     disableTransitionOnChange
     storageKey="bibue-theme"
   >
