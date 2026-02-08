@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUnreadCount } from "@/hooks/useMessages";
 import bibueTower from "@/assets/bibue-tower.png";
 
 const navLinks = [
@@ -20,6 +23,8 @@ export function FloatingNav() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
+  const { data: unreadCount } = useUnreadCount();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -88,6 +93,25 @@ export function FloatingNav() {
                 className="rounded-full hover:bg-foreground/10"
               >
                 <Search className="w-5 h-5" />
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative rounded-full hover:bg-foreground/10"
+                asChild
+              >
+                <Link to="/community">
+                  <Users className="w-5 h-5" />
+                  {user && (unreadCount ?? 0) > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px] flex items-center justify-center"
+                    >
+                      {unreadCount && unreadCount > 9 ? "9+" : unreadCount}
+                    </Badge>
+                  )}
+                </Link>
               </Button>
 
               <ThemeSelector />

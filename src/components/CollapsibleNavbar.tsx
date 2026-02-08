@@ -1,12 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUnreadCount } from "@/hooks/useMessages";
 import {
   Collapsible,
   CollapsibleContent,
@@ -24,6 +27,8 @@ export function CollapsibleNavbar() {
   const collapseTimer = useRef<NodeJS.Timeout | null>(null);
   const scrollRef = useRef(0);
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const { data: unreadCount } = useUnreadCount();
 
   const navLinks = [
     { href: "/anime", label: t("nav.anime") },
@@ -167,6 +172,25 @@ export function CollapsibleNavbar() {
                 aria-label={t("nav.search")}
               >
                 <Search className="w-5 h-5" />
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative rounded-full hover:bg-foreground/5"
+                asChild
+              >
+                <Link to="/community">
+                  <Users className="w-5 h-5" />
+                  {user && (unreadCount ?? 0) > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px] flex items-center justify-center"
+                    >
+                      {unreadCount && unreadCount > 9 ? "9+" : unreadCount}
+                    </Badge>
+                  )}
+                </Link>
               </Button>
 
               <ThemeSelector />
