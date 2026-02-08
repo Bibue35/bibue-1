@@ -88,37 +88,22 @@ export function CollapsibleNavbar() {
         }}
       >
         <div className="container mx-auto px-3 sm:px-4">
-          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
-            {/* Left: hamburger (mobile) + Logo */}
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden rounded-full h-9 w-9"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              >
-                {isMobileMenuOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
-              </Button>
-
-              <Link to="/" className="flex items-center gap-1.5">
-                <div className="h-8 sm:h-10 w-auto flex items-center justify-center">
-                  <img
-                    src={bibueTower}
-                    alt="Bibue Tower"
-                    className="h-full w-auto object-contain dark:brightness-0 dark:invert logo-stable"
-                    loading="eager"
-                    decoding="sync"
-                  />
-                </div>
-                <span className="text-lg sm:text-xl font-sacred font-semibold tracking-wide">
-                  Bibue
-                </span>
-              </Link>
-            </div>
+          <div className="flex items-center justify-between gap-2">
+            {/* Left: Logo */}
+            <Link to="/" className="flex items-center gap-1.5">
+              <div className="h-8 sm:h-10 w-auto flex items-center justify-center">
+                <img
+                  src={bibueTower}
+                  alt="Bibue Tower"
+                  className="h-full w-auto object-contain dark:brightness-0 dark:invert logo-stable"
+                  loading="eager"
+                  decoding="sync"
+                />
+              </div>
+              <span className="text-lg sm:text-xl font-sacred font-semibold tracking-wide">
+                Bibue
+              </span>
+            </Link>
 
             {/* Center: nav links — desktop only */}
             <div className="hidden md:flex items-center justify-center gap-1">
@@ -138,13 +123,13 @@ export function CollapsibleNavbar() {
               ))}
             </div>
 
-            {/* Right: desktop actions + user avatar always visible */}
+            {/* Right: search + desktop actions + hamburger (mobile) */}
             <div className="flex items-center justify-end gap-1">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsSearchOpen(true)}
-                className="hidden md:flex rounded-full hover:bg-foreground/5 h-9 w-9"
+                className="rounded-full hover:bg-foreground/5 h-9 w-9"
                 aria-label={t("nav.search")}
               >
                 <Search className="w-5 h-5" />
@@ -154,7 +139,22 @@ export function CollapsibleNavbar() {
                 <ThemeSelector />
               </div>
 
-              <UserMenu />
+              <div className="hidden md:block">
+                <UserMenu />
+              </div>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden rounded-full h-9 w-9"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
+                )}
+              </Button>
             </div>
           </div>
         </div>
@@ -185,12 +185,6 @@ export function CollapsibleNavbar() {
               </Link>
             ))}
 
-            {/* Theme toggle */}
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl">
-              <ThemeSelector />
-              <span className="text-sm font-medium text-muted-foreground">Theme</span>
-            </div>
-
             <Link
               to="/community"
               className={cn(
@@ -203,6 +197,11 @@ export function CollapsibleNavbar() {
             >
               Community
             </Link>
+
+            {/* Theme toggle — icon only, under Community */}
+            <div className="px-4 py-3 rounded-xl">
+              <ThemeSelector />
+            </div>
 
             {!user && (
               <button
