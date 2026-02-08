@@ -1,5 +1,6 @@
-// AniList GraphQL API integration (replaces Jikan for better rate limits)
-const ANILIST_API = "https://graphql.anilist.co";
+// AniList GraphQL API integration — routed through edge function proxy
+const ANILIST_PROXY_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/anilist-proxy`;
+const ANILIST_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 // Language type matching the LanguageContext
 export type SupportedLanguage = "en" | "ja" | "es" | "fr" | "de" | "pt" | "ko" | "zh";
@@ -103,23 +104,23 @@ class RateLimitError extends Error {
   }
 }
 
-// AniList GraphQL query helper with retry + exponential backoff
+// AniList GraphQL query helper — routes through edge function proxy
 async function anilistQuery<T>(query: string, variables: Record<string, unknown> = {}): Promise<T> {
   const MAX_RETRIES = 3;
-  const BASE_DELAY = 1000; // 1 second
+  const BASE_DELAY = 1000;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const response = await fetch(ANILIST_API, {
+      const response = await fetch(ANILIST_PROXY_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          apikey: ANILIST_ANON_KEY,
         },
         body: JSON.stringify({ query, variables }),
       });
 
-      // Handle rate limiting (429 Too Many Requests)
       if (response.status === 429) {
         const retryAfter = parseInt(response.headers.get('Retry-After') || '60', 10);
         console.warn(`[API] Rate limit hit. Retry after ${retryAfter}s`);
@@ -131,7 +132,7 @@ async function anilistQuery<T>(query: string, variables: Record<string, unknown>
       }
 
       if (!response.ok) {
-        console.error(`[API] AniList error: ${response.status}`);
+        console.error(`[API] Proxy error: ${response.status}`);
         if (attempt < MAX_RETRIES && response.status >= 500) {
           await new Promise(r => setTimeout(r, BASE_DELAY * Math.pow(2, attempt)));
           continue;
@@ -146,7 +147,6 @@ async function anilistQuery<T>(query: string, variables: Record<string, unknown>
       }
       return json.data;
     } catch (error) {
-      // Network errors (Load failed, TypeError, etc.) — retry
       if (attempt < MAX_RETRIES && !(error instanceof RateLimitError) && (error instanceof TypeError || (error as Error).message === 'Load failed')) {
         console.warn(`[API] Network error, retrying (${attempt + 1}/${MAX_RETRIES})...`);
         await new Promise(r => setTimeout(r, BASE_DELAY * Math.pow(2, attempt)));
