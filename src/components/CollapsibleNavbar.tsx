@@ -204,10 +204,8 @@ export function CollapsibleNavbar() {
               Community
             </Link>
 
-            {/* Theme toggle — icon only, under Community */}
-            <div className="px-4 py-3 rounded-xl">
-              <ThemeSelector />
-            </div>
+            {/* Theme toggle — text with color, under Community */}
+            <ThemeSelector variant="text" />
 
             {!user && (
               <button
