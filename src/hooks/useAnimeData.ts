@@ -17,6 +17,8 @@ import {
   getClassicAnime,
   getAnimeByDecade,
   getAnimeByGenre,
+  getRecentlyUpdatedAnime,
+  getRecentlyUpdatedManga,
   getMangaByYearRange,
   getAllTimeTopManga,
   getClassicManga,
@@ -306,5 +308,25 @@ export function useCompletedManga(page = 1) {
     queryFn: () => getCompletedManga(page, 25, language as SupportedLanguage),
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
+  });
+}
+
+export function useRecentlyUpdatedAnime(page = 1) {
+  const { language } = useLanguage();
+  return useQuery({
+    queryKey: ["recentlyUpdatedAnime", page, language],
+    queryFn: () => getRecentlyUpdatedAnime(page, 25, language as SupportedLanguage),
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 15,
+  });
+}
+
+export function useRecentlyUpdatedManga(page = 1) {
+  const { language } = useLanguage();
+  return useQuery({
+    queryKey: ["recentlyUpdatedManga", page, language],
+    queryFn: () => getRecentlyUpdatedManga(page, 25, language as SupportedLanguage),
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 15,
   });
 }
