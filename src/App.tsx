@@ -21,7 +21,7 @@ const AnimePage = lazy(() => import("./pages/AnimePage"));
 const MangaPage = lazy(() => import("./pages/MangaPage"));
 const AnimeDetail = lazy(() => import("./pages/AnimeDetail"));
 const MangaDetail = lazy(() => import("./pages/MangaDetail"));
-const Rankings = lazy(() => import("./pages/Rankings"));
+// Rankings page removed - rankings are now embedded in Anime/Manga pages
 const NewsPage = lazy(() => import("./pages/NewsPage"));
 const CommunityPage = lazy(() => import("./pages/CommunityPage"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
@@ -80,7 +80,7 @@ const App = () => (
                         <Route path="/anime/:id" element={<AnimeDetail />} />
                         <Route path="/manga" element={<MangaPage />} />
                         <Route path="/manga/:id" element={<MangaDetail />} />
-                        <Route path="/rankings" element={<Rankings />} />
+                        {/* Rankings removed - embedded in anime/manga pages */}
                         <Route path="/news" element={<NewsPage />} />
                         <Route path="/community" element={<CommunityPage />} />
                         <Route path="/user/:userId" element={<UserProfile />} />

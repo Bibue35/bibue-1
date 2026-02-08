@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AnimeDetailModal } from "./AnimeDetailModal";
+import { MangaDetailModal } from "./MangaDetailModal";
 import { Recommendation } from "@/hooks/useRecommendations";
 
 interface RecommendationCardProps {
@@ -11,7 +12,8 @@ interface RecommendationCardProps {
 
 export function RecommendationCard({ recommendation, index = 0 }: RecommendationCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const { entry } = recommendation;
+  const { entry, mediaType } = recommendation;
+  const isManga = mediaType !== "anime";
 
   return (
     <>
@@ -45,12 +47,20 @@ export function RecommendationCard({ recommendation, index = 0 }: Recommendation
           {entry.title}
         </h3>
       </button>
-      
-      <AnimeDetailModal
-        animeId={entry.anilist_id}
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-      />
+
+      {isManga ? (
+        <MangaDetailModal
+          mangaId={entry.anilist_id}
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+        />
+      ) : (
+        <AnimeDetailModal
+          animeId={entry.anilist_id}
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+        />
+      )}
     </>
   );
 }
