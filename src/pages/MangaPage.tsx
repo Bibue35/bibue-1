@@ -437,25 +437,25 @@ export default function MangaPage() {
       {/* Active Filters Chips */}
       {(typeFilter !== "all" || sortBy !== "popularity" || genreId) && (
         <section className="pb-2">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-3 sm:px-4">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs text-muted-foreground">Active filters:</span>
               {typeFilter !== "all" && (
                 <button
                   onClick={() => setTypeFilter("all")}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95 min-h-[36px] sm:min-h-0"
                 >
                   Type: {typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}
-                  <span className="text-primary/60">×</span>
+                  <span className="text-primary/60 text-sm">×</span>
                 </button>
               )}
               {sortBy !== "popularity" && (
                 <button
                   onClick={() => setSortBy("popularity")}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95 min-h-[36px] sm:min-h-0"
                 >
                   Sort: {sortBy === "score" ? "Top Rated" : "Newest"}
-                  <span className="text-primary/60">×</span>
+                  <span className="text-primary/60 text-sm">×</span>
                 </button>
               )}
               {genreId && (
@@ -465,10 +465,10 @@ export default function MangaPage() {
                     params.delete("genre");
                     setSearchParams(params, { replace: true });
                   }}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95 min-h-[36px] sm:min-h-0"
                 >
                   Genre: {genreId}
-                  <span className="text-primary/60">×</span>
+                  <span className="text-primary/60 text-sm">×</span>
                 </button>
               )}
             </div>
@@ -478,7 +478,7 @@ export default function MangaPage() {
 
       {/* All Manga Grid */}
       <section className="py-4 pb-24">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-3 sm:px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">
             {isSearching 
               ? `Search results for "${debouncedSearch}"` 

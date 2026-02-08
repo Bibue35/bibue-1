@@ -22,7 +22,7 @@ export function CommunityButton() {
           <Button
             variant="ghost"
             size="icon"
-            className="fixed top-20 right-4 z-40 rounded-full h-11 w-11 bg-background/80 backdrop-blur-sm border border-border/50 shadow-lg hover:bg-background hover:scale-105 transition-all"
+            className="fixed bottom-20 right-3 sm:top-20 sm:bottom-auto sm:right-4 z-40 rounded-full h-12 w-12 sm:h-11 sm:w-11 bg-background/80 backdrop-blur-sm border border-border/50 shadow-lg hover:bg-background hover:scale-105 transition-all"
             asChild
           >
             <Link to="/community">

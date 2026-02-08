@@ -64,7 +64,7 @@ export function ScheduleSection() {
               size="sm"
               onClick={() => setSelectedDay(day.key)}
               className={cn(
-                "flex-shrink-0 min-w-[52px] sm:min-w-[60px] transition-all text-xs sm:text-sm h-8 sm:h-9",
+                "flex-shrink-0 min-w-[56px] sm:min-w-[60px] transition-all text-xs sm:text-sm h-9 sm:h-9 active:scale-95",
                 selectedDay === day.key 
                   ? "bg-primary text-primary-foreground shadow-md" 
                   : "bg-background/50 border-border/50 hover:bg-accent"
