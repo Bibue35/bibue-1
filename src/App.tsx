@@ -70,7 +70,7 @@ const App = () => (
               <Sonner />
               <BrowserRouter>
                 <MessageNotificationProvider>
-                  <CommunityButton />
+                  {/* CommunityButton moved into navbar */}
                   <MiniPlayer />
                   <Suspense fallback={<PageLoader />}>
                     <AnimatedRoutes>
