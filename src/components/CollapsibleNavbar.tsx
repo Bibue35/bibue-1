@@ -175,10 +175,10 @@ export function CollapsibleNavbar() {
                 setIsSearchOpen(true);
                 setIsMobileMenuOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:bg-foreground/5 hover:text-foreground transition-colors"
+              className="w-full flex items-center justify-end gap-3 px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:bg-foreground/5 hover:text-foreground transition-colors"
             >
-              <Search className="w-4 h-4" />
               {t("nav.search")}
+              <Search className="w-4 h-4" />
             </button>
 
             {/* Nav links */}
@@ -187,7 +187,7 @@ export function CollapsibleNavbar() {
                 key={link.href}
                 to={link.href}
                 className={cn(
-                  "block px-4 py-3 rounded-xl text-sm font-medium transition-colors",
+                  "block px-4 py-3 rounded-xl text-sm font-medium text-right transition-colors",
                   location.pathname === link.href
                     ? "bg-foreground/10 text-foreground"
                     : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
@@ -198,26 +198,26 @@ export function CollapsibleNavbar() {
               </Link>
             ))}
 
+            {/* Theme toggle — right after nav links */}
+            <div className="flex items-center justify-end gap-3 px-4 py-3 rounded-xl">
+              <span className="text-sm font-medium text-muted-foreground">Theme</span>
+              <ThemeSelector />
+            </div>
+
             {/* Community */}
             <Link
               to="/community"
               className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors",
+                "flex items-center justify-end gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors",
                 location.pathname === "/community"
                   ? "bg-foreground/10 text-foreground"
                   : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
               )}
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <Users className="w-4 h-4" />
               Community
+              <Users className="w-4 h-4" />
             </Link>
-
-            {/* Theme toggle */}
-            <div className="flex items-center justify-between px-4 py-3 rounded-xl">
-              <span className="text-sm font-medium text-muted-foreground">Theme</span>
-              <ThemeSelector />
-            </div>
 
             {/* Sign In — only when logged out */}
             {!user && (
@@ -226,10 +226,10 @@ export function CollapsibleNavbar() {
                   setAuthModalOpen(true);
                   setIsMobileMenuOpen(false);
                 }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-primary hover:bg-primary/5 transition-colors"
+                className="w-full flex items-center justify-end gap-3 px-4 py-3 rounded-xl text-sm font-medium text-primary hover:bg-primary/5 transition-colors"
               >
-                <LogIn className="w-4 h-4" />
                 Sign In
+                <LogIn className="w-4 h-4" />
               </button>
             )}
           </div>
