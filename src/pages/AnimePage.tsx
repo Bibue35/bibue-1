@@ -7,6 +7,7 @@ import { AnimeCard } from "@/components/AnimeCard";
 import { MobileAnimeCard } from "@/components/MobileAnimeCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { GenreSection } from "@/components/GenreSection";
+import { CategoryBar } from "@/components/CategoryBar";
 import { ContentSection } from "@/components/ContentSection";
 import { SearchDropdown } from "@/components/SearchDropdown";
 import { PullToRefresh } from "@/components/PullToRefresh";
@@ -171,11 +172,11 @@ export default function AnimePage() {
       </section>
 
 
-      {/* Genres - Hide when searching */}
+      {/* Categories - Hide when searching */}
       {!isSearching && (
-        <section className="py-2">
-          <div className="container mx-auto px-4">
-            <GenreSection type="anime" className="opacity-70 hover:opacity-100 transition-opacity" />
+        <section className="py-1">
+          <div className="container mx-auto px-3 sm:px-4">
+            <CategoryBar type="anime" />
           </div>
         </section>
       )}
