@@ -66,7 +66,7 @@ export function UserMenu() {
           variant="ghost"
           size="sm"
           onClick={() => setAuthModalOpen(true)}
-          className="rounded-full gap-2"
+          className="hidden md:flex rounded-full gap-2"
         >
           <User className="w-4 h-4" />
           <span className="hidden sm:inline">Sign In</span>
