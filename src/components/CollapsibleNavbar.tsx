@@ -207,6 +207,21 @@ export function CollapsibleNavbar() {
             {/* Theme toggle — text with color, under Community */}
             <ThemeSelector variant="text" />
 
+            {user && (
+              <Link
+                to="/settings"
+                className={cn(
+                  "block px-4 py-3 rounded-xl text-sm font-medium transition-colors",
+                  location.pathname === "/settings"
+                    ? "text-foreground bg-foreground/5"
+                    : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                )}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Settings
+              </Link>
+            )}
+
             {!user && (
               <button
                 onClick={() => {
