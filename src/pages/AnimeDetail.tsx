@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, ThumbsUp, ArrowUpDown, ChevronLeft, ChevronRight, PictureInPicture2 } from "lucide-react";
+import { EpisodeCountdown } from "@/components/EpisodeCountdown";
 import { ResolutionSelector, type Resolution } from "@/components/ResolutionSelector";
 import { CollapsibleEpisodeList } from "@/components/CollapsibleEpisodeList";
 import { Button } from "@/components/ui/button";
@@ -487,6 +488,12 @@ export default function AnimeDetailPage() {
                       <div className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-foreground/10 text-xs sm:text-sm font-bold">
                         #{anime.rank}
                       </div>
+                    )}
+                    {anime?.nextAiringEpisode && (
+                      <EpisodeCountdown
+                        airingAt={anime.nextAiringEpisode.airingAt}
+                        episode={anime.nextAiringEpisode.episode}
+                      />
                     )}
                   </div>
                 </div>

@@ -53,6 +53,7 @@ export interface Anime {
   studios?: Array<{ mal_id: number; name: string }>;
   year?: number;
   season?: string;
+  nextAiringEpisode?: { airingAt: number; episode: number };
 }
 
 export interface Manga {
@@ -198,6 +199,7 @@ function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime
     studios: media.studios?.nodes?.map(s => ({ mal_id: s.id, name: s.name })) || [],
     year: media.seasonYear || media.startDate?.year || undefined,
     season: media.season?.toLowerCase() || undefined,
+    nextAiringEpisode: media.nextAiringEpisode || undefined,
   };
 }
 
@@ -269,6 +271,7 @@ interface AniListMedia {
   rankings?: Array<{ type: string; rank: number; allTime: boolean }>;
   stats?: { scoreDistribution?: Array<{ score: number; amount: number }> };
   recommendations?: { nodes: Array<{ mediaRecommendation: AniListMedia }> };
+  nextAiringEpisode?: { airingAt: number; episode: number };
 }
 
 const MEDIA_FRAGMENT = `
@@ -296,6 +299,7 @@ const MEDIA_FRAGMENT = `
   endDate { year month day }
   studios(isMain: true) { nodes { id name } }
   rankings { type rank allTime }
+  nextAiringEpisode { airingAt episode }
 `;
 
 // Anime endpoints
