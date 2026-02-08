@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { GenreSection } from "@/components/GenreSection";
+import { CategoryBar } from "@/components/CategoryBar";
 import { ContentSection } from "@/components/ContentSection";
 import { SearchDropdown } from "@/components/SearchDropdown";
 import { PullToRefresh } from "@/components/PullToRefresh";
@@ -219,11 +220,11 @@ export default function MangaPage() {
       </section>
 
 
-      {/* Genres - Hide when searching */}
+      {/* Categories - Hide when searching */}
       {!isSearching && (
-        <section className="py-2">
-          <div className="container mx-auto px-4">
-            <GenreSection type="manga" className="opacity-70 hover:opacity-100 transition-opacity" />
+        <section className="py-1">
+          <div className="container mx-auto px-3 sm:px-4">
+            <CategoryBar type="manga" />
           </div>
         </section>
       )}
