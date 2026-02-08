@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History } from "lucide-react";
+import { Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History, Users } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
@@ -18,6 +18,7 @@ import { useTopAnime, useSeasonalAnime, useSearchAnime, useClassicAnime } from "
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 export default function AnimePage() {
@@ -35,6 +36,7 @@ export default function AnimePage() {
   const resultsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
+  const { user } = useAuth();
   
   // Sync state FROM URL when params change (e.g. "See All" link clicked)
   useEffect(() => {
@@ -150,14 +152,24 @@ export default function AnimePage() {
               placeholder="Search anime by title..."
             />
 
-            {/* Action Buttons - For You & Saved */}
+            {/* Action Buttons */}
             <div className="flex justify-center gap-3 mt-6">
-              <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
-                <Link to="/recommendations">
-                  <Sparkles className="w-4 h-4" />
-                  For You
-                </Link>
-              </Button>
+              {user ? (
+                <>
+                  <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
+                    <Link to="/recommendations">
+                      <Sparkles className="w-4 h-4" />
+                      For You
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
+                    <Link to="/community">
+                      <Users className="w-4 h-4" />
+                      Community
+                    </Link>
+                  </Button>
+                </>
+              ) : null}
               <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
                 <Link to="/watchlist?type=anime">
                   <Bookmark className="w-4 h-4" />
