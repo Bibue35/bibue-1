@@ -169,28 +169,15 @@ export function CollapsibleNavbar() {
           )}
         >
           <div className="p-3 space-y-0.5">
-            {/* Search */}
-            <button
-              onClick={() => {
-                setIsSearchOpen(true);
-                setIsMobileMenuOpen(false);
-              }}
-              className="w-full flex items-center justify-end gap-3 px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:bg-foreground/5 hover:text-foreground transition-colors"
-            >
-              {t("nav.search")}
-              <Search className="w-4 h-4" />
-            </button>
-
-            {/* Nav links */}
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
                 className={cn(
-                  "block px-4 py-3 rounded-xl text-sm font-medium text-right transition-colors",
+                  "block px-4 py-3 rounded-xl text-sm font-medium transition-colors",
                   location.pathname === link.href
-                    ? "bg-foreground/10 text-foreground"
-                    : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+                    ? "text-foreground bg-foreground/5"
+                    : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
                 )}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -198,38 +185,34 @@ export function CollapsibleNavbar() {
               </Link>
             ))}
 
-            {/* Theme toggle — directly under For You */}
-            <div className="flex items-center justify-end gap-3 px-4 py-3 rounded-xl">
-              <span className="text-sm font-medium text-muted-foreground">Theme</span>
+            {/* Theme toggle */}
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl">
               <ThemeSelector />
+              <span className="text-sm font-medium text-muted-foreground">Theme</span>
             </div>
 
-            {/* Community */}
             <Link
               to="/community"
               className={cn(
-                "flex items-center justify-end gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors",
+                "block px-4 py-3 rounded-xl text-sm font-medium transition-colors",
                 location.pathname === "/community"
-                  ? "bg-foreground/10 text-foreground"
-                  : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+                  ? "text-foreground bg-foreground/5"
+                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
               )}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Community
-              <Users className="w-4 h-4" />
             </Link>
 
-            {/* Sign In — only when logged out */}
             {!user && (
               <button
                 onClick={() => {
                   setAuthModalOpen(true);
                   setIsMobileMenuOpen(false);
                 }}
-                className="w-full flex items-center justify-end gap-3 px-4 py-3 rounded-xl text-sm font-medium text-primary hover:bg-primary/5 transition-colors"
+                className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-primary hover:bg-primary/5 transition-colors"
               >
                 Sign In
-                <LogIn className="w-4 h-4" />
               </button>
             )}
           </div>
