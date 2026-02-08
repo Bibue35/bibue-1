@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useIsMobile } from "@/hooks/use-mobile";
+
 
 interface LinkedAccount {
   id: string;
@@ -45,7 +45,7 @@ const PROVIDERS = [
 export function LinkedAccounts() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const isMobile = useIsMobile();
+  
   const [linkedAccounts, setLinkedAccounts] = useState<LinkedAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState<string | null>(null);
@@ -196,9 +196,9 @@ export function LinkedAccounts() {
       if (!token) throw new Error("Not authenticated");
 
       const functionName = providerId === "anilist" ? "anilist-oauth-callback" : "mal-oauth-callback";
-      const mode = isMobile ? "redirect" : "popup";
+      // Always use redirect flow - popup postMessage is unreliable cross-origin
       const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${functionName}?initiate=true&mode=${mode}`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${functionName}?initiate=true&mode=redirect`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -207,38 +207,8 @@ export function LinkedAccounts() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to initiate");
 
-      if (isMobile) {
-        // Redirect flow for mobile - navigate directly
-        window.location.href = data.url;
-        return;
-      }
-
-      // Popup flow for desktop
-      if (providerId === "mal" && data.codeVerifier) {
-        sessionStorage.setItem("mal_code_verifier", data.codeVerifier);
-      }
-
-      const width = 500;
-      const height = 700;
-      const left = window.screenX + (window.outerWidth - width) / 2;
-      const top = window.screenY + (window.outerHeight - height) / 2;
-      const popup = window.open(
-        data.url,
-        `${providerId}_oauth`,
-        `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`
-      );
-
-      if (popup) {
-        const interval = setInterval(() => {
-          if (popup.closed) {
-            clearInterval(interval);
-            setConnecting(null);
-          }
-        }, 500);
-      } else {
-        // Popup blocked - fallback to redirect
-        window.location.href = data.url;
-      }
+      // Redirect flow - navigate directly to the OAuth provider
+      window.location.href = data.url;
     } catch (err: any) {
       toast({ variant: "destructive", title: "Connection failed", description: err.message });
       setConnecting(null);
