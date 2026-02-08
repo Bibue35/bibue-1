@@ -5,6 +5,7 @@ import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { SectionError } from "@/components/SectionError";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnimeByDecade, useClassicAnime } from "@/hooks/useAnimeData";
@@ -44,26 +45,26 @@ export default function ClassicsPage() {
   };
 
   // Fetch data based on selected decade
-  const { data: classicAnime, isLoading: classicLoading } = useClassicAnime(1);
-  const { data: decade70s, isLoading: loading70s } = useAnimeByDecade("70s", 1);
-  const { data: decade80s, isLoading: loading80s } = useAnimeByDecade("80s", 1);
-  const { data: decade90s, isLoading: loading90s } = useAnimeByDecade("90s", 1);
-  const { data: decade2000s, isLoading: loading2000s } = useAnimeByDecade("2000s", 1);
-  const { data: decade2010s, isLoading: loading2010s } = useAnimeByDecade("2010s", 1);
+  const { data: classicAnime, isLoading: classicLoading, error: classicError, refetch: refetchClassic } = useClassicAnime(1);
+  const { data: decade70s, isLoading: loading70s, error: error70s, refetch: refetch70s } = useAnimeByDecade("70s", 1);
+  const { data: decade80s, isLoading: loading80s, error: error80s, refetch: refetch80s } = useAnimeByDecade("80s", 1);
+  const { data: decade90s, isLoading: loading90s, error: error90s, refetch: refetch90s } = useAnimeByDecade("90s", 1);
+  const { data: decade2000s, isLoading: loading2000s, error: error2000s, refetch: refetch2000s } = useAnimeByDecade("2000s", 1);
+  const { data: decade2010s, isLoading: loading2010s, error: error2010s, refetch: refetch2010s } = useAnimeByDecade("2010s", 1);
 
   // Get display data based on selected decade
   const getDisplayData = () => {
     switch (decade) {
-      case "70s": return { data: decade70s, loading: loading70s };
-      case "80s": return { data: decade80s, loading: loading80s };
-      case "90s": return { data: decade90s, loading: loading90s };
-      case "2000s": return { data: decade2000s, loading: loading2000s };
-      case "2010s": return { data: decade2010s, loading: loading2010s };
-      default: return { data: classicAnime, loading: classicLoading };
+      case "70s": return { data: decade70s, loading: loading70s, error: error70s, refetch: refetch70s };
+      case "80s": return { data: decade80s, loading: loading80s, error: error80s, refetch: refetch80s };
+      case "90s": return { data: decade90s, loading: loading90s, error: error90s, refetch: refetch90s };
+      case "2000s": return { data: decade2000s, loading: loading2000s, error: error2000s, refetch: refetch2000s };
+      case "2010s": return { data: decade2010s, loading: loading2010s, error: error2010s, refetch: refetch2010s };
+      default: return { data: classicAnime, loading: classicLoading, error: classicError, refetch: refetchClassic };
     }
   };
 
-  const { data: displayAnime, loading: isLoading } = getDisplayData();
+  const { data: displayAnime, loading: isLoading, error: displayError, refetch: displayRefetch } = getDisplayData();
   const selectedDecade = DECADES.find(d => d.value === decade);
 
   return (
@@ -183,7 +184,9 @@ export default function ClassicsPage() {
             {selectedDecade?.years} • Sorted by score
           </p>
           
-          {isLoading ? (
+          {displayError ? (
+            <SectionError message="Failed to load classics" onRetry={() => displayRefetch()} />
+          ) : isLoading ? (
             <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
               {Array.from({ length: 21 }).map((_, i) => (
                 <Skeleton key={i} className={viewMode === "grid" ? "aspect-[2/3] rounded-xl" : "h-20 rounded-xl"} />
