@@ -3,6 +3,7 @@
  * Main landing page with modern mobile-first design
  */
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
+import { SectionError } from "@/components/SectionError";
 import { HeroSection } from "@/components/HeroSection";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { AnimeCard } from "@/components/AnimeCard";
@@ -27,17 +28,17 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
-  const { data: popularAnime, isLoading: popularLoading } = useTopAnime(1, 'bypopularity');
-  const { data: upcomingAnime, isLoading: upcomingLoading } = useTopAnime(1, 'upcoming');
-  const { data: airingAnime, isLoading: airingLoading } = useTopAnime(1, 'airing');
-  const { data: seasonalAnime, isLoading: seasonalLoading } = useSeasonalAnime();
-  const { data: topManga, isLoading: topMangaLoading } = useTopManga(1);
-  const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
-  const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua');
-  const { data: classicAnime, isLoading: classicLoading } = useClassicAnime(1);
-  const { data: allTimeTop, isLoading: allTimeLoading } = useAllTimeTopAnime(1);
-  const { data: trendingManhwa, isLoading: trendingManhwaLoading } = useTrendingManhwa(1);
-  const { data: trendingManhua, isLoading: trendingManhuaLoading } = useTrendingManhua(1);
+  const { data: popularAnime, isLoading: popularLoading, isError: popularError, refetch: refetchPopular } = useTopAnime(1, 'bypopularity');
+  const { data: upcomingAnime, isLoading: upcomingLoading, isError: upcomingError, refetch: refetchUpcoming } = useTopAnime(1, 'upcoming');
+  const { data: airingAnime, isLoading: airingLoading, isError: airingError, refetch: refetchAiring } = useTopAnime(1, 'airing');
+  const { data: seasonalAnime, isLoading: seasonalLoading, isError: seasonalError, refetch: refetchSeasonal } = useSeasonalAnime();
+  const { data: topManga, isLoading: topMangaLoading, isError: topMangaError, refetch: refetchTopManga } = useTopManga(1);
+  const { data: manhwa, isLoading: manhwaLoading, isError: manhwaError, refetch: refetchManhwa } = useTopManga(1, 'manhwa');
+  const { data: manhua, isLoading: manhuaLoading, isError: manhuaError, refetch: refetchManhua } = useTopManga(1, 'manhua');
+  const { data: classicAnime, isLoading: classicLoading, isError: classicError, refetch: refetchClassic } = useClassicAnime(1);
+  const { data: allTimeTop, isLoading: allTimeLoading, isError: allTimeError, refetch: refetchAllTime } = useAllTimeTopAnime(1);
+  const { data: trendingManhwa, isLoading: trendingManhwaLoading, isError: trendingManhwaError, refetch: refetchTrendingManhwa } = useTrendingManhwa(1);
+  const { data: trendingManhua, isLoading: trendingManhuaLoading, isError: trendingManhuaError, refetch: refetchTrendingManhua } = useTrendingManhua(1);
   const { t } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -104,21 +105,25 @@ const Index = () => {
         linkTo="/anime?filter=airing"
         compact
       >
-        <HorizontalScroll showArrows={false}>
-          {airingLoading ? (
-            <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-44" />
-          ) : (
-            airingAnime?.slice(0, 10).map((anime, index) => (
-              <div key={anime.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
-                {isMobile ? (
-                  <MobileAnimeCard anime={anime} index={index} />
-                ) : (
-                  <AnimeCard anime={anime} index={index} />
-                )}
-              </div>
-            ))
-          )}
-        </HorizontalScroll>
+        {airingError ? (
+          <SectionError onRetry={() => refetchAiring()} />
+        ) : (
+          <HorizontalScroll showArrows={false}>
+            {airingLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-44" />
+            ) : (
+              airingAnime?.slice(0, 10).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        )}
       </ContentSection>
 
       {/* Schedule Section */}
@@ -131,21 +136,25 @@ const Index = () => {
         icon={Sparkles}
         linkTo="/anime?filter=seasonal"
       >
-        <HorizontalScroll showArrows={!isMobile}>
-          {seasonalLoading ? (
-            <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-          ) : (
-            seasonalAnime?.slice(0, 12).map((anime, index) => (
-              <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                {isMobile ? (
-                  <MobileAnimeCard anime={anime} index={index} />
-                ) : (
-                  <AnimeCard anime={anime} index={index} />
-                )}
-              </div>
-            ))
-          )}
-        </HorizontalScroll>
+        {seasonalError ? (
+          <SectionError onRetry={() => refetchSeasonal()} />
+        ) : (
+          <HorizontalScroll showArrows={!isMobile}>
+            {seasonalLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              seasonalAnime?.slice(0, 12).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        )}
       </ContentSection>
 
       {/* Ad Unit */}
@@ -161,21 +170,25 @@ const Index = () => {
         linkTo="/rankings?type=anime"
         linkText={t("section.rankings")}
       >
-        <HorizontalScroll showArrows={!isMobile}>
-          {popularLoading ? (
-            <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-          ) : (
-            popularAnime?.slice(0, 12).map((anime, index) => (
-              <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                {isMobile ? (
-                  <MobileAnimeCard anime={anime} index={index} />
-                ) : (
-                  <AnimeCard anime={anime} index={index} />
-                )}
-              </div>
-            ))
-          )}
-        </HorizontalScroll>
+        {popularError ? (
+          <SectionError onRetry={() => refetchPopular()} />
+        ) : (
+          <HorizontalScroll showArrows={!isMobile}>
+            {popularLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              popularAnime?.slice(0, 12).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        )}
       </ContentSection>
 
       {/* Coming Soon */}
@@ -185,21 +198,25 @@ const Index = () => {
         icon={Clock}
         linkTo="/anime?filter=upcoming"
       >
-        <HorizontalScroll showArrows={!isMobile}>
-          {upcomingLoading ? (
-            <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-          ) : (
-            upcomingAnime?.slice(0, 12).map((anime, index) => (
-              <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                {isMobile ? (
-                  <MobileAnimeCard anime={anime} index={index} />
-                ) : (
-                  <AnimeCard anime={anime} index={index} />
-                )}
-              </div>
-            ))
-          )}
-        </HorizontalScroll>
+        {upcomingError ? (
+          <SectionError onRetry={() => refetchUpcoming()} />
+        ) : (
+          <HorizontalScroll showArrows={!isMobile}>
+            {upcomingLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              upcomingAnime?.slice(0, 12).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        )}
       </ContentSection>
 
       {/* All-Time Top Rated */}
@@ -209,21 +226,25 @@ const Index = () => {
         icon={Trophy}
         linkTo="/rankings?type=anime&sort=score"
       >
-        <HorizontalScroll showArrows={!isMobile}>
-          {allTimeLoading ? (
-            <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-          ) : (
-            allTimeTop?.slice(0, 12).map((anime, index) => (
-              <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                {isMobile ? (
-                  <MobileAnimeCard anime={anime} index={index} />
-                ) : (
-                  <AnimeCard anime={anime} index={index} />
-                )}
-              </div>
-            ))
-          )}
-        </HorizontalScroll>
+        {allTimeError ? (
+          <SectionError onRetry={() => refetchAllTime()} />
+        ) : (
+          <HorizontalScroll showArrows={!isMobile}>
+            {allTimeLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              allTimeTop?.slice(0, 12).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        )}
       </ContentSection>
 
       {/* Classic Anime (Pre-2010) */}
@@ -234,21 +255,25 @@ const Index = () => {
         linkTo="/classics"
         linkText="Browse by Decade"
       >
-        <HorizontalScroll showArrows={!isMobile}>
-          {classicLoading ? (
-            <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-          ) : (
-            classicAnime?.slice(0, 12).map((anime, index) => (
-              <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                {isMobile ? (
-                  <MobileAnimeCard anime={anime} index={index} />
-                ) : (
-                  <AnimeCard anime={anime} index={index} />
-                )}
-              </div>
-            ))
-          )}
-        </HorizontalScroll>
+        {classicError ? (
+          <SectionError onRetry={() => refetchClassic()} />
+        ) : (
+          <HorizontalScroll showArrows={!isMobile}>
+            {classicLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              classicAnime?.slice(0, 12).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        )}
       </ContentSection>
 
       {/* Ad Unit */}
@@ -290,7 +315,9 @@ const Index = () => {
                 </Link>
               </div>
               <div className="space-y-2 sm:space-y-3">
-                {topMangaLoading ? (
+                {topMangaError ? (
+                  <SectionError onRetry={() => refetchTopManga()} />
+                ) : topMangaLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <CardSkeleton key={i} variant="compact" />
                   ))
@@ -314,7 +341,9 @@ const Index = () => {
                 </Link>
               </div>
               <div className="space-y-2 sm:space-y-3">
-                {trendingManhwaLoading ? (
+                {trendingManhwaError ? (
+                  <SectionError onRetry={() => refetchTrendingManhwa()} />
+                ) : trendingManhwaLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <CardSkeleton key={i} variant="compact" />
                   ))
@@ -338,7 +367,9 @@ const Index = () => {
                 </Link>
               </div>
               <div className="space-y-2 sm:space-y-3">
-                {trendingManhuaLoading ? (
+                {trendingManhuaError ? (
+                  <SectionError onRetry={() => refetchTrendingManhua()} />
+                ) : trendingManhuaLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <CardSkeleton key={i} variant="compact" />
                   ))
