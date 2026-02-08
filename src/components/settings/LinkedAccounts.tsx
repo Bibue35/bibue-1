@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface LinkedAccount {
   id: string;
@@ -44,6 +45,7 @@ const PROVIDERS = [
 export function LinkedAccounts() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [linkedAccounts, setLinkedAccounts] = useState<LinkedAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState<string | null>(null);
@@ -72,9 +74,35 @@ export function LinkedAccounts() {
     fetchLinkedAccounts();
   }, [fetchLinkedAccounts]);
 
+  // Handle redirect-based OAuth callbacks (mobile flow)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const oauthSuccess = params.get("oauth_success");
+    const oauthError = params.get("oauth_error");
+    const username = params.get("username");
+
+    if (oauthSuccess) {
+      const providerName = oauthSuccess === "anilist" ? "AniList" : "MyAnimeList";
+      toast({
+        title: `${providerName} connected`,
+        description: username ? `Linked as ${username}` : "Account linked successfully",
+      });
+      fetchLinkedAccounts();
+      // Clean URL params
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if (oauthError) {
+      toast({
+        variant: "destructive",
+        title: "Connection failed",
+        description: oauthError,
+      });
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, [fetchLinkedAccounts, toast]);
+
+  // Handle popup-based OAuth callbacks (desktop flow)
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
-      // CRITICAL: Validate message origin to prevent token interception
       const expectedOrigin = new URL(import.meta.env.VITE_SUPABASE_URL).origin;
       if (event.origin !== expectedOrigin) {
         return;
@@ -168,8 +196,9 @@ export function LinkedAccounts() {
       if (!token) throw new Error("Not authenticated");
 
       const functionName = providerId === "anilist" ? "anilist-oauth-callback" : "mal-oauth-callback";
+      const mode = isMobile ? "redirect" : "popup";
       const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${functionName}?initiate=true`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${functionName}?initiate=true&mode=${mode}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -178,6 +207,13 @@ export function LinkedAccounts() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to initiate");
 
+      if (isMobile) {
+        // Redirect flow for mobile - navigate directly
+        window.location.href = data.url;
+        return;
+      }
+
+      // Popup flow for desktop
       if (providerId === "mal" && data.codeVerifier) {
         sessionStorage.setItem("mal_code_verifier", data.codeVerifier);
       }
@@ -199,6 +235,9 @@ export function LinkedAccounts() {
             setConnecting(null);
           }
         }, 500);
+      } else {
+        // Popup blocked - fallback to redirect
+        window.location.href = data.url;
       }
     } catch (err: any) {
       toast({ variant: "destructive", title: "Connection failed", description: err.message });
