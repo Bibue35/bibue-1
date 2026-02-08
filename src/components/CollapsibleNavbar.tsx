@@ -138,18 +138,19 @@ export function CollapsibleNavbar() {
 
             {/* Right: actions — balanced with left side */}
             <div className="flex items-center justify-end gap-1">
+              {/* Search — desktop/tablet only */}
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsSearchOpen(true)}
-                className="rounded-full hover:bg-foreground/5 h-9 w-9"
+                className="hidden md:flex rounded-full hover:bg-foreground/5 h-9 w-9"
                 aria-label={t("nav.search")}
               >
                 <Search className="w-5 h-5" />
               </Button>
 
               {/* Theme toggle — desktop/tablet only */}
-              <div className="hidden sm:block">
+              <div className="hidden md:block">
                 <ThemeSelector />
               </div>
 
@@ -168,6 +169,18 @@ export function CollapsibleNavbar() {
           )}
         >
           <div className="p-3 space-y-0.5">
+            {/* Search — mobile only */}
+            <button
+              onClick={() => {
+                setIsSearchOpen(true);
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:bg-foreground/5 hover:text-foreground transition-colors"
+            >
+              <Search className="w-4 h-4" />
+              {t("nav.search")}
+            </button>
+
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -185,7 +198,7 @@ export function CollapsibleNavbar() {
             ))}
 
             {/* Theme toggle in mobile menu */}
-            <div className="sm:hidden flex items-center justify-between px-4 py-3 rounded-xl">
+            <div className="md:hidden flex items-center justify-between px-4 py-3 rounded-xl">
               <span className="text-sm font-medium text-muted-foreground">Theme</span>
               <ThemeSelector />
             </div>
