@@ -26,7 +26,7 @@ export function CollapsibleNavbar() {
     { href: "/anime", label: t("nav.anime") },
     { href: "/manga", label: t("nav.manga") },
     { href: "/news", label: t("nav.news") },
-    { href: "/rankings", label: "Rankings" },
+    { href: "/recommendations", label: "For You" },
   ];
 
   useEffect(() => {
