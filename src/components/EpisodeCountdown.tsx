@@ -40,10 +40,10 @@ export function EpisodeCountdown({ airingAt, episode, className, compact = false
   if (compact) {
     return (
       <div className={cn(
-        "inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded-full",
+        "inline-flex items-center gap-1 text-xs font-semibold px-1.5 py-0.5 rounded-full shadow-sm",
         isLive 
-          ? "bg-green-500/20 text-green-400 animate-pulse" 
-          : "bg-primary/10 text-primary",
+          ? "bg-green-600 text-white animate-pulse" 
+          : "bg-background/90 text-foreground backdrop-blur-sm",
         className
       )}>
         <Clock className="w-3 h-3" />
