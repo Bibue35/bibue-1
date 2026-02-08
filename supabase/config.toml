@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.mal-oauth-callback]
 verify_jwt = false
+
+[functions.watchlist-sync]
+verify_jwt = false
