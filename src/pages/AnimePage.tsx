@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History, Users } from "lucide-react";
+import { Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History, Users, Swords, Heart, Wand2, Rocket } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
@@ -14,7 +14,7 @@ import { ScheduleSection } from "@/components/ScheduleSection";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardSkeletonRow } from "@/components/skeletons";
-import { useTopAnime, useSeasonalAnime, useSearchAnime, useClassicAnime } from "@/hooks/useAnimeData";
+import { useTopAnime, useSeasonalAnime, useSearchAnime, useClassicAnime, useAllTimeTopAnime, useAnimeByGenre } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -89,6 +89,8 @@ export default function AnimePage() {
     await queryClient.invalidateQueries({ queryKey: ["topAnime"] });
     await queryClient.invalidateQueries({ queryKey: ["seasonalAnime"] });
     await queryClient.invalidateQueries({ queryKey: ["classicAnime"] });
+    await queryClient.invalidateQueries({ queryKey: ["allTimeTopAnime"] });
+    await queryClient.invalidateQueries({ queryKey: ["animeByGenre"] });
   }, [queryClient]);
 
   const { data: topAnime, isLoading: topLoading } = useTopAnime(1, filter);
@@ -98,6 +100,11 @@ export default function AnimePage() {
   const { data: seasonalAnime, isLoading: seasonalLoading } = useSeasonalAnime();
   const { data: classicAnime, isLoading: classicLoading } = useClassicAnime(1);
   const { data: searchResults, isLoading: searchLoading } = useSearchAnime(debouncedSearch, !!debouncedSearch);
+  const { data: allTimeTop, isLoading: allTimeTopLoading } = useAllTimeTopAnime(1);
+  const { data: actionAnime, isLoading: actionLoading } = useAnimeByGenre("Action", 1);
+  const { data: romanceAnime, isLoading: romanceLoading } = useAnimeByGenre("Romance", 1);
+  const { data: fantasyAnime, isLoading: fantasyLoading } = useAnimeByGenre("Fantasy", 1);
+  const { data: sciFiAnime, isLoading: sciFiLoading } = useAnimeByGenre("Sci-Fi", 1);
   
   const sortedSeasonalAnime = seasonalAnime?.slice().sort((a, b) => {
     const aIsAiring = a.status === "Currently Airing" ? 1 : 0;
@@ -321,6 +328,136 @@ export default function AnimePage() {
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
               classicAnime?.slice(0, 12).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* All-Time Top Rated */}
+      {!isSearching && (
+        <ContentSection
+          title="All-Time Top Rated"
+          titleJp="歴代最高評価"
+          icon={Trophy}
+          linkTo="/rankings"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {allTimeTopLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              allTimeTop?.slice(0, 12).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* Action Anime */}
+      {!isSearching && (
+        <ContentSection
+          title="Action"
+          titleJp="アクション"
+          icon={Swords}
+          linkTo="/anime?genre=1"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {actionLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              actionAnime?.slice(0, 12).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* Romance Anime */}
+      {!isSearching && (
+        <ContentSection
+          title="Romance"
+          titleJp="ロマンス"
+          icon={Heart}
+          linkTo="/anime?genre=22"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {romanceLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              romanceAnime?.slice(0, 12).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* Fantasy Anime */}
+      {!isSearching && (
+        <ContentSection
+          title="Fantasy"
+          titleJp="ファンタジー"
+          icon={Wand2}
+          linkTo="/anime?genre=10"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {fantasyLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              fantasyAnime?.slice(0, 12).map((anime, index) => (
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  {isMobile ? (
+                    <MobileAnimeCard anime={anime} index={index} />
+                  ) : (
+                    <AnimeCard anime={anime} index={index} />
+                  )}
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        </ContentSection>
+      )}
+
+      {/* Sci-Fi Anime */}
+      {!isSearching && (
+        <ContentSection
+          title="Sci-Fi"
+          titleJp="SF"
+          icon={Rocket}
+          linkTo="/anime?genre=24"
+        >
+          <HorizontalScroll showArrows={!isMobile}>
+            {sciFiLoading ? (
+              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              sciFiAnime?.slice(0, 12).map((anime, index) => (
                 <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                   {isMobile ? (
                     <MobileAnimeCard anime={anime} index={index} />
