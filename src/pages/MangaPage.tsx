@@ -15,7 +15,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTopManga, useSearchManga, useTrendingManhwa, useTrendingManhua } from "@/hooks/useAnimeData";
+import { useTopManga, useSearchManga, useTrendingManhwa, useTrendingManhua, useNewThisWeekManga, useCompletedManga } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -28,11 +28,13 @@ export default function MangaPage() {
   const genreId = searchParams.get("genre");
   const filterParam = searchParams.get("filter") as "manga" | "manhwa" | "manhua" | null;
   const sortParam = searchParams.get("sort") as SortOption | null;
+  const collectionParam = searchParams.get("collection") as "new" | "completed" | null;
   
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [localSearch, setLocalSearch] = useState(searchParams.get("q") || "");
   const [typeFilter, setTypeFilter] = useState<"all" | "manga" | "manhwa" | "manhua">(filterParam || "all");
   const [sortBy, setSortBy] = useState<SortOption>(sortParam || "popularity");
+  const [collection, setCollection] = useState<"new" | "completed" | null>(collectionParam);
   const [isFiltersOpen, setIsFiltersOpen] = useState(true);
   const resultsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
@@ -46,13 +48,15 @@ export default function MangaPage() {
     const urlFilter = searchParams.get("filter") as "manga" | "manhwa" | "manhua" | null;
     const urlSort = searchParams.get("sort") as SortOption | null;
     const urlQ = searchParams.get("q") || "";
+    const urlCollection = searchParams.get("collection") as "new" | "completed" | null;
 
     setTypeFilter(urlFilter || "all");
     setSortBy(urlSort || "popularity");
     setLocalSearch(urlQ);
+    setCollection(urlCollection);
 
-    // Auto-scroll to results grid when navigated via "See All"
-    if ((urlFilter || urlSort) && !urlQ) {
+    // Auto-scroll to results grid when navigated via "See All" or collection
+    if ((urlFilter || urlSort || urlCollection) && !urlQ) {
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
@@ -99,6 +103,8 @@ export default function MangaPage() {
   const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua');
   const { data: trendingManhwa, isLoading: trendingManhwaLoading } = useTrendingManhwa(1);
   const { data: trendingManhua, isLoading: trendingManhuaLoading } = useTrendingManhua(1);
+  const { data: newThisWeek, isLoading: newThisWeekLoading } = useNewThisWeekManga(1);
+  const { data: completedManga, isLoading: completedLoading } = useCompletedManga(1);
   const { data: searchResults, isLoading: searchLoading } = useSearchManga(
     debouncedSearch,
     isSearching,
@@ -108,6 +114,8 @@ export default function MangaPage() {
   // Select the correct data based on filter
   const getFilteredManga = () => {
     if (isSearching) return searchResults;
+    if (collection === "new") return newThisWeek;
+    if (collection === "completed") return completedManga;
     switch (typeFilter) {
       case "manga": return mangaOnly;
       case "manhwa": return manhwa;
@@ -118,6 +126,8 @@ export default function MangaPage() {
 
   const getFilterLoading = () => {
     if (isSearching) return searchLoading;
+    if (collection === "new") return newThisWeekLoading;
+    if (collection === "completed") return completedLoading;
     switch (typeFilter) {
       case "manga": return mangaLoading;
       case "manhwa": return manhwaLoading;

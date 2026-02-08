@@ -14,6 +14,8 @@ const animeCategories: Category[] = [
   // Curated collections first
   { id: "trending", label: "🔥 Trending", type: "collection", param: "filter=airing" },
   { id: "this-season", label: "📺 This Season", type: "collection", param: "filter=seasonal" },
+  { id: "new-this-week", label: "🆕 New This Week", type: "collection", param: "filter=new" },
+  { id: "completed", label: "✅ Completed", type: "collection", param: "filter=completed" },
   { id: "upcoming", label: "⏳ Coming Soon", type: "collection", param: "filter=upcoming" },
   { id: "popular", label: "⭐ Most Popular", type: "collection", param: "filter=bypopularity" },
   { id: "classics", label: "🏛️ Classics", type: "collection", param: "classics" },
@@ -37,6 +39,9 @@ const animeCategories: Category[] = [
 ];
 
 const mangaCategories: Category[] = [
+  // Curated collections
+  { id: "new-this-week", label: "🆕 New This Week", type: "collection", param: "collection=new" },
+  { id: "completed", label: "✅ Completed", type: "collection", param: "collection=completed" },
   // Genres
   { id: "g-action", label: "Action", type: "genre", param: "1" },
   { id: "g-adventure", label: "Adventure", type: "genre", param: "2" },
@@ -69,16 +74,18 @@ export function CategoryBar({ type, className }: CategoryBarProps) {
   const currentGenre = searchParams.get("genre");
   const currentFilter = searchParams.get("filter");
   const currentSort = searchParams.get("sort");
+  const currentCollection = searchParams.get("collection");
 
   const isActive = (cat: Category) => {
     if (cat.type === "genre") {
       return currentGenre === cat.param;
     }
-    // For collections, check if the current params match
-    if (cat.id === "classics") return false; // separate page
+    if (cat.id === "classics") return false;
     const params = new URLSearchParams(cat.param);
     const catFilter = params.get("filter");
     const catSort = params.get("sort");
+    const catCollection = params.get("collection");
+    if (catCollection) return currentCollection === catCollection;
     return currentFilter === catFilter && (catSort ? currentSort === catSort : !currentSort);
   };
 

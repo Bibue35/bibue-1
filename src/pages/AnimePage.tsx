@@ -24,10 +24,10 @@ import { cn } from "@/lib/utils";
 
 export default function AnimePage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialFilter = searchParams.get("filter") as 'airing' | 'upcoming' | 'bypopularity' | 'favorite' | 'seasonal' | undefined;
+  const initialFilter = searchParams.get("filter") as 'airing' | 'upcoming' | 'bypopularity' | 'favorite' | 'seasonal' | 'new' | 'completed' | undefined;
   const genreId = searchParams.get("genre");
   
-  const [filter, setFilter] = useState<'airing' | 'upcoming' | 'bypopularity' | 'favorite' | undefined>(
+  const [filter, setFilter] = useState<'airing' | 'upcoming' | 'bypopularity' | 'favorite' | 'new' | 'completed' | undefined>(
     initialFilter === 'seasonal' ? undefined : initialFilter
   );
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
