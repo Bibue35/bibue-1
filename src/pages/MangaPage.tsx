@@ -40,15 +40,23 @@ export default function MangaPage() {
   // Debounce search input (150ms default for faster response)
   const debouncedSearch = useDebounce(localSearch.trim());
 
-  // Sync URL when debounced value or filter changes
+  // Sync state FROM URL when params change (e.g. "See All" link clicked)
   useEffect(() => {
-    const params = new URLSearchParams();
-    if (debouncedSearch) params.set("q", debouncedSearch);
-    if (typeFilter !== "all") params.set("filter", typeFilter);
-    if (sortBy !== "popularity") params.set("sort", sortBy);
-    if (genreId) params.set("genre", genreId);
-    setSearchParams(params, { replace: true });
-  }, [debouncedSearch, typeFilter, sortBy, genreId, setSearchParams]);
+    const urlFilter = searchParams.get("filter") as "manga" | "manhwa" | "manhua" | null;
+    const urlSort = searchParams.get("sort") as SortOption | null;
+    const urlQ = searchParams.get("q") || "";
+
+    setTypeFilter(urlFilter || "all");
+    setSortBy(urlSort || "popularity");
+    setLocalSearch(urlQ);
+
+    // Auto-scroll to results grid when navigated via "See All"
+    if ((urlFilter || urlSort) && !urlQ) {
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [searchParams]);
 
   const isSearching = debouncedSearch.length > 0;
 
@@ -57,8 +65,24 @@ export default function MangaPage() {
   };
 
   const handleTypeFilter = (filter: "all" | "manga" | "manhwa" | "manhua") => {
+    isUserAction.current = true;
     setTypeFilter(filter);
   };
+
+  // Sync URL when state changes from user interaction
+  const isUserAction = useRef(false);
+
+  useEffect(() => {
+    if (!isUserAction.current && !localSearch) return;
+    isUserAction.current = false;
+
+    const params = new URLSearchParams();
+    if (debouncedSearch) params.set("q", debouncedSearch);
+    if (typeFilter !== "all") params.set("filter", typeFilter);
+    if (sortBy !== "popularity") params.set("sort", sortBy);
+    if (genreId) params.set("genre", genreId);
+    setSearchParams(params, { replace: true });
+  }, [debouncedSearch, typeFilter, sortBy, genreId, setSearchParams]);
 
   // Pull-to-refresh handler
   const handleRefresh = useCallback(async () => {
@@ -367,7 +391,7 @@ export default function MangaPage() {
                       key={f}
                       variant={typeFilter === f ? "default" : "ghost"}
                       size="sm"
-                      onClick={() => setTypeFilter(f)}
+                      onClick={() => { isUserAction.current = true; setTypeFilter(f); }}
                       className={cn(
                         "rounded-full text-xs capitalize h-8",
                         typeFilter !== f && "glass-button"
@@ -395,7 +419,7 @@ export default function MangaPage() {
                       key={sort.value}
                       variant={sortBy === sort.value ? "default" : "ghost"}
                       size="sm"
-                      onClick={() => setSortBy(sort.value)}
+                      onClick={() => { isUserAction.current = true; setSortBy(sort.value); }}
                       className={cn(
                         "rounded-full text-xs h-8",
                         sortBy !== sort.value && "glass-button"
@@ -442,7 +466,7 @@ export default function MangaPage() {
               <span className="text-xs text-muted-foreground">Active filters:</span>
               {typeFilter !== "all" && (
                 <button
-                  onClick={() => setTypeFilter("all")}
+                  onClick={() => { isUserAction.current = true; setTypeFilter("all"); }}
                   className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95 min-h-[36px] sm:min-h-0"
                 >
                   Type: {typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}
@@ -451,7 +475,7 @@ export default function MangaPage() {
               )}
               {sortBy !== "popularity" && (
                 <button
-                  onClick={() => setSortBy("popularity")}
+                  onClick={() => { isUserAction.current = true; setSortBy("popularity"); }}
                   className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95 min-h-[36px] sm:min-h-0"
                 >
                   Sort: {sortBy === "score" ? "Top Rated" : "Newest"}
