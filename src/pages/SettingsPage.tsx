@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { AvatarPicker } from "@/components/settings/AvatarPicker";
+import { LinkedAccounts } from "@/components/settings/LinkedAccounts";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -278,6 +279,9 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Linked Accounts Section */}
+        <LinkedAccounts />
 
         {/* Save Actions */}
         {hasChanges && (
