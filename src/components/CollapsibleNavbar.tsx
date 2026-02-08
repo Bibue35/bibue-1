@@ -38,6 +38,13 @@ export function CollapsibleNavbar() {
   ];
 
   // Debounced scroll handler for smoother performance
+  // When mobile menu opens, ensure navbar is visible
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      setIsVisible(true);
+    }
+  }, [isMobileMenuOpen]);
+
   const handleScroll = useCallback(() => {
     const currentScrollY = window.scrollY;
     
@@ -46,25 +53,28 @@ export function CollapsibleNavbar() {
       // Calculate scroll direction with threshold to prevent jitter
       const scrollDelta = currentScrollY - scrollRef.current;
       
-      // Only hide when scrolling down significantly (>10px) and past header
-      if (scrollDelta > 10 && currentScrollY > 150) {
-        setIsVisible(false);
-      } else if (scrollDelta < -5 || currentScrollY < 50) {
-        setIsVisible(true);
-      }
-      
-      // Smooth collapse transition
-      if (currentScrollY > 200) {
-        setIsNavExpanded(false);
-      } else if (currentScrollY < 100) {
-        setIsNavExpanded(true);
+      // Don't hide/collapse navbar while mobile menu is open
+      if (!isMobileMenuOpen) {
+        // Only hide when scrolling down significantly (>10px) and past header
+        if (scrollDelta > 10 && currentScrollY > 150) {
+          setIsVisible(false);
+        } else if (scrollDelta < -5 || currentScrollY < 50) {
+          setIsVisible(true);
+        }
+        
+        // Smooth collapse transition
+        if (currentScrollY > 200) {
+          setIsNavExpanded(false);
+        } else if (currentScrollY < 100) {
+          setIsNavExpanded(true);
+        }
       }
       
       setIsScrolled(currentScrollY > 30);
       scrollRef.current = currentScrollY;
       setLastScrollY(currentScrollY);
     });
-  }, []);
+  }, [isMobileMenuOpen]);
 
   useEffect(() => {
     let ticking = false;
