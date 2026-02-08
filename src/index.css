@@ -530,17 +530,15 @@
     display: none;
   }
 
-  /* Hide main scrollbar on mobile */
-  @media (max-width: 767px) {
-    html,
-    body {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    html::-webkit-scrollbar,
-    body::-webkit-scrollbar {
-      display: none;
-    }
+  /* Hide main scrollbar globally */
+  html,
+  body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
   }
 
   /* ============================================
