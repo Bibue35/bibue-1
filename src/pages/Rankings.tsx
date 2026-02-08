@@ -64,25 +64,25 @@ export default function RankingsPage() {
       <CollapsibleNavbar />
 
       {/* Hero - Clean text-only design */}
-      <section className="pt-32 pb-16">
-        <div className="container mx-auto px-4">
+      <section className="pt-28 sm:pt-32 pb-6 sm:pb-8">
+        <div className="container mx-auto px-3 sm:px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4 font-sacred">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
               Top Rankings
             </h1>
-            <p className="font-jp text-xl text-muted-foreground mb-2">ランキング</p>
-            <p className="text-muted-foreground text-lg">
+            <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-2">ランキング</p>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Discover the highest-rated anime and manga as voted by millions of fans worldwide.
             </p>
             {/* Decorative underline */}
-            <div className="mt-6 mx-auto w-24 h-1 rounded-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+            <div className="mt-4 sm:mt-6 mx-auto w-24 h-1 rounded-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           </div>
         </div>
       </section>
 
       {/* Type Toggle - Subtle, consistent styling */}
-      <section className="pb-8">
-        <div className="container mx-auto px-4">
+      <section className="pb-4 sm:pb-8">
+        <div className="container mx-auto px-3 sm:px-4">
           <div className="flex items-center justify-center gap-2">
             <button
               onClick={() => setActiveType("anime")}
@@ -111,8 +111,8 @@ export default function RankingsPage() {
       </section>
 
       {/* Filters */}
-      <section className="pb-8">
-        <div className="container mx-auto px-4">
+      <section className="pb-4 sm:pb-8">
+        <div className="container mx-auto px-3 sm:px-4">
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-muted-foreground" />
@@ -159,8 +159,8 @@ export default function RankingsPage() {
       </section>
 
       {/* Rankings Grid with enhanced visibility */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+      <section className="py-8 sm:py-16">
+        <div className="container mx-auto px-3 sm:px-4">
           {isLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {Array.from({ length: 25 }).map((_, i) => (
