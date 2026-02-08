@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Heart, Grid, List, Film, BookOpen, Trash2, Tag } from "lucide-react";
+import { Heart, Grid, List, Film, BookOpen, Trash2, Tag, BarChart3 } from "lucide-react";
+import { QuickProgressButton } from "@/components/QuickProgressButton";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -93,6 +94,15 @@ export default function WatchlistPage() {
                 <BookOpen className="w-4 h-4" />
                 <span>{mangaCount} Manga</span>
               </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/stats")}
+                className="gap-1.5 rounded-full"
+              >
+                <BarChart3 className="w-4 h-4" />
+                View Stats
+              </Button>
             </div>
           </div>
         </div>
@@ -268,6 +278,11 @@ export default function WatchlistPage() {
                         </SelectContent>
                       </Select>
                     </div>
+                    <QuickProgressButton
+                      mal_id={item.mal_id}
+                      media_type={item.media_type as "anime" | "manga"}
+                      className="mt-1"
+                    />
                   </div>
                 ) : (
                   <div
@@ -290,6 +305,10 @@ export default function WatchlistPage() {
                         <p className="text-xs text-muted-foreground capitalize">{item.media_type}</p>
                       </div>
                     </button>
+                    <QuickProgressButton
+                      mal_id={item.mal_id}
+                      media_type={item.media_type as "anime" | "manga"}
+                    />
                     <RatingPopover
                       currentScore={item.score}
                       onRate={(score) => updateScore.mutate({ mal_id: item.mal_id, media_type: item.media_type as "anime" | "manga", score })}

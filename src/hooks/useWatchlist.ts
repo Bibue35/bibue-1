@@ -182,6 +182,32 @@ export function useWatchlist() {
     },
   });
 
+  const updateProgress = useMutation({
+    mutationFn: async ({ mal_id, media_type, field, value }: { 
+      mal_id: number; 
+      media_type: "anime" | "manga"; 
+      field: "episodes_watched" | "chapters_read" | "last_episode_watched" | "last_chapter_read";
+      value: number;
+    }) => {
+      if (!user) throw new Error("Must be logged in");
+      
+      const { error } = await supabase
+        .from("watchlist")
+        .update({ [field]: value })
+        .eq("user_id", user.id)
+        .eq("mal_id", mal_id)
+        .eq("media_type", media_type);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["watchlist"] });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Failed to update progress", description: error.message, variant: "destructive" });
+    },
+  });
+
   const isInWatchlist = (mal_id: number, media_type: "anime" | "manga") => {
     return watchlist?.some((item) => item.mal_id === mal_id && item.media_type === media_type) ?? false;
   };
@@ -197,6 +223,7 @@ export function useWatchlist() {
     removeFromWatchlist,
     updateStatus,
     updateScore,
+    updateProgress,
     isInWatchlist,
     getWatchlistItem,
   };
