@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { AnimeDetailModal } from "./AnimeDetailModal";
 import { WatchlistButton } from "./WatchlistButton";
 import { TitleTooltip } from "./TitleTooltip";
+import { EpisodeCountdown } from "./EpisodeCountdown";
 
 interface AnimeCardProps {
   anime: Anime;
@@ -116,9 +117,19 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
             className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
           />
           {/* Episode count badge */}
-          {episodeCount && (
+          {episodeCount && !anime.nextAiringEpisode && (
             <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 bg-background/80 text-foreground text-[10px] sm:text-xs font-bold px-1 py-0.5 sm:px-1.5 rounded">
               E{episodeCount}
+            </div>
+          )}
+          {/* Airing countdown badge */}
+          {anime.nextAiringEpisode && (
+            <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2">
+              <EpisodeCountdown
+                airingAt={anime.nextAiringEpisode.airingAt}
+                episode={anime.nextAiringEpisode.episode}
+                compact
+              />
             </div>
           )}
           {/* Save button - appears on hover */}
