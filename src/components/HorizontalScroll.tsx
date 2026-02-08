@@ -98,21 +98,6 @@ export const HorizontalScroll = memo(function HorizontalScroll({
       
       {/* Scroll container */}
       <div className="relative">
-        {/* Left fade */}
-        <div
-          className={cn(
-            "absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none transition-opacity duration-300 hidden sm:block",
-            canScrollLeft ? "opacity-100" : "opacity-0"
-          )}
-        />
-        
-        {/* Right fade */}
-        <div
-          className={cn(
-            "absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none transition-opacity duration-300 hidden sm:block",
-            canScrollRight ? "opacity-100" : "opacity-0"
-          )}
-        />
         
         <div
           ref={scrollRef}
