@@ -1,4 +1,5 @@
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Dialog,
@@ -39,22 +40,21 @@ export function ResponsiveModal({
   const isMobile = useIsMobile();
 
   if (isMobile) {
-    return (
-      <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent
-          className={cn(
-            "max-h-[96vh] p-0 border-border/50 bg-background/95 backdrop-blur-xl rounded-t-2xl",
-            className
-          )}
-        >
-          <VisuallyHidden>
-            <DrawerTitle>{title}</DrawerTitle>
-          </VisuallyHidden>
-          <ScrollArea className="max-h-[calc(96vh-16px)] overflow-y-auto">
-            {children}
-          </ScrollArea>
-        </DrawerContent>
-      </Drawer>
+    if (!open) return null;
+    return createPortal(
+      <div
+        className={cn(
+          "fixed inset-0 z-50 bg-background overflow-y-auto overscroll-y-contain animate-fade-in",
+          className
+        )}
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
+        <VisuallyHidden>
+          <h2>{title}</h2>
+        </VisuallyHidden>
+        {children}
+      </div>,
+      document.body
     );
   }
 
