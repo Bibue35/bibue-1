@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Play, X, Star, Copy, Share2, Eye, Search, ChevronLeft, ChevronRight, MessageCircle, Send, User, ThumbsUp, ArrowUpDown, Users } from "lucide-react";
+import { Play, X, Star, Copy, Share2, Eye, Search, ChevronLeft, ChevronRight, ChevronDown, MessageCircle, Send, User, ThumbsUp, ArrowUpDown, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -123,8 +123,8 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
       onOpenChange={onOpenChange}
       title={anime?.title || "Anime Details"}
     >
-          {/* Hero Image Section */}
-          <div className="relative h-48 xs:h-56 sm:h-80 overflow-hidden">
+          {/* Hero Image Section - taller on mobile for Netflix feel */}
+          <div className="relative h-[65vh] xs:h-[55vh] sm:h-80 overflow-hidden">
             {isLoading ? (
               <Skeleton className="w-full h-full" />
             ) : (
@@ -134,11 +134,11 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                   alt={anime?.title}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-background/20" />
                 
                 {/* Title overlay */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
-                  <h1 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold font-sacred text-foreground mb-0.5 sm:mb-1 line-clamp-2">
+                  <h1 className="text-2xl xs:text-2xl sm:text-3xl md:text-4xl font-bold font-sacred text-foreground mb-0.5 sm:mb-1 line-clamp-2">
                     {anime?.title}
                   </h1>
                   <p className="text-xs sm:text-sm text-muted-foreground font-jp mb-2 sm:mb-3 line-clamp-1">
@@ -164,12 +164,13 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
               </>
             )}
 
-            {/* Close button */}
+            {/* Close / Back button - Netflix-style */}
             <button
               onClick={() => onOpenChange(false)}
-              className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 rounded-full bg-background/50 hover:bg-background/80 transition-colors"
+              className="absolute top-3 left-3 sm:top-4 sm:left-4 p-2 rounded-full bg-background/60 backdrop-blur-sm hover:bg-background/80 transition-colors sm:left-auto sm:right-4"
             >
-              <X className="w-4 h-4 sm:w-5 sm:h-5" />
+              <ChevronDown className="w-5 h-5 sm:hidden" />
+              <X className="w-5 h-5 hidden sm:block" />
             </button>
           </div>
 
