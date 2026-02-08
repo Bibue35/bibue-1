@@ -47,6 +47,14 @@ serve(async (req) => {
       );
     }
 
+    // Limit query size to prevent abuse
+    if (query.length > 5000) {
+      return new Response(
+        JSON.stringify({ error: "Query too large" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Create cache key from query + variables
     const cacheKey = JSON.stringify({ query: query.trim(), variables });
     const cached = getCached(cacheKey);
