@@ -33,23 +33,8 @@ export const SwipeNavigationWrapper = memo(function SwipeNavigationWrapper({
     <div ref={containerRef} className="relative min-h-screen" style={{ touchAction: "pan-y" }}>
       {children}
 
-      {/* Edge vignette hints — mobile only, on swipable pages */}
-      {isMobile && isSwipablePage && canSwipeRight && (
-        <div
-          className="fixed left-0 top-0 bottom-0 w-5 z-40 pointer-events-none"
-          style={{
-            background: "linear-gradient(to right, hsl(var(--foreground) / 0.06), transparent)",
-          }}
-        />
-      )}
-      {isMobile && isSwipablePage && canSwipeLeft && (
-        <div
-          className="fixed right-0 top-0 bottom-0 w-5 z-40 pointer-events-none"
-          style={{
-            background: "linear-gradient(to left, hsl(var(--foreground) / 0.06), transparent)",
-          }}
-        />
-      )}
+
+
 
       {/* Navigation indicator pill */}
       <div
