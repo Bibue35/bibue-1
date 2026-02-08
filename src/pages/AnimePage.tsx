@@ -37,11 +37,39 @@ export default function AnimePage() {
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   
+  // Sync state FROM URL when params change (e.g. "See All" link clicked)
+  useEffect(() => {
+    const urlFilter = searchParams.get("filter") as typeof initialFilter;
+    const urlQ = searchParams.get("q") || "";
+    
+    const mappedFilter = urlFilter === 'seasonal' ? undefined : urlFilter || undefined;
+    setFilter(mappedFilter);
+    setLocalSearch(urlQ);
+
+    // Auto-scroll to results grid when navigated via "See All"
+    if (urlFilter && !urlQ) {
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [searchParams]);
+
   // Debounce search input (150ms default for faster response)
   const debouncedSearch = useDebounce(localSearch.trim());
 
-  // Sync URL when debounced value changes
+  // Sync URL when debounced value changes (only from user interaction)
+  const isUserAction = useRef(false);
+  
+  const handleFilterChange = (newFilter: typeof filter) => {
+    isUserAction.current = true;
+    setFilter(newFilter);
+  };
+
   useEffect(() => {
+    // Skip URL sync if change came from URL (avoid loop)
+    if (!isUserAction.current && !localSearch) return;
+    isUserAction.current = false;
+    
     const params = new URLSearchParams();
     if (debouncedSearch) params.set("q", debouncedSearch);
     if (filter) params.set("filter", filter);
@@ -53,10 +81,6 @@ export default function AnimePage() {
 
   const clearSearch = () => {
     setLocalSearch("");
-  };
-
-  const handleFilterChange = (newFilter: typeof filter) => {
-    setFilter(newFilter);
   };
 
   // Pull-to-refresh handler
@@ -350,7 +374,7 @@ export default function AnimePage() {
                       key={sort.value}
                       variant={sortBy === sort.value ? "default" : "ghost"}
                       size="sm"
-                      onClick={() => setSortBy(sort.value)}
+                      onClick={() => { isUserAction.current = true; setSortBy(sort.value); }}
                       className={cn(
                         "rounded-full text-xs h-8",
                         sortBy !== sort.value && "glass-button"
@@ -397,7 +421,7 @@ export default function AnimePage() {
               <span className="text-xs text-muted-foreground">Active filters:</span>
               {filter && (
                 <button
-                  onClick={() => setFilter(undefined)}
+                  onClick={() => { isUserAction.current = true; setFilter(undefined); }}
                   className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95 min-h-[36px] sm:min-h-0"
                 >
                   Status: {filter === 'bypopularity' ? 'Popular' : filter.charAt(0).toUpperCase() + filter.slice(1)}
@@ -406,7 +430,7 @@ export default function AnimePage() {
               )}
               {sortBy !== 'popularity' && (
                 <button
-                  onClick={() => setSortBy('popularity')}
+                  onClick={() => { isUserAction.current = true; setSortBy('popularity'); }}
                   className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95 min-h-[36px] sm:min-h-0"
                 >
                   Sort: {sortBy === 'score' ? 'Top Rated' : 'Trending'}
