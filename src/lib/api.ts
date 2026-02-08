@@ -276,9 +276,10 @@ const MEDIA_FRAGMENT = `
 `;
 
 // Anime endpoints
-export async function getTopAnime(page = 1, limit = 25, filter?: "airing" | "upcoming" | "bypopularity" | "favorite", language: SupportedLanguage = "en"): Promise<Anime[]> {
+export async function getTopAnime(page = 1, limit = 25, filter?: "airing" | "upcoming" | "bypopularity" | "favorite" | "new" | "completed", language: SupportedLanguage = "en"): Promise<Anime[]> {
   let sort = "POPULARITY_DESC";
   let status: string | undefined;
+  let startDateGreater: number | undefined;
   
   if (filter === "airing") {
     status = "RELEASING";
@@ -290,19 +291,28 @@ export async function getTopAnime(page = 1, limit = 25, filter?: "airing" | "upc
     sort = "POPULARITY_DESC";
   } else if (filter === "favorite") {
     sort = "FAVOURITES_DESC";
+  } else if (filter === "new") {
+    sort = "START_DATE_DESC";
+    // Last 7 days
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    startDateGreater = weekAgo.getFullYear() * 10000 + (weekAgo.getMonth() + 1) * 100 + weekAgo.getDate();
+  } else if (filter === "completed") {
+    status = "FINISHED";
+    sort = "POPULARITY_DESC";
   }
 
   const query = `
-    query ($page: Int, $perPage: Int, $sort: [MediaSort], $status: MediaStatus) {
+    query ($page: Int, $perPage: Int, $sort: [MediaSort], $status: MediaStatus, $startDateGreater: FuzzyDateInt) {
       Page(page: $page, perPage: $perPage) {
-        media(type: ANIME, sort: $sort, status: $status, isAdult: false) {
+        media(type: ANIME, sort: $sort, status: $status, startDate_greater: $startDateGreater, isAdult: false) {
           ${MEDIA_FRAGMENT}
         }
       }
     }
   `;
 
-  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, sort: [sort], status });
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, sort: [sort], status, startDateGreater });
   return data.Page.media.map(m => toAnime(m, language));
 }
 
@@ -530,6 +540,40 @@ export async function getTopManga(
   `;
 
   const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, format, countryOfOrigin, sort: [sortValue] });
+  return data.Page.media.map(m => toManga(m, language));
+}
+
+export async function getNewThisWeekManga(page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Manga[]> {
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const startDateGreater = weekAgo.getFullYear() * 10000 + (weekAgo.getMonth() + 1) * 100 + weekAgo.getDate();
+
+  const query = `
+    query ($page: Int, $perPage: Int, $startDateGreater: FuzzyDateInt) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: MANGA, sort: [START_DATE_DESC], startDate_greater: $startDateGreater, isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, startDateGreater });
+  return data.Page.media.map(m => toManga(m, language));
+}
+
+export async function getCompletedManga(page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Manga[]> {
+  const query = `
+    query ($page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: MANGA, sort: [POPULARITY_DESC], status: FINISHED, isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit });
   return data.Page.media.map(m => toManga(m, language));
 }
 

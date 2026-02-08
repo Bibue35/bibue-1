@@ -23,19 +23,21 @@ import {
   getTrendingManhwa,
   getTrendingManhua,
   getMangaByGenre,
+  getNewThisWeekManga,
+  getCompletedManga,
   Anime,
   Manga,
   ScheduleItem,
   SupportedLanguage,
 } from "@/lib/api";
 
-export function useTopAnime(page = 1, filter?: 'airing' | 'upcoming' | 'bypopularity' | 'favorite') {
+export function useTopAnime(page = 1, filter?: 'airing' | 'upcoming' | 'bypopularity' | 'favorite' | 'new' | 'completed') {
   const { language } = useLanguage();
   return useQuery({
     queryKey: ["topAnime", page, filter, language],
     queryFn: () => getTopAnime(page, 25, filter, language as SupportedLanguage),
-    staleTime: 1000 * 60 * 10, // 10 minutes - increased for less refetching
-    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
   });
 }
 
@@ -284,5 +286,25 @@ export function useMangaByGenre(
     enabled: !!genre,
     staleTime: 1000 * 60 * 15,
     gcTime: 1000 * 60 * 60,
+  });
+}
+
+export function useNewThisWeekManga(page = 1) {
+  const { language } = useLanguage();
+  return useQuery({
+    queryKey: ["newThisWeekManga", page, language],
+    queryFn: () => getNewThisWeekManga(page, 25, language as SupportedLanguage),
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
+  });
+}
+
+export function useCompletedManga(page = 1) {
+  const { language } = useLanguage();
+  return useQuery({
+    queryKey: ["completedManga", page, language],
+    queryFn: () => getCompletedManga(page, 25, language as SupportedLanguage),
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
   });
 }
