@@ -530,6 +530,19 @@
     display: none;
   }
 
+  /* Hide main scrollbar on mobile */
+  @media (max-width: 767px) {
+    html,
+    body {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
   /* ============================================
    * THEME-SPECIFIC EFFECTS
    * Light Mode | Dark Mode
