@@ -158,6 +158,14 @@ export function CollapsibleNavbar() {
           </div>
         </div>
 
+        {/* Mobile Menu Backdrop */}
+        {isMobileMenuOpen && (
+          <div
+            className="md:hidden fixed inset-0 z-[54] bg-black/40 backdrop-blur-sm"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
+
         {/* Mobile Menu */}
         <div
           className={cn(
