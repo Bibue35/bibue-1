@@ -124,24 +124,32 @@ Deno.serve(async (req) => {
       const userToken = stateParts.slice(3).join(":");
 
       try {
+        console.log("MAL token exchange - code length:", code?.length, "verifier:", codeVerifier, "redirectUri:", redirectUri);
+        const tokenBody = new URLSearchParams({
+          client_id: clientId,
+          client_secret: clientSecret,
+          grant_type: "authorization_code",
+          code: code!,
+          redirect_uri: redirectUri,
+          code_verifier: codeVerifier,
+        });
+        console.log("MAL token request body:", tokenBody.toString());
+        
         const tokenRes = await fetch("https://myanimelist.net/v1/oauth2/token", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({
-            client_id: clientId,
-            client_secret: clientSecret,
-            grant_type: "authorization_code",
-            code: code!,
-            redirect_uri: redirectUri,
-            code_verifier: codeVerifier,
-          }),
+          body: tokenBody,
         });
 
-        const tokenData = await tokenRes.json();
+        const tokenText = await tokenRes.text();
+        console.log("MAL token response status:", tokenRes.status, "body:", tokenText);
+        
+        let tokenData;
+        try { tokenData = JSON.parse(tokenText); } catch { tokenData = {}; }
 
         if (!tokenData.access_token) {
           return Response.redirect(
-            `${allowedOrigin}/settings?oauth_error=${encodeURIComponent("Failed to get MAL token")}`,
+            `${allowedOrigin}/settings?oauth_error=${encodeURIComponent("Failed to get MAL token: " + tokenText.substring(0, 200))}`,
             302
           );
         }
