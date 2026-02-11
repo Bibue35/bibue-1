@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MarkdownContent } from "@/components/MarkdownContent";
+import { lazy, Suspense } from "react";
+const MarkdownContent = lazy(() => import("@/components/MarkdownContent").then(m => ({ default: m.MarkdownContent })));
 import { MessageCircle, ThumbsUp, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -60,10 +61,12 @@ export function DiscussionCard({ discussion }: DiscussionCardProps) {
               {discussion.title}
             </h3>
             
-            <MarkdownContent 
-              content={discussion.content.slice(0, 200) + (discussion.content.length > 200 ? "..." : "")} 
-              className="text-muted-foreground text-sm line-clamp-2 mt-1"
-            />
+            <Suspense fallback={<p className="text-muted-foreground text-sm line-clamp-2 mt-1">{discussion.content.slice(0, 200)}</p>}>
+              <MarkdownContent 
+                content={discussion.content.slice(0, 200) + (discussion.content.length > 200 ? "..." : "")} 
+                className="text-muted-foreground text-sm line-clamp-2 mt-1"
+              />
+            </Suspense>
 
             {/* Footer */}
             <div className="flex flex-wrap items-center gap-3 mt-3 text-sm">
