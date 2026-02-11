@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offline - Bibue</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:Inter,system-ui,sans-serif;background:#09090b;color:#fafafa;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:1.5rem}
+    .container{max-width:420px}
+    .icon{font-size:4rem;margin-bottom:1.5rem;opacity:.7}
+    h1{font-size:1.5rem;font-weight:600;margin-bottom:.75rem}
+    p{color:#a1a1aa;line-height:1.6;margin-bottom:1.5rem;font-size:.95rem}
+    button{background:#7c3aed;color:#fff;border:none;padding:.75rem 2rem;border-radius:.5rem;font-size:.95rem;cursor:pointer;transition:background .2s}
+    button:hover{background:#6d28d9}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">📡</div>
+    <h1>You're offline</h1>
+    <p>It looks like you've lost your internet connection. Some content may still be available from your last visit.</p>
+    <button onclick="location.reload()">Try again</button>
+  </div>
+</body>
+</html>

@@ -6,6 +6,7 @@ const IMAGE_CACHE = `images-${CACHE_VERSION}`;
 const STATIC_ASSETS = [
   '/',
   '/favicon.ico',
+  '/offline.html',
 ];
 
 // Install: pre-cache critical assets
@@ -60,9 +61,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Default: network only (don't cache HTML navigations to keep SPA fresh)
+  // Default: network with offline fallback for navigation requests
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request).catch(() => caches.match('/offline.html'))
+    );
+    return;
+  }
+
   event.respondWith(fetch(request));
-});
 
 // Cache-first: use cache, fallback to network
 async function cacheFirst(request, cacheName) {
