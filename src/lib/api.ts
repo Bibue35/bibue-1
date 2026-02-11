@@ -162,8 +162,9 @@ async function anilistQuery<T>(query: string, variables: Record<string, unknown>
 
 // Convert AniList media to our Anime format
 function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime {
-  // Use the highest quality image available
-  const imageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
+  // Use large/extraLarge for hero/carousel, medium for card thumbnails
+  const largeImageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
+  const cardImageUrl = media.coverImage.large || media.coverImage.medium || largeImageUrl;
   
   // IMPORTANT: Always use AniList ID for consistency across the app
   // This ensures the ID passed to cards matches the ID used for detail fetches
@@ -175,8 +176,8 @@ function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime
     title_english: media.title.english || undefined,
     title_japanese: media.title.native || undefined,
     images: {
-      jpg: { large_image_url: imageUrl, image_url: imageUrl },
-      webp: { large_image_url: imageUrl, image_url: imageUrl },
+      jpg: { large_image_url: largeImageUrl, image_url: cardImageUrl },
+      webp: { large_image_url: largeImageUrl, image_url: cardImageUrl },
     },
     trailer: media.trailer ? { youtube_id: media.trailer.id, url: media.trailer.site === "youtube" ? `https://youtube.com/watch?v=${media.trailer.id}` : undefined } : undefined,
     synopsis: media.description?.replace(/<[^>]*>/g, "") || undefined,
@@ -205,8 +206,9 @@ function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime
 
 // Convert AniList media to our Manga format
 function toManga(media: AniListMedia, language: SupportedLanguage = "en"): Manga {
-  // Use the highest quality image available
-  const imageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
+  // Use large/extraLarge for hero/detail, medium for card thumbnails
+  const largeImageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
+  const cardImageUrl = media.coverImage.large || media.coverImage.medium || largeImageUrl;
   
   // IMPORTANT: Always use AniList ID for consistency across the app
   // This ensures the ID passed to cards matches the ID used for detail fetches
@@ -218,8 +220,8 @@ function toManga(media: AniListMedia, language: SupportedLanguage = "en"): Manga
     title_english: media.title.english || undefined,
     title_japanese: media.title.native || undefined,
     images: {
-      jpg: { large_image_url: imageUrl, image_url: imageUrl },
-      webp: { large_image_url: imageUrl, image_url: imageUrl },
+      jpg: { large_image_url: largeImageUrl, image_url: cardImageUrl },
+      webp: { large_image_url: largeImageUrl, image_url: cardImageUrl },
     },
     synopsis: media.description?.replace(/<[^>]*>/g, "") || undefined,
     score: media.averageScore ? media.averageScore / 10 : undefined,
