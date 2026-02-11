@@ -24,9 +24,13 @@ export const HorizontalScroll = memo(function HorizontalScroll({
 
   const checkScroll = useCallback(() => {
     if (!scrollRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-    setCanScrollLeft(scrollLeft > 0);
-    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    // Use requestAnimationFrame to batch layout reads and avoid forced reflows
+    requestAnimationFrame(() => {
+      if (!scrollRef.current) return;
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    });
   }, []);
 
   useEffect(() => {
