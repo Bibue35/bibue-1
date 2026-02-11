@@ -156,6 +156,7 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
                 src={currentItem.images.webp.large_image_url || currentItem.images.webp.image_url}
                 alt={currentItem.title}
                 loading="eager"
+                fetchPriority="high"
                 decoding="async"
                 className="w-full h-full object-cover object-top will-change-transform"
                 style={{
