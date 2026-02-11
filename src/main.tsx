@@ -11,6 +11,13 @@ if (storedFlavor && storedFlavor !== "default") {
   document.documentElement.classList.add(`theme-${storedFlavor}`);
 }
 
+// Register service worker for caching
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+
 createRoot(document.getElementById("root")!).render(
   <NextThemesProvider
     attribute="class"
