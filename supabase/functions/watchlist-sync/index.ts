@@ -29,6 +29,32 @@ const MAL_STATUS_MAP: Record<string, string> = {
   plan_to_read: "plan_to_watch",
 };
 
+// --- Token Decryption Helper (AES-256-GCM) ---
+async function getEncryptionKey(): Promise<CryptoKey> {
+  const keyHex = Deno.env.get("TOKEN_ENCRYPTION_KEY");
+  if (!keyHex || keyHex.length < 32) {
+    throw new Error("TOKEN_ENCRYPTION_KEY not configured or too short");
+  }
+  const keyBytes = new TextEncoder().encode(keyHex.slice(0, 32));
+  return crypto.subtle.importKey("raw", keyBytes, "AES-GCM", false, ["encrypt", "decrypt"]);
+}
+
+async function decryptToken(encrypted: string): Promise<string> {
+  try {
+    const key = await getEncryptionKey();
+    const combined = Uint8Array.from(atob(encrypted), (c) => c.charCodeAt(0));
+    const iv = combined.slice(0, 12);
+    const ciphertext = combined.slice(12);
+    const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext);
+    return new TextDecoder().decode(decrypted);
+  } catch {
+    // If decryption fails, token might be stored in plaintext (legacy)
+    // Return as-is for backward compatibility during migration
+    return encrypted;
+  }
+}
+// --- End Decryption Helper ---
+
 interface SyncResult {
   added: number;
   updated: number;
@@ -95,7 +121,7 @@ async function fetchAniListList(
       const title = media.title?.english || media.title?.romaji || media.title?.native || "Unknown";
 
       items.push({
-        mal_id: media.id, // Using AniList ID as our primary ID
+        mal_id: media.id,
         title,
         title_japanese: media.title?.native || null,
         image_url: imageUrl,
@@ -159,7 +185,7 @@ async function fetchMALList(
       items.push({
         mal_id: node.id,
         title: node.title || "Unknown",
-        title_japanese: null, // MAL basic API doesn't return Japanese title easily
+        title_japanese: null,
         image_url: node.main_picture?.large || node.main_picture?.medium || null,
         score: listStatus.score > 0 ? listStatus.score : null,
         status: MAL_STATUS_MAP[listStatus.status] || "plan_to_watch",
@@ -255,6 +281,9 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Decrypt the access token before using it
+    const decryptedAccessToken = await decryptToken(account.access_token);
+
     // Fetch existing watchlist for this user
     const { data: existingWatchlist } = await supabase
       .from("watchlist")
@@ -282,12 +311,12 @@ Deno.serve(async (req) => {
       try {
         if (provider === "anilist") {
           items = await fetchAniListList(
-            account.access_token,
+            decryptedAccessToken,
             account.provider_user_id,
             mt === "anime" ? "ANIME" : "MANGA"
           );
         } else {
-          items = await fetchMALList(account.access_token, mt as "anime" | "manga");
+          items = await fetchMALList(decryptedAccessToken, mt as "anime" | "manga");
         }
       } catch (fetchErr) {
         console.error(`Failed to fetch ${mt} list from ${provider}:`, fetchErr);

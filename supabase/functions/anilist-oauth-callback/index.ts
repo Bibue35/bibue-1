@@ -6,6 +6,28 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+// --- Token Encryption Helpers (AES-256-GCM) ---
+async function getEncryptionKey(): Promise<CryptoKey> {
+  const keyHex = Deno.env.get("TOKEN_ENCRYPTION_KEY");
+  if (!keyHex || keyHex.length < 32) {
+    throw new Error("TOKEN_ENCRYPTION_KEY not configured or too short");
+  }
+  const keyBytes = new TextEncoder().encode(keyHex.slice(0, 32));
+  return crypto.subtle.importKey("raw", keyBytes, "AES-GCM", false, ["encrypt", "decrypt"]);
+}
+
+async function encryptToken(plaintext: string): Promise<string> {
+  const key = await getEncryptionKey();
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encoded = new TextEncoder().encode(plaintext);
+  const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, encoded);
+  const combined = new Uint8Array(iv.length + new Uint8Array(ciphertext).length);
+  combined.set(iv);
+  combined.set(new Uint8Array(ciphertext), iv.length);
+  return btoa(String.fromCharCode(...combined));
+}
+// --- End Encryption Helpers ---
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -51,8 +73,8 @@ Deno.serve(async (req) => {
     const redirectUri = `${Deno.env.get("SUPABASE_URL")}/functions/v1/anilist-oauth-callback`;
     const state = crypto.randomUUID();
 
-    // Check if this is a mobile/redirect flow - store user token in state
-    const mode = url.searchParams.get("mode"); // "redirect" or "popup"
+    // Always use redirect flow
+    const mode = url.searchParams.get("mode");
     const statePayload = mode === "redirect"
       ? `${state}:redirect:${token}`
       : state;
@@ -109,14 +131,14 @@ Deno.serve(async (req) => {
 
       if (!tokenData.access_token) {
         const errorMsg = "Failed to get token from AniList";
-        if (isRedirectFlow && allowedOrigin) {
+        if (allowedOrigin) {
           return Response.redirect(
             `${allowedOrigin}/settings?oauth_error=${encodeURIComponent(errorMsg)}`,
             302
           );
         }
         return new Response(
-          `<html><body><h1>${errorMsg}</h1><script>setTimeout(()=>window.close(),3000)</script></body></html>`,
+          `<html><body><h1>${errorMsg}</h1></body></html>`,
           { headers: { "Content-Type": "text/html" } }
         );
       }
@@ -138,21 +160,20 @@ Deno.serve(async (req) => {
 
       if (!anilistUser) {
         const errorMsg = "Failed to fetch AniList profile";
-        if (isRedirectFlow && allowedOrigin) {
+        if (allowedOrigin) {
           return Response.redirect(
             `${allowedOrigin}/settings?oauth_error=${encodeURIComponent(errorMsg)}`,
             302
           );
         }
         return new Response(
-          `<html><body><h1>${errorMsg}</h1><script>setTimeout(()=>window.close(),3000)</script></body></html>`,
+          `<html><body><h1>${errorMsg}</h1></body></html>`,
           { headers: { "Content-Type": "text/html" } }
         );
       }
 
-      // Save account server-side and redirect back (always use redirect flow)
+      // Save account server-side (always redirect flow)
       if (!userToken) {
-        // No user token in state - cannot authenticate, redirect with error
         if (allowedOrigin) {
           return Response.redirect(
             `${allowedOrigin}/settings?oauth_error=${encodeURIComponent("Session expired, please try again")}`,
@@ -178,6 +199,12 @@ Deno.serve(async (req) => {
         );
       }
 
+      // Encrypt tokens before storage
+      const encryptedAccessToken = await encryptToken(tokenData.access_token);
+      const encryptedRefreshToken = tokenData.refresh_token
+        ? await encryptToken(tokenData.refresh_token)
+        : null;
+
       const userId = claims.claims.sub as string;
       await supabase
         .from("linked_accounts")
@@ -187,8 +214,8 @@ Deno.serve(async (req) => {
             provider: "anilist",
             provider_user_id: String(anilistUser.id),
             provider_username: anilistUser.name,
-            access_token: tokenData.access_token,
-            refresh_token: tokenData.refresh_token || null,
+            access_token: encryptedAccessToken,
+            refresh_token: encryptedRefreshToken,
             token_expires_at: tokenData.expires_in
               ? new Date(Date.now() + tokenData.expires_in * 1000).toISOString()
               : null,
@@ -201,14 +228,14 @@ Deno.serve(async (req) => {
         302
       );
     } catch (err) {
-      if (isRedirectFlow && allowedOrigin) {
+      if (allowedOrigin) {
         return Response.redirect(
           `${allowedOrigin}/settings?oauth_error=${encodeURIComponent(err.message)}`,
           302
         );
       }
       return new Response(
-        `<html><body><h1>Error linking AniList</h1><p>${err.message}</p><script>setTimeout(()=>window.close(),3000)</script></body></html>`,
+        `<html><body><h1>Error linking AniList</h1></body></html>`,
         { headers: { "Content-Type": "text/html" } }
       );
     }

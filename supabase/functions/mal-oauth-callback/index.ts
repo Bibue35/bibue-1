@@ -16,15 +16,27 @@ function generateCodeVerifier(): string {
     .replace(/=+$/, "");
 }
 
-async function generateCodeChallenge(verifier: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(verifier);
-  const digest = await crypto.subtle.digest("SHA-256", data);
-  return btoa(String.fromCharCode(...new Uint8Array(digest)))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
+// --- Token Encryption Helpers (AES-256-GCM) ---
+async function getEncryptionKey(): Promise<CryptoKey> {
+  const keyHex = Deno.env.get("TOKEN_ENCRYPTION_KEY");
+  if (!keyHex || keyHex.length < 32) {
+    throw new Error("TOKEN_ENCRYPTION_KEY not configured or too short");
+  }
+  const keyBytes = new TextEncoder().encode(keyHex.slice(0, 32));
+  return crypto.subtle.importKey("raw", keyBytes, "AES-GCM", false, ["encrypt", "decrypt"]);
 }
+
+async function encryptToken(plaintext: string): Promise<string> {
+  const key = await getEncryptionKey();
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encoded = new TextEncoder().encode(plaintext);
+  const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, encoded);
+  const combined = new Uint8Array(iv.length + new Uint8Array(ciphertext).length);
+  combined.set(iv);
+  combined.set(new Uint8Array(ciphertext), iv.length);
+  return btoa(String.fromCharCode(...combined));
+}
+// --- End Encryption Helpers ---
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -70,13 +82,12 @@ Deno.serve(async (req) => {
     // MAL works best with "plain" PKCE: challenge = verifier
     const codeChallenge = codeVerifier;
 
-    // Check if this is a mobile/redirect flow - encode verifier + token in state
-    const mode = url.searchParams.get("mode"); // "redirect" or "popup"
+    // Always use redirect flow - encode verifier + token in state
+    const mode = url.searchParams.get("mode");
     const stateId = crypto.randomUUID();
 
     let state: string;
     if (mode === "redirect") {
-      // For redirect flow, encode verifier and token in state so we can complete server-side
       state = `${stateId}:redirect:${codeVerifier}:${token}`;
     } else {
       state = stateId;
@@ -124,7 +135,6 @@ Deno.serve(async (req) => {
       const userToken = stateParts.slice(3).join(":");
 
       try {
-        console.log("MAL token exchange - code length:", code?.length, "verifier:", codeVerifier, "redirectUri:", redirectUri);
         const tokenBody = new URLSearchParams({
           client_id: clientId,
           client_secret: clientSecret,
@@ -133,7 +143,6 @@ Deno.serve(async (req) => {
           redirect_uri: redirectUri,
           code_verifier: codeVerifier,
         });
-        console.log("MAL token request body:", tokenBody.toString());
         
         const tokenRes = await fetch("https://myanimelist.net/v1/oauth2/token", {
           method: "POST",
@@ -142,14 +151,12 @@ Deno.serve(async (req) => {
         });
 
         const tokenText = await tokenRes.text();
-        console.log("MAL token response status:", tokenRes.status, "body:", tokenText);
-        
         let tokenData;
         try { tokenData = JSON.parse(tokenText); } catch { tokenData = {}; }
 
         if (!tokenData.access_token) {
           return Response.redirect(
-            `${allowedOrigin}/settings?oauth_error=${encodeURIComponent("Failed to get MAL token: " + tokenText.substring(0, 200))}`,
+            `${allowedOrigin}/settings?oauth_error=${encodeURIComponent("Failed to get MAL token")}`,
             302
           );
         }
@@ -174,6 +181,12 @@ Deno.serve(async (req) => {
           );
         }
 
+        // Encrypt tokens before storage
+        const encryptedAccessToken = await encryptToken(tokenData.access_token);
+        const encryptedRefreshToken = tokenData.refresh_token
+          ? await encryptToken(tokenData.refresh_token)
+          : null;
+
         const userId = claims.claims.sub as string;
         await supabase
           .from("linked_accounts")
@@ -183,8 +196,8 @@ Deno.serve(async (req) => {
               provider: "mal",
               provider_user_id: String(malUser.id),
               provider_username: malUser.name,
-              access_token: tokenData.access_token,
-              refresh_token: tokenData.refresh_token || null,
+              access_token: encryptedAccessToken,
+              refresh_token: encryptedRefreshToken,
               token_expires_at: tokenData.expires_in
                 ? new Date(Date.now() + tokenData.expires_in * 1000).toISOString()
                 : null,
@@ -204,141 +217,17 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Popup flow: postMessage back to opener
-    const safeOrigin = allowedOrigin.replace(/[<>"'&]/g, '');
-    const safeCode = String(code).replace(/[<>"'&]/g, '');
-
-    const postMessageScript = allowedOrigin
-      ? `window.opener.postMessage(payload, '${safeOrigin}');`
-      : `window.opener.postMessage(payload, '*');`;
-
-    return new Response(
-      `<html><body>
-        <h1>Connecting to MyAnimeList...</h1>
-        <p>Processing authorization code...</p>
-        <script>
-          if (window.opener) {
-            var payload = {
-              type: 'mal-oauth-code',
-              code: '${safeCode}'
-            };
-            ${postMessageScript}
-          }
-          setTimeout(function() { window.close(); }, 2000);
-        </script>
-      </body></html>`,
-      { headers: { "Content-Type": "text/html" } }
-    );
-  }
-
-  // Step 3: Exchange code for token (called from frontend with code_verifier - popup flow)
-  if (req.method === "POST" && url.searchParams.get("action") === "exchange") {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claims?.claims?.sub) {
-      return new Response(JSON.stringify({ error: "Invalid token" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const userId = claims.claims.sub as string;
-    const body = await req.json();
-
-    const clientId = Deno.env.get("MAL_CLIENT_ID")!;
-    const clientSecret = Deno.env.get("MAL_CLIENT_SECRET")!;
-    const redirectUri = `${Deno.env.get("SUPABASE_URL")}/functions/v1/mal-oauth-callback`;
-
-    try {
-      const tokenRes = await fetch("https://myanimelist.net/v1/oauth2/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          client_id: clientId,
-          client_secret: clientSecret,
-          grant_type: "authorization_code",
-          code: body.code,
-          redirect_uri: redirectUri,
-          code_verifier: body.codeVerifier,
-        }),
-      });
-
-      const tokenData = await tokenRes.json();
-
-      if (!tokenData.access_token) {
-        return new Response(
-          JSON.stringify({ error: "Failed to get token", details: tokenData }),
-          {
-            status: 400,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
-        );
-      }
-
-      const userRes = await fetch("https://api.myanimelist.net/v2/users/@me", {
-        headers: { Authorization: `Bearer ${tokenData.access_token}` },
-      });
-
-      const malUser = await userRes.json();
-
-      const { data, error } = await supabase
-        .from("linked_accounts")
-        .upsert(
-          {
-            user_id: userId,
-            provider: "mal",
-            provider_user_id: String(malUser.id),
-            provider_username: malUser.name,
-            access_token: tokenData.access_token,
-            refresh_token: tokenData.refresh_token || null,
-            token_expires_at: tokenData.expires_in
-              ? new Date(Date.now() + tokenData.expires_in * 1000).toISOString()
-              : null,
-          },
-          { onConflict: "user_id,provider" }
-        )
-        .select()
-        .single();
-
-      if (error) {
-        return new Response(JSON.stringify({ error: error.message }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      return new Response(
-        JSON.stringify({
-          success: true,
-          username: malUser.name,
-          data,
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    } catch (err) {
-      return new Response(
-        JSON.stringify({ error: err.message }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+    // Non-redirect flow: redirect with error (popup flow removed)
+    if (allowedOrigin) {
+      return Response.redirect(
+        `${allowedOrigin}/settings?oauth_error=${encodeURIComponent("Please use redirect mode to connect")}`,
+        302
       );
     }
+    return new Response("<h1>Please use redirect mode</h1>", {
+      status: 400,
+      headers: { "Content-Type": "text/html" },
+    });
   }
 
   return new Response(JSON.stringify({ error: "Method not allowed" }), {
