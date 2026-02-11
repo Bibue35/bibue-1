@@ -78,6 +78,7 @@ const Index = () => {
     <>
       <CollapsibleNavbar />
       <PullToRefresh onRefresh={handleRefresh}>
+      <main>
       
       {/* Hero Section - Use FeaturedCarousel on mobile for cleaner look */}
       {isMobile ? (
@@ -389,6 +390,7 @@ const Index = () => {
         <AdUnit slot="3456789012" format="horizontal" className="my-4 sm:my-6 md:my-8" />
       </div>
 
+      </main>
       <Footer />
       </PullToRefresh>
     </>

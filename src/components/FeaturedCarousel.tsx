@@ -257,6 +257,8 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
                 <button
                   key={i}
                   onClick={() => setCurrentIndex(i)}
+                  aria-label={`Go to slide ${i + 1} of ${items.length}`}
+                  aria-current={i === currentIndex ? "true" : undefined}
                   className={cn(
                     "rounded-full transition-all duration-300 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center",
                     i === currentIndex
@@ -280,12 +282,14 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
             <>
               <button
                 onClick={handlePrev}
+                aria-label="Previous slide"
                 className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/70 backdrop-blur-sm hidden sm:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background/90 shadow-lg"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
                 onClick={handleNext}
+                aria-label="Next slide"
                 className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/70 backdrop-blur-sm hidden sm:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background/90 shadow-lg"
               >
                 <ChevronRight className="w-5 h-5" />
