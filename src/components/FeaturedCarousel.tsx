@@ -49,24 +49,36 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
     };
   }, [autoPlay, autoPlayInterval, items.length]);
 
-  // Optimized scroll parallax with requestAnimationFrame
+  // Optimized scroll parallax using IntersectionObserver + scroll offset
+  // Avoids getBoundingClientRect which triggers forced reflows
+  const scrollYRef = useRef(0);
+  const isVisibleRef = useRef(true);
+
   useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    // Use IntersectionObserver to track visibility without forced reflow
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+      },
+      { threshold: 0 }
+    );
+    observer.observe(el);
+
     let rafId: number;
     let ticking = false;
+    let lastScrollY = window.scrollY;
 
     const handleScroll = () => {
-      if (!ticking) {
+      if (!ticking && isVisibleRef.current) {
         rafId = requestAnimationFrame(() => {
-          if (!containerRef.current) {
-            ticking = false;
-            return;
-          }
-          const rect = containerRef.current.getBoundingClientRect();
-          const viewportHeight = window.innerHeight;
-          if (rect.bottom > 0 && rect.top < viewportHeight) {
-            const progress = (viewportHeight - rect.top) / (viewportHeight + rect.height);
-            setScrollY(progress * 40); // Reduced movement for performance
-          }
+          // Use window.scrollY instead of getBoundingClientRect to avoid forced reflow
+          const delta = window.scrollY - lastScrollY;
+          lastScrollY = window.scrollY;
+          scrollYRef.current = Math.max(0, Math.min(40, scrollYRef.current + delta * 0.1));
+          setScrollY(scrollYRef.current);
           ticking = false;
         });
         ticking = true;
@@ -77,6 +89,7 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
     return () => {
       window.removeEventListener("scroll", handleScroll);
       cancelAnimationFrame(rafId);
+      observer.disconnect();
     };
   }, []);
 
