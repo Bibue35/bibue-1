@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Play, X, Star, Copy, Share2, Eye, Search, ChevronLeft, ChevronRight, ChevronDown, MessageCircle, Send, User, ThumbsUp, ArrowUpDown, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import { formatDistanceToNow } from "date-fns";
 import { validateComment } from "@/lib/validation";
 import { WatchlistButton } from "./WatchlistButton";
 import { CharactersStaffTab } from "./CharactersStaffTab";
-import { MarkdownContent } from "./MarkdownContent";
+const MarkdownContent = lazy(() => import("./MarkdownContent").then(m => ({ default: m.MarkdownContent })));
 import { RelatedMedia } from "./RelatedMedia";
 import { ResponsiveModal } from "./ResponsiveModal";
 
@@ -428,10 +428,12 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                                 {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
                               </span>
                             </div>
-                            <MarkdownContent 
-                              content={comment.content} 
-                              className="text-sm text-muted-foreground"
-                            />
+                            <Suspense fallback={<p className="text-sm text-muted-foreground">{comment.content}</p>}>
+                              <MarkdownContent 
+                                content={comment.content} 
+                                className="text-sm text-muted-foreground"
+                              />
+                            </Suspense>
                           </div>
                         </div>
                       </div>
