@@ -100,48 +100,12 @@ export function LinkedAccounts() {
     }
   }, [fetchLinkedAccounts, toast]);
 
-  // Handle popup-based OAuth callbacks (desktop flow)
+  // Handle popup-based MAL OAuth callback only (AniList is redirect-only now)
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
       const expectedOrigin = new URL(import.meta.env.VITE_SUPABASE_URL).origin;
       if (event.origin !== expectedOrigin) {
         return;
-      }
-
-      if (event.data?.type === "anilist-oauth-callback") {
-        try {
-          const session = await supabase.auth.getSession();
-          const token = session.data.session?.access_token;
-          if (!token) throw new Error("Not authenticated");
-
-          const res = await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/anilist-oauth-callback`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({
-                accessToken: event.data.accessToken,
-                refreshToken: event.data.refreshToken,
-                expiresIn: event.data.expiresIn,
-                userId: event.data.userId,
-                username: event.data.username,
-              }),
-            }
-          );
-
-          const result = await res.json();
-          if (!res.ok) throw new Error(result.error || "Failed to link");
-
-          toast({ title: "AniList connected", description: `Linked as ${event.data.username}` });
-          fetchLinkedAccounts();
-        } catch (err: any) {
-          toast({ variant: "destructive", title: "Connection failed", description: err.message });
-        } finally {
-          setConnecting(null);
-        }
       }
 
       if (event.data?.type === "mal-oauth-code") {
