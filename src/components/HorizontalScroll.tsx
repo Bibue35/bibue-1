@@ -87,6 +87,7 @@ export const HorizontalScroll = memo(function HorizontalScroll({
                 onClick={() => scroll("left")}
                 disabled={!canScrollLeft}
                 className="rounded-full h-8 w-8"
+                aria-label="Scroll left"
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
@@ -96,6 +97,7 @@ export const HorizontalScroll = memo(function HorizontalScroll({
                 onClick={() => scroll("right")}
                 disabled={!canScrollRight}
                 className="rounded-full h-8 w-8"
+                aria-label="Scroll right"
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>

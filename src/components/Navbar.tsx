@@ -36,7 +36,7 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 py-3 sm:py-4 pointer-events-none">
+      <nav className="fixed top-0 left-0 right-0 z-50 py-3 sm:py-4 pointer-events-none" aria-label="Main navigation">
         <div className="w-full px-3 sm:px-4 md:px-6">
           <div className="flex items-center gap-4 pointer-events-auto relative">
             {/* Left: Mobile menu + Logo */}
@@ -47,6 +47,8 @@ export function Navbar() {
                 size="icon"
                 className="md:hidden rounded-full h-9 w-9 sm:h-10 sm:w-10"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={isMobileMenuOpen}
               >
                 {isMobileMenuOpen ? (
                   <X className="w-5 h-5" />
@@ -72,7 +74,7 @@ export function Navbar() {
             </div>
 
             {/* Center: Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
+            <div className="hidden md:flex items-center gap-1" role="navigation" aria-label="Primary">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -87,7 +89,7 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
-            </nav>
+            </div>
 
             {/* Right: Icons */}
             <div className="flex items-center gap-0.5 sm:gap-1 ml-auto">
@@ -101,6 +103,7 @@ export function Navbar() {
                 size="icon"
                 onClick={() => setIsSearchOpen(true)}
                 className="rounded-full hover:bg-foreground/5 text-muted-foreground hover:text-foreground h-9 w-9 sm:h-10 sm:w-10"
+                aria-label="Search"
               >
                 <Search className="w-5 h-5 sm:w-6 sm:h-6" />
               </Button>
