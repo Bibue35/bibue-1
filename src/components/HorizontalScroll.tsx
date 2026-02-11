@@ -52,10 +52,14 @@ export const HorizontalScroll = memo(function HorizontalScroll({
 
   const scroll = useCallback((direction: "left" | "right") => {
     if (!scrollRef.current) return;
-    const scrollAmount = scrollRef.current.clientWidth * 0.8;
-    scrollRef.current.scrollBy({
-      left: direction === "left" ? -scrollAmount : scrollAmount,
-      behavior: "smooth",
+    // Batch layout read in rAF to avoid forced reflow
+    requestAnimationFrame(() => {
+      if (!scrollRef.current) return;
+      const scrollAmount = scrollRef.current.clientWidth * 0.8;
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
     });
   }, []);
 
