@@ -21,6 +21,7 @@ import { useWatchlist } from "@/hooks/useWatchlist";
 import { useTranslatedText } from "@/hooks/useTranslatedText";
 import { useSwipeGesture } from "@/hooks/useSwipeGesture";
 import { useMiniPlayer } from "@/contexts/MiniPlayerContext";
+import { useViewingHistory } from "@/hooks/useViewingHistory";
 
 export default function AnimeDetailPage() {
   const { t } = useLanguage();
@@ -42,7 +43,22 @@ export default function AnimeDetailPage() {
   const { activateMiniPlayer } = useMiniPlayer();
   
   const translatedSynopsis = useTranslatedText(anime?.synopsis);
+  const { logView } = useViewingHistory();
   const isBookmarked = isInWatchlist(Number(id), "anime");
+
+  // Log viewing history when anime data loads
+  useEffect(() => {
+    if (anime && id) {
+      logView({
+        media_id: Number(id),
+        media_type: "anime",
+        title: anime.title,
+        title_japanese: anime.title_japanese,
+        image_url: anime.images?.webp?.large_image_url,
+        last_episode: selectedEpisode,
+      });
+    }
+  }, [anime?.anilist_id]);
 
   // Hide controls after 3 seconds of inactivity
   useEffect(() => {

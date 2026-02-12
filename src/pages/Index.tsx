@@ -18,11 +18,12 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import { useTopAnime, useSeasonalAnime, useTopManga, useClassicAnime, useAllTimeTopAnime, useTrendingManhwa, useTrendingManhua } from "@/hooks/useAnimeData";
 import { CardSkeleton, CardSkeletonRow, HeroSkeleton } from "@/components/skeletons";
 import { Link } from "react-router-dom";
-import { ArrowRight, Rocket, TrendingUp, Sparkles, Clock, BookOpen, Flame, History, Trophy, Zap } from "lucide-react";
+import { ArrowRight, Rocket, TrendingUp, Sparkles, Clock, BookOpen, Flame, History, Trophy, Zap, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useViewingHistory } from "@/hooks/useViewingHistory";
 import { useMemo, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDeferredSection } from "@/hooks/useDeferredSection";
@@ -49,6 +50,7 @@ const Index = () => {
   const { data: trendingManhua, isLoading: trendingManhuaLoading, isError: trendingManhuaError, refetch: refetchTrendingManhua } = useTrendingManhua(1, mangaSection.isVisible);
   const { t, language } = useLanguage();
   const { user } = useAuth();
+  const { history: viewingHistory } = useViewingHistory(10);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
@@ -106,6 +108,59 @@ const Index = () => {
           featuredAnime={heroAnime.length > 0 ? heroAnime : seasonalAnime?.slice(0, 5)} 
           isLoading={seasonalLoading} 
         />
+      )}
+
+      {/* Recently Viewed - Only for logged-in users with history */}
+      {user && viewingHistory.length > 0 && (
+        <ContentSection
+          title={t("history.recentlyViewed") || "Recently Viewed"}
+          icon={History}
+          linkTo="/history"
+          linkText={t("section.seeAll")}
+          compact
+        >
+          <HorizontalScroll showArrows={false}>
+            {viewingHistory.map((entry) => (
+              <Link
+                key={entry.id}
+                to={`/${entry.media_type}/${entry.media_id}`}
+                className="flex-shrink-0 w-28 sm:w-36 md:w-44 group"
+              >
+                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted mb-1.5">
+                  {entry.image_url ? (
+                    <img
+                      src={entry.image_url}
+                      alt={entry.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      {entry.media_type === "anime" ? (
+                        <Play className="w-8 h-8 text-muted-foreground" />
+                      ) : (
+                        <BookOpen className="w-8 h-8 text-muted-foreground" />
+                      )}
+                    </div>
+                  )}
+                  {/* Resume indicator */}
+                  {(entry.last_episode || entry.last_chapter) && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 to-transparent px-2 py-1.5">
+                      <span className="text-[10px] font-medium">
+                        {entry.last_episode
+                          ? `EP ${entry.last_episode}`
+                          : `CH ${entry.last_chapter}`}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs sm:text-sm font-medium truncate group-hover:text-primary transition-colors">
+                  {entry.title}
+                </p>
+              </Link>
+            ))}
+          </HorizontalScroll>
+        </ContentSection>
       )}
 
       {/* Trending Now - Mobile-optimized horizontal scroll with larger cards */}

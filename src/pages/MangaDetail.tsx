@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { BookOpen, Star, Heart, Bookmark, Eye, ChevronsLeft, ChevronsRight, MessageCircle, Send, User, History } from "lucide-react";
@@ -18,6 +18,7 @@ import { validateComment } from "@/lib/validation";
 import { MangaReader } from "@/components/MangaReader";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
 import { useTranslatedText } from "@/hooks/useTranslatedText";
+import { useViewingHistory } from "@/hooks/useViewingHistory";
 
 export default function MangaDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -31,6 +32,21 @@ export default function MangaDetailPage() {
   const { toast } = useToast();
   const { lastChapterRead } = useReadingProgress(Number(id), "manga");
   const translatedSynopsis = useTranslatedText(manga?.synopsis);
+  const { logView } = useViewingHistory();
+
+  // Log viewing history when manga data loads
+  useEffect(() => {
+    if (manga && id) {
+      logView({
+        media_id: Number(id),
+        media_type: "manga",
+        title: manga.title,
+        title_japanese: manga.title_japanese,
+        image_url: manga.images?.webp?.large_image_url,
+        last_chapter: lastChapterRead || undefined,
+      });
+    }
+  }, [manga?.anilist_id]);
 
   // Generate mock chapter data - show ALL chapters
   const generateChapters = (count: number) => {

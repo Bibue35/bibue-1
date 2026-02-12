@@ -753,6 +753,48 @@ export type Database = {
         }
         Relationships: []
       }
+      viewing_history: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string | null
+          last_chapter: number | null
+          last_episode: number | null
+          media_id: number
+          media_type: string
+          title: string
+          title_japanese: string | null
+          user_id: string
+          viewed_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          last_chapter?: number | null
+          last_episode?: number | null
+          media_id: number
+          media_type?: string
+          title: string
+          title_japanese?: string | null
+          user_id: string
+          viewed_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          last_chapter?: number | null
+          last_episode?: number | null
+          media_id?: number
+          media_type?: string
+          title?: string
+          title_japanese?: string | null
+          user_id?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
       watchlist: {
         Row: {
           category: string | null
