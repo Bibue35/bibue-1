@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Camera, Save, Loader2, ArrowLeft, Check, X } from "lucide-react";
+import { User, Camera, Loader2, ArrowLeft, Check, X } from "lucide-react";
 import { FloatingNav } from "@/components/FloatingNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,14 +24,12 @@ export default function SettingsPage() {
   const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Redirect if not logged in
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/");
     }
   }, [user, authLoading, navigate]);
 
-  // Initialize form with profile data
   useEffect(() => {
     if (profile) {
       setUsername(profile.username || "");
@@ -41,7 +37,6 @@ export default function SettingsPage() {
     }
   }, [profile]);
 
-  // Track changes
   useEffect(() => {
     if (profile) {
       const usernameChanged = username !== (profile.username || "");
@@ -63,22 +58,12 @@ export default function SettingsPage() {
   const handleAvatarUpload = async (file: File) => {
     if (!user) return;
 
-    // Validate file
     if (file.size > 2 * 1024 * 1024) {
-      toast({
-        variant: "destructive",
-        title: "File too large",
-        description: "Please choose an image under 2MB",
-      });
+      toast({ variant: "destructive", title: "File too large", description: "Please choose an image under 2MB" });
       return;
     }
-
     if (!file.type.startsWith("image/")) {
-      toast({
-        variant: "destructive",
-        title: "Invalid file type",
-        description: "Please choose an image file",
-      });
+      toast({ variant: "destructive", title: "Invalid file type", description: "Please choose an image file" });
       return;
     }
 
@@ -87,32 +72,18 @@ export default function SettingsPage() {
       const fileExt = file.name.split(".").pop();
       const filePath = `avatars/${user.id}/${Date.now()}.${fileExt}`;
 
-      // Upload to storage
       const { error: uploadError } = await supabase.storage
         .from("bibue-files")
         .upload(filePath, file, { upsert: true });
-
       if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from("bibue-files")
-        .getPublicUrl(filePath);
-
+      const { data: urlData } = supabase.storage.from("bibue-files").getPublicUrl(filePath);
       setAvatarUrl(urlData.publicUrl);
       setAvatarPickerOpen(false);
-
-      toast({
-        title: "Avatar uploaded",
-        description: "Don't forget to save your changes!",
-      });
+      toast({ title: "Avatar uploaded", description: "Don't forget to save your changes!" });
     } catch (error) {
       console.error("Error uploading avatar:", error);
-      toast({
-        variant: "destructive",
-        title: "Upload failed",
-        description: "Could not upload avatar. Please try again.",
-      });
+      toast({ variant: "destructive", title: "Upload failed", description: "Could not upload avatar. Please try again." });
     } finally {
       setIsUploading(false);
     }
@@ -120,23 +91,12 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     if (!user) return;
-
-    // Validate username
     if (username.trim().length < 2) {
-      toast({
-        variant: "destructive",
-        title: "Invalid username",
-        description: "Username must be at least 2 characters",
-      });
+      toast({ variant: "destructive", title: "Invalid username", description: "Username must be at least 2 characters" });
       return;
     }
-
     if (username.length > 50) {
-      toast({
-        variant: "destructive",
-        title: "Invalid username",
-        description: "Username must be under 50 characters",
-      });
+      toast({ variant: "destructive", title: "Invalid username", description: "Username must be under 50 characters" });
       return;
     }
 
@@ -144,29 +104,16 @@ export default function SettingsPage() {
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({
-          username: username.trim(),
-          avatar_url: avatarUrl,
-          updated_at: new Date().toISOString(),
-        })
+        .update({ username: username.trim(), avatar_url: avatarUrl, updated_at: new Date().toISOString() })
         .eq("user_id", user.id);
-
       if (error) throw error;
 
       await refreshProfile();
-
-      toast({
-        title: "Profile updated",
-        description: "Your changes have been saved successfully.",
-      });
+      toast({ title: "Profile updated", description: "Your changes have been saved successfully." });
       setHasChanges(false);
     } catch (error) {
       console.error("Error saving profile:", error);
-      toast({
-        variant: "destructive",
-        title: "Save failed",
-        description: "Could not save your profile. Please try again.",
-      });
+      toast({ variant: "destructive", title: "Save failed", description: "Could not save your profile. Please try again." });
     } finally {
       setIsSaving(false);
     }
@@ -187,128 +134,121 @@ export default function SettingsPage() {
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-background">
       <FloatingNav />
 
-      <div className="container max-w-2xl mx-auto px-4 pt-24 pb-12">
+      <div className="max-w-2xl mx-auto px-3 sm:px-4 pt-16 sm:pt-24 pb-24">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+        <div className="flex items-center gap-3 mb-6 sm:mb-8">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
+          >
             <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">Account Settings</h1>
-            <p className="text-sm text-muted-foreground">Manage your profile and preferences</p>
-          </div>
+          </button>
+          <h1 className="text-xl sm:text-2xl font-bold">Settings</h1>
         </div>
 
-        {/* Profile Section */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="w-5 h-5" />
-              Profile
-            </CardTitle>
-            <CardDescription>
-              Update your public profile information
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Avatar */}
-            <div className="flex items-center gap-6">
-              <div className="relative group">
-                <Avatar className="w-24 h-24 border-2 border-border">
-                  <AvatarImage src={avatarUrl || undefined} alt="Profile avatar" />
-                  <AvatarFallback className="text-2xl bg-primary/10 text-primary">
-                    {getInitials()}
-                  </AvatarFallback>
-                </Avatar>
-                <button
-                  onClick={() => setAvatarPickerOpen(true)}
-                  className="absolute inset-0 flex items-center justify-center bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity rounded-full"
-                >
-                  <Camera className="w-6 h-6" />
-                </button>
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium mb-1">Profile Picture</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Choose from popular characters, search for your favorite, or upload your own
-                </p>
-                <Button variant="outline" size="sm" onClick={() => setAvatarPickerOpen(true)}>
-                  <Camera className="w-4 h-4 mr-2" />
-                  Change Avatar
-                </Button>
-              </div>
+        {/* Profile Avatar — centered on mobile */}
+        <div className="flex flex-col items-center mb-6">
+          <button
+            onClick={() => setAvatarPickerOpen(true)}
+            className="relative group mb-3"
+          >
+            <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-border">
+              <AvatarImage src={avatarUrl || undefined} alt="Profile avatar" />
+              <AvatarFallback className="text-xl sm:text-2xl bg-primary/10 text-primary">
+                {getInitials()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="absolute inset-0 flex items-center justify-center bg-background/70 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity rounded-full">
+              <Camera className="w-5 h-5" />
             </div>
+          </button>
+          <button
+            onClick={() => setAvatarPickerOpen(true)}
+            className="text-sm text-primary font-medium"
+          >
+            Change Avatar
+          </button>
+        </div>
 
-            <Separator />
-
+        {/* Profile Fields */}
+        <section className="space-y-4 mb-8">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
+            Profile
+          </h2>
+          <div className="rounded-xl bg-card border border-border overflow-hidden">
             {/* Username */}
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+            <div className="px-4 py-3">
+              <Label htmlFor="username" className="text-xs text-muted-foreground">
+                Username
+              </Label>
               <Input
                 id="username"
                 placeholder="Enter your username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 maxLength={50}
+                className="mt-1 border-0 bg-transparent px-0 h-8 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
               />
-              <p className="text-xs text-muted-foreground">
-                This is your public display name. 2-50 characters.
-              </p>
             </div>
-
-            {/* Email (read-only) */}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+            <div className="border-t border-border mx-4" />
+            {/* Email */}
+            <div className="px-4 py-3">
+              <Label htmlFor="email" className="text-xs text-muted-foreground">
+                Email
+              </Label>
               <Input
                 id="email"
                 value={user.email || ""}
                 disabled
-                className="bg-muted"
+                className="mt-1 border-0 bg-transparent px-0 h-8 text-base text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
               />
-              <p className="text-xs text-muted-foreground">
-                Your email address cannot be changed here.
-              </p>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Linked Accounts Section */}
-        <LinkedAccounts />
-
-        {/* Save Actions */}
-        {hasChanges && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-card border border-border shadow-lg rounded-full px-6 py-3 z-50">
-            <span className="text-sm text-muted-foreground">Unsaved changes</span>
-            <Button variant="ghost" size="sm" onClick={handleReset}>
-              <X className="w-4 h-4 mr-1" />
-              Reset
-            </Button>
-            <Button size="sm" onClick={handleSave} disabled={isSaving}>
-              {isSaving ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Check className="w-4 h-4 mr-2" />
-                  Save Changes
-                </>
-              )}
-            </Button>
           </div>
-        )}
+        </section>
+
+        {/* Connected Accounts */}
+        <section className="space-y-4 mb-8">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
+            Connected Accounts
+          </h2>
+          <LinkedAccounts variant="mobile" />
+        </section>
       </div>
 
-      {/* Avatar Picker Modal */}
+      {/* Save bar — fixed bottom */}
+      {hasChanges && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-sm px-4 py-3 sm:py-4">
+          <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
+            <span className="text-sm text-muted-foreground">Unsaved changes</span>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={handleReset} className="h-9 px-3">
+                <X className="w-4 h-4 mr-1" />
+                Reset
+              </Button>
+              <Button size="sm" onClick={handleSave} disabled={isSaving} className="h-9 px-4">
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                    Saving
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4 mr-1.5" />
+                    Save
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <AvatarPicker
         open={avatarPickerOpen}
         onOpenChange={setAvatarPickerOpen}
