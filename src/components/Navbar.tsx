@@ -62,6 +62,8 @@ export function Navbar() {
                   <img 
                     src={bibueTower} 
                     alt="Bibue Tower" 
+                    width={42}
+                    height={56}
                     className="h-full w-auto object-contain dark:invert logo-stable"
                     loading="eager"
                     decoding="sync"

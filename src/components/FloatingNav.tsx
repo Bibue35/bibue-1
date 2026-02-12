@@ -56,6 +56,8 @@ export function FloatingNav() {
                 <img 
                   src={bibueTower} 
                   alt="Bibue Tower" 
+                  width={28}
+                  height={40}
                   className="h-full w-auto object-contain dark:brightness-0 dark:invert logo-stable"
                   loading="eager"
                   decoding="sync"
