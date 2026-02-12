@@ -64,7 +64,7 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
       <>
         <button
           onClick={() => setModalOpen(true)}
-          className="relative w-full overflow-hidden rounded-2xl group"
+          className="relative w-full overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform duration-150"
         >
           {/* Background Image */}
           <div className="relative aspect-[16/9] sm:aspect-[21/9]">
@@ -148,7 +148,7 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
       <>
         <button
           onClick={() => setModalOpen(true)}
-          className="flex items-center gap-3 p-3 rounded-xl bg-card/50 hover:bg-card transition-colors group text-left w-full"
+          className="flex items-center gap-3 p-3 rounded-xl bg-card/50 hover:bg-card transition-all duration-150 group text-left w-full active:scale-[0.98]"
         >
           {/* Poster */}
           <div className="relative w-14 sm:w-16 aspect-[2/3] rounded-lg overflow-hidden flex-shrink-0">
@@ -228,16 +228,16 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
     <>
       <button
         onClick={() => setModalOpen(true)}
-        className="block group text-left w-full"
+        className="block group text-left w-full active:scale-[0.97] transition-transform duration-150"
       >
         {/* Card with soft shadow */}
-        <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-2 bg-card shadow-lg shadow-black/10">
+        <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-2 bg-card shadow-lg shadow-black/10 will-change-transform transform-gpu">
           <img
             src={anime.images.webp.image_url}
             alt={anime.title}
             loading="lazy"
             decoding="async"
-            className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 will-change-transform transform-gpu"
           />
           
           {/* Score badge - top left with neumorphic style */}

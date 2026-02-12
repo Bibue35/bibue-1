@@ -85,12 +85,13 @@ export function CollapsibleNavbar() {
     <>
       <nav
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out",
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out transform-gpu",
           isScrolled ? "liquid-glass-strong py-2" : "bg-transparent py-3",
-          !isVisible && "transform -translate-y-full pointer-events-none"
+          !isVisible && "-translate-y-full pointer-events-none"
         )}
         style={{
           transitionProperty: "transform, opacity, background-color, padding",
+          willChange: "transform",
         }}
       >
         <div className="container mx-auto px-3 sm:px-4">
