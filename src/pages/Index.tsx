@@ -25,18 +25,26 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMemo, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useDeferredSection } from "@/hooks/useDeferredSection";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
-  const { data: popularAnime, isLoading: popularLoading, isError: popularError, refetch: refetchPopular } = useTopAnime(1, 'bypopularity');
-  const { data: upcomingAnime, isLoading: upcomingLoading, isError: upcomingError, refetch: refetchUpcoming } = useTopAnime(1, 'upcoming');
+  // Above-fold hooks — load immediately
   const { data: airingAnime, isLoading: airingLoading, isError: airingError, refetch: refetchAiring } = useTopAnime(1, 'airing');
   const { data: seasonalAnime, isLoading: seasonalLoading, isError: seasonalError, refetch: refetchSeasonal } = useSeasonalAnime();
-  const { data: topManga, isLoading: topMangaLoading, isError: topMangaError, refetch: refetchTopManga } = useTopManga(1);
-  const { data: manhwa, isLoading: manhwaLoading, isError: manhwaError, refetch: refetchManhwa } = useTopManga(1, 'manhwa');
-  const { data: manhua, isLoading: manhuaLoading, isError: manhuaError, refetch: refetchManhua } = useTopManga(1, 'manhua');
-  const { data: classicAnime, isLoading: classicLoading, isError: classicError, refetch: refetchClassic } = useClassicAnime(1);
+
+  // Below-fold deferred rendering — only mount components when scrolled near
+  const popularSection = useDeferredSection("400px");
+  const upcomingSection = useDeferredSection("400px");
+  const allTimeSection = useDeferredSection("400px");
+  const classicSection = useDeferredSection("400px");
+  const mangaSection = useDeferredSection("400px");
+
+  const { data: popularAnime, isLoading: popularLoading, isError: popularError, refetch: refetchPopular } = useTopAnime(1, 'bypopularity');
+  const { data: upcomingAnime, isLoading: upcomingLoading, isError: upcomingError, refetch: refetchUpcoming } = useTopAnime(1, 'upcoming');
   const { data: allTimeTop, isLoading: allTimeLoading, isError: allTimeError, refetch: refetchAllTime } = useAllTimeTopAnime(1);
+  const { data: classicAnime, isLoading: classicLoading, isError: classicError, refetch: refetchClassic } = useClassicAnime(1);
+  const { data: topManga, isLoading: topMangaLoading, isError: topMangaError, refetch: refetchTopManga } = useTopManga(1);
   const { data: trendingManhwa, isLoading: trendingManhwaLoading, isError: trendingManhwaError, refetch: refetchTrendingManhwa } = useTrendingManhwa(1);
   const { data: trendingManhua, isLoading: trendingManhuaLoading, isError: trendingManhuaError, refetch: refetchTrendingManhua } = useTrendingManhua(1);
   const { t } = useLanguage();
@@ -164,6 +172,8 @@ const Index = () => {
       </div>
 
       {/* Most Popular */}
+      <div ref={popularSection.ref}>
+      {popularSection.isVisible ? (
       <ContentSection
         title="Most Popular"
         titleJp="人気アニメ"
@@ -191,8 +201,12 @@ const Index = () => {
           </HorizontalScroll>
         )}
       </ContentSection>
+      ) : <div className="py-6 sm:py-10" />}
+      </div>
 
       {/* Coming Soon */}
+      <div ref={upcomingSection.ref}>
+      {upcomingSection.isVisible ? (
       <ContentSection
         title="Coming Soon"
         titleJp="近日公開"
@@ -219,8 +233,12 @@ const Index = () => {
           </HorizontalScroll>
         )}
       </ContentSection>
+      ) : <div className="py-6 sm:py-10" />}
+      </div>
 
       {/* All-Time Top Rated */}
+      <div ref={allTimeSection.ref}>
+      {allTimeSection.isVisible ? (
       <ContentSection
         title="All-Time Top Rated"
         titleJp="歴代最高"
@@ -247,8 +265,12 @@ const Index = () => {
           </HorizontalScroll>
         )}
       </ContentSection>
+      ) : <div className="py-6 sm:py-10" />}
+      </div>
 
       {/* Classic Anime (Pre-2010) */}
+      <div ref={classicSection.ref}>
+      {classicSection.isVisible ? (
       <ContentSection
         title="Classic Anime"
         titleJp="クラシック"
@@ -276,6 +298,8 @@ const Index = () => {
           </HorizontalScroll>
         )}
       </ContentSection>
+      ) : <div className="py-6 sm:py-10" />}
+      </div>
 
       {/* Ad Unit */}
       <div className="container mx-auto px-3 sm:px-4">
@@ -283,6 +307,9 @@ const Index = () => {
       </div>
 
       {/* ===== MANGA SECTION ===== */}
+      <div ref={mangaSection.ref}>
+      {mangaSection.isVisible ? (
+      <>
       <section className="py-10 sm:py-16 md:py-20">
         <div className="container mx-auto px-3 sm:px-4">
           {/* Manga Section Header */}
@@ -385,9 +412,11 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Ad Unit */}
       <div className="container mx-auto px-3 sm:px-4">
         <AdUnit slot="3456789012" format="horizontal" className="my-4 sm:my-6 md:my-8" />
+      </div>
+      </>
+      ) : <div className="py-10 sm:py-16 md:py-20" />}
       </div>
 
       </main>
