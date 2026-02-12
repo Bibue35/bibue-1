@@ -16,7 +16,7 @@ interface HeroSectionProps {
 export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   const featured = featuredAnime?.[selectedIndex];
   const sideCards = featuredAnime?.slice(0, 4).filter((_, i) => i !== selectedIndex) || [];
@@ -119,8 +119,8 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
             {featured.title}
           </h1>
 
-          {/* Japanese title */}
-          {featured.title_japanese && (
+          {/* Japanese title - only show when language is Japanese */}
+          {featured.title_japanese && language === "ja" && (
             <p className="font-jp text-sm sm:text-lg md:text-xl text-muted-foreground mb-3 sm:mb-6">
               {featured.title_japanese}
             </p>
