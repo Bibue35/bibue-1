@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, lazy, Suspense, useMemo } from "react";
 import { Play, Star, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Anime } from "@/lib/api";
@@ -6,11 +6,22 @@ import { formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
 const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ default: m.AnimeDetailModal })));
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslatedText } from "@/hooks/useTranslatedText";
 import { HeroSkeleton } from "./skeletons";
 
 interface HeroSectionProps {
   featuredAnime?: Anime[];
   isLoading?: boolean;
+}
+
+function HeroSynopsis({ text }: { text?: string }) {
+  const translated = useTranslatedText(text);
+  if (!translated) return null;
+  return (
+    <p className="hidden xs:block text-muted-foreground text-xs sm:text-sm md:text-base leading-relaxed max-w-xl mb-4 sm:mb-8 line-clamp-2 sm:line-clamp-3">
+      {translated}
+    </p>
+  );
 }
 
 export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
@@ -140,10 +151,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
             </div>
           )}
 
-          {/* Synopsis - hidden on very small screens */}
-          <p className="hidden xs:block text-muted-foreground text-xs sm:text-sm md:text-base leading-relaxed max-w-xl mb-4 sm:mb-8 line-clamp-2 sm:line-clamp-3">
-            {featured.synopsis}
-          </p>
+          <HeroSynopsis text={featured.synopsis} />
 
           {/* Single CTA Button */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
