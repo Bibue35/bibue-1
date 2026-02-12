@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useReports, useUpdateReportStatus, useReportStats } from "@/hooks/useModeration";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,7 @@ const reportTypeLabels: Record<string, string> = {
 
 export function ReportQueue() {
   const [statusFilter, setStatusFilter] = useState<string>("pending");
+  const { t } = useLanguage();
   const { data: reports, isLoading } = useReports(statusFilter);
   const { data: stats } = useReportStats();
   const updateStatus = useUpdateReportStatus();
@@ -62,7 +64,7 @@ export function ReportQueue() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Reports</p>
+                <p className="text-sm text-muted-foreground">{t("admin.totalReports")}</p>
                 <p className="text-2xl font-bold">{stats?.total || 0}</p>
               </div>
               <FileText className="h-8 w-8 text-muted-foreground/50" />
@@ -73,7 +75,7 @@ export function ReportQueue() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Pending</p>
+                <p className="text-sm text-muted-foreground">{t("admin.pending")}</p>
                 <p className="text-2xl font-bold text-yellow-500">
                   {stats?.pending || 0}
                 </p>
@@ -86,7 +88,7 @@ export function ReportQueue() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Resolved</p>
+                <p className="text-sm text-muted-foreground">{t("admin.resolved")}</p>
                 <p className="text-2xl font-bold text-green-500">
                   {stats?.resolved || 0}
                 </p>
@@ -99,7 +101,7 @@ export function ReportQueue() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Dismissed</p>
+                <p className="text-sm text-muted-foreground">{t("admin.dismissed")}</p>
                 <p className="text-2xl font-bold text-muted-foreground">
                   {stats?.dismissed || 0}
                 </p>
@@ -115,29 +117,29 @@ export function ReportQueue() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5" />
-            Report Queue
+            {t("admin.reportQueue")}
           </CardTitle>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[150px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Reports</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="resolved">Resolved</SelectItem>
-              <SelectItem value="dismissed">Dismissed</SelectItem>
+              <SelectItem value="all">{t("admin.allReports")}</SelectItem>
+              <SelectItem value="pending">{t("admin.pending")}</SelectItem>
+              <SelectItem value="resolved">{t("admin.resolved")}</SelectItem>
+              <SelectItem value="dismissed">{t("admin.dismissed")}</SelectItem>
             </SelectContent>
           </Select>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="py-8 text-center text-muted-foreground">
-              Loading reports...
+              {t("admin.loadingReports")}
             </div>
           ) : !reports || reports.length === 0 ? (
             <div className="py-8 text-center">
               <CheckCircle className="h-12 w-12 mx-auto text-green-500/50 mb-4" />
-              <p className="text-muted-foreground">No reports to review</p>
+              <p className="text-muted-foreground">{t("admin.noReports")}</p>
             </div>
           ) : (
             <ScrollArea className="h-[500px]">
@@ -211,7 +213,7 @@ export function ReportQueue() {
                           disabled={updateStatus.isPending}
                         >
                           <CheckCircle className="h-4 w-4 mr-1" />
-                          Resolve
+                          {t("admin.resolve")}
                         </Button>
                         <Button
                           size="sm"
@@ -220,7 +222,7 @@ export function ReportQueue() {
                           disabled={updateStatus.isPending}
                         >
                           <XCircle className="h-4 w-4 mr-1" />
-                          Dismiss
+                          {t("admin.dismiss")}
                         </Button>
                       </div>
                     )}

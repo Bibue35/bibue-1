@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { BookOpen, Star, Heart, Bookmark, Eye, ChevronsLeft, ChevronsRight, MessageCircle, Send, User, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +20,7 @@ import { useReadingProgress } from "@/hooks/useReadingProgress";
 
 export default function MangaDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const { t } = useLanguage();
   const { data: manga, isLoading, error } = useMangaDetails(Number(id));
   const [selectedChapter, setSelectedChapter] = useState(1);
   const [isReading, setIsReading] = useState(false);
@@ -63,7 +65,7 @@ export default function MangaDetailPage() {
 
   const addCommentMutation = useMutation({
     mutationFn: async (content: string) => {
-      if (!user) throw new Error("Please sign in to comment");
+      if (!user) throw new Error(t("comments.signInToComment"));
 
       const { error } = await supabase
         .from("discussions")
@@ -80,10 +82,10 @@ export default function MangaDetailPage() {
     onSuccess: () => {
       setNewComment("");
       queryClient.invalidateQueries({ queryKey: ["manga-general-comments", Number(id)] });
-      toast({ title: "Comment posted!" });
+      toast({ title: t("comments.commentPosted") });
     },
     onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -102,10 +104,10 @@ export default function MangaDetailPage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center px-4">
-          <h1 className="text-3xl font-bold font-sacred mb-4">Error Loading Manga</h1>
-          <p className="text-muted-foreground mb-6">Something went wrong. Please try again.</p>
+          <h1 className="text-3xl font-bold font-sacred mb-4">{t("detail.errorLoading")} Manga</h1>
+          <p className="text-muted-foreground mb-6">{t("common.somethingWrong")}</p>
           <Link to="/">
-            <Button variant="outline">Go Home</Button>
+            <Button variant="outline">{t("common.goHome")}</Button>
           </Link>
         </div>
       </div>
@@ -143,7 +145,7 @@ export default function MangaDetailPage() {
           Bibue
         </Link>
         <Link to="/manga" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-          ← Back to Manga
+          ← {t("nav.manga")}
         </Link>
       </div>
 
@@ -179,7 +181,7 @@ export default function MangaDetailPage() {
                       }}
                     >
                       <BookOpen className="w-4 h-4" />
-                      Read First
+                      {t("detail.readFirst")}
                     </Button>
                     {lastChapterRead && (
                       <Button 
@@ -191,7 +193,7 @@ export default function MangaDetailPage() {
                         }}
                       >
                         <History className="w-4 h-4" />
-                        Continue Ch. {lastChapterRead}
+                        {t("detail.continue")} {lastChapterRead}
                       </Button>
                     )}
                     <div className="grid grid-cols-2 gap-2">
@@ -222,7 +224,7 @@ export default function MangaDetailPage() {
                     </div>
                     <Button variant="outline" className="w-full gap-2">
                       <Bookmark className="w-4 h-4" />
-                      Bookmark
+                      {t("detail.bookmark")}
                     </Button>
                   </div>
 
@@ -291,7 +293,7 @@ export default function MangaDetailPage() {
                     </>
                   ) : (
                     <p className="text-muted-foreground leading-relaxed">
-                      {manga?.synopsis || "No synopsis available."}
+                      {manga?.synopsis || t("detail.noSynopsis")}
                     </p>
                   )}
                 </div>
@@ -299,11 +301,11 @@ export default function MangaDetailPage() {
                 {/* Info Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8 text-sm">
                   {[
-                    { label: "Author", value: manga?.authors?.map(a => a.name).join(", ") },
-                    { label: "Rating", value: manga?.score ? `${manga.score}%` : undefined },
-                    { label: "Status", value: manga?.status },
-                    { label: "Last Update", value: chapters[0]?.released ? new Date(chapters[0].released).toLocaleDateString() : undefined },
-                    { label: "Alternatives", value: manga?.title_japanese },
+                    { label: t("common.author"), value: manga?.authors?.map(a => a.name).join(", ") },
+                    { label: t("detail.rating"), value: manga?.score ? `${manga.score}%` : undefined },
+                    { label: t("common.status"), value: manga?.status },
+                    { label: t("detail.lastUpdate"), value: chapters[0]?.released ? new Date(chapters[0].released).toLocaleDateString() : undefined },
+                    { label: t("detail.alternatives"), value: manga?.title_japanese },
                   ].filter(item => item.value).map(({ label, value }) => (
                     <div key={label}>
                       <span className="text-muted-foreground">{label}</span>
@@ -316,11 +318,11 @@ export default function MangaDetailPage() {
                 <div className="rounded-xl border border-border/30 bg-muted/20 p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold font-sacred">
-                      {chapters.length} Chapters Available
+                      {chapters.length} {t("detail.chaptersAvailable")}
                     </h2>
                     {lastChapterRead && (
                       <span className="text-sm text-muted-foreground">
-                        Last read: Ch. {lastChapterRead}
+                        {t("detail.lastRead")}: Ch. {lastChapterRead}
                       </span>
                     )}
                   </div>
@@ -359,7 +361,7 @@ export default function MangaDetailPage() {
                                 </span>
                                 {isLastRead && (
                                   <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
-                                    Last Read
+                                    {t("detail.lastRead")}
                                   </span>
                                 )}
                               </div>
@@ -389,7 +391,7 @@ export default function MangaDetailPage() {
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-3 mb-6">
               <MessageCircle className="w-5 h-5 text-primary" />
-              <h2 className="text-xl sm:text-2xl font-bold font-sacred">Comment Section</h2>
+              <h2 className="text-xl sm:text-2xl font-bold font-sacred">{t("detail.commentSection")}</h2>
             </div>
             
             <div className="rounded-2xl border border-border/30 bg-muted/20 p-4 sm:p-6">
@@ -398,7 +400,7 @@ export default function MangaDetailPage() {
                 <Textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  placeholder={user ? "Share your thoughts..." : "Sign in to comment..."}
+                  placeholder={user ? t("comments.shareChapterThoughts") : t("comments.signInPlaceholder")}
                   className="mb-3 resize-none bg-background/50 border-border/30"
                   rows={3}
                   disabled={!user}
@@ -409,7 +411,7 @@ export default function MangaDetailPage() {
                   className="gap-2"
                 >
                   <Send className="w-4 h-4" />
-                  {user ? "Post Comment" : "Sign in to Comment"}
+                  {user ? t("comments.postComment") : t("comments.signInToComment")}
                 </Button>
               </form>
 
@@ -417,7 +419,7 @@ export default function MangaDetailPage() {
               <div className="space-y-4">
                 {commentsLoading ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    Loading comments...
+                    {t("comments.loadingComments")}
                   </div>
                 ) : comments && comments.length > 0 ? (
                   comments.map((comment) => (
@@ -456,7 +458,7 @@ export default function MangaDetailPage() {
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
                     <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>No comments yet. Be the first to share your thoughts!</p>
+                    <p>{t("detail.noCommentsYet")}</p>
                   </div>
                 )}
               </div>

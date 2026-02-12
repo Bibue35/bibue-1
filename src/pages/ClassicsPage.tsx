@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAnimeByDecade, useClassicAnime } from "@/hooks/useAnimeData";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Decade = "all" | "70s" | "80s" | "90s" | "2000s" | "2010s";
 
@@ -24,6 +25,7 @@ const DECADES: { value: Decade; label: string; years: string }[] = [
 ];
 
 export default function ClassicsPage() {
+  const { t, language } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialDecade = (searchParams.get("decade") as Decade) || "all";
   
@@ -77,14 +79,16 @@ export default function ClassicsPage() {
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-4">
               <History className="w-4 h-4" />
-              <span className="text-sm font-medium">Classic Collection</span>
+              <span className="text-sm font-medium">{t("classics.collection")}</span>
             </div>
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
-              Anime Classics
+              {t("classics.title")}
             </h1>
-            <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-2">クラシックアニメ</p>
+            {language === "ja" && (
+              <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-2">{t("classics.titleJp")}</p>
+            )}
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Explore the timeless masterpieces that shaped anime history. From groundbreaking 70s pioneers to beloved 2010s gems.
+              {t("classics.subtitle")}
             </p>
 
             {/* Action Buttons */}
@@ -92,13 +96,13 @@ export default function ClassicsPage() {
               <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
                 <Link to="/recommendations">
                   <Sparkles className="w-4 h-4" />
-                  For You
+                  {t("classics.forYou")}
                 </Link>
               </Button>
               <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
                 <Link to="/watchlist?type=anime">
                   <Bookmark className="w-4 h-4" />
-                  Saved
+                  {t("classics.saved")}
                 </Link>
               </Button>
             </div>
@@ -113,7 +117,7 @@ export default function ClassicsPage() {
             <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
               <div className="flex items-center gap-2">
                 <History className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Era:</span>
+                <span className="text-sm text-muted-foreground">{t("classics.era")}</span>
               </div>
               
               <div className="flex flex-wrap gap-2">
@@ -161,7 +165,7 @@ export default function ClassicsPage() {
         <section className="pb-2">
           <div className="container mx-auto px-4">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-muted-foreground">Browsing:</span>
+              <span className="text-xs text-muted-foreground">{t("classics.browsing")}</span>
               <button
                 onClick={() => handleDecadeChange("all")}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
@@ -181,7 +185,7 @@ export default function ClassicsPage() {
             {selectedDecade?.label} Anime
           </h2>
           <p className="text-sm text-muted-foreground mb-6">
-            {selectedDecade?.years} • Sorted by score
+            {selectedDecade?.years} • {t("classics.sortedByScore")}
           </p>
           
           {displayError ? (
@@ -206,8 +210,8 @@ export default function ClassicsPage() {
             <div className="rounded-2xl liquid-glass-subtle py-12">
               <div className="flex flex-col items-center text-center gap-3 px-6">
                 <History className="w-12 h-12 text-muted-foreground/50" />
-                <p className="text-base font-medium">No anime found for this era</p>
-                <p className="text-sm text-muted-foreground">Try selecting a different decade</p>
+                <p className="text-base font-medium">{t("classics.noAnime")}</p>
+                <p className="text-sm text-muted-foreground">{t("classics.tryDifferent")}</p>
               </div>
             </div>
           )}

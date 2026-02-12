@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   useUsers,
   useBanUser,
@@ -61,6 +62,7 @@ interface BanDialogState {
 }
 
 export function UserManagement() {
+  const { t } = useLanguage();
   const { user: currentUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [banDialog, setBanDialog] = useState<BanDialogState>({
@@ -109,7 +111,7 @@ export function UserManagement() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            User Management
+            {t("admin.userManagement")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -117,7 +119,7 @@ export function UserManagement() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search users by username..."
+              placeholder={t("admin.searchUsers")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -127,11 +129,11 @@ export function UserManagement() {
           {/* User List */}
           {isLoading ? (
             <div className="py-8 text-center text-muted-foreground">
-              Loading users...
+              {t("admin.loadingUsers")}
             </div>
           ) : !users || users.length === 0 ? (
             <div className="py-8 text-center text-muted-foreground">
-              No users found
+              {t("admin.noUsers")}
             </div>
           ) : (
             <ScrollArea className="h-[500px]">
@@ -226,7 +228,7 @@ export function UserManagement() {
                                 disabled={unbanUser.isPending}
                               >
                                 <UserCheck className="h-4 w-4 mr-1" />
-                                Unban
+                                {t("admin.unban")}
                               </Button>
                             ) : (
                               <Button
@@ -241,7 +243,7 @@ export function UserManagement() {
                                 }
                               >
                                 <Ban className="h-4 w-4 mr-1" />
-                                Ban
+                                {t("admin.ban")}
                               </Button>
                             )}
                           </>
@@ -265,24 +267,23 @@ export function UserManagement() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Ban User</DialogTitle>
+            <DialogTitle>{t("admin.banUser")}</DialogTitle>
             <DialogDescription>
-              Ban <strong>{banDialog.username}</strong> from the platform. This
-              will prevent them from posting or commenting.
+              {t("admin.banDesc").replace("{username}", banDialog.username)}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="ban-reason">Reason for ban</Label>
+              <Label htmlFor="ban-reason">{t("admin.banReason")}</Label>
               <Textarea
                 id="ban-reason"
-                placeholder="Enter the reason for this ban..."
+                placeholder={t("admin.banReasonPlaceholder")}
                 value={banReason}
                 onChange={(e) => setBanReason(e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="ban-duration">Duration</Label>
+              <Label htmlFor="ban-duration">{t("admin.banDuration")}</Label>
               <Select value={banDuration} onValueChange={setBanDuration}>
                 <SelectTrigger>
                   <SelectValue />
@@ -292,7 +293,7 @@ export function UserManagement() {
                   <SelectItem value="7">7 Days</SelectItem>
                   <SelectItem value="30">30 Days</SelectItem>
                   <SelectItem value="90">90 Days</SelectItem>
-                  <SelectItem value="permanent">Permanent</SelectItem>
+                  <SelectItem value="permanent">{t("admin.permanent")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -302,14 +303,14 @@ export function UserManagement() {
               variant="outline"
               onClick={() => setBanDialog({ open: false, userId: "", username: "" })}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleBan}
               disabled={!banReason.trim() || banUser.isPending}
             >
-              {banUser.isPending ? "Banning..." : "Confirm Ban"}
+              {banUser.isPending ? t("admin.banning") : t("admin.confirmBan")}
             </Button>
           </DialogFooter>
         </DialogContent>
