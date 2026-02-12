@@ -22,10 +22,13 @@ export const HorizontalScroll = memo(function HorizontalScroll({
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
+  const rafIdRef = useRef<number>(0);
+
   const checkScroll = useCallback(() => {
     if (!scrollRef.current) return;
-    // Use requestAnimationFrame to batch layout reads and avoid forced reflows
-    requestAnimationFrame(() => {
+    // Cancel any pending rAF to debounce rapid calls (e.g. from ResizeObserver)
+    cancelAnimationFrame(rafIdRef.current);
+    rafIdRef.current = requestAnimationFrame(() => {
       if (!scrollRef.current) return;
       const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
       setCanScrollLeft(scrollLeft > 0);
@@ -37,7 +40,8 @@ export const HorizontalScroll = memo(function HorizontalScroll({
     const el = scrollRef.current;
     if (!el) return;
     
-    checkScroll();
+    // Defer initial check to avoid forced reflow during page paint
+    const timeoutId = setTimeout(checkScroll, 100);
     el.addEventListener("scroll", checkScroll, { passive: true });
     
     // Use ResizeObserver instead of window resize for better performance
@@ -45,6 +49,8 @@ export const HorizontalScroll = memo(function HorizontalScroll({
     resizeObserver.observe(el);
     
     return () => {
+      clearTimeout(timeoutId);
+      cancelAnimationFrame(rafIdRef.current);
       el.removeEventListener("scroll", checkScroll);
       resizeObserver.disconnect();
     };
