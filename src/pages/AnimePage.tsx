@@ -41,7 +41,7 @@ export default function AnimePage() {
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   // Sync state FROM URL when params change (e.g. "See All" link clicked)
   useEffect(() => {
@@ -149,7 +149,7 @@ export default function AnimePage() {
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
               {t("anime.discover")}
             </h1>
-            <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">{t("anime.discoverJp")}</p>
+            {language === "ja" && <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">{t("anime.discoverJp")}</p>}
             
             {/* Search Input */}
             <SearchDropdown
