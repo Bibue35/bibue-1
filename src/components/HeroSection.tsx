@@ -75,15 +75,17 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
         <div className="relative w-full h-full transform-gpu">
           {featuredAnime?.slice(0, 4).map((anime, index) => {
             const isActive = index === selectedIndex;
+            // First image is always eager + high priority since it's the LCP candidate on initial load
+            const isFirstImage = index === 0;
             return (
               <img
                 key={anime.anilist_id}
                 src={anime.images.webp.large_image_url}
                 alt={anime.title}
-                loading={isActive ? "eager" : "lazy"}
-                decoding={isActive ? "sync" : "async"}
+                loading={isFirstImage || isActive ? "eager" : "lazy"}
+                decoding={isFirstImage || isActive ? "sync" : "async"}
                 // @ts-ignore - React 18.3+ supports fetchPriority
-                fetchPriority={isActive ? "high" : "auto"}
+                fetchPriority={isFirstImage || isActive ? "high" : "auto"}
                 sizes="100vw"
                 className={cn(
                   "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
