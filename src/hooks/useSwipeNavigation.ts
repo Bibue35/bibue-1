@@ -1,15 +1,13 @@
 import { useRef, useCallback, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { setSwipeNavFlag } from "@/lib/swipeNavFlag";
 
 /** Ordered tab routes for swipe navigation */
 const TAB_ROUTES = ["/anime", "/", "/manga"];
 
 interface SwipeNavConfig {
-  /** Whether swipe navigation is enabled (auth-gated) */
   enabled: boolean;
-  /** Minimum horizontal distance to trigger navigation (px) */
   threshold?: number;
-  /** Maximum vertical distance before cancelling (px) */
   maxVertical?: number;
 }
 
@@ -21,11 +19,6 @@ interface SwipeState {
   startTime: number;
 }
 
-/**
- * Hook that enables buttery-smooth horizontal swipe navigation
- * between top-level tabs. Uses GPU-accelerated translate3d and
- * requestAnimationFrame for 60fps performance.
- */
 export function useSwipeNavigation({
   enabled,
   threshold = 80,
@@ -35,11 +28,7 @@ export function useSwipeNavigation({
   const location = useLocation();
   const containerRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef<SwipeState>({
-    startX: 0,
-    startY: 0,
-    currentX: 0,
-    isDragging: false,
-    startTime: 0,
+    startX: 0, startY: 0, currentX: 0, isDragging: false, startTime: 0,
   });
   const rafRef = useRef<number>(0);
   const indicatorRef = useRef<HTMLDivElement>(null);
@@ -49,11 +38,9 @@ export function useSwipeNavigation({
 
   const applyTransform = useCallback((dx: number) => {
     if (!containerRef.current) return;
-    // Rubber-band effect at edges
     const atLeftEdge = currentIndex === 0 && dx > 0;
     const atRightEdge = currentIndex === TAB_ROUTES.length - 1 && dx < 0;
     const dampened = (atLeftEdge || atRightEdge) ? dx * 0.2 : dx;
-
     containerRef.current.style.transform = `translate3d(${dampened}px, 0, 0)`;
     containerRef.current.style.willChange = "transform";
   }, [currentIndex]);
@@ -70,7 +57,7 @@ export function useSwipeNavigation({
         const tabName = route === "/" ? "Home" : route.replace("/", "").replace(/^./, c => c.toUpperCase());
         indicatorRef.current.textContent = tabName;
         indicatorRef.current.style.opacity = `${Math.min(progress * 1.5, 0.9)}`;
-        indicatorRef.current.style.transform = `translate3d(${direction === "left" ? "-50%" : "-50%"}, 0, 0) scale(${0.8 + progress * 0.2})`;
+        indicatorRef.current.style.transform = `translate3d(-50%, 0, 0) scale(${0.8 + progress * 0.2})`;
         indicatorRef.current.style.display = "block";
         return;
       }
@@ -79,14 +66,20 @@ export function useSwipeNavigation({
     indicatorRef.current.style.display = "none";
   }, [currentIndex, threshold]);
 
-  const resetTransform = useCallback((navigating = false) => {
+  const resetTransform = useCallback((navigating = false, swipeDirection = 0) => {
     if (!containerRef.current) return;
-    containerRef.current.style.transition = "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
-    containerRef.current.style.transform = navigating
-      ? `translate3d(${navigating ? "0" : "0"}px, 0, 0)`
-      : "translate3d(0, 0, 0)";
 
-    // Clean up after transition
+    if (navigating && swipeDirection !== 0) {
+      // Slide OFF-screen in the swipe direction
+      const offscreenX = swipeDirection * -window.innerWidth;
+      containerRef.current.style.transition = "transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+      containerRef.current.style.transform = `translate3d(${offscreenX}px, 0, 0)`;
+    } else {
+      // Snap back to center (cancelled swipe)
+      containerRef.current.style.transition = "transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+      containerRef.current.style.transform = "translate3d(0, 0, 0)";
+    }
+
     const cleanup = () => {
       if (containerRef.current) {
         containerRef.current.style.transition = "";
@@ -94,32 +87,25 @@ export function useSwipeNavigation({
         containerRef.current.style.transform = "";
       }
     };
-    setTimeout(cleanup, 310);
+    setTimeout(cleanup, 210);
 
     if (indicatorRef.current) {
       indicatorRef.current.style.opacity = "0";
       setTimeout(() => {
         if (indicatorRef.current) indicatorRef.current.style.display = "none";
-      }, 200);
+      }, 150);
     }
   }, []);
 
   const onTouchStart = useCallback((e: TouchEvent) => {
     if (!enabled || !isSwipablePage) return;
-
-    // Don't intercept touches on interactive elements
     const target = e.target as HTMLElement;
-    if (
-      target.closest("button, a, input, textarea, select, [role=dialog], [role=slider], .hide-scrollbar")
-    ) return;
+    if (target.closest("button, a, input, textarea, select, [role=dialog], [role=slider], .hide-scrollbar")) return;
 
     const touch = e.touches[0];
     stateRef.current = {
-      startX: touch.clientX,
-      startY: touch.clientY,
-      currentX: touch.clientX,
-      isDragging: false,
-      startTime: Date.now(),
+      startX: touch.clientX, startY: touch.clientY,
+      currentX: touch.clientX, isDragging: false, startTime: Date.now(),
     };
   }, [enabled, isSwipablePage]);
 
@@ -132,26 +118,13 @@ export function useSwipeNavigation({
     const dx = touch.clientX - state.startX;
     const dy = touch.clientY - state.startY;
 
-    // Cancel if vertical scroll dominates
-    if (!state.isDragging && Math.abs(dy) > Math.abs(dx) * 0.7) {
-      state.startX = 0;
-      return;
-    }
-
-    if (Math.abs(dy) > maxVertical && !state.isDragging) {
-      state.startX = 0;
-      return;
-    }
-
-    // Start dragging after 10px horizontal movement
-    if (!state.isDragging && Math.abs(dx) > 10) {
-      state.isDragging = true;
-    }
+    if (!state.isDragging && Math.abs(dy) > Math.abs(dx) * 0.7) { state.startX = 0; return; }
+    if (Math.abs(dy) > maxVertical && !state.isDragging) { state.startX = 0; return; }
+    if (!state.isDragging && Math.abs(dx) > 10) state.isDragging = true;
 
     if (state.isDragging) {
       e.preventDefault();
       state.currentX = touch.clientX;
-
       cancelAnimationFrame(rafRef.current);
       rafRef.current = requestAnimationFrame(() => {
         applyTransform(dx);
@@ -164,34 +137,27 @@ export function useSwipeNavigation({
   const onTouchEnd = useCallback(() => {
     if (!enabled || !isSwipablePage) return;
     const state = stateRef.current;
-    if (!state.isDragging) {
-      state.startX = 0;
-      return;
-    }
+    if (!state.isDragging) { state.startX = 0; return; }
 
     const dx = state.currentX - state.startX;
     const elapsed = Date.now() - state.startTime;
-    const velocity = Math.abs(dx) / elapsed; // px/ms
+    const velocity = Math.abs(dx) / elapsed;
 
-    // Navigate if past threshold OR fast flick
     const shouldNavigate = Math.abs(dx) > threshold || (velocity > 0.5 && Math.abs(dx) > 30);
     const direction = dx < 0 ? 1 : -1; // 1 = next, -1 = prev
     const targetIndex = currentIndex + direction;
 
     if (shouldNavigate && targetIndex >= 0 && targetIndex < TAB_ROUTES.length) {
-      // Haptic feedback
       if (navigator.vibrate) navigator.vibrate(15);
 
-      resetTransform(true);
-      // Small delay for the spring-back animation to start
-      setTimeout(() => {
-        navigate(TAB_ROUTES[targetIndex]);
-      }, 80);
+      // Slide off-screen, then navigate immediately
+      resetTransform(true, direction);
+      setSwipeNavFlag();
+      navigate(TAB_ROUTES[targetIndex]);
     } else {
       resetTransform(false);
     }
 
-    // Reset state
     stateRef.current = { startX: 0, startY: 0, currentX: 0, isDragging: false, startTime: 0 };
     cancelAnimationFrame(rafRef.current);
   }, [enabled, isSwipablePage, threshold, currentIndex, navigate, resetTransform]);
