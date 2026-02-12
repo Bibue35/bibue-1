@@ -11,11 +11,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { AvatarPicker } from "@/components/settings/AvatarPicker";
 import { LinkedAccounts } from "@/components/settings/LinkedAccounts";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
   const { user, profile, loading: authLoading, refreshProfile } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const [username, setUsername] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -149,7 +151,7 @@ export default function SettingsPage() {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold">Settings</h1>
+          <h1 className="text-xl sm:text-2xl font-bold">{t("settings.title")}</h1>
         </div>
 
         {/* Profile Avatar — centered on mobile */}
@@ -172,24 +174,24 @@ export default function SettingsPage() {
             onClick={() => setAvatarPickerOpen(true)}
             className="text-sm text-primary font-medium"
           >
-            Change Avatar
+            {t("settings.changeAvatar")}
           </button>
         </div>
 
         {/* Profile Fields */}
         <section className="space-y-4 mb-8">
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
-            Profile
+            {t("settings.profile")}
           </h2>
           <div className="rounded-xl bg-card border border-border overflow-hidden">
             {/* Username */}
             <div className="px-4 py-3">
               <Label htmlFor="username" className="text-xs text-muted-foreground">
-                Username
+                {t("settings.username")}
               </Label>
               <Input
                 id="username"
-                placeholder="Enter your username"
+                placeholder={t("settings.enterUsername")}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 maxLength={50}
@@ -200,7 +202,7 @@ export default function SettingsPage() {
             {/* Email */}
             <div className="px-4 py-3">
               <Label htmlFor="email" className="text-xs text-muted-foreground">
-                Email
+                {t("settings.email")}
               </Label>
               <Input
                 id="email"
@@ -215,7 +217,7 @@ export default function SettingsPage() {
         {/* Connected Accounts */}
         <section className="space-y-4 mb-8">
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
-            Connected Accounts
+            {t("settings.connectedAccounts")}
           </h2>
           <LinkedAccounts variant="mobile" />
         </section>
@@ -225,22 +227,22 @@ export default function SettingsPage() {
       {hasChanges && (
         <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-sm px-4 py-3 sm:py-4">
           <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
-            <span className="text-sm text-muted-foreground">Unsaved changes</span>
+            <span className="text-sm text-muted-foreground">{t("settings.unsavedChanges")}</span>
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="sm" onClick={handleReset} className="h-9 px-3">
                 <X className="w-4 h-4 mr-1" />
-                Reset
+                {t("settings.reset")}
               </Button>
               <Button size="sm" onClick={handleSave} disabled={isSaving} className="h-9 px-4">
                 {isSaving ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
-                    Saving
+                    {t("settings.saving")}
                   </>
                 ) : (
                   <>
                     <Check className="w-4 h-4 mr-1.5" />
-                    Save
+                    {t("settings.save")}
                   </>
                 )}
               </Button>

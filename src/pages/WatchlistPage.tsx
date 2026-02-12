@@ -21,19 +21,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const statusOptions = [
-  { value: "plan_to_watch", label: "Plan to Watch" },
-  { value: "watching", label: "Watching" },
-  { value: "completed", label: "Completed" },
-  { value: "on_hold", label: "On Hold" },
-  { value: "dropped", label: "Dropped" },
-];
-
 export default function WatchlistPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { t, language } = useLanguage();
+
+  const statusOptions = [
+    { value: "plan_to_watch", label: t("status.planToWatch") },
+    { value: "watching", label: t("status.watching") },
+    { value: "completed", label: t("status.completed") },
+    { value: "on_hold", label: t("status.onHold") },
+    { value: "dropped", label: t("status.dropped") },
+  ];
   const { watchlist, isLoading, removeFromWatchlist, updateStatus, updateScore } = useWatchlist();
   const { data: categories = [] } = useCategories();
   

@@ -9,24 +9,25 @@ import { UserMenu } from "./UserMenu";
 import { useIncognito } from "@/contexts/IncognitoContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLanguage } from "@/contexts/LanguageContext";
 import bibueTower from "@/assets/bibue-tower.png";
 
-// Primary nav items (Community is now on page, not in navbar)
-const navLinks = [
-  { href: "/anime", label: "Anime" },
-  { href: "/manga", label: "Manga" },
-  { href: "/news", label: "News" },
-  { href: "/rankings", label: "Rankings" },
-  { href: "/community", label: "Community" },
-];
-
 export function Navbar() {
+  const { t } = useLanguage();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
   const { isIncognito } = useIncognito();
   const { user } = useAuth();
   const isMobile = useIsMobile();
+
+  const navLinks = [
+    { href: "/anime", label: t("nav.anime") },
+    { href: "/manga", label: t("nav.manga") },
+    { href: "/news", label: t("nav.news") },
+    { href: "/rankings", label: t("nav.rankings") },
+    { href: "/community", label: t("nav.community") },
+  ];
 
   const showIncognitoIcon = isMobile && user && isIncognito;
 

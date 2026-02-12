@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { validateComment } from "@/lib/validation";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ChapterCommentsProps {
   mangaId: number;
@@ -27,6 +28,7 @@ export function ChapterComments({ mangaId, chapterNumber }: ChapterCommentsProps
   const [newComment, setNewComment] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   // Fetch comments for this chapter (using discussions table with manga_id filter)
   const { data: comments, isLoading } = useQuery({
@@ -103,13 +105,13 @@ export function ChapterComments({ mangaId, chapterNumber }: ChapterCommentsProps
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <MessageCircle className="w-5 h-5" />
-        <h3 className="text-lg font-bold">Chapter {chapterNumber} Discussion</h3>
+        <h3 className="text-lg font-bold">{t("comments.chapter")} {chapterNumber} {t("comments.discussion")}</h3>
       </div>
 
       {/* Comment form */}
       <form onSubmit={handleSubmit} className="space-y-3">
         <Textarea
-          placeholder="Share your thoughts on this chapter..."
+          placeholder={t("comments.shareChapterThoughts")}
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           className="min-h-[80px] resize-none bg-background/50"
@@ -122,7 +124,7 @@ export function ChapterComments({ mangaId, chapterNumber }: ChapterCommentsProps
             className="gap-2"
           >
             <Send className="w-4 h-4" />
-            Post
+            {t("comments.post")}
           </Button>
         </div>
       </form>
@@ -130,7 +132,7 @@ export function ChapterComments({ mangaId, chapterNumber }: ChapterCommentsProps
       {/* Comments list */}
       <div className="space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar">
         {isLoading ? (
-          <div className="text-center text-muted-foreground py-4">Loading...</div>
+          <div className="text-center text-muted-foreground py-4">{t("common.loading")}</div>
         ) : comments && comments.length > 0 ? (
           comments.map((comment) => (
             <div key={comment.id} className="p-3 rounded-lg bg-background/30 border border-border/50">
@@ -159,7 +161,7 @@ export function ChapterComments({ mangaId, chapterNumber }: ChapterCommentsProps
         ) : (
           <div className="text-center text-muted-foreground py-8">
             <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">No comments yet. Be the first!</p>
+            <p className="text-sm">{t("comments.noChapterComments")}</p>
           </div>
         )}
       </div>
