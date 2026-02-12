@@ -73,20 +73,29 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
       {/* Background Image with smooth transition */}
       <div className="absolute inset-0 z-0">
         <div className="relative w-full h-full">
-          {featuredAnime?.slice(0, 4).map((anime, index) => (
-            <img
-              key={anime.anilist_id}
-              src={anime.images.webp.large_image_url}
-              alt={anime.title}
-              loading={index === selectedIndex ? "eager" : "lazy"}
-              fetchPriority={index === selectedIndex ? "high" : "auto"}
-              decoding="async"
-              className={cn(
-                "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
-                index === selectedIndex ? "opacity-100" : "opacity-0"
-              )}
-            />
-          ))}
+          {featuredAnime?.slice(0, 4).map((anime, index) => {
+            const isActive = index === selectedIndex;
+            return (
+              <img
+                key={anime.anilist_id}
+                ref={(el) => {
+                  if (el && isActive) {
+                    el.setAttribute('fetchpriority', 'high');
+                  } else if (el) {
+                    el.removeAttribute('fetchpriority');
+                  }
+                }}
+                src={anime.images.webp.large_image_url}
+                alt={anime.title}
+                loading={isActive ? "eager" : "lazy"}
+                decoding="async"
+                className={cn(
+                  "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
+                  isActive ? "opacity-100" : "opacity-0"
+                )}
+              />
+            );
+          })}
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/60" />
