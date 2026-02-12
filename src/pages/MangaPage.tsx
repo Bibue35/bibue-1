@@ -11,10 +11,20 @@ import { ContentSection } from "@/components/ContentSection";
 import { SearchDropdown } from "@/components/SearchDropdown";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { CardSkeletonRow } from "@/components/skeletons";
+import {
+  DeferredTopRatedMangaSection,
+  DeferredTrendingManhwaSection,
+  DeferredTopManhwaSection,
+  DeferredTrendingManhuaSection,
+  DeferredTopManhuaSection,
+  DeferredNewThisWeekSection,
+  DeferredCompletedSection,
+  DeferredMangaGenreSection,
+} from "@/components/DeferredMangaSections";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTopManga, useSearchManga, useTrendingManhwa, useTrendingManhua, useNewThisWeekManga, useCompletedManga, useMangaByGenre, useRecentlyUpdatedManga } from "@/hooks/useAnimeData";
+import { useTopManga, useSearchManga, useRecentlyUpdatedManga } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -101,30 +111,21 @@ export default function MangaPage() {
     await queryClient.invalidateQueries({ queryKey: ["recentlyUpdatedManga"] });
   }, [queryClient]);
 
-  // Fetch data based on type filter
+  // Only eagerly load essential data — grid data + recently updated + search
   const { data: allManga, isLoading: allLoading } = useTopManga(1, undefined);
   const { data: mangaOnly, isLoading: mangaLoading, isError: mangaError, refetch: refetchManga } = useTopManga(1, 'manga');
-  const { data: manhwa, isLoading: manhwaLoading, isError: manhwaError, refetch: refetchManhwa } = useTopManga(1, 'manhwa');
-  const { data: manhua, isLoading: manhuaLoading, isError: manhuaError, refetch: refetchManhua } = useTopManga(1, 'manhua');
-  const { data: trendingManhwa, isLoading: trendingManhwaLoading, isError: trendingManhwaError, refetch: refetchTrendingManhwa } = useTrendingManhwa(1);
-  const { data: trendingManhua, isLoading: trendingManhuaLoading, isError: trendingManhuaError, refetch: refetchTrendingManhua } = useTrendingManhua(1);
-  const { data: newThisWeek, isLoading: newThisWeekLoading, isError: newThisWeekError, refetch: refetchNewThisWeek } = useNewThisWeekManga(1);
-  const { data: completedManga, isLoading: completedLoading, isError: completedError, refetch: refetchCompleted } = useCompletedManga(1);
+  const { data: manhwa, isLoading: manhwaLoading } = useTopManga(1, 'manhwa');
+  const { data: manhua, isLoading: manhuaLoading } = useTopManga(1, 'manhua');
   const { data: searchResults, isLoading: searchLoading } = useSearchManga(
     debouncedSearch,
     isSearching,
     typeFilter === "all" ? undefined : typeFilter,
   );
-  const { data: actionManga, isLoading: actionMangaLoading, isError: actionMangaError, refetch: refetchActionManga } = useMangaByGenre("Action", 1);
-  const { data: romanceManga, isLoading: romanceMangaLoading, isError: romanceMangaError, refetch: refetchRomanceManga } = useMangaByGenre("Romance", 1);
-  const { data: fantasyManga, isLoading: fantasyMangaLoading, isError: fantasyMangaError, refetch: refetchFantasyManga } = useMangaByGenre("Fantasy", 1);
   const { data: recentlyUpdatedManga, isLoading: recentlyUpdatedMangaLoading, isError: recentlyUpdatedMangaError, refetch: refetchRecentlyUpdatedManga } = useRecentlyUpdatedManga(1);
 
   // Select the correct data based on filter
   const getFilteredManga = () => {
     if (isSearching) return searchResults;
-    if (collection === "new") return newThisWeek;
-    if (collection === "completed") return completedManga;
     switch (typeFilter) {
       case "manga": return mangaOnly;
       case "manhwa": return manhwa;
@@ -135,8 +136,6 @@ export default function MangaPage() {
 
   const getFilterLoading = () => {
     if (isSearching) return searchLoading;
-    if (collection === "new") return newThisWeekLoading;
-    if (collection === "completed") return completedLoading;
     switch (typeFilter) {
       case "manga": return mangaLoading;
       case "manhwa": return manhwaLoading;
@@ -165,20 +164,6 @@ export default function MangaPage() {
     }
   }, [displayManga, sortBy]);
 
-  // Get top rated manga (sorted by score)
-  const topRatedManga = useMemo(() => {
-    return [...(mangaOnly || [])].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 12);
-  }, [mangaOnly]);
-
-  // Get top rated manhwa (sorted by score)
-  const topRatedManhwa = useMemo(() => {
-    return [...(manhwa || [])].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 12);
-  }, [manhwa]);
-
-  // Get top rated manhua (sorted by score)
-  const topRatedManhua = useMemo(() => {
-    return [...(manhua || [])].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 12);
-  }, [manhua]);
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
@@ -301,264 +286,17 @@ export default function MangaPage() {
       )}
 
       {/* Top Rated Manga */}
-      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manga") && (
-        <ContentSection
-          title="Top Rated Manga"
-          titleJp="高評価"
-          icon={Trophy}
-          linkTo="/manga?filter=manga&sort=score"
-        >
-          {mangaError ? (
-            <SectionError onRetry={() => refetchManga()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {mangaLoading ? (
-                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                topRatedManga?.map((manga, index) => (
-                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    <MangaCard manga={manga} index={index} />
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
-
-      {/* Trending Manhwa */}
-      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhwa") && (
-        <ContentSection
-          title="Trending Manhwa"
-          titleJp="韓国漫画"
-          icon={Zap}
-          linkTo="/manga?filter=manhwa"
-        >
-          {trendingManhwaError ? (
-            <SectionError onRetry={() => refetchTrendingManhwa()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {trendingManhwaLoading ? (
-                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                trendingManhwa?.slice(0, 12).map((manga, index) => (
-                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    <MangaCard manga={manga} index={index} />
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
-
-      {/* Top Manhwa */}
-      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhwa") && (
-        <ContentSection
-          title="Top Manhwa"
-          titleJp="韓国トップ"
-          icon={Star}
-          linkTo="/manga?filter=manhwa&sort=score"
-        >
-          {manhwaError ? (
-            <SectionError onRetry={() => refetchManhwa()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {manhwaLoading ? (
-                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                topRatedManhwa?.map((manga, index) => (
-                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    <MangaCard manga={manga} index={index} />
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
-
-      {/* Trending Manhua */}
-      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhua") && (
-        <ContentSection
-          title="Trending Manhua"
-          titleJp="中国漫画"
-          icon={Zap}
-          linkTo="/manga?filter=manhua"
-        >
-          {trendingManhuaError ? (
-            <SectionError onRetry={() => refetchTrendingManhua()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {trendingManhuaLoading ? (
-                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                trendingManhua?.slice(0, 12).map((manga, index) => (
-                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    <MangaCard manga={manga} index={index} />
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
-
-      {/* Top Manhua */}
-      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhua") && (
-        <ContentSection
-          title="Top Manhua"
-          titleJp="中国トップ"
-          icon={Star}
-          linkTo="/manga?filter=manhua&sort=score"
-        >
-          {manhuaError ? (
-            <SectionError onRetry={() => refetchManhua()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {manhuaLoading ? (
-                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                topRatedManhua?.map((manga, index) => (
-                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    <MangaCard manga={manga} index={index} />
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
-
-      {/* New This Week */}
-      {!isSearching && !genreId && (
-        <ContentSection
-          title="New This Week"
-          titleJp="今週の新作"
-          icon={BookOpen}
-          linkTo="/manga?collection=new"
-        >
-          {newThisWeekError ? (
-            <SectionError onRetry={() => refetchNewThisWeek()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {newThisWeekLoading ? (
-                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                newThisWeek?.slice(0, 12).map((manga, index) => (
-                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    <MangaCard manga={manga} index={index} />
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
-
-      {/* Completed Manga */}
-      {!isSearching && !genreId && (
-        <ContentSection
-          title="Completed Series"
-          titleJp="完結作品"
-          icon={CheckCircle}
-          linkTo="/manga?collection=completed"
-        >
-          {completedError ? (
-            <SectionError onRetry={() => refetchCompleted()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {completedLoading ? (
-                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                completedManga?.slice(0, 12).map((manga, index) => (
-                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    <MangaCard manga={manga} index={index} />
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
-
-      {/* Action Manga */}
-      {!isSearching && !genreId && (
-        <ContentSection
-          title="Action"
-          titleJp="アクション"
-          icon={Swords}
-          linkTo="/manga?genre=1"
-        >
-          {actionMangaError ? (
-            <SectionError onRetry={() => refetchActionManga()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {actionMangaLoading ? (
-                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                actionManga?.slice(0, 12).map((manga, index) => (
-                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    <MangaCard manga={manga} index={index} />
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
-
-      {/* Romance Manga */}
-      {!isSearching && !genreId && (
-        <ContentSection
-          title="Romance"
-          titleJp="ロマンス"
-          icon={Heart}
-          linkTo="/manga?genre=22"
-        >
-          {romanceMangaError ? (
-            <SectionError onRetry={() => refetchRomanceManga()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {romanceMangaLoading ? (
-                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                romanceManga?.slice(0, 12).map((manga, index) => (
-                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    <MangaCard manga={manga} index={index} />
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
-
-      {/* Fantasy Manga */}
-      {!isSearching && !genreId && (
-        <ContentSection
-          title="Fantasy"
-          titleJp="ファンタジー"
-          icon={Wand2}
-          linkTo="/manga?genre=10"
-        >
-          {fantasyMangaError ? (
-            <SectionError onRetry={() => refetchFantasyManga()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {fantasyMangaLoading ? (
-                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                fantasyManga?.slice(0, 12).map((manga, index) => (
-                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    <MangaCard manga={manga} index={index} />
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
+      {/* Deferred sections — only load data when scrolled into view */}
+      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manga") && <DeferredTopRatedMangaSection isMobile={isMobile} />}
+      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhwa") && <DeferredTrendingManhwaSection isMobile={isMobile} />}
+      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhwa") && <DeferredTopManhwaSection isMobile={isMobile} />}
+      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhua") && <DeferredTrendingManhuaSection isMobile={isMobile} />}
+      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhua") && <DeferredTopManhuaSection isMobile={isMobile} />}
+      {!isSearching && !genreId && <DeferredNewThisWeekSection isMobile={isMobile} />}
+      {!isSearching && !genreId && <DeferredCompletedSection isMobile={isMobile} />}
+      {!isSearching && !genreId && <DeferredMangaGenreSection genre="Action" titleJp="アクション" icon={Swords} linkTo="/manga?genre=1" isMobile={isMobile} />}
+      {!isSearching && !genreId && <DeferredMangaGenreSection genre="Romance" titleJp="ロマンス" icon={Heart} linkTo="/manga?genre=22" isMobile={isMobile} />}
+      {!isSearching && !genreId && <DeferredMangaGenreSection genre="Fantasy" titleJp="ファンタジー" icon={Wand2} linkTo="/manga?genre=10" isMobile={isMobile} />}
 
       {/* Results anchor */}
       <div ref={resultsRef} />
