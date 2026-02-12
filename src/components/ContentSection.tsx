@@ -26,7 +26,7 @@ export function ContentSection({
   className,
   compact = false,
 }: ContentSectionProps) {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const defaultLinkText = linkText || t("section.seeAll");
   return (
     <section className={cn(compact ? "py-4 sm:py-6" : "py-6 sm:py-10", className)}>
@@ -43,7 +43,7 @@ export function ContentSection({
               <h2 className="text-base sm:text-lg md:text-xl font-bold tracking-tight">
                 {title}
               </h2>
-              {titleJp && (
+              {titleJp && language === "ja" && (
                 <p className="font-jp text-[10px] sm:text-xs text-muted-foreground mt-0.5">
                   {titleJp}
                 </p>

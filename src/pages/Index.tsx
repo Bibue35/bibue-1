@@ -47,7 +47,7 @@ const Index = () => {
   const { data: topManga, isLoading: topMangaLoading, isError: topMangaError, refetch: refetchTopManga } = useTopManga(1, undefined, 'popularity', mangaSection.isVisible);
   const { data: trendingManhwa, isLoading: trendingManhwaLoading, isError: trendingManhwaError, refetch: refetchTrendingManhwa } = useTrendingManhwa(1, mangaSection.isVisible);
   const { data: trendingManhua, isLoading: trendingManhuaLoading, isError: trendingManhuaError, refetch: refetchTrendingManhua } = useTrendingManhua(1, mangaSection.isVisible);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
@@ -320,7 +320,7 @@ const Index = () => {
               </div>
               <div>
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">{t("index.manga")}</h2>
-                <p className="font-jp text-xs sm:text-sm text-muted-foreground">{t("index.mangaJp")}</p>
+                {language === "ja" && <p className="font-jp text-xs sm:text-sm text-muted-foreground">{t("index.mangaJp")}</p>}
               </div>
             </div>
             <Button variant="ghost" size="sm" className="gap-1 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3" asChild>

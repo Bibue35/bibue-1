@@ -42,7 +42,7 @@ export default function MangaPage() {
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   // Debounce search input (150ms default for faster response)
   const debouncedSearch = useDebounce(localSearch.trim());
@@ -167,7 +167,7 @@ export default function MangaPage() {
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
               {t("manga.discover")}
             </h1>
-            <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">{t("manga.discoverJp")}</p>
+            {language === "ja" && <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">{t("manga.discoverJp")}</p>}
             
             {/* Search Input */}
             <SearchDropdown
