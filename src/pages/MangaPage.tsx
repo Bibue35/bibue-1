@@ -20,6 +20,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
 type SortOption = "popularity" | "score" | "newest";
@@ -41,6 +42,7 @@ export default function MangaPage() {
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   // Debounce search input (150ms default for faster response)
   const debouncedSearch = useDebounce(localSearch.trim());
@@ -163,16 +165,16 @@ export default function MangaPage() {
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
-              Discover Manga
+              {t("manga.discover")}
             </h1>
-            <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">漫画を発見</p>
+            <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">{t("manga.discoverJp")}</p>
             
             {/* Search Input */}
             <SearchDropdown
               type="manga"
               value={localSearch}
               onChange={setLocalSearch}
-              placeholder="Search manga, manhwa, manhua..."
+              placeholder={t("manga.searchPlaceholder")}
             />
 
             {/* Action Buttons */}
@@ -182,13 +184,13 @@ export default function MangaPage() {
                   <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
                     <Link to="/recommendations">
                       <Sparkles className="w-4 h-4" />
-                      For You
+                      {t("nav.forYou")}
                     </Link>
                   </Button>
                   <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
                     <Link to="/community">
                       <Users className="w-4 h-4" />
-                      Community
+                      {t("nav.community")}
                     </Link>
                   </Button>
                 </>
@@ -196,7 +198,7 @@ export default function MangaPage() {
               <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
                 <Link to="/watchlist?type=manga">
                   <Bookmark className="w-4 h-4" />
-                  Saved
+                  {t("nav.saved")}
                 </Link>
               </Button>
             </div>
@@ -211,7 +213,7 @@ export default function MangaPage() {
                   className="rounded-full capitalize"
                   onClick={() => handleTypeFilter(type)}
                 >
-                  {type === "all" ? "All" : type.charAt(0).toUpperCase() + type.slice(1)}
+                  {type === "all" ? t("common.all") : type.charAt(0).toUpperCase() + type.slice(1)}
                 </Button>
               ))}
             </div>
@@ -240,8 +242,8 @@ export default function MangaPage() {
       {/* Recently Updated */}
       {!isSearching && !genreId && (
         <ContentSection
-          title="Recently Updated"
-          titleJp="最近更新"
+          title={t("manga.recentlyUpdated")}
+          titleJp={t("manga.recentlyUpdatedJp")}
           icon={RefreshCw}
           linkTo="/manga"
         >
@@ -266,8 +268,8 @@ export default function MangaPage() {
       {/* Most Popular Manga */}
       {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manga") && (
         <ContentSection
-          title="Most Popular Manga"
-          titleJp="人気漫画"
+          title={t("manga.mostPopular")}
+          titleJp={t("manga.mostPopularJp")}
           icon={TrendingUp}
           linkTo="/manga?filter=manga"
         >
@@ -292,8 +294,8 @@ export default function MangaPage() {
       {/* Top Rated Manga */}
       {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manga") && (
         <ContentSection
-          title="Top Rated Manga"
-          titleJp="高評価"
+          title={t("manga.topRated")}
+          titleJp={t("manga.topRatedJp")}
           icon={Trophy}
           linkTo="/manga?filter=manga&sort=score"
         >
@@ -346,13 +348,13 @@ export default function MangaPage() {
         <section className="pb-2">
           <div className="container mx-auto px-3 sm:px-4">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-muted-foreground">Active filters:</span>
+              <span className="text-xs text-muted-foreground">{t("browse.activeFilters")}:</span>
               {typeFilter !== "all" && (
                 <button
                   onClick={() => { isUserAction.current = true; setTypeFilter("all"); }}
                   className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95 min-h-[36px] sm:min-h-0"
                 >
-                  Type: {typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}
+                  {t("browse.type")}: {typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}
                   <span className="text-primary/60 text-sm">×</span>
                 </button>
               )}
@@ -361,7 +363,7 @@ export default function MangaPage() {
                   onClick={() => { isUserAction.current = true; setSortBy("popularity"); }}
                   className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95 min-h-[36px] sm:min-h-0"
                 >
-                  Sort: {sortBy === "score" ? "Top Rated" : "Newest"}
+                  {t("browse.sortBy")}: {sortBy === "score" ? t("browse.topRated") : t("browse.newest")}
                   <span className="text-primary/60 text-sm">×</span>
                 </button>
               )}
@@ -388,10 +390,10 @@ export default function MangaPage() {
         <div className="container mx-auto px-3 sm:px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">
             {isSearching 
-              ? `Search results for "${debouncedSearch}"` 
+              ? `${t("common.searchResults")} "${debouncedSearch}"` 
               : typeFilter !== "all" 
                 ? `Top ${typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}`
-                : "Top Manga"}
+                : t("manga.topManga")}
           </h2>
           
           {isSearching && isLoading ? (
@@ -401,16 +403,16 @@ export default function MangaPage() {
             )}>
               <div className="flex flex-col items-center text-center gap-3 p-8">
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">Searching for "{debouncedSearch}"</p>
+                <p className="text-sm text-muted-foreground">{t("common.searchingFor")} "{debouncedSearch}"</p>
               </div>
             </div>
           ) : isSearching && !isLoading && (displayManga?.length ?? 0) === 0 ? (
             <div className="rounded-2xl liquid-glass-subtle py-12">
               <div className="flex flex-col items-center text-center gap-3 px-6">
-                <p className="text-base font-medium">No results for "{debouncedSearch}"</p>
-                <p className="text-sm text-muted-foreground">Check your spelling or try a different title</p>
+                <p className="text-base font-medium">{t("common.noResults")} "{debouncedSearch}"</p>
+                <p className="text-sm text-muted-foreground">{t("common.checkSpelling")}</p>
                 <Button variant="outline" onClick={clearSearch} className="rounded-full mt-2">
-                  Clear search
+                  {t("common.clearSearch")}
                 </Button>
               </div>
             </div>

@@ -4,6 +4,7 @@ import { Filter, Grid, List, TrendingUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /* ------------------------------------------------------------------ */
 /*  Genre / Collection data                                           */
@@ -120,6 +121,7 @@ export function BrowseFilterBar(props: BrowseFilterBarProps) {
   const { className, defaultOpen = false } = props;
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const [searchParams] = useSearchParams();
+  const { t } = useLanguage();
 
   const isAnime = props.type === "anime";
   const basePath = isAnime ? "/anime" : "/manga";
@@ -161,7 +163,7 @@ export function BrowseFilterBar(props: BrowseFilterBarProps) {
               <div className="p-1.5 rounded-lg bg-primary/10">
                 <Filter className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-sm font-semibold">Browse & Filter</span>
+              <span className="text-sm font-semibold">{t("browse.browseFilter")}</span>
               {activeCount > 0 && (
                 <span className="text-[10px] font-bold bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center">
                   {activeCount}
@@ -182,7 +184,7 @@ export function BrowseFilterBar(props: BrowseFilterBarProps) {
           {collections.length > 0 && (
             <div className="space-y-2">
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Quick Access
+                {t("browse.quickAccess")}
               </span>
               <div className="flex flex-wrap gap-2">
                 {collections.map((col) => {
@@ -208,8 +210,8 @@ export function BrowseFilterBar(props: BrowseFilterBarProps) {
 
           {/* Genres grid */}
           <div className="space-y-2">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Genres
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                {t("browse.genres")}
             </span>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1.5">
               {genres.map((genre) => {
@@ -238,7 +240,7 @@ export function BrowseFilterBar(props: BrowseFilterBarProps) {
           {isAnime && (
             <div className="space-y-2">
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Status
+                {t("browse.status")}
               </span>
               <div className="flex flex-wrap gap-2">
                 {([
@@ -270,15 +272,15 @@ export function BrowseFilterBar(props: BrowseFilterBarProps) {
 
           {/* Sort */}
           <div className="space-y-2">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Sort by
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                {t("browse.sortBy")}
             </span>
             <div className="flex flex-wrap gap-2">
               {isAnime ? (
                 [
-                  { value: "popularity" as const, label: "Most Popular" },
-                  { value: "score" as const, label: "Top Rated" },
-                  { value: "trending" as const, label: "Trending" },
+                  { value: "popularity" as const, label: t("browse.popular") },
+                  { value: "score" as const, label: t("browse.topRated") },
+                  { value: "trending" as const, label: t("browse.trending") },
                 ].map((sort) => {
                   const config = props as AnimeFilterConfig;
                   const active = config.sortBy === sort.value;
@@ -296,9 +298,9 @@ export function BrowseFilterBar(props: BrowseFilterBarProps) {
                 })
               ) : (
                 [
-                  { value: "popularity" as const, label: "Popular" },
-                  { value: "score" as const, label: "Top Rated" },
-                  { value: "newest" as const, label: "Newest" },
+                  { value: "popularity" as const, label: t("browse.popular") },
+                  { value: "score" as const, label: t("browse.topRated") },
+                  { value: "newest" as const, label: t("browse.newest") },
                 ].map((sort) => {
                   const config = props as MangaFilterConfig;
                   const active = config.sortBy === sort.value;
@@ -320,7 +322,7 @@ export function BrowseFilterBar(props: BrowseFilterBarProps) {
 
           {/* View mode */}
           <div className="flex items-center justify-between pt-2 border-t border-border/30">
-            <span className="text-xs text-muted-foreground">View mode:</span>
+            <span className="text-xs text-muted-foreground">{t("browse.viewMode")}:</span>
             <div className="flex items-center gap-2">
               <Button
                 variant={props.viewMode === "grid" ? "outline" : "ghost"}
