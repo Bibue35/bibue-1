@@ -158,6 +158,11 @@
     @apply border-border;
   }
 
+  /* Eliminate 300ms tap delay and enable smooth touch interactions */
+  a, button, [role="button"], input, select, textarea, label {
+    touch-action: manipulation;
+  }
+
   html {
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;

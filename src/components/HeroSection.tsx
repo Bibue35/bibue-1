@@ -72,7 +72,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
     <section className="relative min-h-[65vh] sm:min-h-[75vh] md:min-h-[85vh] flex items-center overflow-hidden">
       {/* Background Image with smooth transition */}
       <div className="absolute inset-0 z-0">
-        <div className="relative w-full h-full">
+        <div className="relative w-full h-full transform-gpu">
           {featuredAnime?.slice(0, 4).map((anime, index) => {
             const isActive = index === selectedIndex;
             return (

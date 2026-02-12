@@ -53,7 +53,7 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
       <>
         <button
           onClick={() => setModalOpen(true)}
-          className="flex items-center gap-3 sm:gap-4 p-3 rounded-xl transition-colors group text-left w-full hover:bg-foreground/5"
+          className="flex items-center gap-3 sm:gap-4 p-3 rounded-xl transition-all duration-150 group text-left w-full hover:bg-foreground/5 active:scale-[0.98]"
         >
           <img
             src={anime.images.webp.image_url}
@@ -109,17 +109,17 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
     <>
       <button
         onClick={() => setModalOpen(true)}
-        className="block group text-left w-full"
+        className="block group text-left w-full active:scale-[0.98] transition-transform duration-150"
       >
         {/* Image with simple hover effect */}
-        <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted">
+        <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted will-change-transform transform-gpu">
           <img
             src={anime.images.webp.image_url}
             alt={anime.title}
             loading="lazy"
             decoding="async"
             sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, 176px"
-            className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 will-change-transform transform-gpu"
           />
           {/* Episode count badge */}
           {episodeCount && !anime.nextAiringEpisode && (

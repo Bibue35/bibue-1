@@ -186,7 +186,7 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
           {/* Main hero card - removed 3D tilt for performance */}
           <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-xl">
             {/* Background Image with GPU-accelerated parallax */}
-            <div className="relative aspect-[3/4] sm:aspect-[16/9] overflow-hidden">
+            <div className="relative aspect-[3/4] sm:aspect-[16/9] overflow-hidden transform-gpu">
               <img
                 src={currentItem.images.webp.large_image_url || currentItem.images.webp.image_url}
                 alt={currentItem.title}
