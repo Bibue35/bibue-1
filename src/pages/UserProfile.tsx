@@ -17,6 +17,7 @@ import { useFollow } from "@/hooks/useFollow";
 import { useUserBadges } from "@/hooks/useUserBadges";
 import { useUserReputation } from "@/hooks/useUserReputation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { 
   MapPin, Link as LinkIcon, Calendar, MessageSquare, 
   Settings, Trophy, Tv, BookOpen, Star
@@ -26,6 +27,7 @@ import { formatDistanceToNow } from "date-fns";
 const UserProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const { user: currentUser } = useAuth();
+  const { t } = useLanguage();
   const [followersModalOpen, setFollowersModalOpen] = useState(false);
   const [followersModalTab, setFollowersModalTab] = useState<"followers" | "following">("followers");
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
@@ -100,9 +102,9 @@ const UserProfile = () => {
         <CollapsibleNavbar />
         <main className="pt-28 pb-16">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-2xl font-bold mb-4">User not found</h1>
+            <h1 className="text-2xl font-bold mb-4">{t("profile.userNotFound")}</h1>
             <Link to="/community">
-              <Button>Back to Community</Button>
+              <Button>{t("profile.backToCommunity")}</Button>
             </Link>
           </div>
         </main>
@@ -155,7 +157,7 @@ const UserProfile = () => {
                   <Link to="/settings">
                     <Button variant="outline" className="gap-2">
                       <Settings className="w-4 h-4" />
-                      Edit Profile
+                      {t("profile.editProfile")}
                     </Button>
                   </Link>
                 ) : (
@@ -213,14 +215,14 @@ const UserProfile = () => {
                   className="hover:underline"
                 >
                   <span className="font-bold">{followersCount}</span>{" "}
-                  <span className="text-muted-foreground">Followers</span>
+                  <span className="text-muted-foreground">{t("profile.followers")}</span>
                 </button>
                 <button
                   onClick={() => openFollowersModal("following")}
                   className="hover:underline"
                 >
                   <span className="font-bold">{followingCount}</span>{" "}
-                  <span className="text-muted-foreground">Following</span>
+                  <span className="text-muted-foreground">{t("profile.following")}</span>
                 </button>
               </div>
             </div>
@@ -229,13 +231,13 @@ const UserProfile = () => {
             <div className="liquid-glass rounded-2xl p-4 space-y-3">
               <h3 className="font-semibold flex items-center gap-2">
                 <Trophy className="w-4 h-4 text-primary" />
-                Stats
+                {t("profile.stats")}
               </h3>
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <StatItem icon={Tv} label="Anime" value={watchlistStats?.animeCount || 0} />
-                <StatItem icon={BookOpen} label="Manga" value={watchlistStats?.mangaCount || 0} />
-                <StatItem icon={Star} label="Completed" value={watchlistStats?.completedCount || 0} />
-                <StatItem icon={Trophy} label="Karma" value={reputation?.karma || 0} />
+                <StatItem icon={Tv} label={t("stats.anime")} value={watchlistStats?.animeCount || 0} />
+                <StatItem icon={BookOpen} label={t("stats.manga")} value={watchlistStats?.mangaCount || 0} />
+                <StatItem icon={Star} label={t("status.completed")} value={watchlistStats?.completedCount || 0} />
+                <StatItem icon={Trophy} label={t("profile.karma")} value={reputation?.karma || 0} />
               </div>
             </div>
           </div>
@@ -243,14 +245,14 @@ const UserProfile = () => {
           {/* Tabs */}
           <Tabs defaultValue="activity" className="space-y-6">
             <TabsList className="liquid-glass-subtle p-1 rounded-full">
-              <TabsTrigger value="activity" className="rounded-full">Activity</TabsTrigger>
-              <TabsTrigger value="badges" className="rounded-full">Badges</TabsTrigger>
-              <TabsTrigger value="lists" className="rounded-full">Lists</TabsTrigger>
+              <TabsTrigger value="activity" className="rounded-full">{t("profile.activity")}</TabsTrigger>
+              <TabsTrigger value="badges" className="rounded-full">{t("profile.badges")}</TabsTrigger>
+              <TabsTrigger value="lists" className="rounded-full">{t("profile.lists")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="activity">
               <div className="liquid-glass rounded-2xl p-6">
-                <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
+                <h3 className="text-lg font-semibold mb-4">{t("profile.recentActivity")}</h3>
                 <ActivityFeed userId={userId} limit={20} showUser={false} />
               </div>
             </TabsContent>
@@ -258,7 +260,7 @@ const UserProfile = () => {
             <TabsContent value="badges">
               <div className="liquid-glass rounded-2xl p-6">
                 <h3 className="text-lg font-semibold mb-4">
-                  Badges ({badges?.length || 0})
+                  {t("profile.badges")} ({badges?.length || 0})
                 </h3>
                 {badges?.length ? (
                   <div className="flex flex-wrap gap-3">
@@ -267,21 +269,21 @@ const UserProfile = () => {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted-foreground">No badges earned yet</p>
+                  <p className="text-muted-foreground">{t("profile.noBadges")}</p>
                 )}
               </div>
             </TabsContent>
 
             <TabsContent value="lists">
               <div className="liquid-glass rounded-2xl p-6">
-                <h3 className="text-lg font-semibold mb-4">Lists</h3>
+                <h3 className="text-lg font-semibold mb-4">{t("profile.lists")}</h3>
                 <p className="text-muted-foreground">
                   {isOwnProfile ? (
                     <Link to="/watchlist" className="text-primary hover:underline">
-                      View your watchlist →
+                      {t("profile.viewWatchlist")}
                     </Link>
                   ) : (
-                    "User's lists will appear here"
+                    t("profile.listsAppear")
                   )}
                 </p>
               </div>

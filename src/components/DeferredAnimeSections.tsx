@@ -73,7 +73,7 @@ function ClassicContent({ isMobile, enabled }: { isMobile: boolean; enabled: boo
 export function DeferredAllTimeTopSection({ isMobile }: { isMobile: boolean }) {
   const { t } = useLanguage();
   return (
-    <DeferredAnimeSection title={t("anime.allTimeTop")} titleJp={t("anime.allTimeTopJp")} icon={Trophy} linkTo="/rankings" isMobile={isMobile}>
+    <DeferredAnimeSection title={t("anime.allTimeTop")} titleJp={t("anime.allTimeTopJp")} icon={Trophy} linkTo="/anime?filter=bypopularity" isMobile={isMobile}>
       {(isVisible) => <AllTimeTopContent isMobile={isMobile} enabled={isVisible} />}
     </DeferredAnimeSection>
   );

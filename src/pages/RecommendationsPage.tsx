@@ -11,12 +11,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
-const mediaTypes: { value: MediaType; label: string; icon: typeof Tv }[] = [
-  { value: "anime", label: "Anime", icon: Tv },
-  { value: "manga", label: "Manga", icon: BookOpen },
-];
-
 export default function RecommendationsPage() {
+  const { user } = useAuth();
+  const { t, language } = useLanguage();
+  const [activeType, setActiveType] = useState<MediaType>("anime");
+  const { recommendations, isLoading, hasWatchlistItems, watchlistCount } = useRecommendations(activeType);
+
+  const mediaTypes: { value: MediaType; label: string; icon: typeof Tv }[] = [
+    { value: "anime", label: t("stats.anime"), icon: Tv },
+    { value: "manga", label: t("stats.manga"), icon: BookOpen },
+  ];
   const { user } = useAuth();
   const { t, language } = useLanguage();
   const [activeType, setActiveType] = useState<MediaType>("anime");
