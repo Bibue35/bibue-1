@@ -265,20 +265,6 @@ export default function AnimeDetailPage() {
     });
   };
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center px-4">
-          <h1 className="text-3xl font-bold font-sacred mb-4">{t("detail.errorLoading")} Anime</h1>
-          <p className="text-muted-foreground mb-6">{t("common.somethingWrong")}</p>
-          <Link to="/">
-            <Button variant="outline">{t("common.goHome")}</Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   const episodes = anime ? generateEpisodes(anime.episodes || 12) : [];
   const totalEpisodes = episodes.length;
 
@@ -302,6 +288,20 @@ export default function AnimeDetailPage() {
     threshold: 120,
     minSwipeDistance: 30,
   });
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center px-4">
+          <h1 className="text-3xl font-bold font-sacred mb-4">{t("detail.errorLoading")} Anime</h1>
+          <p className="text-muted-foreground mb-6">{t("common.somethingWrong")}</p>
+          <Link to="/">
+            <Button variant="outline">{t("common.goHome")}</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
