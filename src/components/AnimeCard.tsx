@@ -1,8 +1,8 @@
-import { useState, memo, forwardRef } from "react";
+import { useState, memo, forwardRef, lazy, Suspense } from "react";
 import { Star, Calendar, Play } from "lucide-react";
 import { Anime, formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { AnimeDetailModal } from "./AnimeDetailModal";
+const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ default: m.AnimeDetailModal })));
 import { WatchlistButton } from "./WatchlistButton";
 import { TitleTooltip } from "./TitleTooltip";
 import { EpisodeCountdown } from "./EpisodeCountdown";
@@ -92,11 +92,15 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
           </div>
         </button>
         
-        <AnimeDetailModal
-          animeId={anime.anilist_id}
-          open={modalOpen}
-          onOpenChange={setModalOpen}
-        />
+        {modalOpen && (
+          <Suspense fallback={null}>
+            <AnimeDetailModal
+              animeId={anime.anilist_id}
+              open={modalOpen}
+              onOpenChange={setModalOpen}
+            />
+          </Suspense>
+        )}
       </>
     );
   }
@@ -188,11 +192,15 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
         </div>
       </button>
       
-      <AnimeDetailModal
-        animeId={anime.anilist_id}
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-      />
+      {modalOpen && (
+        <Suspense fallback={null}>
+          <AnimeDetailModal
+            animeId={anime.anilist_id}
+            open={modalOpen}
+            onOpenChange={setModalOpen}
+          />
+        </Suspense>
+      )}
     </>
   );
 }));

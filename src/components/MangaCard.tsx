@@ -1,8 +1,8 @@
-import { useState, memo, forwardRef } from "react";
+import { useState, memo, forwardRef, lazy, Suspense } from "react";
 import { Star, BookOpen, Calendar } from "lucide-react";
 import { Manga, formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { MangaDetailModal } from "./MangaDetailModal";
+const MangaDetailModal = lazy(() => import("./MangaDetailModal").then(m => ({ default: m.MangaDetailModal })));
 import { WatchlistButton } from "./WatchlistButton";
 import { TitleTooltip } from "./TitleTooltip";
 
@@ -72,11 +72,15 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
           </div>
         </button>
         
-        <MangaDetailModal
-          mangaId={manga.anilist_id}
-          open={modalOpen}
-          onOpenChange={setModalOpen}
-        />
+        {modalOpen && (
+          <Suspense fallback={null}>
+            <MangaDetailModal
+              mangaId={manga.anilist_id}
+              open={modalOpen}
+              onOpenChange={setModalOpen}
+            />
+          </Suspense>
+        )}
       </>
     );
   }
@@ -154,11 +158,15 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
         </div>
       </button>
       
-      <MangaDetailModal
-        mangaId={manga.anilist_id}
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-      />
+      {modalOpen && (
+        <Suspense fallback={null}>
+          <MangaDetailModal
+            mangaId={manga.anilist_id}
+            open={modalOpen}
+            onOpenChange={setModalOpen}
+          />
+        </Suspense>
+      )}
     </>
   );
 }));

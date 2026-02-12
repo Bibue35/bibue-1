@@ -1,8 +1,8 @@
-import { useState, memo, useCallback } from "react";
+import { useState, memo, useCallback, lazy, Suspense } from "react";
 import { Star, Play, Plus, Check } from "lucide-react";
 import { Anime, formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { AnimeDetailModal } from "./AnimeDetailModal";
+const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ default: m.AnimeDetailModal })));
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -210,11 +210,15 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
           </button>
         </button>
 
-        <AnimeDetailModal
-          animeId={anime.anilist_id}
-          open={modalOpen}
-          onOpenChange={setModalOpen}
-        />
+        {modalOpen && (
+          <Suspense fallback={null}>
+            <AnimeDetailModal
+              animeId={anime.anilist_id}
+              open={modalOpen}
+              onOpenChange={setModalOpen}
+            />
+          </Suspense>
+        )}
       </>
     );
   }
@@ -297,11 +301,15 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
       </div>
     </button>
 
-      <AnimeDetailModal
-        animeId={anime.anilist_id}
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-      />
+      {modalOpen && (
+        <Suspense fallback={null}>
+          <AnimeDetailModal
+            animeId={anime.anilist_id}
+            open={modalOpen}
+            onOpenChange={setModalOpen}
+          />
+        </Suspense>
+      )}
     </>
   );
 });

@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, useCallback, memo } from "react";
+import { useState, useEffect, useRef, useCallback, memo, lazy, Suspense } from "react";
 import { ChevronLeft, ChevronRight, Play, Star, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Anime, formatScore } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { AnimeDetailModal } from "./AnimeDetailModal";
+const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ default: m.AnimeDetailModal })));
 import { HeroSkeleton } from "./skeletons";
 import { useIsMobile } from "@/hooks/use-mobile";
 interface FeaturedCarouselProps {
@@ -321,12 +321,14 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
         </div>
       </div>
 
-      {selectedAnimeId && (
-        <AnimeDetailModal
-          animeId={selectedAnimeId}
-          open={modalOpen}
-          onOpenChange={setModalOpen}
-        />
+      {selectedAnimeId && modalOpen && (
+        <Suspense fallback={null}>
+          <AnimeDetailModal
+            animeId={selectedAnimeId}
+            open={modalOpen}
+            onOpenChange={setModalOpen}
+          />
+        </Suspense>
       )}
     </>
   );
