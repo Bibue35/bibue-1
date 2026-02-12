@@ -23,7 +23,8 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedAnimeId, setSelectedAnimeId] = useState<number | null>(null);
-  const [scrollY, setScrollY] = useState(0);
+  // Use ref for parallax to avoid re-renders on scroll
+  const parallaxRef = useRef<HTMLImageElement | null>(null);
   const navigate = useNavigate();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -80,11 +81,8 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
     const el = containerRef.current;
     if (!el) return;
 
-    // Use IntersectionObserver to track visibility without forced reflow
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        isVisibleRef.current = entry.isIntersecting;
-      },
+      ([entry]) => { isVisibleRef.current = entry.isIntersecting; },
       { threshold: 0 }
     );
     observer.observe(el);
@@ -96,11 +94,13 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
     const handleScroll = () => {
       if (!ticking && isVisibleRef.current) {
         rafId = requestAnimationFrame(() => {
-          // Use window.scrollY instead of getBoundingClientRect to avoid forced reflow
           const delta = window.scrollY - lastScrollY;
           lastScrollY = window.scrollY;
           scrollYRef.current = Math.max(0, Math.min(40, scrollYRef.current + delta * 0.1));
-          setScrollY(scrollYRef.current);
+          // Apply directly to DOM — no React re-render
+          if (parallaxRef.current) {
+            parallaxRef.current.style.transform = `translate3d(0, ${-scrollYRef.current}px, 0) scale(1.1)`;
+          }
           ticking = false;
         });
         ticking = true;
@@ -188,6 +188,7 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
             {/* Background Image with GPU-accelerated parallax */}
             <div className="relative aspect-[3/4] sm:aspect-[16/9] overflow-hidden transform-gpu">
               <img
+                ref={parallaxRef}
                 src={currentItem.images.webp.large_image_url || currentItem.images.webp.image_url}
                 alt={currentItem.title}
                 loading="eager"
@@ -196,7 +197,7 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
                 sizes="100vw"
                 className="w-full h-full object-cover object-top will-change-transform"
                 style={{
-                  transform: `translate3d(0, ${-scrollY}px, 0) scale(1.1)`,
+                  transform: `translate3d(0, 0, 0) scale(1.1)`,
                 }}
               />
               

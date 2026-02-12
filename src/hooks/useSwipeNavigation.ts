@@ -70,13 +70,11 @@ export function useSwipeNavigation({
     if (!containerRef.current) return;
 
     if (navigating && swipeDirection !== 0) {
-      // Slide OFF-screen in the swipe direction
       const offscreenX = swipeDirection * -window.innerWidth;
-      containerRef.current.style.transition = "transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+      containerRef.current.style.transition = "transform 0.15s cubic-bezier(0.4, 0, 1, 1)";
       containerRef.current.style.transform = `translate3d(${offscreenX}px, 0, 0)`;
     } else {
-      // Snap back to center (cancelled swipe)
-      containerRef.current.style.transition = "transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+      containerRef.current.style.transition = "transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
       containerRef.current.style.transform = "translate3d(0, 0, 0)";
     }
 
@@ -87,13 +85,13 @@ export function useSwipeNavigation({
         containerRef.current.style.transform = "";
       }
     };
-    setTimeout(cleanup, 210);
+    setTimeout(cleanup, 160);
 
     if (indicatorRef.current) {
       indicatorRef.current.style.opacity = "0";
       setTimeout(() => {
         if (indicatorRef.current) indicatorRef.current.style.display = "none";
-      }, 150);
+      }, 100);
     }
   }, []);
 
