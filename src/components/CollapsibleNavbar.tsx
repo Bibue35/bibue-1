@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Search, Menu, X, Users, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { AuthModal } from "./AuthModal";
+const AuthModal = lazy(() => import("./AuthModal").then(m => ({ default: m.AuthModal })));
 import bibueTower from "@/assets/bibue-tower.png";
 
 export function CollapsibleNavbar() {
@@ -246,7 +246,11 @@ export function CollapsibleNavbar() {
       )}
 
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+      {authModalOpen && (
+        <Suspense fallback={null}>
+          <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+        </Suspense>
+      )}
     </>
   );
 }
