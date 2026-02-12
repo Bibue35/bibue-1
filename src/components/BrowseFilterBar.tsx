@@ -233,34 +233,7 @@ export function BrowseFilterBar(props: BrowseFilterBarProps) {
             </div>
           </div>
 
-          {/* Type filter (manga only) */}
-          {!isAnime && (
-            <div className="space-y-2">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Type
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {(["all", "manga", "manhwa", "manhua"] as const).map((f) => {
-                  const config = props as MangaFilterConfig;
-                  const active = config.typeFilter === f;
-                  return (
-                    <Button
-                      key={f}
-                      variant={active ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => config.onTypeFilterChange(f)}
-                      className={cn(
-                        "rounded-full text-xs capitalize h-8",
-                        !active && "bg-muted/40"
-                      )}
-                    >
-                      {f === "all" ? "All" : f}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          {/* Type filter moved to hero section for manga */}
 
           {/* Status filter (anime only) */}
           {isAnime && (
