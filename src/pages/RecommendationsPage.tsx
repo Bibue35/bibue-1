@@ -21,10 +21,6 @@ export default function RecommendationsPage() {
     { value: "anime", label: t("stats.anime"), icon: Tv },
     { value: "manga", label: t("stats.manga"), icon: BookOpen },
   ];
-  const { user } = useAuth();
-  const { t, language } = useLanguage();
-  const [activeType, setActiveType] = useState<MediaType>("anime");
-  const { recommendations, isLoading, hasWatchlistItems, watchlistCount } = useRecommendations(activeType);
 
   if (!user) {
     return (
