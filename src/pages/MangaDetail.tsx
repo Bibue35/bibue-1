@@ -17,6 +17,7 @@ import { formatDistanceToNow } from "date-fns";
 import { validateComment } from "@/lib/validation";
 import { MangaReader } from "@/components/MangaReader";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
+import { useTranslatedText } from "@/hooks/useTranslatedText";
 
 export default function MangaDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +30,7 @@ export default function MangaDetailPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { lastChapterRead } = useReadingProgress(Number(id), "manga");
+  const translatedSynopsis = useTranslatedText(manga?.synopsis);
 
   // Generate mock chapter data - show ALL chapters
   const generateChapters = (count: number) => {
@@ -293,7 +295,7 @@ export default function MangaDetailPage() {
                     </>
                   ) : (
                     <p className="text-muted-foreground leading-relaxed">
-                      {manga?.synopsis || t("detail.noSynopsis")}
+                      {translatedSynopsis || t("detail.noSynopsis")}
                     </p>
                   )}
                 </div>

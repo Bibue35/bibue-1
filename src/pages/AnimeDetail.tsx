@@ -18,6 +18,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { validateComment } from "@/lib/validation";
 import { useWatchlist } from "@/hooks/useWatchlist";
+import { useTranslatedText } from "@/hooks/useTranslatedText";
 import { useSwipeGesture } from "@/hooks/useSwipeGesture";
 import { useMiniPlayer } from "@/contexts/MiniPlayerContext";
 
@@ -40,6 +41,7 @@ export default function AnimeDetailPage() {
   const { addToWatchlist, removeFromWatchlist, isInWatchlist, isLoading: watchlistLoading } = useWatchlist();
   const { activateMiniPlayer } = useMiniPlayer();
   
+  const translatedSynopsis = useTranslatedText(anime?.synopsis);
   const isBookmarked = isInWatchlist(Number(id), "anime");
 
   // Hide controls after 3 seconds of inactivity
@@ -505,7 +507,7 @@ export default function AnimeDetailPage() {
               <div className="mb-4 sm:mb-6">
                 <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">{t("detail.synopsis")}</h3>
                 <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed line-clamp-4 sm:line-clamp-none">
-                  {anime?.synopsis || t("detail.noSynopsis")}
+                  {translatedSynopsis || t("detail.noSynopsis")}
                 </p>
               </div>
 
