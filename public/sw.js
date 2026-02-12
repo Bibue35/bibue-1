@@ -71,6 +71,8 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(fetch(request));
 
+});
+
 // Cache-first: use cache, fallback to network
 async function cacheFirst(request, cacheName) {
   const cached = await caches.match(request);

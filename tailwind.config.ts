@@ -79,7 +79,7 @@ export default {
       },
       fontFamily: {
         sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
-        jp: ["Noto Sans JP", "sans-serif"],
+        jp: ['"Hiragino Kaku Gothic Pro"', '"Yu Gothic"', '"Meiryo"', '"Noto Sans CJK JP"', "sans-serif"],
         sacred: ["Cinzel", "Georgia", "serif"],
       },
       keyframes: {

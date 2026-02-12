@@ -40,15 +40,14 @@ export const HorizontalScroll = memo(function HorizontalScroll({
     const el = scrollRef.current;
     if (!el) return;
     
-    // Defer initial check until after first paint to avoid forced reflow
-    // Use double-rAF to ensure we're past layout/paint phases
-    let frameId1: number;
-    let frameId2: number;
-    frameId1 = requestAnimationFrame(() => {
-      frameId2 = requestAnimationFrame(() => {
-        checkScroll();
-      });
-    });
+    // Defer initial check until browser is idle to avoid forced reflow on mount
+    let idleHandle: number;
+    const win = window as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
+    if (win.requestIdleCallback) {
+      idleHandle = win.requestIdleCallback(() => checkScroll(), { timeout: 500 });
+    } else {
+      idleHandle = window.setTimeout(() => checkScroll(), 100);
+    }
     
     el.addEventListener("scroll", checkScroll, { passive: true });
     
@@ -57,8 +56,11 @@ export const HorizontalScroll = memo(function HorizontalScroll({
     resizeObserver.observe(el);
     
     return () => {
-      cancelAnimationFrame(frameId1);
-      cancelAnimationFrame(frameId2);
+      if (win.cancelIdleCallback) {
+        win.cancelIdleCallback(idleHandle);
+      } else {
+        clearTimeout(idleHandle);
+      }
       cancelAnimationFrame(rafIdRef.current);
       el.removeEventListener("scroll", checkScroll);
       resizeObserver.disconnect();
