@@ -1,56 +1,113 @@
 
 
-## Fix Swipe Navigation Jittering and Lag
+# Perfect Bibue End-to-End
 
-### Problem Analysis
+A comprehensive polish pass addressing broken links, hardcoded English text, missing translations, and UI consistency issues across every page.
 
-The swipe-to-navigate experience feels bad because of **three conflicting motion systems** fighting each other:
+---
 
-1. **Bounce-back before navigation**: When you finish swiping, the page snaps BACK to center (`translate3d(0,0,0)`) over 300ms, then 80ms later the route changes. So the page bounces back toward you before the new page loads -- very jarring.
+## Issues Found
 
-2. **Page-enter animation on every route change**: `AnimatedRoutes` uses `key={location.pathname}` which forces a full unmount/remount, and applies a `page-enter` CSS animation (fade up from `translateY(10px)` + opacity 0 to 1 over 300ms). This creates a second visible animation after the bounce-back.
+### 1. Broken Route: `/rankings` link in Navbar
+The `Navbar.tsx` component links to `/rankings`, but the Rankings route was removed from `App.tsx`. This means desktop users clicking "Rankings" in the old Navbar get a 404. The `DeferredAnimeSections.tsx` also links to `/rankings`.
 
-3. **Heavy page re-render**: Because of `key={location.pathname}`, the entire page tree is destroyed and rebuilt on every swipe, causing main-thread work that produces visible stuttering.
+### 2. Hardcoded English Across Multiple Pages
+The following pages/components still contain untranslated strings:
 
-The result: swipe right, page bounces back, goes blank, then fades up from below. Three jarring transitions instead of one smooth slide.
+**StatsPage.tsx** -- All labels are English-only:
+- "My Stats", "Watch Time", "Episodes", "Chapters", "Avg Score", "Status Breakdown", "Watching", "Completed", "On Hold", "Dropped", "Plan to Watch", "Completion Rate", "Sign in to view your stats", "No data yet", "Loading stats..."
 
-### Solution
+**UserProfile.tsx** -- Tabs and labels:
+- "Activity", "Badges", "Lists", "Recent Activity", "Edit Profile", "Back to Community", "User not found", "Followers", "Following", "Stats", "Karma", "Joined X ago", "No badges earned yet", "User's lists will appear here", "View your watchlist"
 
-Rework the swipe completion flow so it feels like a **single fluid slide transition**:
+**ClassicsPage.tsx** -- Hero and filter text:
+- "Classic Collection", "Anime Classics", "Explore the timeless masterpieces...", "All Classics", "For You", "Saved", "Browsing:", "No anime found for this era", "Sorted by score", decade labels
 
-**1. Slide OFF-screen instead of bouncing back (useSwipeNavigation.ts)**
-- On successful swipe, slide the current page **out** in the swipe direction (e.g., `translate3d(-100vw, 0, 0)` when swiping left toward Manga)
-- Navigate immediately after the slide-out starts (no 80ms delay)
-- The new page appears as the old one slides away
+**MessagesPage.tsx**:
+- "Please sign in to view your messages", "Loading..."
 
-**2. Skip fade-up animation for swipe navigations (AnimatedRoutes.tsx)**
-- Add a shared flag (via ref or context) that swipe navigation sets before calling `navigate()`
-- When `AnimatedRoutes` detects a swipe-triggered navigation, it skips the `page-enter` animation entirely so the new page appears instantly
-- Non-swipe navigations (clicking links, etc.) keep the existing fade-up animation
+**AnimeDetail.tsx** -- Metadata labels:
+- "Source", "Episodes", "Status", "Aired", "Rating", "Rank", "Popularity", "Duration", "Share your thoughts...", "Sign in to comment...", "Post Comment", "Sign in to Comment"
 
-**3. Remove `key={location.pathname}` from AnimatedRoutes**
-- This is the main cause of the stutter -- it forces React to destroy and rebuild the entire page tree
-- Replace with a simple class toggle that doesn't remount children
+**MangaDetail.tsx** -- Metadata labels:
+- "Author", "Rating", "Status", "Last Update", "Share your thoughts...", "Sign in to comment...", "Post Comment"
 
-### Technical Details
+**AvatarPicker.tsx**:
+- "Upload", "Choose File", "Uploading...", "Recommended: Square image, max 2MB", "No characters found", "Search for your favorite character", "Use This Avatar", "Cancel", "Search anime/manga characters..."
 
-**useSwipeNavigation.ts changes:**
-- New `resetTransform` behavior: when `navigating=true`, slide to `translate3d(${direction * -window.innerWidth}px, 0, 0)` instead of `translate3d(0,0,0)`
-- Set a module-level `isSwipeNav` flag before calling `navigate()`
-- Remove the 80ms `setTimeout` -- navigate immediately
-- Reduce transition duration to 200ms for snappier feel
+**NotFound.tsx**:
+- "Page Not Found", "The page you're looking for doesn't exist...", "Return Home"
 
-**AnimatedRoutes.tsx changes:**
-- Export a function `consumeSwipeNavFlag()` that reads and clears the flag
-- On route change, check the flag -- if set, skip the `page-enter` animation class
-- Remove `key={location.pathname}` to prevent full remounts
+**RecommendationsPage.tsx**:
+- Media type labels "Anime"/"Manga" in the toggle are hardcoded
 
-**SwipeNavigationWrapper.tsx changes:**
-- No structural changes needed, just benefits from the smoother hook behavior
+**WatchlistPage.tsx**:
+- "All Categories", "Uncategorized", "Category" placeholder
 
-### Expected Result
-- Swiping left: current page slides out to the left, Manga page appears immediately
-- Swiping right: current page slides out to the right, Anime page appears immediately
-- No bounce-back, no double animation, no jittering from full remounts
-- Clicking nav links still gets the subtle fade-up transition
+### 3. `Navbar.tsx` is Unused (dead code)
+The app uses `CollapsibleNavbar` and `FloatingNav`, but `Navbar.tsx` still exists with a broken `/rankings` link. It should be cleaned up or removed.
+
+### 4. `/rankings` Links in DeferredAnimeSections
+Links to `/rankings` in `DeferredAnimeSections.tsx` point to a removed route.
+
+### 5. Japanese subtitle shown on StatsPage for all languages
+`StatsPage.tsx` line 106 always shows the JP subtitle regardless of language setting.
+
+---
+
+## Implementation Plan
+
+### Step 1: Add Missing Translation Keys
+Add all missing keys to `LanguageContext.tsx` for all 8 languages. This includes keys for:
+- Stats page labels (watch time, episodes, chapters, avg score, status breakdown, completion rate)
+- User profile labels (activity, badges, lists, followers, following, edit profile, karma, joined)
+- Classics page labels (classic collection, anime classics, all classics, browse by decade, era, sorted by score)
+- Messages page labels (sign in to view messages)
+- Detail page metadata (source, aired, rating, duration, rank, popularity, author, last update)
+- Comments (share your thoughts, sign in to comment, post comment)
+- Avatar picker (upload, choose file, uploading, recommended, no characters found, search character, use this avatar, cancel)
+- 404 page (page not found, return home)
+- Watchlist extras (all categories, uncategorized)
+
+### Step 2: Apply `t()` to StatsPage
+Replace all hardcoded strings with translation function calls. Fix the JP subtitle to only show when `language === "ja"`.
+
+### Step 3: Apply `t()` to UserProfile
+Translate tab labels, section headers, follow stats, action buttons, and empty states.
+
+### Step 4: Apply `t()` to ClassicsPage
+Translate hero section, decade labels, filter text, and empty states.
+
+### Step 5: Apply `t()` to MessagesPage
+Translate sign-in prompt and loading state.
+
+### Step 6: Apply `t()` to AnimeDetail and MangaDetail
+Translate metadata labels and comment section text.
+
+### Step 7: Apply `t()` to AvatarPicker
+Translate tab labels, upload text, search placeholder, and dialog buttons.
+
+### Step 8: Apply `t()` to NotFound
+Translate heading, description, and button text.
+
+### Step 9: Fix Broken `/rankings` Links
+- **Navbar.tsx**: Remove the `/rankings` link (or remove the file if it's unused)
+- **DeferredAnimeSections.tsx**: Change `/rankings` to `/anime?filter=bypopularity` or similar valid route
+
+### Step 10: Fix RecommendationsPage Media Type Labels
+Use `t("stats.anime")` / `t("stats.manga")` for the toggle labels instead of hardcoded "Anime"/"Manga".
+
+### Step 11: Fix WatchlistPage Category Strings
+Translate "All Categories", "Uncategorized", and "Category" placeholder.
+
+---
+
+## Technical Details
+
+- All changes are in the `src/` directory only
+- The `LanguageContext.tsx` file will grow by ~200-300 lines to accommodate new keys across all 8 languages
+- No new dependencies needed
+- No database or backend changes required
+- All fixes follow existing patterns (using `useLanguage()` hook and `t()` function)
+- The JP subtitle pattern (only show when `language === "ja"`) is already established and will be applied consistently
 
