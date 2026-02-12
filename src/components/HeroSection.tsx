@@ -53,8 +53,8 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
               key={anime.anilist_id}
               src={anime.images.webp.large_image_url}
               alt={anime.title}
-              loading={index === 0 ? "eager" : "lazy"}
-              fetchPriority={index === 0 ? "high" : "auto"}
+              loading={index === selectedIndex ? "eager" : "lazy"}
+              fetchPriority={index === selectedIndex ? "high" : "auto"}
               decoding="async"
               className={cn(
                 "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
