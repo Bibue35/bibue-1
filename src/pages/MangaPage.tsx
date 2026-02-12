@@ -201,6 +201,21 @@ export default function MangaPage() {
               </Button>
             </div>
 
+            {/* Type Filter Pills */}
+            <div className="flex flex-wrap justify-center gap-2 mt-4">
+              {(["all", "manga", "manhwa", "manhua"] as const).map((type) => (
+                <Button
+                  key={type}
+                  variant={typeFilter === type ? "primary" : "outline"}
+                  size="sm"
+                  className="rounded-full capitalize"
+                  onClick={() => handleTypeFilter(type)}
+                >
+                  {type === "all" ? "All" : type.charAt(0).toUpperCase() + type.slice(1)}
+                </Button>
+              ))}
+            </div>
+
           </div>
         </div>
       </section>
