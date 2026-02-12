@@ -148,7 +148,6 @@ export function BrowseFilterBar(props: BrowseFilterBarProps) {
   const activeCount = [
     currentGenre,
     isAnime ? (props as AnimeFilterConfig).filter : null,
-    !isAnime && (props as MangaFilterConfig).typeFilter !== "all" ? (props as MangaFilterConfig).typeFilter : null,
     isAnime ? ((props as AnimeFilterConfig).sortBy !== "popularity" ? "sort" : null) : ((props as MangaFilterConfig).sortBy !== "popularity" ? "sort" : null),
   ].filter(Boolean).length;
 
