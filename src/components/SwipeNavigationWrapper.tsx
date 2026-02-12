@@ -2,6 +2,16 @@ import { memo, useEffect } from "react";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useQueryClient } from "@tanstack/react-query";
+import { useLanguage } from "@/contexts/LanguageContext";
+import {
+  getTopAnime,
+  getSeasonalAnime,
+  getTopManga,
+  getRecentlyUpdatedAnime,
+  getRecentlyUpdatedManga,
+  SupportedLanguage,
+} from "@/lib/api";
 
 interface SwipeNavigationWrapperProps {
   children: React.ReactNode;
@@ -31,21 +41,47 @@ export const SwipeNavigationWrapper = memo(function SwipeNavigationWrapper({
   });
   const isMobile = useIsMobile();
   const location = useLocation();
+  const queryClient = useQueryClient();
+  const { language } = useLanguage();
 
   const currentIndex = TAB_ROUTES.indexOf(location.pathname);
 
-  // Preload adjacent page chunks on mount / route change
+  // Preload adjacent page chunks AND prefetch their data
   useEffect(() => {
     const preload = PRELOAD_MAP[location.pathname];
-    if (preload) {
-      // Use requestIdleCallback to avoid blocking the main thread
-      if ("requestIdleCallback" in window) {
-        (window as any).requestIdleCallback(preload);
-      } else {
-        setTimeout(preload, 100);
+    if (!preload) return;
+
+    const prefetchData = () => {
+      preload(); // JS chunks
+
+      const lang = language as SupportedLanguage;
+      const staleTime = 1000 * 60 * 10;
+
+        // Prefetch data for adjacent pages based on current route
+        if (location.pathname === "/") {
+          // Prefetch Anime page data
+          queryClient.prefetchQuery({ queryKey: ["topAnime", 1, "airing", lang], queryFn: () => getTopAnime(1, 25, "airing", lang), staleTime });
+          queryClient.prefetchQuery({ queryKey: ["recentlyUpdatedAnime", 1, lang], queryFn: () => getRecentlyUpdatedAnime(1, 25, lang), staleTime });
+          // Prefetch Manga page data
+          queryClient.prefetchQuery({ queryKey: ["topManga", 1, undefined, "popularity", lang], queryFn: () => getTopManga(1, 25, undefined, "popularity", lang), staleTime });
+          queryClient.prefetchQuery({ queryKey: ["recentlyUpdatedManga", 1, lang], queryFn: () => getRecentlyUpdatedManga(1, 25, lang), staleTime });
+      } else if (location.pathname === "/anime") {
+        // Prefetch Home page data
+        queryClient.prefetchQuery({ queryKey: ["topAnime", 1, "airing", lang], queryFn: () => getTopAnime(1, 25, "airing", lang), staleTime });
+        queryClient.prefetchQuery({ queryKey: ["seasonalAnime", undefined, undefined, lang], queryFn: () => getSeasonalAnime(undefined, undefined, lang), staleTime });
+      } else if (location.pathname === "/manga") {
+        // Prefetch Home page data
+        queryClient.prefetchQuery({ queryKey: ["topAnime", 1, "airing", lang], queryFn: () => getTopAnime(1, 25, "airing", lang), staleTime });
+        queryClient.prefetchQuery({ queryKey: ["seasonalAnime", undefined, undefined, lang], queryFn: () => getSeasonalAnime(undefined, undefined, lang), staleTime });
       }
+    };
+
+    if ("requestIdleCallback" in window) {
+      (window as any).requestIdleCallback(prefetchData);
+    } else {
+      setTimeout(prefetchData, 100);
     }
-  }, [location.pathname]);
+  }, [location.pathname, queryClient, language]);
   const canSwipeRight = currentIndex > 0;
   const canSwipeLeft = currentIndex < TAB_ROUTES.length - 1 && currentIndex !== -1;
 
