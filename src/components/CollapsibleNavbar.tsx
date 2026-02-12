@@ -26,13 +26,13 @@ export function CollapsibleNavbar() {
     { href: "/anime", label: t("nav.anime") },
     { href: "/manga", label: t("nav.manga") },
     { href: "/news", label: t("nav.news") },
-    { href: "/recommendations", label: "For You" },
+    { href: "/recommendations", label: t("nav.forYou") },
   ];
 
   // Mobile menu only shows non-swipable pages
   const mobileMenuLinks = [
     { href: "/news", label: t("nav.news") },
-    { href: "/recommendations", label: "For You" },
+    { href: "/recommendations", label: t("nav.forYou") },
   ];
 
   useEffect(() => {
@@ -202,7 +202,7 @@ export function CollapsibleNavbar() {
               )}
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Community
+              {t("nav.community")}
             </Link>
 
             {/* Theme toggle — text with color, under Community */}
@@ -219,7 +219,7 @@ export function CollapsibleNavbar() {
                 )}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Settings
+                {t("nav.settings")}
               </Link>
             )}
 
@@ -231,7 +231,7 @@ export function CollapsibleNavbar() {
                 }}
                 className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-primary hover:bg-primary/5 transition-colors"
               >
-                Sign In
+                {t("auth.signIn")}
               </button>
             )}
           </div>
