@@ -40,13 +40,13 @@ const Index = () => {
   const classicSection = useDeferredSection("400px");
   const mangaSection = useDeferredSection("400px");
 
-  const { data: popularAnime, isLoading: popularLoading, isError: popularError, refetch: refetchPopular } = useTopAnime(1, 'bypopularity');
-  const { data: upcomingAnime, isLoading: upcomingLoading, isError: upcomingError, refetch: refetchUpcoming } = useTopAnime(1, 'upcoming');
-  const { data: allTimeTop, isLoading: allTimeLoading, isError: allTimeError, refetch: refetchAllTime } = useAllTimeTopAnime(1);
-  const { data: classicAnime, isLoading: classicLoading, isError: classicError, refetch: refetchClassic } = useClassicAnime(1);
-  const { data: topManga, isLoading: topMangaLoading, isError: topMangaError, refetch: refetchTopManga } = useTopManga(1);
-  const { data: trendingManhwa, isLoading: trendingManhwaLoading, isError: trendingManhwaError, refetch: refetchTrendingManhwa } = useTrendingManhwa(1);
-  const { data: trendingManhua, isLoading: trendingManhuaLoading, isError: trendingManhuaError, refetch: refetchTrendingManhua } = useTrendingManhua(1);
+  const { data: popularAnime, isLoading: popularLoading, isError: popularError, refetch: refetchPopular } = useTopAnime(1, 'bypopularity', popularSection.isVisible);
+  const { data: upcomingAnime, isLoading: upcomingLoading, isError: upcomingError, refetch: refetchUpcoming } = useTopAnime(1, 'upcoming', upcomingSection.isVisible);
+  const { data: allTimeTop, isLoading: allTimeLoading, isError: allTimeError, refetch: refetchAllTime } = useAllTimeTopAnime(1, allTimeSection.isVisible);
+  const { data: classicAnime, isLoading: classicLoading, isError: classicError, refetch: refetchClassic } = useClassicAnime(1, classicSection.isVisible);
+  const { data: topManga, isLoading: topMangaLoading, isError: topMangaError, refetch: refetchTopManga } = useTopManga(1, undefined, 'popularity', mangaSection.isVisible);
+  const { data: trendingManhwa, isLoading: trendingManhwaLoading, isError: trendingManhwaError, refetch: refetchTrendingManhwa } = useTrendingManhwa(1, mangaSection.isVisible);
+  const { data: trendingManhua, isLoading: trendingManhuaLoading, isError: trendingManhuaError, refetch: refetchTrendingManhua } = useTrendingManhua(1, mangaSection.isVisible);
   const { t } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();

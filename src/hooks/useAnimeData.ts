@@ -33,13 +33,14 @@ import {
   SupportedLanguage,
 } from "@/lib/api";
 
-export function useTopAnime(page = 1, filter?: 'airing' | 'upcoming' | 'bypopularity' | 'favorite' | 'new' | 'completed') {
+export function useTopAnime(page = 1, filter?: 'airing' | 'upcoming' | 'bypopularity' | 'favorite' | 'new' | 'completed', enabled = true) {
   const { language } = useLanguage();
   return useQuery({
     queryKey: ["topAnime", page, filter, language],
     queryFn: () => getTopAnime(page, 25, filter, language as SupportedLanguage),
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
+    enabled,
   });
 }
 
@@ -56,7 +57,8 @@ export function useSeasonalAnime(year?: number, season?: string) {
 export function useTopManga(
   page = 1, 
   type?: 'manga' | 'novels' | 'lightnovels' | 'oneshots' | 'doujin' | 'manhwa' | 'manhua',
-  sort: 'popularity' | 'score' | 'trending' | 'newest' = 'popularity'
+  sort: 'popularity' | 'score' | 'trending' | 'newest' = 'popularity',
+  enabled = true
 ) {
   const { language } = useLanguage();
   return useQuery({
@@ -64,6 +66,7 @@ export function useTopManga(
     queryFn: () => getTopManga(page, 25, type, sort, language as SupportedLanguage),
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
+    enabled,
   });
 }
 
@@ -174,23 +177,25 @@ export function useAnimeByYearRange(
   });
 }
 
-export function useAllTimeTopAnime(page = 1) {
+export function useAllTimeTopAnime(page = 1, enabled = true) {
   const { language } = useLanguage();
   return useQuery({
     queryKey: ["allTimeTopAnime", page, language],
     queryFn: () => getAllTimeTopAnime(page, 25, language as SupportedLanguage),
     staleTime: 1000 * 60 * 15,
     gcTime: 1000 * 60 * 60,
+    enabled,
   });
 }
 
-export function useClassicAnime(page = 1) {
+export function useClassicAnime(page = 1, enabled = true) {
   const { language } = useLanguage();
   return useQuery({
     queryKey: ["classicAnime", page, language],
     queryFn: () => getClassicAnime(page, 25, language as SupportedLanguage),
     staleTime: 1000 * 60 * 15,
     gcTime: 1000 * 60 * 60,
+    enabled,
   });
 }
 
@@ -255,23 +260,25 @@ export function useClassicManga(page = 1) {
   });
 }
 
-export function useTrendingManhwa(page = 1) {
+export function useTrendingManhwa(page = 1, enabled = true) {
   const { language } = useLanguage();
   return useQuery({
     queryKey: ["trendingManhwa", page, language],
     queryFn: () => getTrendingManhwa(page, 25, language as SupportedLanguage),
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
+    enabled,
   });
 }
 
-export function useTrendingManhua(page = 1) {
+export function useTrendingManhua(page = 1, enabled = true) {
   const { language } = useLanguage();
   return useQuery({
     queryKey: ["trendingManhua", page, language],
     queryFn: () => getTrendingManhua(page, 25, language as SupportedLanguage),
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
+    enabled,
   });
 }
 
