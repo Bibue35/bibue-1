@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Bookmark, Sparkles, Loader2, Flame, TrendingUp, Clock, Trophy, History, Users, Swords, Heart, Wand2, Rocket, RefreshCw } from "lucide-react";
+import { DeferredPopularSection, DeferredUpcomingSection, DeferredClassicSection, DeferredAllTimeTopSection, DeferredGenreSection } from "@/components/DeferredAnimeSections";
+import { Bookmark, Sparkles, Loader2, Flame, Users, Swords, Heart, Wand2, Rocket, RefreshCw } from "lucide-react";
 import { SectionError } from "@/components/SectionError";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
@@ -9,13 +10,14 @@ import { MobileAnimeCard } from "@/components/MobileAnimeCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { BrowseFilterBar } from "@/components/BrowseFilterBar";
 import { ContentSection } from "@/components/ContentSection";
+
 import { SearchDropdown } from "@/components/SearchDropdown";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { ScheduleSection } from "@/components/ScheduleSection";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardSkeletonRow } from "@/components/skeletons";
-import { useTopAnime, useSeasonalAnime, useSearchAnime, useClassicAnime, useAllTimeTopAnime, useAnimeByGenre, useRecentlyUpdatedAnime } from "@/hooks/useAnimeData";
+import { useTopAnime, useSeasonalAnime, useSearchAnime, useRecentlyUpdatedAnime } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -95,18 +97,11 @@ export default function AnimePage() {
     await queryClient.invalidateQueries({ queryKey: ["recentlyUpdatedAnime"] });
   }, [queryClient]);
 
+  // Only eagerly load the first 2 above-fold sections + search/filter data
   const { data: topAnime, isLoading: topLoading } = useTopAnime(1, filter);
-  const { data: popularAnime, isLoading: popularLoading, isError: popularError, refetch: refetchPopular } = useTopAnime(1, 'bypopularity');
-  const { data: upcomingAnime, isLoading: upcomingLoading, isError: upcomingError, refetch: refetchUpcoming } = useTopAnime(1, 'upcoming');
   const { data: airingAnime, isLoading: airingLoading, isError: airingError, refetch: refetchAiring } = useTopAnime(1, 'airing');
   const { data: seasonalAnime, isLoading: seasonalLoading, isError: seasonalError, refetch: refetchSeasonal } = useSeasonalAnime();
-  const { data: classicAnime, isLoading: classicLoading, isError: classicError, refetch: refetchClassic } = useClassicAnime(1);
   const { data: searchResults, isLoading: searchLoading } = useSearchAnime(debouncedSearch, !!debouncedSearch);
-  const { data: allTimeTop, isLoading: allTimeTopLoading, isError: allTimeTopError, refetch: refetchAllTimeTop } = useAllTimeTopAnime(1);
-  const { data: actionAnime, isLoading: actionLoading, isError: actionError, refetch: refetchAction } = useAnimeByGenre("Action", 1);
-  const { data: romanceAnime, isLoading: romanceLoading, isError: romanceError, refetch: refetchRomance } = useAnimeByGenre("Romance", 1);
-  const { data: fantasyAnime, isLoading: fantasyLoading, isError: fantasyError, refetch: refetchFantasy } = useAnimeByGenre("Fantasy", 1);
-  const { data: sciFiAnime, isLoading: sciFiLoading, isError: sciFiError, refetch: refetchSciFi } = useAnimeByGenre("Sci-Fi", 1);
   const { data: recentlyUpdatedAnime, isLoading: recentlyUpdatedLoading, isError: recentlyUpdatedError, refetch: refetchRecentlyUpdated } = useRecentlyUpdatedAnime(1);
   
   const sortedSeasonalAnime = seasonalAnime?.slice().sort((a, b) => {
@@ -304,246 +299,23 @@ export default function AnimePage() {
         </ContentSection>
       )}
 
-      {/* Most Popular */}
-      {!isSearching && !genreId && (
-        <ContentSection
-          title="Most Popular"
-          titleJp="人気アニメ"
-          icon={TrendingUp}
-          linkTo="/anime?filter=bypopularity"
-        >
-          {popularError ? (
-            <SectionError onRetry={() => refetchPopular()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {popularLoading ? (
-                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                popularAnime?.slice(0, 12).map((anime, index) => (
-                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    {isMobile ? (
-                      <MobileAnimeCard anime={anime} index={index} />
-                    ) : (
-                      <AnimeCard anime={anime} index={index} />
-                    )}
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
+      {/* Most Popular - Deferred */}
+      {!isSearching && !genreId && <DeferredPopularSection isMobile={isMobile} />}
 
-      {/* Coming Soon */}
-      {!isSearching && !genreId && (
-        <ContentSection
-          title="Coming Soon"
-          titleJp="近日公開"
-          icon={Clock}
-          linkTo="/anime?filter=upcoming"
-        >
-          {upcomingError ? (
-            <SectionError onRetry={() => refetchUpcoming()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {upcomingLoading ? (
-                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                upcomingAnime?.slice(0, 12).map((anime, index) => (
-                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    {isMobile ? (
-                      <MobileAnimeCard anime={anime} index={index} />
-                    ) : (
-                      <AnimeCard anime={anime} index={index} />
-                    )}
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
+      {/* Coming Soon - Deferred */}
+      {!isSearching && !genreId && <DeferredUpcomingSection isMobile={isMobile} />}
 
-      {/* Classic Anime */}
-      {!isSearching && !genreId && (
-        <ContentSection
-          title="Classic Anime"
-          titleJp="クラシック"
-          icon={History}
-          linkTo="/classics"
-          linkText="Browse by Decade"
-        >
-          {classicError ? (
-            <SectionError onRetry={() => refetchClassic()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {classicLoading ? (
-                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                classicAnime?.slice(0, 12).map((anime, index) => (
-                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    {isMobile ? (
-                      <MobileAnimeCard anime={anime} index={index} />
-                    ) : (
-                      <AnimeCard anime={anime} index={index} />
-                    )}
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
+      {/* Classic Anime - Deferred */}
+      {!isSearching && !genreId && <DeferredClassicSection isMobile={isMobile} />}
 
-      {/* All-Time Top Rated */}
-      {!isSearching && !genreId && (
-        <ContentSection
-          title="All-Time Top Rated"
-          titleJp="歴代最高評価"
-          icon={Trophy}
-          linkTo="/rankings"
-        >
-          {allTimeTopError ? (
-            <SectionError onRetry={() => refetchAllTimeTop()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {allTimeTopLoading ? (
-                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                allTimeTop?.slice(0, 12).map((anime, index) => (
-                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    {isMobile ? (
-                      <MobileAnimeCard anime={anime} index={index} />
-                    ) : (
-                      <AnimeCard anime={anime} index={index} />
-                    )}
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
+      {/* All-Time Top Rated - Deferred */}
+      {!isSearching && !genreId && <DeferredAllTimeTopSection isMobile={isMobile} />}
 
-      {/* Action Anime */}
-      {!isSearching && !genreId && (
-        <ContentSection
-          title="Action"
-          titleJp="アクション"
-          icon={Swords}
-          linkTo="/anime?genre=1"
-        >
-          {actionError ? (
-            <SectionError onRetry={() => refetchAction()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {actionLoading ? (
-                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                actionAnime?.slice(0, 12).map((anime, index) => (
-                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    {isMobile ? (
-                      <MobileAnimeCard anime={anime} index={index} />
-                    ) : (
-                      <AnimeCard anime={anime} index={index} />
-                    )}
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
-
-      {/* Romance Anime */}
-      {!isSearching && !genreId && (
-        <ContentSection
-          title="Romance"
-          titleJp="ロマンス"
-          icon={Heart}
-          linkTo="/anime?genre=22"
-        >
-          {romanceError ? (
-            <SectionError onRetry={() => refetchRomance()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {romanceLoading ? (
-                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                romanceAnime?.slice(0, 12).map((anime, index) => (
-                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    {isMobile ? (
-                      <MobileAnimeCard anime={anime} index={index} />
-                    ) : (
-                      <AnimeCard anime={anime} index={index} />
-                    )}
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
-
-      {/* Fantasy Anime */}
-      {!isSearching && !genreId && (
-        <ContentSection
-          title="Fantasy"
-          titleJp="ファンタジー"
-          icon={Wand2}
-          linkTo="/anime?genre=10"
-        >
-          {fantasyError ? (
-            <SectionError onRetry={() => refetchFantasy()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {fantasyLoading ? (
-                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                fantasyAnime?.slice(0, 12).map((anime, index) => (
-                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    {isMobile ? (
-                      <MobileAnimeCard anime={anime} index={index} />
-                    ) : (
-                      <AnimeCard anime={anime} index={index} />
-                    )}
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
-
-      {/* Sci-Fi Anime */}
-      {!isSearching && !genreId && (
-        <ContentSection
-          title="Sci-Fi"
-          titleJp="SF"
-          icon={Rocket}
-          linkTo="/anime?genre=24"
-        >
-          {sciFiError ? (
-            <SectionError onRetry={() => refetchSciFi()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {sciFiLoading ? (
-                <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                sciFiAnime?.slice(0, 12).map((anime, index) => (
-                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    {isMobile ? (
-                      <MobileAnimeCard anime={anime} index={index} />
-                    ) : (
-                      <AnimeCard anime={anime} index={index} />
-                    )}
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
+      {/* Genre Sections - Deferred */}
+      {!isSearching && !genreId && <DeferredGenreSection genre="Action" titleJp="アクション" icon={Swords} linkTo="/anime?genre=1" isMobile={isMobile} />}
+      {!isSearching && !genreId && <DeferredGenreSection genre="Romance" titleJp="ロマンス" icon={Heart} linkTo="/anime?genre=22" isMobile={isMobile} />}
+      {!isSearching && !genreId && <DeferredGenreSection genre="Fantasy" titleJp="ファンタジー" icon={Wand2} linkTo="/anime?genre=10" isMobile={isMobile} />}
+      {!isSearching && !genreId && <DeferredGenreSection genre="Sci-Fi" titleJp="SF" icon={Rocket} linkTo="/anime?genre=24" isMobile={isMobile} />}
 
       {/* Results anchor */}
       <div ref={resultsRef} />
