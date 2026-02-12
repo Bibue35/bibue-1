@@ -5,6 +5,7 @@ import Fuse from "fuse.js";
 import { useSearchAnime, useSearchManga } from "@/hooks/useAnimeData";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const RECENT_SEARCHES_KEY = "recentSearches";
 const MAX_RECENT_SEARCHES = 8;
@@ -154,6 +155,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [showAutocomplete, setShowAutocomplete] = useState(true);
   const navigate = useNavigate();
+  const { t, language } = useLanguage();
 
   // Expand abbreviations for better search
   const expandedQuery = expandSearchQuery(query);
@@ -236,7 +238,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search anime & manga..."
+                placeholder={t("search.placeholder")}
                 value={query}
                 onChange={(e) => {
                   setQuery(e.target.value);
@@ -262,7 +264,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             <div className="mt-2 liquid-glass-strong rounded-2xl p-2 flex-shrink-0">
               <div className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium text-muted-foreground">
                 <Zap className="w-3 h-3" />
-                <span>Quick suggestions</span>
+                <span>{t("search.quickSuggestions")}</span>
               </div>
               <div className="space-y-0.5">
                 {autocompleteSuggestions.map((suggestion, index) => (
@@ -300,10 +302,10 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground sticky top-0 bg-card/80 backdrop-blur-sm rounded-lg">
                           <Film className="w-4 h-4" />
                           <span>Anime</span>
-                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 flex items-center gap-1">
-                            <Sparkles className="w-2.5 h-2.5" />
-                            Newest
-                          </Badge>
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 flex items-center gap-1">
+                              <Sparkles className="w-2.5 h-2.5" />
+                              {t("browse.newest")}
+                            </Badge>
                           <span className="text-xs opacity-60 ml-auto">({animeCount})</span>
                         </div>
                         <div className="space-y-1">
@@ -350,10 +352,10 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground sticky top-0 bg-card/80 backdrop-blur-sm rounded-lg border-t border-border/50 mt-2">
                           <BookOpen className="w-4 h-4" />
                           <span>Manga / Manhwa / Manhua</span>
-                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 flex items-center gap-1">
-                            <Sparkles className="w-2.5 h-2.5" />
-                            Newest
-                          </Badge>
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 flex items-center gap-1">
+                              <Sparkles className="w-2.5 h-2.5" />
+                              {t("browse.newest")}
+                            </Badge>
                           <span className="text-xs opacity-60 ml-auto">({mangaCount})</span>
                         </div>
                         <div className="space-y-1">
@@ -401,10 +403,10 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   </div>
                 ) : (
                   <div className="py-12 text-center text-muted-foreground">
-                    <p className="mb-1">No results found for "{query.trim()}"</p>
-                    <p className="text-sm opacity-70">Try checking your spelling or using different keywords</p>
+                    <p className="mb-1">{t("search.noResults")} "{query.trim()}"</p>
+                    <p className="text-sm opacity-70">{t("search.tryDifferent")}</p>
                     {query.trim().toLowerCase() !== expandedQuery.toLowerCase() && (
-                      <p className="text-xs mt-2 text-primary">Searched for: "{expandedQuery}"</p>
+                      <p className="text-xs mt-2 text-primary">{t("search.searchedFor")}: "{expandedQuery}"</p>
                     )}
                   </div>
                 )}
@@ -420,14 +422,14 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Clock className="w-4 h-4" />
-                      <span>Recent Searches</span>
+                      <span>{t("search.recentSearches")}</span>
                     </div>
                     <button
                       onClick={handleClearRecent}
                       className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <Trash2 className="w-3 h-3" />
-                      Clear
+                      {t("search.clear")}
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -444,10 +446,10 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 </div>
               ) : (
                 <div className="text-center text-muted-foreground">
-                  <p className="font-jp text-lg mb-2">検索してください</p>
-                  <p className="text-sm">Start typing to search anime & manga</p>
+                  {language === "ja" && <p className="font-jp text-lg mb-2">検索してください</p>}
+                  <p className="text-sm">{t("search.startTyping")}</p>
                   <p className="text-xs mt-2 opacity-60">
-                    Tip: Try abbreviations like "jjk", "aot", "mha"
+                    {t("search.tip")}
                   </p>
                 </div>
               )}

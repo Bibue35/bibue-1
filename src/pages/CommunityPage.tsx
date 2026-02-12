@@ -11,9 +11,11 @@ import { Leaderboard } from "@/components/community/Leaderboard";
 import { DiscussionCard } from "@/components/community/DiscussionCard";
 import { CreateDiscussionDialog } from "@/components/community/CreateDiscussionDialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const CommunityPage = () => {
   const { user } = useAuth();
+  const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = useState("discussions");
   const [sortBy, setSortBy] = useState<"trending" | "recent">("trending");
 
@@ -29,7 +31,6 @@ const CommunityPage = () => {
       if (error) throw error;
       if (!rawData || rawData.length === 0) return [];
 
-      // Fetch profiles separately
       const userIds = [...new Set(rawData.map(d => d.user_id))];
       const { data: profiles } = await supabase
         .from("profiles")
@@ -54,10 +55,10 @@ const CommunityPage = () => {
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
             <div>
-              <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-2 sm:mb-3 font-sacred">Community</h1>
-              <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-1">コミュニティ</p>
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-2 sm:mb-3 font-sacred">{t("community.title")}</h1>
+              {language === "ja" && <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-1">{t("community.titleJp")}</p>}
               <p className="text-sm sm:text-base text-muted-foreground">
-                Discuss anime, manga, and connect with fellow fans
+                {t("community.subtitle")}
               </p>
             </div>
             <CreateDiscussionDialog />
@@ -71,30 +72,28 @@ const CommunityPage = () => {
                 className="rounded-full gap-2 data-[state=active]:bg-foreground/10"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span className="hidden sm:inline">Discussions</span>
+                <span className="hidden sm:inline">{t("community.discussions")}</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="activity" 
                 className="rounded-full gap-2 data-[state=active]:bg-foreground/10"
               >
                 <Activity className="w-4 h-4" />
-                <span className="hidden sm:inline">Activity</span>
+                <span className="hidden sm:inline">{t("community.activity")}</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="leaderboard" 
                 className="rounded-full gap-2 data-[state=active]:bg-foreground/10"
               >
                 <Trophy className="w-4 h-4" />
-                <span className="hidden sm:inline">Leaderboard</span>
+                <span className="hidden sm:inline">{t("community.leaderboard")}</span>
               </TabsTrigger>
             </TabsList>
 
             {/* Discussions Tab */}
             <TabsContent value="discussions">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Main Content */}
                 <div className="lg:col-span-2 space-y-4">
-                  {/* Sort Options */}
                   <div className="flex gap-2 mb-4">
                     <button
                       onClick={() => setSortBy("trending")}
@@ -105,7 +104,7 @@ const CommunityPage = () => {
                       }`}
                     >
                       <TrendingUp className="w-4 h-4" />
-                      Trending
+                      {t("community.trending")}
                     </button>
                     <button
                       onClick={() => setSortBy("recent")}
@@ -116,11 +115,10 @@ const CommunityPage = () => {
                       }`}
                     >
                       <Clock className="w-4 h-4" />
-                      Recent
+                      {t("community.recent")}
                     </button>
                   </div>
 
-                  {/* Discussions List */}
                   {isLoading ? (
                     Array.from({ length: 5 }).map((_, i) => (
                       <div key={i} className="liquid-glass rounded-2xl p-6">
@@ -139,40 +137,37 @@ const CommunityPage = () => {
                   ) : (
                     <div className="liquid-glass rounded-2xl p-12 text-center">
                       <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">No discussions yet</h3>
+                      <h3 className="text-lg font-semibold mb-2">{t("community.noDiscussions")}</h3>
                       <p className="text-muted-foreground mb-6">
-                        Be the first to start a conversation!
+                        {t("community.beFirst")}
                       </p>
                       <CreateDiscussionDialog />
                     </div>
                   )}
                 </div>
 
-                {/* Sidebar */}
                 <div className="space-y-6">
-                  {/* Quick Stats */}
                   <div className="liquid-glass rounded-2xl p-6">
                     <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                       <BarChart3 className="w-5 h-5" />
-                      Community Stats
+                      {t("community.stats")}
                     </h3>
                     <div className="space-y-3 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Discussions</span>
+                        <span className="text-muted-foreground">{t("community.discussions")}</span>
                         <span className="font-semibold">{discussions?.length || 0}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Active Today</span>
+                        <span className="text-muted-foreground">{t("community.activeToday")}</span>
                         <span className="font-semibold">-</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Activity Preview */}
                   <div className="liquid-glass rounded-2xl p-6">
                     <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                       <Activity className="w-5 h-5" />
-                      Recent Activity
+                      {t("community.recentActivity")}
                     </h3>
                     <ActivityFeed limit={5} showUser={true} />
                   </div>
@@ -180,14 +175,13 @@ const CommunityPage = () => {
               </div>
             </TabsContent>
 
-            {/* Activity Tab */}
             <TabsContent value="activity">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
                   <div className="liquid-glass rounded-2xl p-6">
                     <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
                       <Activity className="w-5 h-5" />
-                      Community Activity Feed
+                      {t("community.activityFeed")}
                     </h3>
                     <ActivityFeed limit={30} showUser={true} />
                   </div>
@@ -197,7 +191,7 @@ const CommunityPage = () => {
                   <div className="liquid-glass rounded-2xl p-6">
                     <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                       <Trophy className="w-5 h-5" />
-                      Top Contributors
+                      {t("community.topContributors")}
                     </h3>
                     <Leaderboard limit={5} />
                   </div>
@@ -205,14 +199,13 @@ const CommunityPage = () => {
               </div>
             </TabsContent>
 
-            {/* Leaderboard Tab */}
             <TabsContent value="leaderboard">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
                   <div className="liquid-glass rounded-2xl p-6">
                     <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
                       <Trophy className="w-6 h-6 text-primary" />
-                      Community Leaderboard
+                      {t("community.communityLeaderboard")}
                     </h3>
                     <Leaderboard limit={25} />
                   </div>
@@ -220,32 +213,32 @@ const CommunityPage = () => {
 
                 <div className="space-y-6">
                   <div className="liquid-glass rounded-2xl p-6">
-                    <h3 className="text-lg font-bold mb-4">How Karma Works</h3>
+                    <h3 className="text-lg font-bold mb-4">{t("community.howKarma")}</h3>
                     <ul className="space-y-2 text-sm text-muted-foreground">
                       <li className="flex items-start gap-2">
                         <span className="text-primary">+5</span>
-                        <span>Creating a discussion</span>
+                        <span>{t("community.creating")}</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-primary">+2</span>
-                        <span>Posting a reply</span>
+                        <span>{t("community.posting")}</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-primary">+1</span>
-                        <span>Receiving a like</span>
+                        <span>{t("community.receivingLike")}</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-primary">+10</span>
-                        <span>Receiving helpful vote</span>
+                        <span>{t("community.receivingHelpful")}</span>
                       </li>
                     </ul>
                   </div>
 
                   {user && (
                     <div className="liquid-glass rounded-2xl p-6">
-                      <h3 className="text-lg font-bold mb-4">Your Rank</h3>
+                      <h3 className="text-lg font-bold mb-4">{t("community.yourRank")}</h3>
                       <p className="text-muted-foreground text-sm">
-                        Start contributing to climb the leaderboard!
+                        {t("community.startContributing")}
                       </p>
                     </div>
                   )}
