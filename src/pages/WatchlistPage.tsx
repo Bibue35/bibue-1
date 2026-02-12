@@ -165,11 +165,11 @@ export default function WatchlistPage() {
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                   <SelectTrigger className="w-40 rounded-full">
                     <Tag className="w-3 h-3 mr-1" />
-                    <SelectValue placeholder="Category" />
+                    <SelectValue placeholder={t("watchlist.category")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    <SelectItem value="none">Uncategorized</SelectItem>
+                    <SelectItem value="all">{t("watchlist.allCategories")}</SelectItem>
+                    <SelectItem value="none">{t("watchlist.uncategorized")}</SelectItem>
                     {categories.map((cat) => (
                       <SelectItem key={cat.id} value={cat.name}>
                         {cat.name}

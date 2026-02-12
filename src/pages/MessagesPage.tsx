@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { MessageInbox } from "@/components/messages/MessageInbox";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { AuthModal } from "@/components/AuthModal";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { Footer } from "@/components/Footer";
 export default function MessagesPage() {
   const { partnerId } = useParams();
   const { user, loading } = useAuth();
+  const { t } = useLanguage();
   const [showAuth, setShowAuth] = useState(false);
 
   if (loading) {
@@ -20,7 +22,7 @@ export default function MessagesPage() {
         <div className="container mx-auto py-28 px-4">
           <div className="max-w-2xl mx-auto">
             <div className="h-[500px] flex items-center justify-center">
-              <div className="animate-pulse text-muted-foreground">Loading...</div>
+              <div className="animate-pulse text-muted-foreground">{t("common.loading")}</div>
             </div>
           </div>
         </div>
@@ -36,10 +38,10 @@ export default function MessagesPage() {
         <div className="container mx-auto py-28 px-4">
           <div className="max-w-2xl mx-auto">
             <div className="h-[500px] flex flex-col items-center justify-center gap-4">
-              <p className="text-muted-foreground">Please sign in to view your messages</p>
+              <p className="text-muted-foreground">{t("messages.signIn")}</p>
               <Button onClick={() => setShowAuth(true)}>
                 <LogIn className="h-4 w-4 mr-2" />
-                Sign In
+                {t("auth.signIn")}
               </Button>
             </div>
             <AuthModal open={showAuth} onOpenChange={setShowAuth} />

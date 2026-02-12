@@ -4,6 +4,7 @@ import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -32,6 +33,7 @@ function StatCard({ icon: Icon, label, value, sub, className }: {
 export default function StatsPage() {
   const { user } = useAuth();
   const { watchlist, isLoading } = useWatchlist();
+  const { t, language } = useLanguage();
 
   const stats = useMemo(() => {
     if (!watchlist?.length) return null;
@@ -81,14 +83,22 @@ export default function StatsPage() {
     };
   }, [watchlist]);
 
+  const statusItems = [
+    { key: "watching", label: t("status.watching"), icon: Eye, color: "text-blue-400" },
+    { key: "completed", label: t("status.completed"), icon: CheckCircle, color: "text-green-400" },
+    { key: "on_hold", label: t("status.onHold"), icon: Pause, color: "text-yellow-400" },
+    { key: "dropped", label: t("status.dropped"), icon: XCircle, color: "text-red-400" },
+    { key: "plan_to_watch", label: t("status.planToWatch"), icon: Clock, color: "text-muted-foreground" },
+  ];
+
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
         <CollapsibleNavbar />
         <div className="pt-32 pb-24 flex flex-col items-center justify-center text-center px-4">
           <BarChart3 className="w-16 h-16 text-muted-foreground mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Sign in to view your stats</h1>
-          <p className="text-muted-foreground">Track your anime and manga journey.</p>
+          <h1 className="text-2xl font-bold mb-2">{t("stats.signIn")}</h1>
+          <p className="text-muted-foreground">{t("stats.signInDesc")}</p>
         </div>
         <Footer />
       </div>
@@ -102,26 +112,26 @@ export default function StatsPage() {
       <section className="pt-28 sm:pt-32 pb-8">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-8">
-            <h1 className="text-3xl sm:text-5xl font-bold mb-3 font-sacred">My Stats</h1>
-            <p className="font-jp text-lg text-muted-foreground">統計</p>
+            <h1 className="text-3xl sm:text-5xl font-bold mb-3 font-sacred">{t("stats.myStats")}</h1>
+            {language === "ja" && <p className="font-jp text-lg text-muted-foreground">{t("stats.statsJp")}</p>}
           </div>
 
           {isLoading ? (
-            <div className="text-center py-16 text-muted-foreground">Loading stats...</div>
+            <div className="text-center py-16 text-muted-foreground">{t("stats.loadingStats")}</div>
           ) : !stats ? (
             <div className="text-center py-16">
               <BarChart3 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h2 className="text-xl font-bold mb-2">No data yet</h2>
-              <p className="text-muted-foreground">Start adding anime and manga to your watchlist to see stats.</p>
+              <h2 className="text-xl font-bold mb-2">{t("stats.noData")}</h2>
+              <p className="text-muted-foreground">{t("stats.noDataDesc")}</p>
             </div>
           ) : (
             <div className="space-y-8 max-w-4xl mx-auto">
               {/* Overview Cards */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                <StatCard icon={Clock} label="Watch Time" value={`${stats.totalHours}h`} sub={`${stats.totalDays} days`} />
-                <StatCard icon={Film} label="Episodes" value={stats.totalEpisodes} sub={`${stats.totalAnime} anime`} />
-                <StatCard icon={BookOpen} label="Chapters" value={stats.totalChapters} sub={`${stats.totalManga} manga`} />
-                <StatCard icon={Trophy} label="Avg Score" value={stats.avgScore} sub={`from ${stats.totalEntries} entries`} />
+                <StatCard icon={Clock} label={t("stats.watchTime")} value={`${stats.totalHours}h`} sub={`${stats.totalDays} ${t("stats.days")}`} />
+                <StatCard icon={Film} label={t("common.episodes")} value={stats.totalEpisodes} sub={`${stats.totalAnime} ${t("stats.anime")}`} />
+                <StatCard icon={BookOpen} label={t("common.chapters")} value={stats.totalChapters} sub={`${stats.totalManga} ${t("stats.manga")}`} />
+                <StatCard icon={Trophy} label={t("stats.avgScore")} value={stats.avgScore} sub={`${t("stats.from")} ${stats.totalEntries} ${t("stats.entries")}`} />
               </div>
 
               {/* Status Breakdown */}
@@ -129,17 +139,11 @@ export default function StatsPage() {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <TrendingUp className="w-5 h-5" />
-                    Status Breakdown
+                    {t("stats.statusBreakdown")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {[
-                    { key: "watching", label: "Watching", icon: Eye, color: "text-blue-400" },
-                    { key: "completed", label: "Completed", icon: CheckCircle, color: "text-green-400" },
-                    { key: "on_hold", label: "On Hold", icon: Pause, color: "text-yellow-400" },
-                    { key: "dropped", label: "Dropped", icon: XCircle, color: "text-red-400" },
-                    { key: "plan_to_watch", label: "Plan to Watch", icon: Clock, color: "text-muted-foreground" },
-                  ].map(({ key, label, icon: StatusIcon, color }) => {
+                  {statusItems.map(({ key, label, icon: StatusIcon, color }) => {
                     const count = stats.statusCounts[key as keyof typeof stats.statusCounts];
                     const pct = stats.totalEntries > 0 ? Math.round((count / stats.totalEntries) * 100) : 0;
                     return (
@@ -164,7 +168,7 @@ export default function StatsPage() {
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-sm font-medium flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-green-400" />
-                      Completion Rate
+                      {t("stats.completionRate")}
                     </span>
                     <span className="text-2xl font-bold">{stats.completionRate}%</span>
                   </div>
