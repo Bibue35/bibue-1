@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 /**
  * Hook that returns true once the target element is within `rootMargin`
@@ -7,14 +7,13 @@ import { useState, useEffect, useRef, useCallback } from "react";
  */
 export function useDeferredSection(rootMargin = "200px") {
   const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef<HTMLDivElement | null>(null);
+  const [node, setNode] = useState<HTMLDivElement | null>(null);
 
-  const setRef = useCallback((node: HTMLDivElement | null) => {
-    ref.current = node;
+  const setRef = useCallback((el: HTMLDivElement | null) => {
+    setNode(el);
   }, []);
 
   useEffect(() => {
-    const node = ref.current;
     if (!node || isVisible) return;
 
     const observer = new IntersectionObserver(
@@ -29,7 +28,7 @@ export function useDeferredSection(rootMargin = "200px") {
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [isVisible, rootMargin]);
+  }, [node, isVisible, rootMargin]);
 
   return { ref: setRef, isVisible };
 }
