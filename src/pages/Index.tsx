@@ -54,13 +54,15 @@ const Index = () => {
 
   // Pull-to-refresh handler
   const handleRefresh = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ["topAnime"] });
-    await queryClient.invalidateQueries({ queryKey: ["seasonalAnime"] });
-    await queryClient.invalidateQueries({ queryKey: ["topManga"] });
-    await queryClient.invalidateQueries({ queryKey: ["classicAnime"] });
-    await queryClient.invalidateQueries({ queryKey: ["allTimeTopAnime"] });
-    await queryClient.invalidateQueries({ queryKey: ["trendingManhwa"] });
-    await queryClient.invalidateQueries({ queryKey: ["trendingManhua"] });
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["topAnime"] }),
+      queryClient.invalidateQueries({ queryKey: ["seasonalAnime"] }),
+      queryClient.invalidateQueries({ queryKey: ["topManga"] }),
+      queryClient.invalidateQueries({ queryKey: ["classicAnime"] }),
+      queryClient.invalidateQueries({ queryKey: ["allTimeTopAnime"] }),
+      queryClient.invalidateQueries({ queryKey: ["trendingManhwa"] }),
+      queryClient.invalidateQueries({ queryKey: ["trendingManhua"] }),
+    ]);
   }, [queryClient]);
 
   // Get recommended anime for hero section

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Search, Menu, X, Users, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,41 +41,33 @@ export function CollapsibleNavbar() {
     }
   }, [isMobileMenuOpen]);
 
-  const handleScroll = useCallback(() => {
-    const currentScrollY = window.scrollY;
-
-    requestAnimationFrame(() => {
-      const scrollDelta = currentScrollY - scrollRef.current;
-
-      if (!isMobileMenuOpen) {
-        if (scrollDelta > 10 && currentScrollY > 150) {
-          setIsVisible(false);
-        } else if (scrollDelta < -5 || currentScrollY < 50) {
-          setIsVisible(true);
-        }
-      }
-
-      setIsScrolled(currentScrollY > 30);
-      scrollRef.current = currentScrollY;
-    });
-  }, [isMobileMenuOpen]);
-
   useEffect(() => {
     let ticking = false;
 
     const onScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          handleScroll();
-          ticking = false;
-        });
-        ticking = true;
-      }
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+        const scrollDelta = currentScrollY - scrollRef.current;
+
+        if (!isMobileMenuOpen) {
+          if (scrollDelta > 10 && currentScrollY > 150) {
+            setIsVisible(false);
+          } else if (scrollDelta < -5 || currentScrollY < 50) {
+            setIsVisible(true);
+          }
+        }
+
+        setIsScrolled(currentScrollY > 30);
+        scrollRef.current = currentScrollY;
+        ticking = false;
+      });
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [handleScroll]);
+  }, [isMobileMenuOpen]);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
