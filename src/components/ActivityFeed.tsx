@@ -4,6 +4,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Play, BookOpen, Star, CheckCircle, Clock, XCircle, Plus, User } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ActivityLog {
   id: string;
@@ -29,15 +30,7 @@ const activityIcons: Record<string, React.ReactNode> = {
   on_hold: <Clock className="w-4 h-4 text-muted-foreground" />,
 };
 
-const activityLabels: Record<string, string> = {
-  added: "added to list",
-  completed: "completed",
-  rated: "rated",
-  watching: "started watching",
-  reading: "started reading",
-  dropped: "dropped",
-  on_hold: "put on hold",
-};
+// Activity labels are now resolved via useLanguage in the component
 
 interface ActivityFeedProps {
   limit?: number;
@@ -47,6 +40,17 @@ interface ActivityFeedProps {
 
 export function ActivityFeed({ limit = 20, showUser = true, userId }: ActivityFeedProps) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
+
+  const activityLabels: Record<string, string> = {
+    added: t("activity.addedToList"),
+    completed: t("activity.completed"),
+    rated: t("activity.rated"),
+    watching: t("activity.startedWatching"),
+    reading: t("activity.startedReading"),
+    dropped: t("activity.dropped"),
+    on_hold: t("activity.putOnHold"),
+  };
 
   const { data: activities, isLoading } = useQuery({
     queryKey: ["activity-feed", limit, userId],
@@ -106,7 +110,7 @@ export function ActivityFeed({ limit = 20, showUser = true, userId }: ActivityFe
     return (
       <div className="text-center py-8 text-muted-foreground">
         <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
-        <p>No recent activity</p>
+        <p>{t("activity.noRecent")}</p>
       </div>
     );
   }

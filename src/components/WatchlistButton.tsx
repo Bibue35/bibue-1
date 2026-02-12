@@ -2,6 +2,7 @@ import { Heart, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
 interface WatchlistButtonProps {
@@ -26,6 +27,7 @@ export function WatchlistButton({
   className,
 }: WatchlistButtonProps) {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
 
   const inWatchlist = isInWatchlist(mal_id, media_type);
@@ -71,7 +73,7 @@ export function WatchlistButton({
         ) : (
           <Heart className={cn("w-4 h-4", inWatchlist && "fill-current")} />
         )}
-        {inWatchlist ? "In Watchlist" : "Add to Watchlist"}
+        {inWatchlist ? t("status.inWatchlist") : t("status.addToWatchlist")}
       </Button>
     );
   }

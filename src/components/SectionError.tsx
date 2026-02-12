@@ -1,5 +1,6 @@
 import { RefreshCw, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SectionErrorProps {
   message?: string;
@@ -7,13 +8,15 @@ interface SectionErrorProps {
 }
 
 export function SectionError({ 
-  message = "Failed to load content", 
+  message, 
   onRetry 
 }: SectionErrorProps) {
+  const { t } = useLanguage();
+  const displayMessage = message || t("error.failedToLoad");
   return (
     <div className="flex flex-col items-center justify-center py-8 px-4 text-center gap-3">
       <WifiOff className="w-8 h-8 text-muted-foreground/50" />
-      <p className="text-sm text-muted-foreground">{message}</p>
+      <p className="text-sm text-muted-foreground">{displayMessage}</p>
       {onRetry && (
         <Button
           variant="ghost"
@@ -22,7 +25,7 @@ export function SectionError({
           className="gap-2 text-xs"
         >
           <RefreshCw className="w-3.5 h-3.5" />
-          Retry
+          {t("common.retry")}
         </Button>
       )}
     </div>

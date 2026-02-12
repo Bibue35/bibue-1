@@ -9,22 +9,24 @@ import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUnreadCount } from "@/hooks/useMessages";
+import { useLanguage } from "@/contexts/LanguageContext";
 import bibueTower from "@/assets/bibue-tower.png";
 
-const navLinks = [
-  { href: "/anime", label: "Anime" },
-  { href: "/manga", label: "Manga" },
-  { href: "/news", label: "News" },
-  { href: "/recommendations", label: "For You" },
-];
-
 export function FloatingNav() {
+  const { t } = useLanguage();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
   const { data: unreadCount } = useUnreadCount();
+
+  const navLinks = [
+    { href: "/anime", label: t("nav.anime") },
+    { href: "/manga", label: t("nav.manga") },
+    { href: "/news", label: t("nav.news") },
+    { href: "/recommendations", label: t("nav.forYou") },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {

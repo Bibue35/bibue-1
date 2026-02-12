@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { validateComment } from "@/lib/validation";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface EpisodeCommentsProps {
   animeId: number;
@@ -22,6 +23,7 @@ export function EpisodeComments({ animeId, episodeNumber, className }: EpisodeCo
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const { data: comments, isLoading } = useQuery({
     queryKey: ["episode-comments", animeId, episodeNumber, sortBy],
@@ -123,7 +125,7 @@ export function EpisodeComments({ animeId, episodeNumber, className }: EpisodeCo
         <div className="flex items-center gap-2">
           <MessageCircle className="w-5 h-5" />
           <h3 className="text-lg font-semibold">
-            Episode {episodeNumber} Comments
+            {t("comments.episode")} {episodeNumber} {t("comments.discussion")}
           </h3>
           {comments && (
             <span className="text-sm text-muted-foreground">
@@ -141,7 +143,7 @@ export function EpisodeComments({ animeId, episodeNumber, className }: EpisodeCo
             className="gap-1.5 text-xs"
           >
             <ArrowUpDown className="w-3 h-3" />
-            Latest
+            {t("comments.latest")}
           </Button>
           <Button
             variant={sortBy === "likes" ? "secondary" : "ghost"}
@@ -150,7 +152,7 @@ export function EpisodeComments({ animeId, episodeNumber, className }: EpisodeCo
             className="gap-1.5 text-xs"
           >
             <ThumbsUp className="w-3 h-3" />
-            Top
+            {t("comments.top")}
           </Button>
         </div>
       </div>
@@ -160,7 +162,7 @@ export function EpisodeComments({ animeId, episodeNumber, className }: EpisodeCo
         <Textarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          placeholder={user ? "Share your thoughts on this episode..." : "Sign in to comment..."}
+          placeholder={user ? t("comments.shareThoughts") : t("comments.signInPlaceholder")}
           className="mb-3 liquid-glass-subtle border-foreground/10 resize-none"
           rows={3}
           disabled={!user}
@@ -171,7 +173,7 @@ export function EpisodeComments({ animeId, episodeNumber, className }: EpisodeCo
           className="gap-2"
         >
           <Send className="w-4 h-4" />
-          {user ? "Post Comment" : "Sign in to Comment"}
+          {user ? t("comments.postComment") : t("comments.signInToComment")}
         </Button>
       </form>
 
@@ -179,7 +181,7 @@ export function EpisodeComments({ animeId, episodeNumber, className }: EpisodeCo
       <div className="space-y-4">
         {isLoading ? (
           <div className="text-center py-8 text-muted-foreground">
-            Loading comments...
+            {t("comments.loadingComments")}
           </div>
         ) : comments && comments.length > 0 ? (
           comments.map((comment) => {
@@ -227,7 +229,7 @@ export function EpisodeComments({ animeId, episodeNumber, className }: EpisodeCo
           })
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            No comments yet. Be the first to share your thoughts!
+            {t("comments.noComments")}
           </div>
         )}
       </div>
