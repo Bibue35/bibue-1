@@ -78,17 +78,12 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
             return (
               <img
                 key={anime.anilist_id}
-                ref={(el) => {
-                  if (el && isActive) {
-                    el.setAttribute('fetchpriority', 'high');
-                  } else if (el) {
-                    el.removeAttribute('fetchpriority');
-                  }
-                }}
                 src={anime.images.webp.large_image_url}
                 alt={anime.title}
                 loading={isActive ? "eager" : "lazy"}
-                decoding="async"
+                decoding={isActive ? "sync" : "async"}
+                // @ts-ignore - React 18.3+ supports fetchPriority
+                fetchPriority={isActive ? "high" : "auto"}
                 className={cn(
                   "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
                   isActive ? "opacity-100" : "opacity-0"
