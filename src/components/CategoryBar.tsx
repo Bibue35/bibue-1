@@ -1,6 +1,7 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { HorizontalScroll } from "./HorizontalScroll";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Category {
   id: string;
@@ -68,6 +69,7 @@ interface CategoryBarProps {
 
 export function CategoryBar({ type, className }: CategoryBarProps) {
   const [searchParams] = useSearchParams();
+  const { t } = useLanguage();
   const categories = type === "anime" ? animeCategories : mangaCategories;
   const basePath = type === "anime" ? "/anime" : "/manga";
 
@@ -97,12 +99,23 @@ export function CategoryBar({ type, className }: CategoryBarProps) {
     return `${basePath}?${cat.param}`;
   };
 
+  const collectionLabelMap: Record<string, string> = {
+    "trending": t("category.trending"),
+    "this-season": t("category.thisSeason"),
+    "new-this-week": t("category.newThisWeek"),
+    "completed": t("category.completed"),
+    "upcoming": t("category.comingSoon"),
+    "popular": t("category.mostPopular"),
+    "classics": t("category.classics"),
+  };
+
   return (
     <div className={cn("", className)}>
       <HorizontalScroll showArrows={false}>
         <div className="flex items-center gap-2 px-1 py-1">
           {categories.map((cat) => {
             const active = isActive(cat);
+            const label = cat.type === "collection" ? (collectionLabelMap[cat.id] || cat.label) : cat.label;
             return (
               <Link
                 key={cat.id}
@@ -117,7 +130,7 @@ export function CategoryBar({ type, className }: CategoryBarProps) {
                       : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
                 )}
               >
-                {cat.label}
+                {label}
               </Link>
             );
           })}

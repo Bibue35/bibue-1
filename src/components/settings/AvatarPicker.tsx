@@ -186,7 +186,7 @@ export function AvatarPicker({
       <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="presets">{t("nav.popular") || "Popular"}</TabsTrigger>
         <TabsTrigger value="search">{t("nav.search")}</TabsTrigger>
-        <TabsTrigger value="upload">Upload</TabsTrigger>
+        <TabsTrigger value="upload">{t("avatar.upload")}</TabsTrigger>
       </TabsList>
 
       <TabsContent value="presets" className="mt-4">
@@ -204,7 +204,7 @@ export function AvatarPicker({
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search anime/manga characters..."
+            placeholder={t("avatar.searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
@@ -228,13 +228,13 @@ export function AvatarPicker({
           />
         ) : searchQuery ? (
           <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
-            <p className="text-sm">No characters found</p>
-            <p className="text-xs">Try a different search term</p>
+            <p className="text-sm">{t("avatar.noCharacters")}</p>
+            <p className="text-xs">{t("avatar.tryDifferent")}</p>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
             <Search className="w-8 h-8 mb-2 opacity-50" />
-            <p className="text-sm">Search for your favorite character</p>
+            <p className="text-sm">{t("avatar.searchCharacter")}</p>
           </div>
         )}
       </TabsContent>
@@ -249,7 +249,7 @@ export function AvatarPicker({
             className="hidden"
           />
           <Upload className="w-10 h-10 text-muted-foreground mb-3" />
-          <p className="text-sm text-muted-foreground mb-4">Upload your own avatar</p>
+          <p className="text-sm text-muted-foreground mb-4">{t("avatar.uploadOwn")}</p>
           <Button
             variant="outline"
             onClick={() => fileInputRef.current?.click()}
@@ -258,17 +258,17 @@ export function AvatarPicker({
             {isUploading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Uploading...
+                {t("avatar.uploading")}
               </>
             ) : (
               <>
                 <Upload className="w-4 h-4 mr-2" />
-                Choose File
+                {t("avatar.chooseFile")}
               </>
             )}
           </Button>
           <p className="text-xs text-muted-foreground mt-3">
-            Recommended: Square image, max 2MB
+            {t("avatar.recommended")}
           </p>
         </div>
       </TabsContent>
@@ -329,10 +329,10 @@ export function AvatarPicker({
 
         <div className="flex justify-end gap-2 mt-4">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("avatar.cancel")}
           </Button>
           <Button onClick={handleConfirm} disabled={!selectedAvatar}>
-            Use This Avatar
+            {t("avatar.useThis")}
           </Button>
         </div>
       </DialogContent>

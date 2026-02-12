@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsModeratorOrAdmin } from "@/hooks/useModeration";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,6 +14,7 @@ import { Button } from "@/components/ui/button";
 export default function AdminPage() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { t } = useLanguage();
   const { data: hasAccess, isLoading: roleLoading } = useIsModeratorOrAdmin();
 
   const isLoading = authLoading || roleLoading;
@@ -31,7 +33,7 @@ export default function AdminPage() {
         <div className="container mx-auto py-20">
           <div className="flex flex-col items-center justify-center gap-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Verifying access...</p>
+            <p className="text-muted-foreground">{t("admin.verifying")}</p>
           </div>
         </div>
         <Footer />
@@ -46,11 +48,11 @@ export default function AdminPage() {
         <div className="container mx-auto py-20">
           <div className="flex flex-col items-center justify-center gap-4">
             <AlertTriangle className="h-12 w-12 text-destructive" />
-            <h1 className="text-2xl font-bold">Access Denied</h1>
+            <h1 className="text-2xl font-bold">{t("admin.accessDenied")}</h1>
             <p className="text-muted-foreground">
-              You don't have permission to access this page.
+              {t("admin.noPermission")}
             </p>
-            <Button onClick={() => navigate("/")}>Return Home</Button>
+            <Button onClick={() => navigate("/")}>{t("admin.returnHome")}</Button>
           </div>
         </div>
         <Footer />
@@ -65,10 +67,10 @@ export default function AdminPage() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <Shield className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Moderation Dashboard</h1>
+            <h1 className="text-3xl font-bold">{t("admin.dashboard")}</h1>
           </div>
           <p className="text-muted-foreground">
-            Manage reports, users, and community moderation
+            {t("admin.dashboardDesc")}
           </p>
         </div>
 
@@ -76,11 +78,11 @@ export default function AdminPage() {
           <TabsList className="grid w-full grid-cols-2 max-w-md">
             <TabsTrigger value="reports" className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4" />
-              Reports
+              {t("admin.reports")}
             </TabsTrigger>
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              Users
+              {t("admin.users")}
             </TabsTrigger>
           </TabsList>
 

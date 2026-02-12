@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, ThumbsUp, ArrowUpDown, ChevronLeft, ChevronRight, PictureInPicture2 } from "lucide-react";
 import { EpisodeCountdown } from "@/components/EpisodeCountdown";
 import { ResolutionSelector, type Resolution } from "@/components/ResolutionSelector";
@@ -21,6 +22,7 @@ import { useSwipeGesture } from "@/hooks/useSwipeGesture";
 import { useMiniPlayer } from "@/contexts/MiniPlayerContext";
 
 export default function AnimeDetailPage() {
+  const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: anime, isLoading, error } = useAnimeDetails(Number(id));
@@ -87,7 +89,7 @@ export default function AnimeDetailPage() {
   // Handle bookmark toggle
   const handleBookmarkToggle = () => {
     if (!user) {
-      toast({ title: "Please sign in to bookmark", variant: "destructive" });
+      toast({ title: t("comments.signInToComment"), variant: "destructive" });
       return;
     }
     if (isBookmarked) {
@@ -107,7 +109,7 @@ export default function AnimeDetailPage() {
   // Handle favorite toggle (local state for now)
   const handleFavoriteToggle = () => {
     if (!user) {
-      toast({ title: "Please sign in to favorite", variant: "destructive" });
+      toast({ title: t("comments.signInToComment"), variant: "destructive" });
       return;
     }
     setIsFavorite(!isFavorite);
@@ -182,10 +184,10 @@ export default function AnimeDetailPage() {
     onSuccess: () => {
       setNewComment("");
       queryClient.invalidateQueries({ queryKey: ["episode-comments", Number(id), selectedEpisode, sortBy] });
-      toast({ title: "Comment posted!" });
+      toast({ title: t("comments.commentPosted") });
     },
     onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -214,7 +216,7 @@ export default function AnimeDetailPage() {
       queryClient.invalidateQueries({ queryKey: ["user-likes", user?.id] });
     },
     onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -249,10 +251,10 @@ export default function AnimeDetailPage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center px-4">
-          <h1 className="text-3xl font-bold font-sacred mb-4">Error Loading Anime</h1>
-          <p className="text-muted-foreground mb-6">Something went wrong. Please try again.</p>
+          <h1 className="text-3xl font-bold font-sacred mb-4">{t("detail.errorLoading")} Anime</h1>
+          <p className="text-muted-foreground mb-6">{t("common.somethingWrong")}</p>
           <Link to="/">
-            <Button variant="outline">Go Home</Button>
+            <Button variant="outline">{t("common.goHome")}</Button>
           </Link>
         </div>
       </div>
@@ -382,7 +384,7 @@ export default function AnimeDetailPage() {
                     </div>
                     <h2 className="text-base sm:text-lg md:text-xl font-sacred font-bold mb-0.5 sm:mb-1 line-clamp-2">{anime?.title}</h2>
                     <p className="text-muted-foreground text-xs sm:text-sm">Episode {selectedEpisode}</p>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-2">Video player coming soon</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-2">{t("detail.videoComingSoon")}</p>
                   </div>
                 </div>
               )}
@@ -481,7 +483,7 @@ export default function AnimeDetailPage() {
                     {anime?.episodes && (
                       <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-foreground/10 text-xs sm:text-sm">
                         <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span>{anime.episodes} <span className="hidden xs:inline">Episodes</span><span className="xs:hidden">Eps</span></span>
+                        <span>{anime.episodes} <span className="hidden xs:inline">{t("common.episodes")}</span><span className="xs:hidden">Eps</span></span>
                       </div>
                     )}
                     {anime?.rank && (
@@ -501,16 +503,16 @@ export default function AnimeDetailPage() {
 
               {/* Synopsis */}
               <div className="mb-4 sm:mb-6">
-                <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">Synopsis</h3>
+                <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">{t("detail.synopsis")}</h3>
                 <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed line-clamp-4 sm:line-clamp-none">
-                  {anime?.synopsis || "No synopsis available."}
+                  {anime?.synopsis || t("detail.noSynopsis")}
                 </p>
               </div>
 
               {/* Genres */}
               {anime?.genres && anime.genres.length > 0 && (
                 <div className="mb-4 sm:mb-6">
-                  <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">Genres</h3>
+                  <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">{t("detail.genres")}</h3>
                   <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {anime.genres.map((genre) => (
                       <Link
@@ -528,7 +530,7 @@ export default function AnimeDetailPage() {
               {/* Studio */}
               {anime?.studios && anime.studios.length > 0 && (
                 <div className="mb-4 sm:mb-6">
-                  <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">Studios</h3>
+                  <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">{t("detail.studios")}</h3>
                   <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {anime.studios.map((studio) => (
                       <span
@@ -544,17 +546,17 @@ export default function AnimeDetailPage() {
 
               {/* Information Grid */}
               <div>
-                <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">Information</h3>
+                <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">{t("detail.information")}</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
                   {[
-                    { label: "Source", value: anime?.source },
-                    { label: "Episodes", value: anime?.episodes },
-                    { label: "Status", value: anime?.status },
-                    { label: "Aired", value: anime?.aired?.string },
-                    { label: "Rating", value: anime?.rating },
-                    { label: "Rank", value: anime?.rank ? `#${anime.rank}` : undefined },
-                    { label: "Popularity", value: anime?.popularity ? `#${anime.popularity}` : undefined },
-                    { label: "Duration", value: anime?.duration },
+                    { label: t("detail.source"), value: anime?.source },
+                    { label: t("common.episodes"), value: anime?.episodes },
+                    { label: t("common.status"), value: anime?.status },
+                    { label: t("detail.aired"), value: anime?.aired?.string },
+                    { label: t("detail.rating"), value: anime?.rating },
+                    { label: t("detail.rank"), value: anime?.rank ? `#${anime.rank}` : undefined },
+                    { label: t("detail.popularity"), value: anime?.popularity ? `#${anime.popularity}` : undefined },
+                    { label: t("detail.duration"), value: anime?.duration },
                   ].filter(item => item.value).map(({ label, value }) => (
                     <div key={label} className="flex flex-col">
                       <span className="text-muted-foreground text-xs mb-0.5">{label}</span>
@@ -575,7 +577,7 @@ export default function AnimeDetailPage() {
             <div className="flex items-center justify-between gap-3 mb-6">
               <div className="flex items-center gap-3">
                 <MessageCircle className="w-5 h-5" />
-                <h2 className="text-xl sm:text-2xl font-bold font-sacred">Comment Section</h2>
+                <h2 className="text-xl sm:text-2xl font-bold font-sacred">{t("detail.commentSection")}</h2>
                 {comments && (
                   <span className="text-sm text-muted-foreground">({comments.length})</span>
                 )}
@@ -590,7 +592,7 @@ export default function AnimeDetailPage() {
                   className="gap-1.5 text-xs"
                 >
                   <ArrowUpDown className="w-3 h-3" />
-                  Latest
+                  {t("comments.latest")}
                 </Button>
                 <Button
                   variant={sortBy === "likes" ? "secondary" : "ghost"}
@@ -599,7 +601,7 @@ export default function AnimeDetailPage() {
                   className="gap-1.5 text-xs"
                 >
                   <ThumbsUp className="w-3 h-3" />
-                  Top
+                  {t("comments.top")}
                 </Button>
               </div>
             </div>
@@ -610,7 +612,7 @@ export default function AnimeDetailPage() {
                 <Textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  placeholder={user ? "Share your thoughts on this episode..." : "Sign in to comment..."}
+                  placeholder={user ? t("comments.shareThoughts") : t("comments.signInPlaceholder")}
                   className="mb-3 liquid-glass-subtle border-foreground/10 resize-none"
                   rows={3}
                   disabled={!user}
@@ -621,7 +623,7 @@ export default function AnimeDetailPage() {
                   className="gap-2"
                 >
                   <Send className="w-4 h-4" />
-                  {user ? "Post Comment" : "Sign in to Comment"}
+                  {user ? t("comments.postComment") : t("comments.signInToComment")}
                 </Button>
               </form>
 
@@ -629,7 +631,7 @@ export default function AnimeDetailPage() {
               <div className="space-y-4">
                 {commentsLoading ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    Loading comments...
+                    {t("comments.loadingComments")}
                   </div>
                 ) : comments && comments.length > 0 ? (
                   comments.map((comment) => {
@@ -677,7 +679,7 @@ export default function AnimeDetailPage() {
                   })
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
-                    No comments yet. Be the first to share your thoughts!
+                    {t("detail.noCommentsYet")}
                   </div>
                 )}
               </div>
