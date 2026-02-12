@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect } from "react";
+import { useRef, useCallback, useEffect, startTransition } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { setSwipeNavFlag } from "@/lib/swipeNavFlag";
 
@@ -150,10 +150,13 @@ export function useSwipeNavigation({
     if (shouldNavigate && targetIndex >= 0 && targetIndex < TAB_ROUTES.length) {
       if (navigator.vibrate) navigator.vibrate(15);
 
-      // Slide off-screen, then navigate immediately
+      // Slide off-screen, then navigate inside startTransition
+      // so React keeps the old page visible instead of showing Suspense fallback
       resetTransform(true, direction);
       setSwipeNavFlag();
-      navigate(TAB_ROUTES[targetIndex]);
+      startTransition(() => {
+        navigate(TAB_ROUTES[targetIndex]);
+      });
     } else {
       resetTransform(false);
     }
