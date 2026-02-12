@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Play, Star, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Anime } from "@/lib/api";
 import { formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { AnimeDetailModal } from "./AnimeDetailModal";
+const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ default: m.AnimeDetailModal })));
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HeroSkeleton } from "./skeletons";
 
@@ -181,11 +181,15 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
         ))}
       </div>
 
-      <AnimeDetailModal
-        animeId={featured.anilist_id}
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-      />
+      {modalOpen && (
+        <Suspense fallback={null}>
+          <AnimeDetailModal
+            animeId={featured.anilist_id}
+            open={modalOpen}
+            onOpenChange={setModalOpen}
+          />
+        </Suspense>
+      )}
     </section>
   );
 }
