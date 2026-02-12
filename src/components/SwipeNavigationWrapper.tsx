@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -9,6 +9,13 @@ interface SwipeNavigationWrapperProps {
 
 /** Swipable tab routes — must match useSwipeNavigation */
 const TAB_ROUTES = ["/anime", "/", "/manga"];
+
+/** Preload map: route → dynamic import for adjacent pages */
+const PRELOAD_MAP: Record<string, () => void> = {
+  "/": () => { import("@/pages/AnimePage"); import("@/pages/MangaPage"); },
+  "/anime": () => { import("@/pages/Index"); },
+  "/manga": () => { import("@/pages/Index"); },
+};
 
 /**
  * Wraps page content with swipe-between-tabs navigation.
@@ -26,6 +33,19 @@ export const SwipeNavigationWrapper = memo(function SwipeNavigationWrapper({
   const location = useLocation();
 
   const currentIndex = TAB_ROUTES.indexOf(location.pathname);
+
+  // Preload adjacent page chunks on mount / route change
+  useEffect(() => {
+    const preload = PRELOAD_MAP[location.pathname];
+    if (preload) {
+      // Use requestIdleCallback to avoid blocking the main thread
+      if ("requestIdleCallback" in window) {
+        (window as any).requestIdleCallback(preload);
+      } else {
+        setTimeout(preload, 100);
+      }
+    }
+  }, [location.pathname]);
   const canSwipeRight = currentIndex > 0;
   const canSwipeLeft = currentIndex < TAB_ROUTES.length - 1 && currentIndex !== -1;
 
