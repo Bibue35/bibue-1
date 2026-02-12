@@ -29,8 +29,26 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" media="print" onload="this.media='all'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" /></noscript>
 
-    <!-- Google AdSense - deferred -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2458670095989987" crossorigin="anonymous"></script>
+    <!-- Google AdSense - deferred until after page is interactive -->
+    <script>
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(function() {
+          var s = document.createElement('script');
+          s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2458670095989987';
+          s.crossOrigin = 'anonymous';
+          s.async = true;
+          document.head.appendChild(s);
+        });
+      } else {
+        setTimeout(function() {
+          var s = document.createElement('script');
+          s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2458670095989987';
+          s.crossOrigin = 'anonymous';
+          s.async = true;
+          document.head.appendChild(s);
+        }, 3000);
+      }
+    </script>
 
     <!-- Noto Sans JP - lazy loaded after page load since it's 150KB+ CSS and 100% unused on initial paint -->
     <script>
