@@ -84,6 +84,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
                 decoding={isActive ? "sync" : "async"}
                 // @ts-ignore - React 18.3+ supports fetchPriority
                 fetchPriority={isActive ? "high" : "auto"}
+                sizes="100vw"
                 className={cn(
                   "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
                   isActive ? "opacity-100" : "opacity-0"
