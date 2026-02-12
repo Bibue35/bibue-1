@@ -193,6 +193,7 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"
+                sizes="100vw"
                 className="w-full h-full object-cover object-top will-change-transform"
                 style={{
                   transform: `translate3d(0, ${-scrollY}px, 0) scale(1.1)`,
