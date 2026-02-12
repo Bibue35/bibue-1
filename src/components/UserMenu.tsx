@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { User, LogOut, Settings, EyeOff, Eye, Globe, Check, Bookmark, Heart, MessageCircle, Users, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useIncognito } from "@/contexts/IncognitoContext";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { useUnreadCount } from "@/hooks/useMessages";
-import { AuthModal } from "./AuthModal";
+const AuthModal = lazy(() => import("./AuthModal").then(m => ({ default: m.AuthModal })));
 import { cn } from "@/lib/utils";
 
 const languages: { code: Language; flag: string; name: string }[] = [
@@ -71,7 +71,11 @@ export function UserMenu() {
           <User className="w-4 h-4" />
           <span className="hidden sm:inline">Sign In</span>
         </Button>
-        <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+        {authModalOpen && (
+          <Suspense fallback={null}>
+            <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+          </Suspense>
+        )}
       </>
     );
   }
