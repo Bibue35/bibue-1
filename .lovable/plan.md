@@ -1,69 +1,56 @@
-# Bibue Platform Enhancement Plan
 
-## Overview
-This plan outlines the Bibue platform with clean light and dark modes and an immersive viewing experience.
 
----
+## Fix Swipe Navigation Jittering and Lag
 
-## 1. Theme System (Completed)
+### Problem Analysis
 
-### 1.1 Light Mode
-Warm effects for light backgrounds:
-- `.sun-glow` - Warm outer glow
-- `.sun-corona` - Subtle glow effect around images
-- `.sun-rays-hover` - Animated light rays on hover
-- `.sunburst-button` - Buttons with warm gradient
+The swipe-to-navigate experience feels bad because of **three conflicting motion systems** fighting each other:
 
-### 1.2 Dark Mode
-Cool effects for dark backgrounds:
-- `.moon-glow` - Cool silvery-blue outer glow
-- `.moon-reflection` - Shimmer effect
-- `.moon-phase-hover` - Hover illumination
-- `.moonbeam-button` - Buttons with cool gradients
-- `.starfield` - Subtle twinkle effect
+1. **Bounce-back before navigation**: When you finish swiping, the page snaps BACK to center (`translate3d(0,0,0)`) over 300ms, then 80ms later the route changes. So the page bounces back toward you before the new page loads -- very jarring.
 
----
+2. **Page-enter animation on every route change**: `AnimatedRoutes` uses `key={location.pathname}` which forces a full unmount/remount, and applies a `page-enter` CSS animation (fade up from `translateY(10px)` + opacity 0 to 1 over 300ms). This creates a second visible animation after the bounce-back.
 
-## 2. Episode/Chapter Navigation
+3. **Heavy page re-render**: Because of `key={location.pathname}`, the entire page tree is destroyed and rebuilt on every swipe, causing main-thread work that produces visible stuttering.
 
-### Implemented Features:
-- First/Last chapter quick-jump buttons
-- Prev/Next chapter navigation in reader mode
-- Chapter progress indicator
-- Clean reading mode with auto-hiding controls
+The result: swipe right, page bounces back, goes blank, then fades up from below. Three jarring transitions instead of one smooth slide.
 
----
+### Solution
 
-## 3. Data Sources
+Rework the swipe completion flow so it feels like a **single fluid slide transition**:
 
-### Current Integration:
-- **Jikan API (MyAnimeList)** - Anime and manga data including:
-  - Manhwa (Korean comics)
-  - Manhua (Chinese comics)
-  - Japanese manga
+**1. Slide OFF-screen instead of bouncing back (useSwipeNavigation.ts)**
+- On successful swipe, slide the current page **out** in the swipe direction (e.g., `translate3d(-100vw, 0, 0)` when swiping left toward Manga)
+- Navigate immediately after the slide-out starts (no 80ms delay)
+- The new page appears as the old one slides away
 
-### Note on Scanlation Sites:
-Demonic Scans, Asura Scans, and similar sites are scanlation platforms that don't provide public APIs. Integrating them would require scraping which violates their Terms of Service. The current Jikan API provides comprehensive manhwa/manhua data.
+**2. Skip fade-up animation for swipe navigations (AnimatedRoutes.tsx)**
+- Add a shared flag (via ref or context) that swipe navigation sets before calling `navigate()`
+- When `AnimatedRoutes` detects a swipe-triggered navigation, it skips the `page-enter` animation entirely so the new page appears instantly
+- Non-swipe navigations (clicking links, etc.) keep the existing fade-up animation
 
----
+**3. Remove `key={location.pathname}` from AnimatedRoutes**
+- This is the main cause of the stutter -- it forces React to destroy and rebuild the entire page tree
+- Replace with a simple class toggle that doesn't remount children
 
-## 4. UI/UX Guidelines
+### Technical Details
 
-- No icons/emojis in headers - use clean typography
-- Responsive design for all screen sizes
-- Fixed mobile menu to prevent overlap issues
-- Liquid glass morphism effects
-- Theme-appropriate glow effects on cards
+**useSwipeNavigation.ts changes:**
+- New `resetTransform` behavior: when `navigating=true`, slide to `translate3d(${direction * -window.innerWidth}px, 0, 0)` instead of `translate3d(0,0,0)`
+- Set a module-level `isSwipeNav` flag before calling `navigate()`
+- Remove the 80ms `setTimeout` -- navigate immediately
+- Reduce transition duration to 200ms for snappier feel
 
----
+**AnimatedRoutes.tsx changes:**
+- Export a function `consumeSwipeNavFlag()` that reads and clears the flag
+- On route change, check the flag -- if set, skip the `page-enter` animation class
+- Remove `key={location.pathname}` to prevent full remounts
 
-## 5. Rankings
+**SwipeNavigationWrapper.tsx changes:**
+- No structural changes needed, just benefits from the smoother hook behavior
 
-### Top 3 Treatment:
-- Position 1: Gold badge with glow effect
-- Position 2: Silver badge
-- Position 3: Bronze badge
+### Expected Result
+- Swiping left: current page slides out to the left, Manga page appears immediately
+- Swiping right: current page slides out to the right, Anime page appears immediately
+- No bounce-back, no double animation, no jittering from full remounts
+- Clicking nav links still gets the subtle fade-up transition
 
-### All Rankings:
-- Visible score, rank, and metadata
-- Theme-appropriate hover effects
