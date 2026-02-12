@@ -22,6 +22,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
 export default function AnimePage() {
@@ -40,6 +41,7 @@ export default function AnimePage() {
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const { user } = useAuth();
+  const { t } = useLanguage();
   
   // Sync state FROM URL when params change (e.g. "See All" link clicked)
   useEffect(() => {
@@ -145,16 +147,16 @@ export default function AnimePage() {
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
-              Discover Anime
+              {t("anime.discover")}
             </h1>
-            <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">アニメを発見</p>
+            <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">{t("anime.discoverJp")}</p>
             
             {/* Search Input */}
             <SearchDropdown
               type="anime"
               value={localSearch}
               onChange={setLocalSearch}
-              placeholder="Search anime by title..."
+              placeholder={t("anime.searchPlaceholder")}
             />
 
             {/* Action Buttons */}
@@ -164,13 +166,13 @@ export default function AnimePage() {
                   <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
                     <Link to="/recommendations">
                       <Sparkles className="w-4 h-4" />
-                      For You
+                      {t("nav.forYou")}
                     </Link>
                   </Button>
                   <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
                     <Link to="/community">
                       <Users className="w-4 h-4" />
-                      Community
+                      {t("nav.community")}
                     </Link>
                   </Button>
                 </>
@@ -178,7 +180,7 @@ export default function AnimePage() {
               <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
                 <Link to="/watchlist?type=anime">
                   <Bookmark className="w-4 h-4" />
-                  Saved
+                  {t("nav.saved")}
                 </Link>
               </Button>
             </div>
@@ -207,8 +209,8 @@ export default function AnimePage() {
       {/* Trending Now - Hide when searching or genre filtering */}
       {!isSearching && !genreId && (
         <ContentSection
-          title="Trending Now"
-          titleJp="トレンド"
+          title={t("anime.trendingNow")}
+          titleJp={t("anime.trendingNowJp")}
           icon={Flame}
           linkTo="/anime?filter=airing"
           compact
@@ -238,8 +240,8 @@ export default function AnimePage() {
       {/* Recently Updated */}
       {!isSearching && !genreId && (
         <ContentSection
-          title="Recently Updated"
-          titleJp="最近更新"
+          title={t("anime.recentlyUpdated")}
+          titleJp={t("anime.recentlyUpdatedJp")}
           icon={RefreshCw}
           linkTo="/anime?filter=airing"
           compact
@@ -272,8 +274,8 @@ export default function AnimePage() {
       {/* This Season */}
       {!isSearching && !genreId && (
         <ContentSection
-          title="This Season"
-          titleJp="今季"
+          title={t("anime.thisSeason")}
+          titleJp={t("anime.thisSeasonJp")}
           icon={Sparkles}
           linkTo="/anime?filter=seasonal"
         >
@@ -325,13 +327,13 @@ export default function AnimePage() {
         <section className="pb-2">
           <div className="container mx-auto px-3 sm:px-4">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-muted-foreground">Active filters:</span>
+              <span className="text-xs text-muted-foreground">{t("browse.activeFilters")}:</span>
               {filter && (
                 <button
                   onClick={() => { isUserAction.current = true; setFilter(undefined); }}
                   className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95 min-h-[36px] sm:min-h-0"
                 >
-                  Status: {filter === 'bypopularity' ? 'Popular' : filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  {t("browse.status")}: {filter === 'bypopularity' ? t("browse.popular") : filter.charAt(0).toUpperCase() + filter.slice(1)}
                   <span className="text-primary/60 text-sm">×</span>
                 </button>
               )}
@@ -340,7 +342,7 @@ export default function AnimePage() {
                   onClick={() => { isUserAction.current = true; setSortBy('popularity'); }}
                   className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95 min-h-[36px] sm:min-h-0"
                 >
-                  Sort: {sortBy === 'score' ? 'Top Rated' : 'Trending'}
+                  {t("browse.sortBy")}: {sortBy === 'score' ? t("browse.topRated") : t("browse.trending")}
                   <span className="text-primary/60 text-sm">×</span>
                 </button>
               )}
@@ -367,8 +369,8 @@ export default function AnimePage() {
         <div className="container mx-auto px-3 sm:px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">
             {isSearching 
-              ? `Search results for "${debouncedSearch}"` 
-              : `${initialFilter === 'seasonal' ? "This Season's" : filter ? filter.charAt(0).toUpperCase() + filter.slice(1) : "Top Rated"} Anime`}
+              ? `${t("common.searchResults")} "${debouncedSearch}"` 
+              : `${initialFilter === 'seasonal' ? t("anime.thisSeason") : filter ? filter.charAt(0).toUpperCase() + filter.slice(1) : t("anime.topRatedAnime")} Anime`}
           </h2>
           
           {isSearching && isLoading ? (
@@ -378,16 +380,16 @@ export default function AnimePage() {
             )}>
               <div className="flex flex-col items-center text-center gap-3 p-8">
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">Searching for "{debouncedSearch}"</p>
+                <p className="text-sm text-muted-foreground">{t("common.searchingFor")} "{debouncedSearch}"</p>
               </div>
             </div>
           ) : isSearching && !isLoading && (displayAnime?.length ?? 0) === 0 ? (
             <div className="rounded-2xl liquid-glass-subtle py-12">
               <div className="flex flex-col items-center text-center gap-3 px-6">
-                <p className="text-base font-medium">No results for "{debouncedSearch}"</p>
-                <p className="text-sm text-muted-foreground">Check your spelling or try a different title</p>
+                <p className="text-base font-medium">{t("common.noResults")} "{debouncedSearch}"</p>
+                <p className="text-sm text-muted-foreground">{t("common.checkSpelling")}</p>
                 <Button variant="outline" onClick={clearSearch} className="rounded-full mt-2">
-                  Clear search
+                  {t("common.clearSearch")}
                 </Button>
               </div>
             </div>

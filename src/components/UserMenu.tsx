@@ -36,7 +36,7 @@ const languages: { code: Language; flag: string; name: string }[] = [
 export function UserMenu() {
   const { user, profile, signOut, loading } = useAuth();
   const { isIncognito, toggleIncognito } = useIncognito();
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   const { data: unreadCount } = useUnreadCount();
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
@@ -69,7 +69,7 @@ export function UserMenu() {
           className="hidden md:flex rounded-full gap-2"
         >
           <User className="w-4 h-4" />
-          <span className="hidden sm:inline">Sign In</span>
+          <span className="hidden sm:inline">{t("auth.signIn")}</span>
         </Button>
         {authModalOpen && (
           <Suspense fallback={null}>
@@ -118,27 +118,27 @@ export function UserMenu() {
         
         {/* Quick Links */}
         <DropdownMenuLabel className="text-xs text-muted-foreground font-normal px-3">
-          Library
+          {t("user.library")}
         </DropdownMenuLabel>
         
         <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
           <Link to="/watchlist">
             <Bookmark className="w-4 h-4" />
-            <span>My Watchlist</span>
+            <span>{t("user.myWatchlist")}</span>
           </Link>
         </DropdownMenuItem>
         
         <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
           <Link to="/recommendations">
             <Heart className="w-4 h-4" />
-            <span>For You</span>
+            <span>{t("user.forYou")}</span>
           </Link>
         </DropdownMenuItem>
         
         <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
           <Link to="/messages">
             <MessageCircle className="w-4 h-4" />
-            <span className="flex-1">Messages</span>
+            <span className="flex-1">{t("user.messages")}</span>
             {(unreadCount ?? 0) > 0 && (
               <Badge variant="default" className="h-5 min-w-5 px-1.5 text-xs">
                 {unreadCount}
@@ -150,21 +150,21 @@ export function UserMenu() {
         <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
           <Link to="/community">
             <Users className="w-4 h-4" />
-            <span>Community</span>
+            <span>{t("nav.community")}</span>
           </Link>
         </DropdownMenuItem>
 
         <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
           <Link to="/stats">
             <BarChart3 className="w-4 h-4" />
-            <span>My Stats</span>
+            <span>{t("user.myStats")}</span>
           </Link>
         </DropdownMenuItem>
         
         <DropdownMenuSeparator />
         
         <DropdownMenuLabel className="text-xs text-muted-foreground font-normal px-3">
-          Settings
+          {t("nav.settings")}
         </DropdownMenuLabel>
         
         {/* Incognito Toggle */}
@@ -180,7 +180,7 @@ export function UserMenu() {
           ) : (
             <Eye className="w-4 h-4" />
           )}
-          <span className="flex-1">Incognito Mode</span>
+          <span className="flex-1">{t("user.incognitoMode")}</span>
           {isIncognito && <Check className="w-4 h-4 text-primary" />}
         </DropdownMenuItem>
 
@@ -188,7 +188,7 @@ export function UserMenu() {
         <DropdownMenuSub>
           <DropdownMenuSubTrigger className="gap-3 px-3">
             <Globe className="w-4 h-4" />
-            <span className="flex-1">Language</span>
+            <span className="flex-1">{t("language.select")}</span>
             <span className="text-xs text-muted-foreground">{currentLanguage?.flag}</span>
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent className="w-48 bg-popover border border-border shadow-lg">
@@ -214,14 +214,14 @@ export function UserMenu() {
         <DropdownMenuItem asChild className="gap-3 px-3 cursor-pointer">
           <Link to="/settings">
             <Settings className="w-4 h-4" />
-            <span>Account Settings</span>
+            <span>{t("user.accountSettings")}</span>
           </Link>
         </DropdownMenuItem>
         
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={signOut} className="gap-3 px-3 text-destructive cursor-pointer focus:text-destructive">
           <LogOut className="w-4 h-4" />
-          <span>Sign Out</span>
+          <span>{t("auth.signOut")}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

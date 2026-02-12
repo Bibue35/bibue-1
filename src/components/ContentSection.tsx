@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ContentSectionProps {
   title: string;
@@ -20,11 +21,13 @@ export function ContentSection({
   titleJp,
   icon: Icon,
   linkTo,
-  linkText = "See All",
+  linkText,
   children,
   className,
   compact = false,
 }: ContentSectionProps) {
+  const { t } = useLanguage();
+  const defaultLinkText = linkText || t("section.seeAll");
   return (
     <section className={cn(compact ? "py-4 sm:py-6" : "py-6 sm:py-10", className)}>
       <div className="container mx-auto px-3 sm:px-4">
@@ -56,8 +59,8 @@ export function ContentSection({
               asChild
             >
               <Link to={linkTo}>
-                <span className="hidden xs:inline">{linkText}</span>
-                <span className="xs:hidden">All</span>
+                <span className="hidden xs:inline">{defaultLinkText}</span>
+                <span className="xs:hidden">{t("common.all")}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </Button>
