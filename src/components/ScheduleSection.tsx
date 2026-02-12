@@ -7,26 +7,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EpisodeCountdown } from "@/components/EpisodeCountdown";
 import { Link } from "react-router-dom";
 import { useScheduleByDay } from "@/hooks/useAnimeData";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
-const DAYS = [
-  { key: "sunday", label: "Sun" },
-  { key: "monday", label: "Mon" },
-  { key: "tuesday", label: "Tue" },
-  { key: "wednesday", label: "Wed" },
-  { key: "thursday", label: "Thu" },
-  { key: "friday", label: "Fri" },
-  { key: "saturday", label: "Sat" },
-] as const;
+const DAY_KEYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] as const;
+const DAY_TRANSLATION_KEYS = ["days.sun", "days.mon", "days.tue", "days.wed", "days.thu", "days.fri", "days.sat"] as const;
 
 export function ScheduleSection() {
   const today = new Date().getDay();
-  const [selectedDay, setSelectedDay] = useState<string>(DAYS[today].key);
+  const [selectedDay, setSelectedDay] = useState<string>(DAY_KEYS[today]);
+  const { t, language } = useLanguage();
   
   const { data: scheduleData, isLoading } = useScheduleByDay(selectedDay);
 
-  const selectedDayLabel = DAYS.find(d => d.key === selectedDay)?.label || "Today";
-  const isToday = DAYS[today].key === selectedDay;
+  const selectedDayLabel = t(DAY_TRANSLATION_KEYS[DAY_KEYS.indexOf(selectedDay as typeof DAY_KEYS[number])]);
+  const isToday = DAY_KEYS[today] === selectedDay;
 
   return (
     <section className="py-8 sm:py-12 md:py-16">
@@ -39,39 +34,41 @@ export function ScheduleSection() {
             </div>
             <div>
               <h2 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight">
-                {isToday ? "Today's Schedule" : `${selectedDayLabel}'s Schedule`}
+                {isToday ? t("schedule.todaySchedule") : `${selectedDayLabel}${t("schedule.daySchedule")}`}
               </h2>
-              <p className="font-jp text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5">
-                {isToday ? "今日放送" : "放送スケジュール"}
-              </p>
+              {language === "ja" && (
+                <p className="font-jp text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5">
+                  {isToday ? t("schedule.todayScheduleJp") : t("schedule.broadcastSchedule")}
+                </p>
+              )}
             </div>
           </div>
           
           <Button variant="ghost" size="sm" className="gap-1 glass-button self-start sm:self-auto text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3" asChild>
             <Link to="/anime?filter=airing">
-              <span className="hidden xs:inline">View All</span>
-              <span className="xs:hidden">All</span>
+              <span className="hidden xs:inline">{t("schedule.viewAll")}</span>
+              <span className="xs:hidden">{t("schedule.all")}</span>
               <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </Link>
           </Button>
         </div>
 
-        {/* Day selector buttons - scrollable on mobile */}
+        {/* Day selector buttons */}
         <div className="flex gap-1.5 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2 scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0">
-          {DAYS.map((day, index) => (
+          {DAY_KEYS.map((dayKey, index) => (
             <Button
-              key={day.key}
-              variant={selectedDay === day.key ? "default" : "outline"}
+              key={dayKey}
+              variant={selectedDay === dayKey ? "default" : "outline"}
               size="sm"
-              onClick={() => setSelectedDay(day.key)}
+              onClick={() => setSelectedDay(dayKey)}
               className={cn(
                 "flex-shrink-0 min-w-[56px] sm:min-w-[60px] transition-all text-xs sm:text-sm h-9 sm:h-9 active:scale-95",
-                selectedDay === day.key 
+                selectedDay === dayKey 
                   ? "bg-primary text-primary-foreground shadow-md" 
                   : "bg-background/50 border-border/50 hover:bg-accent"
               )}
             >
-              {index === today ? "Today" : day.label}
+              {index === today ? t("schedule.today") : t(DAY_TRANSLATION_KEYS[index])}
             </Button>
           ))}
         </div>
@@ -92,7 +89,6 @@ export function ScheduleSection() {
           <HorizontalScroll title="" titleJp="">
             {scheduleData.map((item, index) => (
               <div key={item.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                {/* Airing time badge + countdown */}
                 <div className="mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2 flex-wrap">
                   <span className="text-[10px] sm:text-xs font-medium px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-primary/10 text-primary">
                     {item.airingTime}
@@ -114,7 +110,7 @@ export function ScheduleSection() {
           </HorizontalScroll>
         ) : (
           <div className="text-center py-12 text-muted-foreground">
-            <p>No anime airing on {selectedDayLabel}</p>
+            <p>{t("schedule.noAnime")} {selectedDayLabel}</p>
           </div>
         )}
       </div>

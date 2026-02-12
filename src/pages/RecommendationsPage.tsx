@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { RecommendationCard } from "@/components/RecommendationCard";
 import { useRecommendations, MediaType } from "@/hooks/useRecommendations";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
 const mediaTypes: { value: MediaType; label: string; icon: typeof Tv }[] = [
@@ -17,6 +18,7 @@ const mediaTypes: { value: MediaType; label: string; icon: typeof Tv }[] = [
 
 export default function RecommendationsPage() {
   const { user } = useAuth();
+  const { t, language } = useLanguage();
   const [activeType, setActiveType] = useState<MediaType>("anime");
   const { recommendations, isLoading, hasWatchlistItems, watchlistCount } = useRecommendations(activeType);
 
@@ -26,8 +28,8 @@ export default function RecommendationsPage() {
         <CollapsibleNavbar />
         <div className="pt-32 pb-24 flex flex-col items-center justify-center text-center px-4">
           <Sparkles className="w-16 h-16 text-muted-foreground mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Sign in to get recommendations</h1>
-          <p className="text-muted-foreground">We'll suggest anime and manga based on your watchlist.</p>
+          <h1 className="text-2xl font-bold mb-2">{t("recommendations.signIn")}</h1>
+          <p className="text-muted-foreground">{t("recommendations.signInDesc")}</p>
         </div>
         <Footer />
       </div>
@@ -44,14 +46,14 @@ export default function RecommendationsPage() {
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium mb-4">
               <Sparkles className="w-4 h-4" />
-              Personalized For You
+              {t("recommendations.personalized")}
             </div>
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
-              For You
+              {t("recommendations.title")}
             </h1>
-            <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-4">おすすめ</p>
+            {language === "ja" && <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-4">{t("recommendations.titleJp")}</p>}
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Based on what you've saved, here are some titles you might enjoy.
+              {t("recommendations.subtitle")}
             </p>
           </div>
         </div>
@@ -78,10 +80,9 @@ export default function RecommendationsPage() {
             ))}
           </div>
 
-          {/* Watchlist stat */}
           {hasWatchlistItems && (
             <p className="text-center text-xs text-muted-foreground mt-3">
-              Based on {watchlistCount} {activeType === "anime" ? "anime" : "manga"} in your library
+              {t("recommendations.basedOn")} {watchlistCount} {activeType === "anime" ? "anime" : "manga"} {t("recommendations.inLibrary")}
             </p>
           )}
         </div>
@@ -100,14 +101,14 @@ export default function RecommendationsPage() {
             <div className="text-center py-16">
               <Heart className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h2 className="text-xl font-bold mb-2">
-                Add {activeType === "anime" ? "anime" : "manga"} to your library first
+                {t("recommendations.addFirstDesc").split(".")[0]}
               </h2>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                We need to know what you like before we can recommend similar titles. Start by saving some to your library!
+                {t("recommendations.addFirstDesc")}
               </p>
               <Button asChild>
                 <Link to={activeType === "anime" ? "/anime" : "/manga"}>
-                  Browse {activeType === "anime" ? "Anime" : "Manga"} <ArrowRight className="w-4 h-4 ml-2" />
+                  {t("recommendations.browse")} {activeType === "anime" ? "Anime" : "Manga"} <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>
             </div>
@@ -124,13 +125,13 @@ export default function RecommendationsPage() {
           ) : (
             <div className="text-center py-16">
               <Sparkles className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h2 className="text-xl font-bold mb-2">No recommendations yet</h2>
+              <h2 className="text-xl font-bold mb-2">{t("recommendations.noRecs")}</h2>
               <p className="text-muted-foreground mb-6">
-                We couldn't find recommendations for your current library. Try adding more titles!
+                {t("recommendations.noRecsDesc")}
               </p>
               <Button asChild>
                 <Link to={activeType === "anime" ? "/anime" : "/manga"}>
-                  Explore {activeType === "anime" ? "Anime" : "Manga"} <ArrowRight className="w-4 h-4 ml-2" />
+                  {t("recommendations.explore")} {activeType === "anime" ? "Anime" : "Manga"} <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>
             </div>

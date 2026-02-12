@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { RatingPopover } from "@/components/RatingPopover";
 import { CategoryManager, useCategories } from "@/components/CategoryManager";
@@ -32,6 +33,7 @@ export default function WatchlistPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
+  const { t, language } = useLanguage();
   const { watchlist, isLoading, removeFromWatchlist, updateStatus, updateScore } = useWatchlist();
   const { data: categories = [] } = useCategories();
   
@@ -39,7 +41,6 @@ export default function WatchlistPage() {
   const [isBatchMode, setIsBatchMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   
-  // Get type filter from URL (anime or manga)
   const typeFromUrl = searchParams.get("type") as "anime" | "manga" | null;
   const [filter, setFilter] = useState<"all" | "anime" | "manga">(typeFromUrl || "all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -63,8 +64,8 @@ export default function WatchlistPage() {
         <CollapsibleNavbar />
         <div className="pt-32 pb-24 flex flex-col items-center justify-center text-center px-4">
           <Heart className="w-16 h-16 text-muted-foreground mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Sign in to view your watchlist</h1>
-          <p className="text-muted-foreground">Track your favorite anime and manga in one place.</p>
+          <h1 className="text-2xl font-bold mb-2">{t("watchlist.signIn")}</h1>
+          <p className="text-muted-foreground">{t("watchlist.signInDesc")}</p>
         </div>
         <Footer />
       </div>
@@ -80,9 +81,9 @@ export default function WatchlistPage() {
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
-              {filter === "anime" ? "Saved Anime" : filter === "manga" ? "Saved Manga" : "My Saved"}
+              {filter === "anime" ? t("watchlist.savedAnime") : filter === "manga" ? t("watchlist.savedManga") : t("watchlist.mySaved")}
             </h1>
-            <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-4">マイリスト</p>
+            {language === "ja" && <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-4">{t("watchlist.mySavedJp")}</p>}
             
             {/* Stats */}
             <div className="flex justify-center gap-6 text-sm text-muted-foreground">
@@ -101,7 +102,7 @@ export default function WatchlistPage() {
                 className="gap-1.5 rounded-full"
               >
                 <BarChart3 className="w-4 h-4" />
-                View Stats
+                {t("watchlist.viewStats")}
               </Button>
             </div>
           </div>
@@ -142,16 +143,16 @@ export default function WatchlistPage() {
                   onClick={() => setFilter(f)}
                   className={cn("rounded-full capitalize", filter !== f && "glass-button")}
                 >
-                  {f === "all" ? "All" : f}
+                  {f === "all" ? t("common.all") : f}
                 </Button>
               ))}
               
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-40 rounded-full">
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder={t("common.status")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="all">{t("watchlist.allStatus")}</SelectItem>
                   {statusOptions.map((opt) => (
                     <SelectItem key={opt.value} value={opt.value}>
                       {opt.label}
@@ -343,13 +344,13 @@ export default function WatchlistPage() {
           ) : (
             <div className="text-center py-16">
               <Heart className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h2 className="text-xl font-bold mb-2">Your watchlist is empty</h2>
+              <h2 className="text-xl font-bold mb-2">{t("watchlist.empty")}</h2>
               <p className="text-muted-foreground mb-6">
-                Start adding anime and manga to keep track of what you want to watch!
+                {t("watchlist.emptyDesc")}
               </p>
               <div className="flex gap-4 justify-center">
-                <Button onClick={() => navigate("/anime")}>Browse Anime</Button>
-                <Button variant="outline" onClick={() => navigate("/manga")}>Browse Manga</Button>
+                <Button onClick={() => navigate("/anime")}>{t("watchlist.browseAnime")}</Button>
+                <Button variant="outline" onClick={() => navigate("/manga")}>{t("watchlist.browseManga")}</Button>
               </div>
             </div>
           )}
