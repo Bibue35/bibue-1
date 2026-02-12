@@ -1,113 +1,80 @@
 
 
-# Perfect Bibue End-to-End
+# Finish Localization and Clean Up Dead Code
 
-A comprehensive polish pass addressing broken links, hardcoded English text, missing translations, and UI consistency issues across every page.
-
----
-
-## Issues Found
-
-### 1. Broken Route: `/rankings` link in Navbar
-The `Navbar.tsx` component links to `/rankings`, but the Rankings route was removed from `App.tsx`. This means desktop users clicking "Rankings" in the old Navbar get a 404. The `DeferredAnimeSections.tsx` also links to `/rankings`.
-
-### 2. Hardcoded English Across Multiple Pages
-The following pages/components still contain untranslated strings:
-
-**StatsPage.tsx** -- All labels are English-only:
-- "My Stats", "Watch Time", "Episodes", "Chapters", "Avg Score", "Status Breakdown", "Watching", "Completed", "On Hold", "Dropped", "Plan to Watch", "Completion Rate", "Sign in to view your stats", "No data yet", "Loading stats..."
-
-**UserProfile.tsx** -- Tabs and labels:
-- "Activity", "Badges", "Lists", "Recent Activity", "Edit Profile", "Back to Community", "User not found", "Followers", "Following", "Stats", "Karma", "Joined X ago", "No badges earned yet", "User's lists will appear here", "View your watchlist"
-
-**ClassicsPage.tsx** -- Hero and filter text:
-- "Classic Collection", "Anime Classics", "Explore the timeless masterpieces...", "All Classics", "For You", "Saved", "Browsing:", "No anime found for this era", "Sorted by score", decade labels
-
-**MessagesPage.tsx**:
-- "Please sign in to view your messages", "Loading..."
-
-**AnimeDetail.tsx** -- Metadata labels:
-- "Source", "Episodes", "Status", "Aired", "Rating", "Rank", "Popularity", "Duration", "Share your thoughts...", "Sign in to comment...", "Post Comment", "Sign in to Comment"
-
-**MangaDetail.tsx** -- Metadata labels:
-- "Author", "Rating", "Status", "Last Update", "Share your thoughts...", "Sign in to comment...", "Post Comment"
-
-**AvatarPicker.tsx**:
-- "Upload", "Choose File", "Uploading...", "Recommended: Square image, max 2MB", "No characters found", "Search for your favorite character", "Use This Avatar", "Cancel", "Search anime/manga characters..."
-
-**NotFound.tsx**:
-- "Page Not Found", "The page you're looking for doesn't exist...", "Return Home"
-
-**RecommendationsPage.tsx**:
-- Media type labels "Anime"/"Manga" in the toggle are hardcoded
-
-**WatchlistPage.tsx**:
-- "All Categories", "Uncategorized", "Category" placeholder
-
-### 3. `Navbar.tsx` is Unused (dead code)
-The app uses `CollapsibleNavbar` and `FloatingNav`, but `Navbar.tsx` still exists with a broken `/rankings` link. It should be cleaned up or removed.
-
-### 4. `/rankings` Links in DeferredAnimeSections
-Links to `/rankings` in `DeferredAnimeSections.tsx` point to a removed route.
-
-### 5. Japanese subtitle shown on StatsPage for all languages
-`StatsPage.tsx` line 106 always shows the JP subtitle regardless of language setting.
+Complete the remaining translation work and fix all outstanding issues identified in the audit.
 
 ---
 
-## Implementation Plan
+## Scope
 
-### Step 1: Add Missing Translation Keys
-Add all missing keys to `LanguageContext.tsx` for all 8 languages. This includes keys for:
-- Stats page labels (watch time, episodes, chapters, avg score, status breakdown, completion rate)
-- User profile labels (activity, badges, lists, followers, following, edit profile, karma, joined)
-- Classics page labels (classic collection, anime classics, all classics, browse by decade, era, sorted by score)
-- Messages page labels (sign in to view messages)
-- Detail page metadata (source, aired, rating, duration, rank, popularity, author, last update)
-- Comments (share your thoughts, sign in to comment, post comment)
-- Avatar picker (upload, choose file, uploading, recommended, no characters found, search character, use this avatar, cancel)
-- 404 page (page not found, return home)
-- Watchlist extras (all categories, uncategorized)
+### Files requiring translation updates (8 files):
 
-### Step 2: Apply `t()` to StatsPage
-Replace all hardcoded strings with translation function calls. Fix the JP subtitle to only show when `language === "ja"`.
+1. **`src/contexts/LanguageContext.tsx`** -- Add ~150 new translation keys across all 8 languages for the items below.
 
-### Step 3: Apply `t()` to UserProfile
-Translate tab labels, section headers, follow stats, action buttons, and empty states.
+2. **`src/pages/AnimeDetail.tsx`** -- Replace ~20 hardcoded strings with `t()` calls: error states, section headers (Synopsis, Genres, Studios, Information), info grid labels (Source, Episodes, Status, Aired, Rating, Rank, Popularity, Duration), comment section text, toast messages, and player placeholder text.
 
-### Step 4: Apply `t()` to ClassicsPage
-Translate hero section, decade labels, filter text, and empty states.
+3. **`src/pages/MangaDetail.tsx`** -- Replace ~20 hardcoded strings with `t()` calls: error states, action buttons (Read First, Continue, Bookmark, Back to Manga), info grid labels (Author, Rating, Status, Last Update, Alternatives), chapter list header and labels, comment section text.
 
-### Step 5: Apply `t()` to MessagesPage
-Translate sign-in prompt and loading state.
+4. **`src/pages/ClassicsPage.tsx`** -- Replace ~12 hardcoded strings with `t()` calls: hero section text, filter labels (Era, Browsing, All Classics), decade labels, empty state, and fix the always-visible Japanese subtitle to only show when `language === "ja"`.
 
-### Step 6: Apply `t()` to AnimeDetail and MangaDetail
-Translate metadata labels and comment section text.
+5. **`src/components/settings/AvatarPicker.tsx`** -- Replace ~10 hardcoded strings: "Upload" tab, search placeholder, empty states, upload area text, dialog buttons (Cancel, Use This Avatar, Choose File, Uploading...).
 
-### Step 7: Apply `t()` to AvatarPicker
-Translate tab labels, upload text, search placeholder, and dialog buttons.
+6. **`src/components/CategoryBar.tsx`** -- Replace collection labels (Trending, This Season, New This Week, Completed, Coming Soon, Most Popular, Classics) with `t()` calls. Genre names stay in English as they are industry-standard terms.
 
-### Step 8: Apply `t()` to NotFound
-Translate heading, description, and button text.
+7. **`src/pages/AdminPage.tsx`** -- Replace ~6 hardcoded strings: dashboard title, description, access denied text.
 
-### Step 9: Fix Broken `/rankings` Links
-- **Navbar.tsx**: Remove the `/rankings` link (or remove the file if it's unused)
-- **DeferredAnimeSections.tsx**: Change `/rankings` to `/anime?filter=bypopularity` or similar valid route
+8. **`src/components/admin/ReportQueue.tsx`** and **`src/components/admin/UserManagement.tsx`** -- Replace all admin UI strings with `t()` calls (~30 strings total across both files).
 
-### Step 10: Fix RecommendationsPage Media Type Labels
-Use `t("stats.anime")` / `t("stats.manga")` for the toggle labels instead of hardcoded "Anime"/"Manga".
+### Dead code and broken links (2 files):
 
-### Step 11: Fix WatchlistPage Category Strings
-Translate "All Categories", "Uncategorized", and "Category" placeholder.
+9. **`src/components/Navbar.tsx`** -- Delete this file entirely. It is unused (the app uses `CollapsibleNavbar` and `FloatingNav` instead) and contains a broken `/rankings` link.
+
+10. **Verify `DeferredAnimeSections.tsx`** -- Already fixed in previous pass; confirm the `/rankings` link was changed.
 
 ---
 
-## Technical Details
+## Implementation Order
 
-- All changes are in the `src/` directory only
-- The `LanguageContext.tsx` file will grow by ~200-300 lines to accommodate new keys across all 8 languages
-- No new dependencies needed
-- No database or backend changes required
-- All fixes follow existing patterns (using `useLanguage()` hook and `t()` function)
-- The JP subtitle pattern (only show when `language === "ja"`) is already established and will be applied consistently
+### Step 1: Add all missing translation keys to LanguageContext
+Add keys grouped by feature area:
+- `detail.*` -- Source, Episodes, Status, Aired, Rating, Rank, Popularity, Duration, Author, Last Update, Alternatives, Synopsis, Genres, Studios, Information, Chapters Available, Read First, Continue Reading, Bookmark, Back to Manga, No Synopsis, Error Loading
+- `classics.*` -- Classic Collection, Anime Classics, explore description, For You, Saved, Era, Browsing, All Classics, No Anime Found, Sorted by Score
+- `avatar.*` -- Upload, Search Characters, No Characters Found, Try Different Term, Upload Your Own, Choose File, Uploading, Recommended Size, Cancel, Use This Avatar
+- `category.*` -- Trending, This Season, New This Week, Completed, Coming Soon, Most Popular, Classics
+- `comments.*` -- Comment Section, Share Thoughts, Sign In To Comment, Post Comment, Loading Comments, No Comments Yet, Latest, Top
+- `admin.*` -- Moderation Dashboard, Manage Reports, Access Denied, No Permission, Report Queue, Total Reports, Pending, Resolved, Dismissed, Resolve, Dismiss, No Reports, User Management, Search Users, Ban, Unban, Ban User, Ban Description, Reason, Duration, Confirm Ban, Loading
+- `common.*` -- Go Home, Return Home, Something Went Wrong, Cancel, Error, Sign In To (various)
+
+### Step 2: Apply translations to AnimeDetail.tsx
+Import `useLanguage`, replace all hardcoded strings.
+
+### Step 3: Apply translations to MangaDetail.tsx
+Import `useLanguage`, replace all hardcoded strings.
+
+### Step 4: Apply translations to ClassicsPage.tsx
+Import `useLanguage`, replace strings, fix JP subtitle conditional.
+
+### Step 5: Apply translations to AvatarPicker.tsx
+Replace remaining hardcoded strings (some already use `t()`).
+
+### Step 6: Apply translations to CategoryBar.tsx
+Replace collection labels with `t()` calls for the 7 collection categories.
+
+### Step 7: Apply translations to AdminPage.tsx, ReportQueue.tsx, UserManagement.tsx
+Replace all admin panel strings.
+
+### Step 8: Delete Navbar.tsx
+Remove the unused component file.
+
+---
+
+## Technical Notes
+
+- All translations follow the existing pattern: `const { t, language } = useLanguage()`
+- LanguageContext will grow by approximately 150-200 lines
+- No new dependencies, no database changes, no backend changes
+- Genre names in CategoryBar remain in English as they are internationally recognized terms
+- Admin pages are lower priority for translation since only moderators/admins see them, but included for completeness
+- The Japanese subtitle fix (only show when `language === "ja"`) applies to ClassicsPage the same way it was already fixed in StatsPage
 
