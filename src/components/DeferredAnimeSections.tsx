@@ -6,6 +6,7 @@ import { CardSkeletonRow } from "@/components/skeletons";
 import { DeferredAnimeSection } from "@/components/DeferredAnimeSection";
 import { useTopAnime, useClassicAnime, useAllTimeTopAnime, useAnimeByGenre } from "@/hooks/useAnimeData";
 import { TrendingUp, Clock, Trophy, History, Swords, Heart, Wand2, Rocket } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function AnimeRow({ data, isLoading, isError, onRetry, isMobile }: {
   data?: any[];
@@ -31,8 +32,9 @@ function AnimeRow({ data, isLoading, isError, onRetry, isMobile }: {
 }
 
 export function DeferredPopularSection({ isMobile }: { isMobile: boolean }) {
+  const { t } = useLanguage();
   return (
-    <DeferredAnimeSection title="Most Popular" titleJp="人気アニメ" icon={TrendingUp} linkTo="/anime?filter=bypopularity" isMobile={isMobile}>
+    <DeferredAnimeSection title={t("anime.mostPopular")} titleJp={t("anime.mostPopularJp")} icon={TrendingUp} linkTo="/anime?filter=bypopularity" isMobile={isMobile}>
       {(isVisible) => <PopularContent isMobile={isMobile} enabled={isVisible} />}
     </DeferredAnimeSection>
   );
@@ -43,8 +45,9 @@ function PopularContent({ isMobile, enabled }: { isMobile: boolean; enabled: boo
 }
 
 export function DeferredUpcomingSection({ isMobile }: { isMobile: boolean }) {
+  const { t } = useLanguage();
   return (
-    <DeferredAnimeSection title="Coming Soon" titleJp="近日公開" icon={Clock} linkTo="/anime?filter=upcoming" isMobile={isMobile}>
+    <DeferredAnimeSection title={t("anime.comingSoon")} titleJp={t("anime.comingSoonJp")} icon={Clock} linkTo="/anime?filter=upcoming" isMobile={isMobile}>
       {(isVisible) => <UpcomingContent isMobile={isMobile} enabled={isVisible} />}
     </DeferredAnimeSection>
   );
@@ -55,8 +58,9 @@ function UpcomingContent({ isMobile, enabled }: { isMobile: boolean; enabled: bo
 }
 
 export function DeferredClassicSection({ isMobile }: { isMobile: boolean }) {
+  const { t } = useLanguage();
   return (
-    <DeferredAnimeSection title="Classic Anime" titleJp="クラシック" icon={History} linkTo="/classics" linkText="Browse by Decade" isMobile={isMobile}>
+    <DeferredAnimeSection title={t("anime.classicAnime")} titleJp={t("anime.classicAnimeJp")} icon={History} linkTo="/classics" linkText={t("section.browseByDecade")} isMobile={isMobile}>
       {(isVisible) => <ClassicContent isMobile={isMobile} enabled={isVisible} />}
     </DeferredAnimeSection>
   );
@@ -67,8 +71,9 @@ function ClassicContent({ isMobile, enabled }: { isMobile: boolean; enabled: boo
 }
 
 export function DeferredAllTimeTopSection({ isMobile }: { isMobile: boolean }) {
+  const { t } = useLanguage();
   return (
-    <DeferredAnimeSection title="All-Time Top Rated" titleJp="歴代最高評価" icon={Trophy} linkTo="/rankings" isMobile={isMobile}>
+    <DeferredAnimeSection title={t("anime.allTimeTop")} titleJp={t("anime.allTimeTopJp")} icon={Trophy} linkTo="/rankings" isMobile={isMobile}>
       {(isVisible) => <AllTimeTopContent isMobile={isMobile} enabled={isVisible} />}
     </DeferredAnimeSection>
   );

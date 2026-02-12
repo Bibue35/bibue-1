@@ -6,6 +6,7 @@ import { DeferredAnimeSection } from "@/components/DeferredAnimeSection";
 import { useTrendingManhwa, useTrendingManhua, useTopManga, useNewThisWeekManga, useCompletedManga, useMangaByGenre } from "@/hooks/useAnimeData";
 import { Zap, Star, BookOpen, CheckCircle, Swords, Heart, Wand2 } from "lucide-react";
 import { useMemo } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function MangaRow({ data, isLoading, isError, onRetry, isMobile }: {
   data?: any[];
@@ -32,8 +33,9 @@ function MangaRow({ data, isLoading, isError, onRetry, isMobile }: {
 
 // Trending Manhwa
 export function DeferredTrendingManhwaSection({ isMobile }: { isMobile: boolean }) {
+  const { t } = useLanguage();
   return (
-    <DeferredAnimeSection title="Trending Manhwa" titleJp="韓国漫画" icon={Zap} linkTo="/manga?filter=manhwa" isMobile={isMobile}>
+    <DeferredAnimeSection title={t("section.trendingManhwa")} titleJp={t("section.trendingManhwaJp")} icon={Zap} linkTo="/manga?filter=manhwa" isMobile={isMobile}>
       {(isVisible) => <TrendingManhwaContent isMobile={isMobile} enabled={isVisible} />}
     </DeferredAnimeSection>
   );
@@ -45,8 +47,9 @@ function TrendingManhwaContent({ isMobile, enabled }: { isMobile: boolean; enabl
 
 // Top Manhwa
 export function DeferredTopManhwaSection({ isMobile }: { isMobile: boolean }) {
+  const { t } = useLanguage();
   return (
-    <DeferredAnimeSection title="Top Manhwa" titleJp="韓国トップ" icon={Star} linkTo="/manga?filter=manhwa&sort=score" isMobile={isMobile}>
+    <DeferredAnimeSection title={t("section.topManhwa")} titleJp={t("section.topManhwaJp")} icon={Star} linkTo="/manga?filter=manhwa&sort=score" isMobile={isMobile}>
       {(isVisible) => <TopManhwaContent isMobile={isMobile} enabled={isVisible} />}
     </DeferredAnimeSection>
   );
@@ -59,8 +62,9 @@ function TopManhwaContent({ isMobile, enabled }: { isMobile: boolean; enabled: b
 
 // Trending Manhua
 export function DeferredTrendingManhuaSection({ isMobile }: { isMobile: boolean }) {
+  const { t } = useLanguage();
   return (
-    <DeferredAnimeSection title="Trending Manhua" titleJp="中国漫画" icon={Zap} linkTo="/manga?filter=manhua" isMobile={isMobile}>
+    <DeferredAnimeSection title={t("section.trendingManhua")} titleJp={t("section.trendingManhuaJp")} icon={Zap} linkTo="/manga?filter=manhua" isMobile={isMobile}>
       {(isVisible) => <TrendingManhuaContent isMobile={isMobile} enabled={isVisible} />}
     </DeferredAnimeSection>
   );
@@ -72,8 +76,9 @@ function TrendingManhuaContent({ isMobile, enabled }: { isMobile: boolean; enabl
 
 // Top Manhua
 export function DeferredTopManhuaSection({ isMobile }: { isMobile: boolean }) {
+  const { t } = useLanguage();
   return (
-    <DeferredAnimeSection title="Top Manhua" titleJp="中国トップ" icon={Star} linkTo="/manga?filter=manhua&sort=score" isMobile={isMobile}>
+    <DeferredAnimeSection title={t("section.topManhua")} titleJp={t("section.topManhuaJp")} icon={Star} linkTo="/manga?filter=manhua&sort=score" isMobile={isMobile}>
       {(isVisible) => <TopManhuaContent isMobile={isMobile} enabled={isVisible} />}
     </DeferredAnimeSection>
   );
@@ -86,8 +91,9 @@ function TopManhuaContent({ isMobile, enabled }: { isMobile: boolean; enabled: b
 
 // New This Week
 export function DeferredNewThisWeekSection({ isMobile }: { isMobile: boolean }) {
+  const { t } = useLanguage();
   return (
-    <DeferredAnimeSection title="New This Week" titleJp="今週の新作" icon={BookOpen} linkTo="/manga?collection=new" isMobile={isMobile}>
+    <DeferredAnimeSection title={t("section.newThisWeek")} titleJp={t("section.newThisWeekJp")} icon={BookOpen} linkTo="/manga?collection=new" isMobile={isMobile}>
       {(isVisible) => <NewThisWeekContent isMobile={isMobile} enabled={isVisible} />}
     </DeferredAnimeSection>
   );
@@ -100,8 +106,9 @@ function NewThisWeekContent({ isMobile, enabled }: { isMobile: boolean; enabled:
 
 // Completed Series
 export function DeferredCompletedSection({ isMobile }: { isMobile: boolean }) {
+  const { t } = useLanguage();
   return (
-    <DeferredAnimeSection title="Completed Series" titleJp="完結作品" icon={CheckCircle} linkTo="/manga?collection=completed" isMobile={isMobile}>
+    <DeferredAnimeSection title={t("section.completedSeries")} titleJp={t("section.completedSeriesJp")} icon={CheckCircle} linkTo="/manga?collection=completed" isMobile={isMobile}>
       {(isVisible) => <CompletedContent isMobile={isMobile} enabled={isVisible} />}
     </DeferredAnimeSection>
   );

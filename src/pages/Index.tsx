@@ -108,8 +108,8 @@ const Index = () => {
 
       {/* Trending Now - Mobile-optimized horizontal scroll with larger cards */}
       <ContentSection
-        title="Trending Now"
-        titleJp="トレンド"
+        title={t("section.trending")}
+        titleJp={t("section.trendingJp")}
         icon={Flame}
         linkTo="/anime?filter=airing"
         compact
@@ -175,8 +175,8 @@ const Index = () => {
       <div ref={popularSection.ref}>
       {popularSection.isVisible ? (
       <ContentSection
-        title="Most Popular"
-        titleJp="人気アニメ"
+        title={t("anime.mostPopular")}
+        titleJp={t("anime.mostPopularJp")}
         icon={TrendingUp}
         linkTo="/rankings?type=anime"
         linkText={t("section.rankings")}
@@ -208,8 +208,8 @@ const Index = () => {
       <div ref={upcomingSection.ref}>
       {upcomingSection.isVisible ? (
       <ContentSection
-        title="Coming Soon"
-        titleJp="近日公開"
+        title={t("anime.comingSoon")}
+        titleJp={t("anime.comingSoonJp")}
         icon={Clock}
         linkTo="/anime?filter=upcoming"
       >
@@ -240,8 +240,8 @@ const Index = () => {
       <div ref={allTimeSection.ref}>
       {allTimeSection.isVisible ? (
       <ContentSection
-        title="All-Time Top Rated"
-        titleJp="歴代最高"
+        title={t("anime.allTimeTop")}
+        titleJp={t("anime.allTimeTopJp")}
         icon={Trophy}
         linkTo="/rankings?type=anime&sort=score"
       >
@@ -272,11 +272,11 @@ const Index = () => {
       <div ref={classicSection.ref}>
       {classicSection.isVisible ? (
       <ContentSection
-        title="Classic Anime"
-        titleJp="クラシック"
+        title={t("anime.classicAnime")}
+        titleJp={t("anime.classicAnimeJp")}
         icon={History}
         linkTo="/classics"
-        linkText="Browse by Decade"
+        linkText={t("section.browseByDecade")}
       >
         {classicError ? (
           <SectionError onRetry={() => refetchClassic()} />
@@ -319,14 +319,14 @@ const Index = () => {
                 <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
               <div>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Manga</h2>
-                <p className="font-jp text-xs sm:text-sm text-muted-foreground">漫画・マンファ・漫画</p>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">{t("index.manga")}</h2>
+                <p className="font-jp text-xs sm:text-sm text-muted-foreground">{t("index.mangaJp")}</p>
               </div>
             </div>
             <Button variant="ghost" size="sm" className="gap-1 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3" asChild>
               <Link to="/manga">
-                <span className="hidden xs:inline">Browse All</span>
-                <span className="xs:hidden">All</span>
+                <span className="hidden xs:inline">{t("section.browseAll")}</span>
+                <span className="xs:hidden">{t("common.all")}</span>
                 <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </Link>
             </Button>
@@ -337,9 +337,9 @@ const Index = () => {
             {/* Top Manga Column */}
             <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-base sm:text-lg font-semibold">Top Manga</h3>
+                <h3 className="text-base sm:text-lg font-semibold">{t("section.topManga")}</h3>
                 <Link to="/manga" className="text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors">
-                  See all →
+                  {t("section.seeAll")} →
                 </Link>
               </div>
               <div className="space-y-2 sm:space-y-3">
@@ -362,10 +362,10 @@ const Index = () => {
               <div className="flex items-center justify-between">
                 <h3 className="text-base sm:text-lg font-semibold flex items-center gap-1.5">
                   <Zap className="w-4 h-4 text-primary" />
-                  Trending Manhwa
+                  {t("section.trendingManhwa")}
                 </h3>
                 <Link to="/manga?filter=manhwa" className="text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors">
-                  See all →
+                  {t("section.seeAll")} →
                 </Link>
               </div>
               <div className="space-y-2 sm:space-y-3">
@@ -388,10 +388,10 @@ const Index = () => {
               <div className="flex items-center justify-between">
                 <h3 className="text-base sm:text-lg font-semibold flex items-center gap-1.5">
                   <Zap className="w-4 h-4 text-primary" />
-                  Trending Manhua
+                  {t("section.trendingManhua")}
                 </h3>
                 <Link to="/manga?filter=manhua" className="text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors">
-                  See all →
+                  {t("section.seeAll")} →
                 </Link>
               </div>
               <div className="space-y-2 sm:space-y-3">
