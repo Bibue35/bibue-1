@@ -38,6 +38,8 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
           <img
             src={manga.images.webp.image_url}
             alt={manga.title}
+            width={64}
+            height={80}
             loading="lazy"
             decoding="async"
             className="w-14 sm:w-16 h-18 sm:h-20 object-cover rounded-lg bg-muted"
