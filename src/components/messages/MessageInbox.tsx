@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Send, MessageCircle, User } from "lucide-react";
+import { ArrowLeft, Send, MessageCircle, User, Lock } from "lucide-react";
+import { useEncryptionKeys } from "@/hooks/useEncryptionKeys";
 import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
@@ -35,6 +36,7 @@ export function MessageInbox({ initialPartnerId }: MessageInboxProps) {
     sendTypingIndicator,
     sendStopTyping,
   } = useConversation(selectedPartnerId);
+  const { ready: encryptionReady } = useEncryptionKeys();
 
   // Handle typing indicator
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,6 +170,9 @@ export function MessageInbox({ initialPartnerId }: MessageInboxProps) {
           </AvatarFallback>
         </Avatar>
         <CardTitle className="text-base">{partner?.partnerUsername || "User"}</CardTitle>
+        {encryptionReady && (
+          <Lock className="h-4 w-4 text-primary ml-auto" />
+        )}
       </CardHeader>
 
       <ScrollArea className="flex-1 p-4">
@@ -195,7 +200,11 @@ export function MessageInbox({ initialPartnerId }: MessageInboxProps) {
                         : "bg-muted"
                     )}
                   >
-                    <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
+                    <p className="text-sm whitespace-pre-wrap break-words">
+                      {msg.decryptionFailed ? (
+                        <span className="italic text-muted-foreground">{msg.content}</span>
+                      ) : msg.content}
+                    </p>
                     <p
                       className={cn(
                         "text-xs mt-1",

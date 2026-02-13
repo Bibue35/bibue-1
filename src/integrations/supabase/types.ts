@@ -224,7 +224,9 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          encryption_metadata: Json | null
           id: string
+          is_encrypted: boolean
           read_at: string | null
           recipient_id: string
           sender_id: string
@@ -232,7 +234,9 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string
+          encryption_metadata?: Json | null
           id?: string
+          is_encrypted?: boolean
           read_at?: string | null
           recipient_id: string
           sender_id: string
@@ -240,7 +244,9 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          encryption_metadata?: Json | null
           id?: string
+          is_encrypted?: boolean
           read_at?: string | null
           recipient_id?: string
           sender_id?: string
@@ -643,6 +649,30 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_encryption_keys: {
+        Row: {
+          created_at: string
+          id: string
+          public_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          public_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          public_key?: string
           updated_at?: string
           user_id?: string
         }
