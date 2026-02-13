@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEncryptionKeys } from "@/hooks/useEncryptionKeys";
+import { encryptMessage, decryptMessage, type EncryptedPayload } from "@/lib/e2e-crypto";
 
 interface Message {
   id: string;
@@ -10,6 +12,8 @@ interface Message {
   content: string;
   created_at: string;
   read_at: string | null;
+  is_encrypted?: boolean;
+  encryption_metadata?: any;
   sender?: {
     username: string | null;
     avatar_url: string | null;
@@ -18,6 +22,7 @@ interface Message {
     username: string | null;
     avatar_url: string | null;
   };
+  decryptionFailed?: boolean;
 }
 
 interface Conversation {
@@ -27,6 +32,7 @@ interface Conversation {
   lastMessage: string;
   lastMessageAt: string;
   unreadCount: number;
+  isEncrypted?: boolean;
 }
 
 interface ProfileInfo {
@@ -38,6 +44,7 @@ interface ProfileInfo {
 export function useConversations() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { privateKey } = useEncryptionKeys();
 
   // Set up realtime subscription for conversations
   useEffect(() => {
@@ -54,7 +61,6 @@ export function useConversations() {
           filter: `recipient_id=eq.${user.id}`,
         },
         () => {
-          // Invalidate conversations when we receive a new message
           queryClient.invalidateQueries({ queryKey: ["conversations", user.id] });
           queryClient.invalidateQueries({ queryKey: ["unread-count", user.id] });
         }
@@ -68,7 +74,6 @@ export function useConversations() {
           filter: `sender_id=eq.${user.id}`,
         },
         () => {
-          // Also refresh when we send messages
           queryClient.invalidateQueries({ queryKey: ["conversations", user.id] });
         }
       )
@@ -84,7 +89,6 @@ export function useConversations() {
     queryFn: async (): Promise<Conversation[]> => {
       if (!user?.id) return [];
 
-      // Get all messages involving the user
       const { data: messages, error } = await supabase
         .from("direct_messages")
         .select("*")
@@ -101,39 +105,69 @@ export function useConversations() {
         partnerIds.add(partnerId);
       });
 
-      // Fetch profiles for all partners
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("user_id, username, avatar_url")
-        .in("user_id", Array.from(partnerIds));
+      // Fetch profiles and public keys for all partners
+      const [profilesRes, keysRes] = await Promise.all([
+        supabase.from("profiles").select("user_id, username, avatar_url").in("user_id", Array.from(partnerIds)),
+        supabase.from("user_encryption_keys").select("user_id, public_key").in("user_id", Array.from(partnerIds)),
+      ]);
 
       const profileMap = new Map<string, ProfileInfo>();
-      profiles?.forEach((p) => profileMap.set(p.user_id, p));
+      profilesRes.data?.forEach((p) => profileMap.set(p.user_id, p));
+
+      const publicKeyMap = new Map<string, JsonWebKey>();
+      keysRes.data?.forEach((k) => {
+        try { publicKeyMap.set(k.user_id, JSON.parse(k.public_key)); } catch {}
+      });
 
       // Group by conversation partner
       const conversationMap = new Map<string, Conversation>();
 
-      messages.forEach((msg) => {
+      for (const msg of messages) {
         const partnerId = msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
         const partner = profileMap.get(partnerId);
 
         if (!conversationMap.has(partnerId)) {
+          let lastMessage = msg.content;
+
+          // Try to decrypt encrypted messages for preview
+          if (msg.is_encrypted && msg.encryption_metadata && privateKey) {
+            try {
+              const senderPublicKey = msg.sender_id === user.id
+                ? null // We sent it, need recipient's key
+                : publicKeyMap.get(msg.sender_id);
+              
+              // For sent messages, we need the recipient's public key to derive the same shared secret
+              const otherPublicKey = msg.sender_id === user.id
+                ? publicKeyMap.get(msg.recipient_id)
+                : publicKeyMap.get(msg.sender_id);
+
+              if (otherPublicKey) {
+                const metadata = msg.encryption_metadata as unknown as EncryptedPayload;
+                lastMessage = await decryptMessage(metadata, privateKey, otherPublicKey);
+              } else {
+                lastMessage = "🔒 Encrypted message";
+              }
+            } catch {
+              lastMessage = "🔒 Encrypted message";
+            }
+          }
+
           conversationMap.set(partnerId, {
             partnerId,
             partnerUsername: partner?.username || "Unknown User",
             partnerAvatar: partner?.avatar_url || null,
-            lastMessage: msg.content,
+            lastMessage,
             lastMessageAt: msg.created_at,
             unreadCount: 0,
+            isEncrypted: msg.is_encrypted || false,
           });
         }
 
-        // Count unread messages from this partner
         if (msg.recipient_id === user.id && !msg.read_at) {
           const conv = conversationMap.get(partnerId)!;
           conv.unreadCount++;
         }
-      });
+      }
 
       return Array.from(conversationMap.values());
     },
@@ -147,44 +181,32 @@ export function useConversation(partnerId: string | null) {
   const [isPartnerTyping, setIsPartnerTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const { privateKey, getRecipientPublicKey } = useEncryptionKeys();
 
   // Set up realtime subscription for this conversation
   useEffect(() => {
     if (!user?.id || !partnerId) return;
 
-    // Create a unique channel for this conversation pair
     const channelName = [user.id, partnerId].sort().join("-");
     const channel = supabase.channel(`typing-${channelName}`);
     channelRef.current = channel;
 
     channel
       .on("broadcast", { event: "typing" }, (payload) => {
-        // Only show typing if it's from the partner
         if (payload.payload?.userId === partnerId) {
           setIsPartnerTyping(true);
-          
-          // Clear existing timeout
-          if (typingTimeoutRef.current) {
-            clearTimeout(typingTimeoutRef.current);
-          }
-          
-          // Hide typing indicator after 3 seconds of no typing events
-          typingTimeoutRef.current = setTimeout(() => {
-            setIsPartnerTyping(false);
-          }, 3000);
+          if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+          typingTimeoutRef.current = setTimeout(() => setIsPartnerTyping(false), 3000);
         }
       })
       .on("broadcast", { event: "stop_typing" }, (payload) => {
         if (payload.payload?.userId === partnerId) {
           setIsPartnerTyping(false);
-          if (typingTimeoutRef.current) {
-            clearTimeout(typingTimeoutRef.current);
-          }
+          if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
         }
       })
       .subscribe();
 
-    // Also subscribe to message changes
     const messageChannel = supabase
       .channel(`messages-${user.id}-${partnerId}`)
       .on(
@@ -202,45 +224,28 @@ export function useConversation(partnerId: string | null) {
           ) {
             queryClient.invalidateQueries({ queryKey: ["messages", user.id, partnerId] });
             queryClient.invalidateQueries({ queryKey: ["unread-count", user.id] });
-            // Stop showing typing when message is received
-            if (newMsg.sender_id === partnerId) {
-              setIsPartnerTyping(false);
-            }
+            if (newMsg.sender_id === partnerId) setIsPartnerTyping(false);
           }
         }
       )
       .subscribe();
 
     return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       supabase.removeChannel(channel);
       supabase.removeChannel(messageChannel);
       channelRef.current = null;
     };
   }, [user?.id, partnerId, queryClient]);
 
-  // Function to broadcast typing status
   const sendTypingIndicator = useCallback(() => {
     if (!user?.id || !partnerId || !channelRef.current) return;
-    
-    channelRef.current.send({
-      type: "broadcast",
-      event: "typing",
-      payload: { userId: user.id },
-    });
+    channelRef.current.send({ type: "broadcast", event: "typing", payload: { userId: user.id } });
   }, [user?.id, partnerId]);
 
-  // Function to broadcast stop typing
   const sendStopTyping = useCallback(() => {
     if (!user?.id || !partnerId || !channelRef.current) return;
-    
-    channelRef.current.send({
-      type: "broadcast",
-      event: "stop_typing",
-      payload: { userId: user.id },
-    });
+    channelRef.current.send({ type: "broadcast", event: "stop_typing", payload: { userId: user.id } });
   }, [user?.id, partnerId]);
 
   const messagesQuery = useQuery({
@@ -259,7 +264,7 @@ export function useConversation(partnerId: string | null) {
       if (error) throw error;
       if (!data || data.length === 0) return [];
 
-      // Fetch profiles for sender and recipient
+      // Fetch profiles
       const { data: profiles } = await supabase
         .from("profiles")
         .select("user_id, username, avatar_url")
@@ -268,7 +273,7 @@ export function useConversation(partnerId: string | null) {
       const profileMap = new Map<string, ProfileInfo>();
       profiles?.forEach((p) => profileMap.set(p.user_id, p));
 
-      // Mark messages as read
+      // Mark unread as read
       const unreadIds = data
         .filter((m) => m.recipient_id === user.id && !m.read_at)
         .map((m) => m.id);
@@ -280,12 +285,47 @@ export function useConversation(partnerId: string | null) {
           .in("id", unreadIds);
       }
 
-      // Enrich messages with profile info
-      return data.map((msg) => ({
-        ...msg,
-        sender: profileMap.get(msg.sender_id) || undefined,
-        recipient: profileMap.get(msg.recipient_id) || undefined,
-      }));
+      // Get partner's public key for decryption
+      let partnerPublicKey: JsonWebKey | null = null;
+      const hasEncrypted = data.some((m) => m.is_encrypted);
+      if (hasEncrypted) {
+        partnerPublicKey = await getRecipientPublicKey(partnerId);
+      }
+
+      // Decrypt messages
+      const enriched: Message[] = [];
+      for (const msg of data) {
+        let content = msg.content;
+        let decryptionFailed = false;
+
+        if (msg.is_encrypted && msg.encryption_metadata && privateKey) {
+          try {
+            // For messages we sent, we need recipient's public key
+            // For messages we received, we need sender's public key
+            const otherPublicKey = partnerPublicKey;
+            if (otherPublicKey) {
+              const metadata = msg.encryption_metadata as unknown as EncryptedPayload;
+              content = await decryptMessage(metadata, privateKey, otherPublicKey);
+            } else {
+              content = "🔒 Unable to decrypt";
+              decryptionFailed = true;
+            }
+          } catch {
+            content = "🔒 Unable to decrypt";
+            decryptionFailed = true;
+          }
+        }
+
+        enriched.push({
+          ...msg,
+          content,
+          decryptionFailed,
+          sender: profileMap.get(msg.sender_id) || undefined,
+          recipient: profileMap.get(msg.recipient_id) || undefined,
+        });
+      }
+
+      return enriched;
     },
     enabled: !!user?.id && !!partnerId,
   });
@@ -294,12 +334,32 @@ export function useConversation(partnerId: string | null) {
     mutationFn: async (content: string) => {
       if (!user?.id || !partnerId) throw new Error("Not authenticated");
 
+      // Try to encrypt the message
+      let messageContent = content;
+      let isEncrypted = false;
+      let encryptionMetadata: EncryptedPayload | null = null;
+
+      if (privateKey) {
+        const recipientPublicKey = await getRecipientPublicKey(partnerId);
+        if (recipientPublicKey) {
+          try {
+            encryptionMetadata = await encryptMessage(content, privateKey, recipientPublicKey);
+            messageContent = "[Encrypted]"; // Placeholder stored in content column
+            isEncrypted = true;
+          } catch (e) {
+            console.warn("E2E encryption failed, sending plaintext:", e);
+          }
+        }
+      }
+
       const { data, error } = await supabase
         .from("direct_messages")
         .insert({
           sender_id: user.id,
           recipient_id: partnerId,
-          content,
+          content: messageContent,
+          is_encrypted: isEncrypted,
+          encryption_metadata: encryptionMetadata as any,
         })
         .select()
         .single();
@@ -329,7 +389,6 @@ export function useUnreadCount() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Set up realtime subscription for unread count
   useEffect(() => {
     if (!user?.id) return;
 
@@ -356,7 +415,6 @@ export function useUnreadCount() {
           filter: `recipient_id=eq.${user.id}`,
         },
         () => {
-          // When messages are marked as read
           queryClient.invalidateQueries({ queryKey: ["unread-count", user.id] });
         }
       )
