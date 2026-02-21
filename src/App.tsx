@@ -38,6 +38,10 @@ const StatsPage = lazy(() => import("./pages/StatsPage"));
 const HistoryPage = lazy(() => import("./pages/HistoryPage"));
 const SeasonalPage = lazy(() => import("./pages/SeasonalPage"));
 const SchedulePage = lazy(() => import("./pages/SchedulePage"));
+const GuidesPage = lazy(() => import("./pages/GuidesPage"));
+const GuideDetailPage = lazy(() => import("./pages/GuideDetailPage"));
+const GenresPage = lazy(() => import("./pages/GenresPage"));
+const GenreDetailPage = lazy(() => import("./pages/GenreDetailPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -106,6 +110,10 @@ const App = () => (
                             <Route path="/seasonal" element={<SeasonalPage />} />
                             <Route path="/seasonal/:seasonParam" element={<SeasonalPage />} />
                             <Route path="/schedule" element={<SchedulePage />} />
+                            <Route path="/guides" element={<GuidesPage />} />
+                            <Route path="/guide/:slug" element={<GuideDetailPage />} />
+                            <Route path="/genres" element={<GenresPage />} />
+                            <Route path="/genre/:genre" element={<GenreDetailPage />} />
                             <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                             <Route path="/privacy" element={<PrivacyPage />} />
                             <Route path="/terms" element={<TermsPage />} />
