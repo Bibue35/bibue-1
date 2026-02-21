@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SEO } from "@/components/SEO";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -115,6 +116,12 @@ const UserProfile = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title={profile.display_name || profile.username || "User Profile"}
+        description={profile.bio || `View ${profile.username || "user"}'s anime and manga profile on Bibue.`}
+        url={`/user/${userId}`}
+        image={profile.avatar_url || undefined}
+      />
       <CollapsibleNavbar />
       
       <main className="pt-20 pb-16">

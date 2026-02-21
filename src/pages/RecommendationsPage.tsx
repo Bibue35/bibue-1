@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SEO } from "@/components/SEO";
 import { Link } from "react-router-dom";
 import { Sparkles, Heart, ArrowRight, BookOpen, Tv } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
@@ -38,6 +39,7 @@ export default function RecommendationsPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Recommendations" description="Get personalized anime and manga recommendations based on your watchlist." url="/recommendations" noIndex />
       <CollapsibleNavbar />
 
       {/* Hero */}

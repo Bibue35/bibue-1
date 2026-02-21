@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { SEO, itemListJsonLd } from "@/components/SEO";
 import { useSearchParams, Link } from "react-router-dom";
 import { Grid, List, History, Bookmark, Sparkles, Loader2 } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
@@ -71,6 +72,12 @@ export default function ClassicsPage() {
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
+      <SEO
+        title="Classic Anime"
+        description="Explore timeless classic anime from the 70s to 2010s. Relive the golden eras of anime on Bibue."
+        url="/classics"
+        jsonLd={itemListJsonLd("Classic Anime", "/classics")}
+      />
       <CollapsibleNavbar />
 
       {/* Hero Section */}

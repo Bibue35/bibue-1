@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { SEO, creativeWorkJsonLd } from "@/components/SEO";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, ThumbsUp, ArrowUpDown, ChevronLeft, ChevronRight, PictureInPicture2 } from "lucide-react";
@@ -305,6 +306,23 @@ export default function AnimeDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {anime && (
+        <SEO
+          title={anime.title}
+          description={anime.synopsis?.slice(0, 155) || `Watch ${anime.title} on Bibue.`}
+          image={anime.images?.webp?.large_image_url}
+          url={`/anime/${id}`}
+          jsonLd={creativeWorkJsonLd({
+            name: anime.title,
+            description: anime.synopsis,
+            image: anime.images?.webp?.large_image_url,
+            url: `/anime/${id}`,
+            genre: anime.genres?.map((g: any) => g.name),
+            rating: anime.score,
+            ratingCount: anime.scored_by,
+          })}
+        />
+      )}
       {/* ============ SECTION 1: FULLSCREEN VIDEO PLAYER ============ */}
       <section 
         ref={(el) => {

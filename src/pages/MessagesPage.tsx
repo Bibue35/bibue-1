@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { SEO } from "@/components/SEO";
 import { MessageInbox } from "@/components/messages/MessageInbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -54,6 +55,7 @@ export default function MessagesPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Messages" description="Your private messages on Bibue." url="/messages" noIndex />
       <CollapsibleNavbar />
       <main className="pt-28 pb-16">
         <div className="container mx-auto px-4">

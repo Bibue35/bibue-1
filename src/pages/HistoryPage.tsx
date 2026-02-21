@@ -1,3 +1,4 @@
+import { SEO } from "@/components/SEO";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { useViewingHistory } from "@/hooks/useViewingHistory";
@@ -48,6 +49,7 @@ export default function HistoryPage() {
 
   return (
     <>
+      <SEO title="Viewing History" description="Your anime and manga viewing history on Bibue." url="/history" noIndex />
       <CollapsibleNavbar />
       <main className="min-h-screen pt-20">
         <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-10">

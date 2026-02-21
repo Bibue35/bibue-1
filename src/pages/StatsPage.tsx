@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { SEO } from "@/components/SEO";
 import { BarChart3, Clock, Film, BookOpen, Trophy, TrendingUp, CheckCircle, Pause, XCircle, Eye } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
@@ -107,6 +108,7 @@ export default function StatsPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="My Stats" description="View your anime and manga watching statistics on Bibue." url="/stats" noIndex />
       <CollapsibleNavbar />
 
       <section className="pt-28 sm:pt-32 pb-8">

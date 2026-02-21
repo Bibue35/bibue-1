@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { SEO } from "@/components/SEO";
 import { useNavigate } from "react-router-dom";
 import { User, Camera, Loader2, ArrowLeft, Check, X } from "lucide-react";
 import { FloatingNav } from "@/components/FloatingNav";
@@ -140,6 +141,7 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Settings" description="Manage your Bibue profile settings." url="/settings" noIndex />
       <FloatingNav />
 
       <div className="max-w-2xl mx-auto px-3 sm:px-4 pt-16 sm:pt-24 pb-24">

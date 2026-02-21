@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { SEO, itemListJsonLd } from "@/components/SEO";
 import { useSearchParams, Link } from "react-router-dom";
 import { Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Trophy, Star, Zap, Users, Swords, Heart, Wand2, BookOpen, CheckCircle, RefreshCw } from "lucide-react";
 import { DeferredTrendingManhwaSection, DeferredTopManhwaSection, DeferredTrendingManhuaSection, DeferredTopManhuaSection, DeferredNewThisWeekSection, DeferredCompletedSection, DeferredMangaGenreSection } from "@/components/DeferredMangaSections";
@@ -158,6 +159,12 @@ export default function MangaPage() {
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
+      <SEO
+        title="Browse Manga"
+        description="Discover top manga, manhwa, and manhua. Browse by genre, popularity, and ratings on Bibue."
+        url="/manga"
+        jsonLd={itemListJsonLd("Browse Manga", "/manga")}
+      />
       <CollapsibleNavbar />
 
       {/* Hero with Search */}

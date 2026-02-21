@@ -1,4 +1,5 @@
 import { useLocation, Link } from "react-router-dom";
+import { SEO } from "@/components/SEO";
 import { useEffect } from "react";
 import { Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ const NotFound = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
+      <SEO title="Page Not Found" description="The page you're looking for doesn't exist." noIndex />
       <div className="text-center px-4">
         <div className="w-24 h-24 rounded-3xl liquid-glass mx-auto mb-8 flex items-center justify-center sunbeam-hover">
           <span className="text-4xl font-bold">404</span>

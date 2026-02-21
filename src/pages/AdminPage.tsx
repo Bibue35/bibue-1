@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { SEO } from "@/components/SEO";
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsModeratorOrAdmin } from "@/hooks/useModeration";
@@ -62,6 +63,7 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Admin Dashboard" description="Bibue admin dashboard." url="/admin" noIndex />
       <CollapsibleNavbar />
       <main className="container mx-auto py-8 px-4">
         <div className="mb-8">

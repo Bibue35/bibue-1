@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SEO } from "@/components/SEO";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -48,6 +49,7 @@ const CommunityPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Community" description="Join the Bibue community. Discuss anime and manga, share opinions, and connect with fans." url="/community" />
       <CollapsibleNavbar />
       
       <main className="pt-28 sm:pt-32 pb-8 sm:pb-16">
