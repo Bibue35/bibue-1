@@ -1,0 +1,17 @@
+{
+  "name": "Bibue",
+  "short_name": "Bibue",
+  "description": "Discover, Track & Share Your Favorite Anime & Manga",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#0a0a0f",
+  "background_color": "#0a0a0f",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
