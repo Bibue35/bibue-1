@@ -1,38 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://bibue.net/</loc>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://bibue.net/anime</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://bibue.net/manga</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://bibue.net/news</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://bibue.net/community</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://bibue.net/classics</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://bibue.net/rankings</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
+  <!-- Core pages -->
+  <url><loc>https://bibue.net/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://bibue.net/anime</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://bibue.net/manga</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://bibue.net/news</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://bibue.net/community</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bibue.net/classics</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bibue.net/recommendations</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+
+  <!-- Genre pages -->
+  <url><loc>https://bibue.net/anime?genre=action</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=romance</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=comedy</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=thriller</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=horror</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=slice-of-life</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=sci-fi</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=fantasy</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=sports</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=mecha</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=psychological</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=drama</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=adventure</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=mystery</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=supernatural</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=seinen</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=shounen</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=shoujo</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://bibue.net/anime?genre=isekai</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
 </urlset>
