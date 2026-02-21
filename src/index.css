@@ -1479,3 +1479,18 @@
   --divine-radiance: 267 65% 70% / 0.3;
   --divine-halo: 267 60% 80% / 0.22;
 }
+
+/* ============================================
+ * REDUCED MOTION
+ * Respect user preference for reduced motion
+ * ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

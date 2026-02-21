@@ -45,6 +45,7 @@ export function FloatingNav() {
     <>
       {/* Static nav - scrolls with page */}
       <nav
+        aria-label="Main navigation"
         className={cn(
           "w-full z-50 transition-all duration-300",
           "bg-background/50 backdrop-blur-sm"
@@ -95,6 +96,7 @@ export function FloatingNav() {
                 size="icon"
                 onClick={() => setIsSearchOpen(true)}
                 className="rounded-full hover:bg-foreground/10"
+                aria-label="Search"
               >
                 <Search className="w-5 h-5" />
               </Button>
@@ -103,6 +105,7 @@ export function FloatingNav() {
                 variant="ghost"
                 size="icon"
                 className="relative rounded-full hover:bg-foreground/10"
+                aria-label="Community"
                 asChild
               >
                 <Link to="/community">
@@ -127,6 +130,8 @@ export function FloatingNav() {
                 size="icon"
                 className="md:hidden rounded-full hover:bg-foreground/10"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={isMobileMenuOpen}
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
