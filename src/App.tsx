@@ -16,6 +16,7 @@ import { SwipeNavigationWrapper } from "@/components/SwipeNavigationWrapper";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { BackToTop } from "@/components/BackToTop";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy load all page components for code splitting
@@ -35,6 +36,8 @@ const MessagesPage = lazy(() => import("./pages/MessagesPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
 const StatsPage = lazy(() => import("./pages/StatsPage"));
 const HistoryPage = lazy(() => import("./pages/HistoryPage"));
+const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
+const TermsPage = lazy(() => import("./pages/TermsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Minimal loading fallback for route transitions
@@ -90,15 +93,17 @@ const App = () => (
                             <Route path="/news" element={<NewsPage />} />
                             <Route path="/community" element={<CommunityPage />} />
                             <Route path="/user/:userId" element={<UserProfile />} />
-                            <Route path="/messages" element={<MessagesPage />} />
-                            <Route path="/messages/:partnerId" element={<MessagesPage />} />
-                            <Route path="/watchlist" element={<WatchlistPage />} />
+                            <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
+                            <Route path="/messages/:partnerId" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
+                            <Route path="/watchlist" element={<ProtectedRoute><WatchlistPage /></ProtectedRoute>} />
                             <Route path="/recommendations" element={<RecommendationsPage />} />
                             <Route path="/classics" element={<ClassicsPage />} />
-                            <Route path="/settings" element={<SettingsPage />} />
-                            <Route path="/stats" element={<StatsPage />} />
-                            <Route path="/history" element={<HistoryPage />} />
-                            <Route path="/admin" element={<AdminPage />} />
+                            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+                            <Route path="/stats" element={<ProtectedRoute><StatsPage /></ProtectedRoute>} />
+                            <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
+                            <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+                            <Route path="/privacy" element={<PrivacyPage />} />
+                            <Route path="/terms" element={<TermsPage />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </AnimatedRoutes>
