@@ -37,26 +37,18 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
 
   const currentItem = items[currentIndex];
 
-  // Preload hero images so LCP image is discovered early
+  // Preload ONLY the first hero image for fast LCP
   useEffect(() => {
     if (items.length === 0) return;
-    const preloaded: HTMLLinkElement[] = [];
-    items.slice(0, 3).forEach((item) => {
-      const url = item.images.webp.large_image_url || item.images.webp.image_url;
-      if (!url) return;
-      // Avoid duplicate preloads
-      if (document.querySelector(`link[rel="preload"][href="${url}"]`)) return;
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'image';
-      link.href = url;
-      link.crossOrigin = 'anonymous';
-      document.head.appendChild(link);
-      preloaded.push(link);
-    });
-    return () => {
-      preloaded.forEach((l) => l.remove());
-    };
+    const url = items[0].images.webp.large_image_url || items[0].images.webp.image_url;
+    if (!url || document.querySelector(`link[rel="preload"][href="${url}"]`)) return;
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = url;
+    link.crossOrigin = 'anonymous';
+    document.head.appendChild(link);
+    return () => { link.remove(); };
   }, [items]);
 
   // Auto-play functionality

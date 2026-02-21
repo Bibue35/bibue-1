@@ -241,12 +241,14 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
         {/* Card with soft shadow */}
         <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-2 bg-card shadow-lg shadow-black/10 will-change-transform transform-gpu">
           <img
-            src={anime.images.webp.large_image_url}
+            src={anime.images.webp.image_url}
+            srcSet={`${anime.images.webp.image_url} 230w, ${anime.images.webp.medium_image_url || anime.images.webp.large_image_url} 460w, ${anime.images.webp.large_image_url} 600w`}
             alt={`${anime.title} cover art`}
             width={176}
             height={264}
             loading="lazy"
             decoding="async"
+            sizes="(max-width: 640px) 128px, 176px"
             className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 will-change-transform transform-gpu"
           />
           

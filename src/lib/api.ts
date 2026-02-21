@@ -33,7 +33,7 @@ export interface Anime {
   title_japanese?: string;
   images: {
     jpg: { large_image_url: string; image_url: string };
-    webp: { large_image_url: string; image_url: string };
+    webp: { large_image_url: string; image_url: string; medium_image_url?: string };
   };
   trailer?: { youtube_id?: string; url?: string };
   synopsis?: string;
@@ -67,7 +67,7 @@ export interface Manga {
   title_japanese?: string;
   images: {
     jpg: { large_image_url: string; image_url: string };
-    webp: { large_image_url: string; image_url: string };
+    webp: { large_image_url: string; image_url: string; medium_image_url?: string };
   };
   synopsis?: string;
   score?: number;
@@ -162,9 +162,10 @@ async function anilistQuery<T>(query: string, variables: Record<string, unknown>
 
 // Convert AniList media to our Anime format
 function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime {
-  // Use large/extraLarge for hero/carousel, medium for card thumbnails
-  const largeImageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
-  const cardImageUrl = media.coverImage.medium || media.coverImage.large || largeImageUrl;
+  // AniList sizes: medium ~230px, large ~460px, extraLarge ~600px
+  const extraLarge = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
+  const large = media.coverImage.large || extraLarge;
+  const medium = media.coverImage.medium || large;
   
   // IMPORTANT: Always use AniList ID for consistency across the app
   // This ensures the ID passed to cards matches the ID used for detail fetches
@@ -176,8 +177,8 @@ function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime
     title_english: media.title.english || undefined,
     title_japanese: media.title.native || undefined,
     images: {
-      jpg: { large_image_url: largeImageUrl, image_url: cardImageUrl },
-      webp: { large_image_url: largeImageUrl, image_url: cardImageUrl },
+      jpg: { large_image_url: extraLarge, image_url: medium },
+      webp: { large_image_url: extraLarge, image_url: medium, medium_image_url: large },
     },
     trailer: media.trailer ? { youtube_id: media.trailer.id, url: media.trailer.site === "youtube" ? `https://youtube.com/watch?v=${media.trailer.id}` : undefined } : undefined,
     synopsis: media.description?.replace(/<[^>]*>/g, "") || undefined,
@@ -206,22 +207,20 @@ function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime
 
 // Convert AniList media to our Manga format
 function toManga(media: AniListMedia, language: SupportedLanguage = "en"): Manga {
-  // Use large/extraLarge for hero/detail, medium for card thumbnails
-  const largeImageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
-  const cardImageUrl = media.coverImage.medium || media.coverImage.large || largeImageUrl;
+  const extraLarge = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
+  const large = media.coverImage.large || extraLarge;
+  const medium = media.coverImage.medium || large;
   
-  // IMPORTANT: Always use AniList ID for consistency across the app
-  // This ensures the ID passed to cards matches the ID used for detail fetches
   return {
-    anilist_id: media.id, // Primary AniList ID for all API calls
-    mal_id: media.id, // Keep for backward compatibility (also AniList ID)
+    anilist_id: media.id,
+    mal_id: media.id,
     title: getTitleForLanguage(media.title, language),
     title_romaji: media.title.romaji || undefined,
     title_english: media.title.english || undefined,
     title_japanese: media.title.native || undefined,
     images: {
-      jpg: { large_image_url: largeImageUrl, image_url: cardImageUrl },
-      webp: { large_image_url: largeImageUrl, image_url: cardImageUrl },
+      jpg: { large_image_url: extraLarge, image_url: medium },
+      webp: { large_image_url: extraLarge, image_url: medium, medium_image_url: large },
     },
     synopsis: media.description?.replace(/<[^>]*>/g, "") || undefined,
     score: media.averageScore ? media.averageScore / 10 : undefined,
