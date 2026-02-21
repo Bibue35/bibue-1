@@ -2,8 +2,8 @@ import { Helmet } from "react-helmet-async";
 
 const SITE_NAME = "Bibue";
 const SITE_URL = "https://bibue.net";
-const DEFAULT_IMAGE = `${SITE_URL}/favicon.png`;
-const DEFAULT_DESCRIPTION = "Discover your next favorite anime and manga with Bibue. Track your watchlist, explore trending titles, and connect with the community.";
+const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
+const DEFAULT_DESCRIPTION = "Discover your next favorite anime and manga with Bibue. Track your watchlist, explore trending titles, get personalized recommendations, and connect with the community.";
 
 interface SEOProps {
   title?: string;
@@ -24,7 +24,7 @@ export function SEO({
   jsonLd,
   noIndex = false,
 }: SEOProps) {
-  const fullTitle = title ? `${title} - ${SITE_NAME}` : `${SITE_NAME} - Discover Anime & Manga`;
+  const fullTitle = title ? `${title} - ${SITE_NAME}` : `${SITE_NAME} - Discover, Track & Share Your Favorite Anime & Manga`;
   const canonicalUrl = url ? `${SITE_URL}${url}` : undefined;
 
   return (
@@ -37,6 +37,8 @@ export function SEO({
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={image} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
       <meta property="og:type" content={type} />
       {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
       <meta property="og:site_name" content={SITE_NAME} />
