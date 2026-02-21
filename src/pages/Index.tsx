@@ -14,7 +14,6 @@ import { FeaturedCarousel } from "@/components/FeaturedCarousel";
 import { ContentSection } from "@/components/ContentSection";
 import { Footer } from "@/components/Footer";
 import { AdUnit } from "@/components/AdUnit";
-import { ScheduleSection } from "@/components/ScheduleSection";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { useTopAnime, useSeasonalAnime, useTopManga, useClassicAnime, useAllTimeTopAnime, useTrendingManhwa, useTrendingManhua } from "@/hooks/useAnimeData";
 import { CardSkeleton, CardSkeletonRow, HeroSkeleton } from "@/components/skeletons";
@@ -25,10 +24,13 @@ import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useViewingHistory } from "@/hooks/useViewingHistory";
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, lazy, Suspense } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDeferredSection } from "@/hooks/useDeferredSection";
 import { useIsMobile } from "@/hooks/use-mobile";
+
+// Lazy load below-fold heavy components
+const ScheduleSection = lazy(() => import("@/components/ScheduleSection").then(m => ({ default: m.ScheduleSection })));
 
 const Index = () => {
   // Above-fold hooks — load immediately
@@ -202,8 +204,10 @@ const Index = () => {
         )}
       </ContentSection>
 
-      {/* Schedule Section */}
-      <ScheduleSection />
+      {/* Schedule Section - lazy loaded */}
+      <Suspense fallback={<div className="py-8 sm:py-12" />}>
+        <ScheduleSection />
+      </Suspense>
 
       {/* This Season's Hits */}
       <ContentSection
@@ -219,7 +223,7 @@ const Index = () => {
             {seasonalLoading ? (
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
-              seasonalAnime?.slice(0, 12).map((anime, index) => (
+              seasonalAnime?.slice(0, 10).map((anime, index) => (
                 <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                   {isMobile ? (
                     <MobileAnimeCard anime={anime} index={index} />
@@ -255,7 +259,7 @@ const Index = () => {
             {popularLoading ? (
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
-              popularAnime?.slice(0, 12).map((anime, index) => (
+              popularAnime?.slice(0, 10).map((anime, index) => (
                 <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                   {isMobile ? (
                     <MobileAnimeCard anime={anime} index={index} />
@@ -287,7 +291,7 @@ const Index = () => {
             {upcomingLoading ? (
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
-              upcomingAnime?.slice(0, 12).map((anime, index) => (
+              upcomingAnime?.slice(0, 10).map((anime, index) => (
                 <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                   {isMobile ? (
                     <MobileAnimeCard anime={anime} index={index} />
@@ -319,7 +323,7 @@ const Index = () => {
             {allTimeLoading ? (
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
-              allTimeTop?.slice(0, 12).map((anime, index) => (
+              allTimeTop?.slice(0, 10).map((anime, index) => (
                 <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                   {isMobile ? (
                     <MobileAnimeCard anime={anime} index={index} />
@@ -352,7 +356,7 @@ const Index = () => {
             {classicLoading ? (
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
-              classicAnime?.slice(0, 12).map((anime, index) => (
+              classicAnime?.slice(0, 10).map((anime, index) => (
                 <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                   {isMobile ? (
                     <MobileAnimeCard anime={anime} index={index} />

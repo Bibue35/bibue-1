@@ -60,7 +60,11 @@ serve(async (req) => {
     const cached = getCached(cacheKey);
     if (cached) {
       return new Response(JSON.stringify(cached), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          "Cache-Control": "public, max-age=300, s-maxage=900",
+        },
       });
     }
 
@@ -113,7 +117,11 @@ serve(async (req) => {
         setCache(cacheKey, json);
 
         return new Response(JSON.stringify(json), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Cache-Control": "public, max-age=300, s-maxage=900",
+          },
         });
       } catch (fetchErr) {
         lastError = fetchErr instanceof Error ? fetchErr : new Error(String(fetchErr));
