@@ -75,7 +75,15 @@ export function CollapsibleNavbar() {
 
   return (
     <>
+      {/* Skip to main content link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[60] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-medium"
+      >
+        Skip to content
+      </a>
       <nav
+        aria-label="Main navigation"
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out transform-gpu",
           isScrolled ? "liquid-glass-strong py-2" : "bg-transparent py-3",
@@ -93,7 +101,9 @@ export function CollapsibleNavbar() {
               <div className="h-8 sm:h-10 w-auto flex items-center justify-center">
                 <img
                   src={bibueTower}
-                  alt="Bibue Tower"
+                  alt=""
+                  width={40}
+                  height={40}
                   className="h-full w-auto object-contain dark:brightness-0 dark:invert logo-stable"
                   loading="eager"
                   decoding="sync"
@@ -147,6 +157,8 @@ export function CollapsibleNavbar() {
                 size="icon"
                 className="md:hidden rounded-full h-9 w-9"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={isMobileMenuOpen}
               >
                 {isMobileMenuOpen ? (
                   <X className="w-5 h-5" />

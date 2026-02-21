@@ -222,7 +222,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const mangaCount = mangaResults?.length || 0;
 
   return (
-    <div className="fixed inset-0 z-[100]" onClick={onClose}>
+    <div className="fixed inset-0 z-[100]" role="dialog" aria-modal="true" aria-label="Search anime and manga" onClick={onClose}>
       {/* Backdrop */}
       <div className="absolute inset-0 bg-background/80 backdrop-blur-xl animate-fade-in" />
 
@@ -235,7 +235,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
           {/* Search Input */}
           <div className="relative flex-shrink-0">
             <div className="liquid-glass-strong rounded-2xl">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" aria-hidden="true" />
               <input
                 type="text"
                 placeholder={t("search.placeholder")}
@@ -245,6 +245,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   setShowAutocomplete(true);
                 }}
                 autoFocus
+                aria-label="Search anime and manga"
                 className="w-full h-14 pl-14 pr-14 bg-transparent text-lg placeholder:text-muted-foreground focus:outline-none"
               />
               {query && (
@@ -317,7 +318,10 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                             >
                               <img
                                 src={item.images.webp.image_url}
-                                alt={item.title}
+                                alt={`${item.title} cover art`}
+                                width={48}
+                                height={64}
+                                loading="lazy"
                                 className="w-12 h-16 object-cover rounded-lg flex-shrink-0"
                               />
                               <div className="flex-1 min-w-0">
@@ -367,7 +371,10 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                             >
                               <img
                                 src={item.images.webp.image_url}
-                                alt={item.title}
+                                alt={`${item.title} cover art`}
+                                width={48}
+                                height={64}
+                                loading="lazy"
                                 className="w-12 h-16 object-cover rounded-lg flex-shrink-0"
                               />
                               <div className="flex-1 min-w-0">

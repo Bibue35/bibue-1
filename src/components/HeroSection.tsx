@@ -92,7 +92,9 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
               <img
                 key={anime.anilist_id}
                 src={anime.images.webp.large_image_url}
-                alt={anime.title}
+                alt={isFirstImage ? `${anime.title} featured banner` : ""}
+                width={1920}
+                height={1080}
                 loading={isFirstImage || isActive ? "eager" : "lazy"}
                 decoding={isFirstImage || isActive ? "sync" : "async"}
                 // @ts-ignore - React 18.3+ supports fetchPriority
@@ -184,7 +186,9 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
           >
             <img
               src={anime.images.webp.image_url}
-              alt={anime.title}
+              alt={`${anime.title} cover art`}
+              width={128}
+              height={192}
               loading="lazy"
               decoding="async"
               className="w-full h-full object-cover"

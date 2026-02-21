@@ -97,7 +97,7 @@ const Index = () => {
       />
       <CollapsibleNavbar />
       <PullToRefresh onRefresh={handleRefresh}>
-      <main>
+      <main id="main-content">
       
       {/* Hero Section - Use FeaturedCarousel on mobile for cleaner look */}
       {isMobile ? (
