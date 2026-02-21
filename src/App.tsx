@@ -72,8 +72,11 @@ const PageLoader = () => (
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5,
-      retry: 2,
+      staleTime: 1000 * 60 * 5,       // data stays fresh for 5 minutes
+      gcTime: 1000 * 60 * 30,          // keep in cache for 30 minutes
+      refetchOnWindowFocus: false,     // don't refetch when tab regains focus
+      refetchOnMount: false,           // don't refetch when component remounts (instant back nav)
+      retry: 1,                        // only retry once on failure
     },
   },
 });

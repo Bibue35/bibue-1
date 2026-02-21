@@ -1,9 +1,11 @@
-import { useState, memo, forwardRef, lazy, Suspense } from "react";
+import { useState, memo, forwardRef, lazy, Suspense, useCallback } from "react";
 import { Star, Calendar, Play } from "lucide-react";
-import { Anime, formatScore } from "@/lib/api";
+import { Anime, formatScore, getAnimeById } from "@/lib/api";
 import { cn } from "@/lib/utils";
 const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ default: m.AnimeDetailModal })));
 import { WatchlistButton } from "./WatchlistButton";
+import { useQueryClient } from "@tanstack/react-query";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { TitleTooltip } from "./TitleTooltip";
 import { EpisodeCountdown } from "./EpisodeCountdown";
 
@@ -17,6 +19,17 @@ interface AnimeCardProps {
 
 export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(function AnimeCard({ anime, index = 0, variant = "default", eager = false }, ref) {
   const [modalOpen, setModalOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const { language } = useLanguage();
+
+  // Prefetch detail data on hover/touch — makes opening modal instant
+  const prefetchDetail = useCallback(() => {
+    queryClient.prefetchQuery({
+      queryKey: ["anime", anime.anilist_id, language],
+      queryFn: () => getAnimeById(anime.anilist_id, language as any),
+      staleTime: 1000 * 60 * 60,
+    });
+  }, [queryClient, anime.anilist_id, language]);
 
   // Format aired date
   const getAiredInfo = () => {
@@ -55,6 +68,8 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
       <>
         <button
           onClick={() => setModalOpen(true)}
+          onMouseEnter={prefetchDetail}
+          onTouchStart={prefetchDetail}
           className="flex items-center gap-3 sm:gap-4 p-3 rounded-xl transition-all duration-150 group text-left w-full hover:bg-foreground/5 active:scale-[0.98]"
         >
           <img
@@ -113,6 +128,8 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
     <>
       <button
         onClick={() => setModalOpen(true)}
+        onMouseEnter={prefetchDetail}
+        onTouchStart={prefetchDetail}
         className="block group text-left w-full active:scale-[0.98] transition-transform duration-150"
       >
         {/* Image with simple hover effect */}
