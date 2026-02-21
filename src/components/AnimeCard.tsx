@@ -116,7 +116,7 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
         {/* Image with simple hover effect */}
         <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted will-change-transform transform-gpu">
           <img
-            src={anime.images.webp.image_url}
+            src={anime.images.webp.large_image_url}
             alt={`${anime.title} cover art`}
             width={176}
             height={264}
