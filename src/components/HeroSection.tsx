@@ -41,7 +41,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
     link.rel = 'preload';
     link.as = 'image';
     link.href = url;
-    link.crossOrigin = 'anonymous';
+    // No crossOrigin — matches preconnect hint (non-CORS image fetch)
     document.head.appendChild(link);
     return () => { link.remove(); };
   }, [featuredAnime]);
