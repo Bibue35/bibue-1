@@ -23,7 +23,7 @@ createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
     <NextThemesProvider
       attribute="class"
-      defaultTheme="system"
+      defaultTheme="dark"
       enableSystem={true}
       disableTransitionOnChange
       storageKey="bibue-theme"
