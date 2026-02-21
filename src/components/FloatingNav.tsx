@@ -24,6 +24,8 @@ export function FloatingNav() {
   const navLinks = [
     { href: "/anime", label: t("nav.anime") },
     { href: "/manga", label: t("nav.manga") },
+    { href: "/seasonal", label: "Seasonal" },
+    { href: "/schedule", label: "Schedule" },
     { href: "/news", label: t("nav.news") },
     { href: "/recommendations", label: t("nav.forYou") },
   ];
