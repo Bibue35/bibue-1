@@ -1,11 +1,13 @@
 import { useState, memo, useCallback, lazy, Suspense } from "react";
 import { Star, Play, Plus, Check } from "lucide-react";
-import { Anime, formatScore } from "@/lib/api";
+import { Anime, formatScore, getAnimeById } from "@/lib/api";
 import { cn } from "@/lib/utils";
 const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ default: m.AnimeDetailModal })));
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface MobileAnimeCardProps {
   anime: Anime;
@@ -28,7 +30,18 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
   const { addToWatchlist, removeFromWatchlist, isInWatchlist, isLoading } = useWatchlist();
   const { user } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { language } = useLanguage();
   const isBookmarked = isInWatchlist(anime.anilist_id, "anime");
+
+  // Prefetch detail data on touch — makes opening modal instant
+  const prefetchDetail = useCallback(() => {
+    queryClient.prefetchQuery({
+      queryKey: ["anime", anime.anilist_id, language],
+      queryFn: () => getAnimeById(anime.anilist_id, language as any),
+      staleTime: 1000 * 60 * 60,
+    });
+  }, [queryClient, anime.anilist_id, language]);
 
   const handleSave = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -66,6 +79,8 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
       <>
         <button
           onClick={() => setModalOpen(true)}
+          onMouseEnter={prefetchDetail}
+          onTouchStart={prefetchDetail}
           className="relative w-full overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform duration-150"
         >
           {/* Background Image */}
@@ -155,6 +170,8 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
       <>
         <button
           onClick={() => setModalOpen(true)}
+          onMouseEnter={prefetchDetail}
+          onTouchStart={prefetchDetail}
           className="flex items-center gap-3 p-3 rounded-xl bg-card/50 hover:bg-card transition-all duration-150 group text-left w-full active:scale-[0.98]"
         >
           {/* Poster */}
@@ -238,6 +255,8 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
     <>
       <button
         onClick={() => setModalOpen(true)}
+        onMouseEnter={prefetchDetail}
+        onTouchStart={prefetchDetail}
         className="block group text-left w-full active:scale-[0.97] transition-transform duration-150"
       >
         {/* Card with soft shadow */}
