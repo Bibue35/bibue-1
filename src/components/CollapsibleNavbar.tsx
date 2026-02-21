@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, X, ChevronDown, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Search, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { UserMenu } from "./UserMenu";
@@ -9,12 +8,6 @@ import { ThemeSelector } from "./ThemeSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 const AuthModal = lazy(() => import("./AuthModal").then(m => ({ default: m.AuthModal })));
 import bibueTower from "@/assets/bibue-tower.png";
 
@@ -34,14 +27,6 @@ export function CollapsibleNavbar() {
     { href: "/manga", label: t("nav.manga") },
     { href: "/seasonal", label: "Seasonal" },
     { href: "/schedule", label: "Schedule" },
-  ];
-
-  const moreLinks = [
-    { href: "/guides", label: "Guides" },
-    { href: "/news", label: t("nav.news") },
-    { href: "/recommendations", label: t("nav.forYou") },
-    { href: "/community", label: t("nav.community") },
-    { href: "/genres", label: "Genres" },
   ];
 
   useEffect(() => {
@@ -115,37 +100,6 @@ export function CollapsibleNavbar() {
                   {link.label}
                 </Link>
               ))}
-
-              {/* More dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className={cn(
-                      "flex items-center gap-0.5 px-3 py-1.5 text-sm font-medium rounded-full transition-colors",
-                      moreLinks.some(l => location.pathname === l.href)
-                        ? "text-foreground bg-foreground/8"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    More
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" className="w-44">
-                  {moreLinks.map((link) => (
-                    <DropdownMenuItem key={link.href} asChild className="cursor-pointer">
-                      <Link
-                        to={link.href}
-                        className={cn(
-                          location.pathname === link.href && "bg-accent"
-                        )}
-                      >
-                        {link.label}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
           )}
 
