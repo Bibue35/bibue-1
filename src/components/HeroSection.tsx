@@ -31,30 +31,19 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
   
   const featured = featuredAnime?.[selectedIndex];
   const sideCards = featuredAnime?.slice(0, 4).filter((_, i) => i !== selectedIndex) || [];
-  const preloadedRef = useRef<HTMLLinkElement[]>([]);
 
-  // Preload hero images so LCP image is discovered early
+  // Preload ONLY the first hero image for fast LCP — don't preload all 3
   useEffect(() => {
     if (!featuredAnime?.length) return;
-    // Clean up old preloads
-    preloadedRef.current.forEach((l) => l.remove());
-    preloadedRef.current = [];
-    featuredAnime.slice(0, 3).forEach((item) => {
-      const url = item.images.webp.large_image_url;
-      if (!url) return;
-      if (document.querySelector(`link[rel="preload"][href="${url}"]`)) return;
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'image';
-      link.href = url;
-      link.crossOrigin = 'anonymous';
-      document.head.appendChild(link);
-      preloadedRef.current.push(link);
-    });
-    return () => {
-      preloadedRef.current.forEach((l) => l.remove());
-      preloadedRef.current = [];
-    };
+    const url = featuredAnime[0].images.webp.large_image_url;
+    if (!url || document.querySelector(`link[rel="preload"][href="${url}"]`)) return;
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = url;
+    link.crossOrigin = 'anonymous';
+    document.head.appendChild(link);
+    return () => { link.remove(); };
   }, [featuredAnime]);
 
   // Auto-rotate featured anime every 8 seconds

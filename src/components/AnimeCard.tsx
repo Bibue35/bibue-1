@@ -116,13 +116,14 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
         {/* Image with simple hover effect */}
         <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted will-change-transform transform-gpu">
           <img
-            src={anime.images.webp.large_image_url}
+            src={anime.images.webp.image_url}
+            srcSet={`${anime.images.webp.image_url} 230w, ${anime.images.webp.medium_image_url || anime.images.webp.large_image_url} 460w, ${anime.images.webp.large_image_url} 600w`}
             alt={`${anime.title} cover art`}
             width={176}
             height={264}
             loading="lazy"
             decoding="async"
-            sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, 176px"
+            sizes="(max-width: 640px) 112px, (max-width: 768px) 144px, 176px"
             className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 will-change-transform transform-gpu"
           />
           {/* Episode count badge */}
