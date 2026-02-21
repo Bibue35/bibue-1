@@ -191,9 +191,9 @@ const Index = () => {
               airingAnime?.slice(0, 10).map((anime, index) => (
                 <div key={anime.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
                   {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
+                    <MobileAnimeCard anime={anime} index={index} eager={index < 4} />
                   ) : (
-                    <AnimeCard anime={anime} index={index} />
+                    <AnimeCard anime={anime} index={index} eager={index < 6} />
                   )}
                 </div>
               ))

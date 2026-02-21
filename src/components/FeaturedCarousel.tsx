@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ default: m.AnimeDetailModal })));
 import { HeroSkeleton } from "./skeletons";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { BlurImage } from "./BlurImage";
 
 interface FeaturedCarouselProps {
   items: Anime[];
@@ -213,18 +214,17 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
                 aria-label={`${i + 1} of ${items.length}: ${item.title}`}
               >
                 <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-xl">
-                  {/* Background Image */}
+                  {/* Background Image with blur-up placeholder */}
                   <div className="relative aspect-[3/4] sm:aspect-[16/9] overflow-hidden transform-gpu">
-                    <img
-                      ref={i === currentIndex ? parallaxRef : undefined}
+                    <BlurImage
+                      imgRef={i === currentIndex ? parallaxRef : undefined}
                       src={item.images.webp.large_image_url || item.images.webp.image_url}
                       alt={`${item.title} featured banner`}
                       width={1200}
                       height={675}
-                      loading={i === 0 ? "eager" : "lazy"}
-                      fetchPriority={i === 0 ? "high" : undefined}
-                      decoding={i === 0 ? "async" : "async"}
-                      className="w-full h-full object-cover object-top will-change-transform"
+                      priority={i === 0}
+                      sizes="100vw"
+                      className="object-top will-change-transform"
                       style={{ transform: "translate3d(0, 0, 0) scale(1.1)" }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />

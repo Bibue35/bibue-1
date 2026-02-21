@@ -11,9 +11,11 @@ interface AnimeCardProps {
   anime: Anime;
   index?: number;
   variant?: "default" | "compact";
+  /** Load image eagerly (for above-fold first row) */
+  eager?: boolean;
 }
 
-export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(function AnimeCard({ anime, index = 0, variant = "default" }, ref) {
+export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(function AnimeCard({ anime, index = 0, variant = "default", eager = false }, ref) {
   const [modalOpen, setModalOpen] = useState(false);
 
   // Format aired date
@@ -121,8 +123,8 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
             alt={`${anime.title} cover art`}
             width={176}
             height={264}
-            loading="lazy"
-            decoding="async"
+            loading={eager ? "eager" : "lazy"}
+            decoding={eager ? "sync" : "async"}
             sizes="(max-width: 640px) 112px, (max-width: 768px) 144px, 176px"
             className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 will-change-transform transform-gpu"
           />

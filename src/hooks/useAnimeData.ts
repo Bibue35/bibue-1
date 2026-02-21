@@ -103,8 +103,8 @@ export function useAnimeDetails(id: number, enabled = true) {
     queryKey: ["anime", id, language],
     queryFn: () => getAnimeById(id, language as SupportedLanguage),
     enabled,
-    staleTime: 1000 * 60 * 15, // Details can be cached longer
-    gcTime: 1000 * 60 * 60, // 1 hour
+    staleTime: 1000 * 60 * 60, // 1 hour — detail data changes rarely
+    gcTime: 1000 * 60 * 120, // 2 hours
   });
 }
 
@@ -114,8 +114,8 @@ export function useMangaDetails(id: number, enabled = true) {
     queryKey: ["manga", id, language],
     queryFn: () => getMangaById(id, language as SupportedLanguage),
     enabled,
-    staleTime: 1000 * 60 * 15,
-    gcTime: 1000 * 60 * 60,
+    staleTime: 1000 * 60 * 60,
+    gcTime: 1000 * 60 * 120,
   });
 }
 
