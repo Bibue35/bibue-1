@@ -177,6 +177,9 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
       {/* Hero with scroll parallax - simplified for performance */}
       <div
         ref={containerRef}
+        role="region"
+        aria-label="Featured anime carousel"
+        aria-roledescription="carousel"
         className="relative py-4 sm:py-6"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}

@@ -137,7 +137,9 @@ const Index = () => {
                   {entry.image_url ? (
                     <img
                       src={entry.image_url}
-                      alt={entry.title}
+                      alt={`${entry.title} cover art`}
+                      width={176}
+                      height={264}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
                     />

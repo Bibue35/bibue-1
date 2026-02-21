@@ -80,7 +80,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
   }
 
   return (
-    <section className="relative min-h-[65vh] sm:min-h-[75vh] md:min-h-[85vh] flex items-center overflow-hidden">
+    <section aria-label="Featured anime" className="relative min-h-[65vh] sm:min-h-[75vh] md:min-h-[85vh] flex items-center overflow-hidden">
       {/* Background Image with smooth transition */}
       <div className="absolute inset-0 z-0">
         <div className="relative w-full h-full transform-gpu">
@@ -93,6 +93,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
                 key={anime.anilist_id}
                 src={anime.images.webp.large_image_url}
                 alt={isFirstImage ? `${anime.title} featured banner` : ""}
+                aria-hidden={!isFirstImage}
                 width={1920}
                 height={1080}
                 loading={isFirstImage || isActive ? "eager" : "lazy"}
