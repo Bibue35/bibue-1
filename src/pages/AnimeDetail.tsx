@@ -4,6 +4,9 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, ThumbsUp, ArrowUpDown, ChevronLeft, ChevronRight, PictureInPicture2 } from "lucide-react";
 import { EpisodeCountdown } from "@/components/EpisodeCountdown";
+import { WhereToWatch } from "@/components/WhereToWatch";
+import { ShareButton } from "@/components/ShareButton";
+import { WatchlistStatus } from "@/components/WatchlistStatus";
 import { ResolutionSelector, type Resolution } from "@/components/ResolutionSelector";
 import { CollapsibleEpisodeList } from "@/components/CollapsibleEpisodeList";
 import { Button } from "@/components/ui/button";
@@ -496,11 +499,7 @@ export default function AnimeDetailPage() {
                 {/* Poster */}
                 <div className="flex-shrink-0 mx-auto xs:mx-0">
                   <div className="w-24 sm:w-32 md:w-40 aspect-[2/3] rounded-lg sm:rounded-xl overflow-hidden">
-                    <img
-                      src={anime?.images.webp.large_image_url}
-                      alt={anime?.title}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={anime?.images.webp.large_image_url} alt={anime?.title} className="w-full h-full object-cover" />
                   </div>
                 </div>
                 
@@ -528,9 +527,22 @@ export default function AnimeDetailPage() {
                       </div>
                     )}
                     {anime?.nextAiringEpisode && (
-                      <EpisodeCountdown
-                        airingAt={anime.nextAiringEpisode.airingAt}
-                        episode={anime.nextAiringEpisode.episode}
+                      <EpisodeCountdown airingAt={anime.nextAiringEpisode.airingAt} episode={anime.nextAiringEpisode.episode} />
+                    )}
+                  </div>
+
+                  {/* Share + Watchlist Status */}
+                  <div className="flex items-center justify-center xs:justify-start gap-2 flex-wrap">
+                    <ShareButton title={anime?.title || ""} url={`/anime/${id}`} />
+                    {anime && (
+                      <WatchlistStatus
+                        malId={Number(id)}
+                        mediaType="anime"
+                        title={anime.title}
+                        titleJapanese={anime.title_japanese}
+                        imageUrl={anime.images?.webp?.large_image_url}
+                        score={anime.score}
+                        totalEpisodes={anime.episodes}
                       />
                     )}
                   </div>
@@ -551,15 +563,19 @@ export default function AnimeDetailPage() {
                   <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">{t("detail.genres")}</h3>
                   <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {anime.genres.map((genre) => (
-                      <Link
-                        key={genre.mal_id}
-                        to={`/anime?genre=${genre.mal_id}`}
-                        className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-accent text-accent-foreground text-xs sm:text-sm font-medium hover:bg-accent/80 transition-colors"
-                      >
+                      <Link key={genre.mal_id} to={`/genre/${genre.name.toLowerCase().replace(/ /g, "-")}`}
+                        className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-accent text-accent-foreground text-xs sm:text-sm font-medium hover:bg-accent/80 transition-colors">
                         {genre.name}
                       </Link>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Where to Watch */}
+              {anime && (
+                <div className="mb-4 sm:mb-6">
+                  <WhereToWatch title={anime.title} />
                 </div>
               )}
 
@@ -569,10 +585,7 @@ export default function AnimeDetailPage() {
                   <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">{t("detail.studios")}</h3>
                   <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {anime.studios.map((studio) => (
-                      <span
-                        key={studio.mal_id}
-                        className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-muted text-muted-foreground text-xs sm:text-sm"
-                      >
+                      <span key={studio.mal_id} className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-muted text-muted-foreground text-xs sm:text-sm">
                         {studio.name}
                       </span>
                     ))}
