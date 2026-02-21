@@ -42,6 +42,10 @@ const GuidesPage = lazy(() => import("./pages/GuidesPage"));
 const GuideDetailPage = lazy(() => import("./pages/GuideDetailPage"));
 const GenresPage = lazy(() => import("./pages/GenresPage"));
 const GenreDetailPage = lazy(() => import("./pages/GenreDetailPage"));
+const ListsPage = lazy(() => import("./pages/ListsPage"));
+const ListDetailPage = lazy(() => import("./pages/ListDetailPage"));
+const TopPage = lazy(() => import("./pages/TopPage"));
+const ImportPage = lazy(() => import("./pages/ImportPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -115,6 +119,10 @@ const App = () => (
                             <Route path="/genres" element={<GenresPage />} />
                             <Route path="/genre/:genre" element={<GenreDetailPage />} />
                             <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+                            <Route path="/lists" element={<ListsPage />} />
+                            <Route path="/list/:id" element={<ListDetailPage />} />
+                            <Route path="/top" element={<TopPage />} />
+                            <Route path="/import" element={<ProtectedRoute><ImportPage /></ProtectedRoute>} />
                             <Route path="/privacy" element={<PrivacyPage />} />
                             <Route path="/terms" element={<TermsPage />} />
                             <Route path="*" element={<NotFound />} />
