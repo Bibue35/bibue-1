@@ -37,12 +37,14 @@ export function useSwipeNavigation({
   const isSwipablePage = currentIndex !== -1;
 
   const applyTransform = useCallback((dx: number) => {
-    if (!containerRef.current) return;
+    const el = containerRef.current;
+    if (!el) return;
     const atLeftEdge = currentIndex === 0 && dx > 0;
     const atRightEdge = currentIndex === TAB_ROUTES.length - 1 && dx < 0;
     const dampened = (atLeftEdge || atRightEdge) ? dx * 0.2 : dx;
-    containerRef.current.style.transform = `translate3d(${dampened}px, 0, 0)`;
-    containerRef.current.style.willChange = "transform";
+    // Pure transform — no margin/left changes. GPU-accelerated.
+    el.style.transform = `translate3d(${dampened}px, 0, 0)`;
+    el.style.willChange = "transform";
   }, [currentIndex]);
 
   const updateIndicator = useCallback((dx: number, direction: "left" | "right" | null) => {
@@ -67,15 +69,16 @@ export function useSwipeNavigation({
   }, [currentIndex, threshold]);
 
   const resetTransform = useCallback((navigating = false, swipeDirection = 0) => {
-    if (!containerRef.current) return;
+    const el = containerRef.current;
+    if (!el) return;
 
     if (navigating && swipeDirection !== 0) {
       const offscreenX = swipeDirection * -window.innerWidth;
-      containerRef.current.style.transition = "transform 0.15s cubic-bezier(0.4, 0, 1, 1)";
-      containerRef.current.style.transform = `translate3d(${offscreenX}px, 0, 0)`;
+      el.style.transition = "transform 150ms cubic-bezier(0.25, 0.1, 0.25, 1)";
+      el.style.transform = `translate3d(${offscreenX}px, 0, 0)`;
     } else {
-      containerRef.current.style.transition = "transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
-      containerRef.current.style.transform = "translate3d(0, 0, 0)";
+      el.style.transition = "transform 300ms cubic-bezier(0.25, 0.1, 0.25, 1)";
+      el.style.transform = "translate3d(0, 0, 0)";
     }
 
     const cleanup = () => {
@@ -85,7 +88,7 @@ export function useSwipeNavigation({
         containerRef.current.style.transform = "";
       }
     };
-    setTimeout(cleanup, 160);
+    setTimeout(cleanup, navigating ? 160 : 320);
 
     if (indicatorRef.current) {
       indicatorRef.current.style.opacity = "0";
