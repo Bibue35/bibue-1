@@ -37,7 +37,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
         >
           <img
             src={manga.images.webp.image_url}
-            alt={manga.title}
+            alt={`${manga.title} cover art`}
             width={64}
             height={80}
             loading="lazy"
@@ -97,7 +97,9 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
         <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted will-change-transform transform-gpu">
           <img
             src={manga.images.webp.image_url}
-            alt={manga.title}
+            alt={`${manga.title} cover art`}
+            width={176}
+            height={264}
             loading="lazy"
             decoding="async"
             sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, 176px"

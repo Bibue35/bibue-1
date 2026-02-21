@@ -70,7 +70,9 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
           <div className="relative aspect-[16/9] sm:aspect-[21/9]">
             <img
               src={anime.images.webp.large_image_url || anime.images.webp.image_url}
-              alt={anime.title}
+              alt={`${anime.title} cover art`}
+              width={640}
+              height={360}
               loading="lazy"
               decoding="async"
               className="w-full h-full object-cover"
@@ -87,7 +89,9 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
               <div className="hidden sm:block w-20 md:w-24 aspect-[2/3] rounded-xl overflow-hidden shadow-xl flex-shrink-0 border-2 border-background/50">
                 <img
                   src={anime.images.webp.image_url}
-                  alt={anime.title}
+                  alt=""
+                  width={96}
+                  height={144}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -126,6 +130,7 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
               {/* Play Button */}
               <button
                 className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/30 hover:scale-105 transition-transform"
+                aria-label={`Watch ${anime.title}`}
               >
                 <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-current ml-0.5" />
               </button>
@@ -154,7 +159,9 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
           <div className="relative w-14 sm:w-16 aspect-[2/3] rounded-lg overflow-hidden flex-shrink-0">
             <img
               src={anime.images.webp.image_url}
-              alt={anime.title}
+              alt={`${anime.title} cover art`}
+              width={64}
+              height={96}
               loading="lazy"
               decoding="async"
               className="w-full h-full object-cover"
@@ -197,6 +204,7 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
           <button
             onClick={handleSave}
             disabled={isLoading}
+            aria-label={isBookmarked ? `Remove ${anime.title} from watchlist` : `Add ${anime.title} to watchlist`}
             className={cn(
               "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors",
               isBookmarked ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
@@ -234,7 +242,9 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
         <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-2 bg-card shadow-lg shadow-black/10 will-change-transform transform-gpu">
           <img
             src={anime.images.webp.image_url}
-            alt={anime.title}
+            alt={`${anime.title} cover art`}
+            width={176}
+            height={264}
             loading="lazy"
             decoding="async"
             className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 will-change-transform transform-gpu"
@@ -259,6 +269,7 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
           <button
             onClick={handleSave}
             disabled={isLoading}
+            aria-label={isBookmarked ? `Remove ${anime.title} from watchlist` : `Add ${anime.title} to watchlist`}
             className={cn(
               "absolute bottom-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-lg",
               isBookmarked 

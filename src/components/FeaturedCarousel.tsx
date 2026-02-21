@@ -190,7 +190,9 @@ export const FeaturedCarousel = memo(function FeaturedCarousel({
               <img
                 ref={parallaxRef}
                 src={currentItem.images.webp.large_image_url || currentItem.images.webp.image_url}
-                alt={currentItem.title}
+                alt={`${currentItem.title} featured banner`}
+                width={1200}
+                height={675}
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"

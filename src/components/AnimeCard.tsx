@@ -57,7 +57,9 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
         >
           <img
             src={anime.images.webp.image_url}
-            alt={anime.title}
+            alt={`${anime.title} cover art`}
+            width={64}
+            height={80}
             loading="lazy"
             decoding="async"
             className="w-14 sm:w-16 h-18 sm:h-20 object-cover rounded-lg bg-muted"
@@ -115,7 +117,9 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
         <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted will-change-transform transform-gpu">
           <img
             src={anime.images.webp.image_url}
-            alt={anime.title}
+            alt={`${anime.title} cover art`}
+            width={176}
+            height={264}
             loading="lazy"
             decoding="async"
             sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, 176px"

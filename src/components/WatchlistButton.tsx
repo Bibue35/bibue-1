@@ -84,6 +84,7 @@ export function WatchlistButton({
       size="icon"
       onClick={handleClick}
       disabled={isLoading}
+      aria-label={inWatchlist ? `Remove ${title} from watchlist` : `Add ${title} to watchlist`}
       className={cn(
         "rounded-full h-8 w-8",
         inWatchlist && "text-destructive hover:text-destructive/80",
