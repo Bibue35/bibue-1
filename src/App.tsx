@@ -36,6 +36,8 @@ const MessagesPage = lazy(() => import("./pages/MessagesPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
 const StatsPage = lazy(() => import("./pages/StatsPage"));
 const HistoryPage = lazy(() => import("./pages/HistoryPage"));
+const SeasonalPage = lazy(() => import("./pages/SeasonalPage"));
+const SchedulePage = lazy(() => import("./pages/SchedulePage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -101,6 +103,9 @@ const App = () => (
                             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                             <Route path="/stats" element={<ProtectedRoute><StatsPage /></ProtectedRoute>} />
                             <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
+                            <Route path="/seasonal" element={<SeasonalPage />} />
+                            <Route path="/seasonal/:seasonParam" element={<SeasonalPage />} />
+                            <Route path="/schedule" element={<SchedulePage />} />
                             <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                             <Route path="/privacy" element={<PrivacyPage />} />
                             <Route path="/terms" element={<TermsPage />} />
