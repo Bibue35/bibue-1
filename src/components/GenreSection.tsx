@@ -80,7 +80,7 @@ export function GenreSection({ type, className }: GenreSectionProps) {
             {genres.map((genre) => (
               <Link
                 key={genre.id}
-                to={`${basePath}?genre=${genre.id}`}
+                to={`/genre/${genre.name.toLowerCase().replace(/ /g, "-")}`}
                 className="genre-pill group flex items-center justify-center py-3.5 sm:py-3 text-center min-h-[44px] active:scale-95 transition-transform"
               >
                 <span className="group-hover:text-foreground transition-colors">

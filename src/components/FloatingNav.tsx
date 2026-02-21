@@ -26,6 +26,7 @@ export function FloatingNav() {
     { href: "/manga", label: t("nav.manga") },
     { href: "/seasonal", label: "Seasonal" },
     { href: "/schedule", label: "Schedule" },
+    { href: "/guides", label: "Guides" },
     { href: "/news", label: t("nav.news") },
     { href: "/recommendations", label: t("nav.forYou") },
   ];
