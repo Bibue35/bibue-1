@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, lazy, Suspense, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, lazy, Suspense, useMemo } from "react";
 import { Play, Star, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Anime } from "@/lib/api";
@@ -75,26 +75,42 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
         <div className="relative w-full h-full transform-gpu">
           {featuredAnime?.slice(0, 4).map((anime, index) => {
             const isActive = index === selectedIndex;
-            // First image is always eager + high priority since it's the LCP candidate on initial load
             const isFirstImage = index === 0;
+            const imgSrc = anime.images.webp.large_image_url;
+            // Derive small placeholder
+            const placeholderSrc = imgSrc
+              .replace("/extra_large/", "/small/")
+              .replace("/large/", "/small/");
             return (
-              <img
+              <div
                 key={anime.anilist_id}
-                src={anime.images.webp.large_image_url}
-                alt={isFirstImage ? `${anime.title} featured banner` : ""}
-                aria-hidden={!isFirstImage}
-                width={1920}
-                height={1080}
-                loading={isFirstImage || isActive ? "eager" : "lazy"}
-                decoding={isFirstImage || isActive ? "sync" : "async"}
-                // @ts-ignore - React 18.3+ supports fetchPriority
-                fetchPriority={isFirstImage || isActive ? "high" : "auto"}
-                sizes="100vw"
                 className={cn(
-                  "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
+                  "absolute inset-0 transition-opacity duration-500",
                   isActive ? "opacity-100" : "opacity-0"
                 )}
-              />
+              >
+                {/* Blur placeholder */}
+                <img
+                  src={placeholderSrc}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover blur-xl scale-110"
+                />
+                {/* Full image */}
+                <img
+                  src={imgSrc}
+                  alt={isFirstImage ? `${anime.title} featured banner` : ""}
+                  aria-hidden={!isFirstImage}
+                  width={1920}
+                  height={1080}
+                  loading={isFirstImage || isActive ? "eager" : "lazy"}
+                  decoding={isFirstImage || isActive ? "sync" : "async"}
+                  fetchPriority={isFirstImage || isActive ? "high" : "auto"}
+                  sizes="100vw"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ opacity: undefined }}
+                />
+              </div>
             );
           })}
         </div>
