@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { UserMenu } from "./UserMenu";
+import { ThemeSelector } from "./ThemeSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -157,6 +158,8 @@ export function CollapsibleNavbar() {
             >
               <Search className="w-[18px] h-[18px]" />
             </button>
+
+            <ThemeSelector />
 
             {!isMobile && <UserMenu />}
 
