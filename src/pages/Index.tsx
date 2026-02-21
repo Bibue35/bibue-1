@@ -2,6 +2,7 @@
  * Bibue - Anime & Manga Platform
  * Main landing page with modern mobile-first design
  */
+import { SEO, websiteJsonLd } from "@/components/SEO";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { SectionError } from "@/components/SectionError";
 import { HeroSection } from "@/components/HeroSection";
@@ -88,6 +89,12 @@ const Index = () => {
 
   return (
     <>
+      <SEO
+        title={undefined}
+        description="Discover your next favorite anime and manga with Bibue. Track your watchlist, explore trending titles, and connect with the community."
+        url="/"
+        jsonLd={websiteJsonLd()}
+      />
       <CollapsibleNavbar />
       <PullToRefresh onRefresh={handleRefresh}>
       <main>

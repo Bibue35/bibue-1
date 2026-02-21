@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { SEO, itemListJsonLd } from "@/components/SEO";
 import { useSearchParams, Link } from "react-router-dom";
 import { DeferredPopularSection, DeferredUpcomingSection, DeferredClassicSection, DeferredAllTimeTopSection, DeferredGenreSection } from "@/components/DeferredAnimeSections";
 import { Bookmark, Sparkles, Loader2, Flame, Users, Swords, Heart, Wand2, Rocket, RefreshCw } from "lucide-react";
@@ -140,6 +141,12 @@ export default function AnimePage() {
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
+      <SEO
+        title="Browse Anime"
+        description="Explore trending, seasonal, and top-rated anime. Filter by genre, popularity, and more on Bibue."
+        url="/anime"
+        jsonLd={itemListJsonLd("Browse Anime", "/anime")}
+      />
       <CollapsibleNavbar />
 
       {/* Hero with Search */}

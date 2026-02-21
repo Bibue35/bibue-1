@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { SEO, creativeWorkJsonLd } from "@/components/SEO";
 import { useParams, Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { BookOpen, Star, Heart, Bookmark, Eye, ChevronsLeft, ChevronsRight, MessageCircle, Send, User, History } from "lucide-react";
@@ -157,6 +158,23 @@ export default function MangaDetailPage() {
   // DemonicScans Style Detail Page
   return (
     <div className="min-h-screen bg-background">
+      {manga && (
+        <SEO
+          title={manga.title}
+          description={manga.synopsis?.slice(0, 155) || `Read ${manga.title} on Bibue.`}
+          image={manga.images?.webp?.large_image_url}
+          url={`/manga/${id}`}
+          jsonLd={creativeWorkJsonLd({
+            name: manga.title,
+            description: manga.synopsis,
+            image: manga.images?.webp?.large_image_url,
+            url: `/manga/${id}`,
+            genre: manga.genres?.map((g: any) => g.name),
+            rating: manga.score,
+            ratingCount: manga.scored_by,
+          })}
+        />
+      )}
       {/* Minimal top - just Bibue logo */}
       <div className="container mx-auto px-4 pt-4 pb-2 flex items-center justify-between">
         <Link to="/manga" className="text-2xl font-sacred font-semibold text-foreground hover:text-primary transition-colors">

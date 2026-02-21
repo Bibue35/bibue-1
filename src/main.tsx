@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { HelmetProvider } from "react-helmet-async";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import App from "./App.tsx";
 import "./index.css";
@@ -19,15 +20,17 @@ if ('serviceWorker' in navigator) {
 }
 
 createRoot(document.getElementById("root")!).render(
-  <NextThemesProvider
-    attribute="class"
-    defaultTheme="system"
-    enableSystem={true}
-    disableTransitionOnChange
-    storageKey="bibue-theme"
-  >
-    <ThemeProvider>
-      <App />
-    </ThemeProvider>
-  </NextThemesProvider>
+  <HelmetProvider>
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem={true}
+      disableTransitionOnChange
+      storageKey="bibue-theme"
+    >
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
+    </NextThemesProvider>
+  </HelmetProvider>
 );

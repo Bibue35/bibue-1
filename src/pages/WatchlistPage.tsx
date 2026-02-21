@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SEO } from "@/components/SEO";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Heart, Grid, List, Film, BookOpen, Trash2, Tag, BarChart3 } from "lucide-react";
 import { QuickProgressButton } from "@/components/QuickProgressButton";
@@ -74,6 +75,7 @@ export default function WatchlistPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="My Watchlist" description="Track your anime and manga watchlist. Organize, rate, and manage your saved titles." url="/watchlist" noIndex />
       <CollapsibleNavbar />
 
       {/* Hero */}

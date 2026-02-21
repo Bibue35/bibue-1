@@ -1,3 +1,4 @@
+import { SEO } from "@/components/SEO";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { useNewsData } from "@/hooks/useNewsData";
@@ -12,6 +13,7 @@ export default function NewsPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Latest News" description="Stay up to date with the latest anime and manga news, announcements, and updates." url="/news" />
       <CollapsibleNavbar />
 
       {/* Hero */}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { SEO, itemListJsonLd } from "@/components/SEO";
 import { useSearchParams } from "react-router-dom";
 import { Filter, Crown, Medal, Award } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
@@ -64,6 +65,12 @@ export default function RankingsPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Top Rankings"
+        description="Discover the highest-rated anime and manga as voted by fans worldwide on Bibue."
+        url="/rankings"
+        jsonLd={itemListJsonLd("Top Rankings", "/rankings")}
+      />
       <CollapsibleNavbar />
 
       {/* Hero - Clean text-only design */}
