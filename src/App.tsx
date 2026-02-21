@@ -11,9 +11,11 @@ import { MiniPlayerProvider } from "@/contexts/MiniPlayerContext";
 import { IncognitoOverlay } from "@/components/IncognitoOverlay";
 import { MiniPlayer } from "@/components/MiniPlayer";
 import { MessageNotificationProvider } from "@/components/MessageNotificationProvider";
-import { CommunityButton } from "@/components/CommunityButton";
 import { AnimatedRoutes } from "@/components/AnimatedRoutes";
 import { SwipeNavigationWrapper } from "@/components/SwipeNavigationWrapper";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ScrollToTop } from "@/components/ScrollToTop";
+import { BackToTop } from "@/components/BackToTop";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy load all page components for code splitting
@@ -22,7 +24,6 @@ const AnimePage = lazy(() => import("./pages/AnimePage"));
 const MangaPage = lazy(() => import("./pages/MangaPage"));
 const AnimeDetail = lazy(() => import("./pages/AnimeDetail"));
 const MangaDetail = lazy(() => import("./pages/MangaDetail"));
-// Rankings page removed - rankings are now embedded in Anime/Manga pages
 const NewsPage = lazy(() => import("./pages/NewsPage"));
 const CommunityPage = lazy(() => import("./pages/CommunityPage"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
@@ -55,62 +56,63 @@ const PageLoader = () => (
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes cache
+      staleTime: 1000 * 60 * 5,
       retry: 2,
     },
   },
 });
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <LanguageProvider>
-      <AuthProvider>
-        <IncognitoProvider>
-          <MiniPlayerProvider>
-            <TooltipProvider>
-              <IncognitoOverlay />
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <MessageNotificationProvider>
-                  {/* CommunityButton moved into navbar */}
-                  <MiniPlayer />
-                  <Suspense fallback={<PageLoader />}>
-                    <SwipeNavigationWrapper>
-                      <AnimatedRoutes>
-                        <Routes>
-                          <Route path="/" element={<Index />} />
-                          <Route path="/anime" element={<AnimePage />} />
-                          <Route path="/anime/:id" element={<AnimeDetail />} />
-                          <Route path="/manga" element={<MangaPage />} />
-                          <Route path="/manga/:id" element={<MangaDetail />} />
-                          {/* Rankings removed - embedded in anime/manga pages */}
-                          <Route path="/news" element={<NewsPage />} />
-                          <Route path="/community" element={<CommunityPage />} />
-                          <Route path="/user/:userId" element={<UserProfile />} />
-                          <Route path="/messages" element={<MessagesPage />} />
-                          <Route path="/messages/:partnerId" element={<MessagesPage />} />
-                          <Route path="/watchlist" element={<WatchlistPage />} />
-                          <Route path="/recommendations" element={<RecommendationsPage />} />
-                          <Route path="/classics" element={<ClassicsPage />} />
-                          <Route path="/settings" element={<SettingsPage />} />
-                          <Route path="/stats" element={<StatsPage />} />
-                          <Route path="/history" element={<HistoryPage />} />
-                          <Route path="/admin" element={<AdminPage />} />
-                          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
-                      </AnimatedRoutes>
-                    </SwipeNavigationWrapper>
-                  </Suspense>
-                </MessageNotificationProvider>
-              </BrowserRouter>
-            </TooltipProvider>
-          </MiniPlayerProvider>
-        </IncognitoProvider>
-      </AuthProvider>
-    </LanguageProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <LanguageProvider>
+        <AuthProvider>
+          <IncognitoProvider>
+            <MiniPlayerProvider>
+              <TooltipProvider>
+                <IncognitoOverlay />
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <ScrollToTop />
+                  <MessageNotificationProvider>
+                    <MiniPlayer />
+                    <BackToTop />
+                    <Suspense fallback={<PageLoader />}>
+                      <SwipeNavigationWrapper>
+                        <AnimatedRoutes>
+                          <Routes>
+                            <Route path="/" element={<Index />} />
+                            <Route path="/anime" element={<AnimePage />} />
+                            <Route path="/anime/:id" element={<AnimeDetail />} />
+                            <Route path="/manga" element={<MangaPage />} />
+                            <Route path="/manga/:id" element={<MangaDetail />} />
+                            <Route path="/news" element={<NewsPage />} />
+                            <Route path="/community" element={<CommunityPage />} />
+                            <Route path="/user/:userId" element={<UserProfile />} />
+                            <Route path="/messages" element={<MessagesPage />} />
+                            <Route path="/messages/:partnerId" element={<MessagesPage />} />
+                            <Route path="/watchlist" element={<WatchlistPage />} />
+                            <Route path="/recommendations" element={<RecommendationsPage />} />
+                            <Route path="/classics" element={<ClassicsPage />} />
+                            <Route path="/settings" element={<SettingsPage />} />
+                            <Route path="/stats" element={<StatsPage />} />
+                            <Route path="/history" element={<HistoryPage />} />
+                            <Route path="/admin" element={<AdminPage />} />
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </AnimatedRoutes>
+                      </SwipeNavigationWrapper>
+                    </Suspense>
+                  </MessageNotificationProvider>
+                </BrowserRouter>
+              </TooltipProvider>
+            </MiniPlayerProvider>
+          </IncognitoProvider>
+        </AuthProvider>
+      </LanguageProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
