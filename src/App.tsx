@@ -48,6 +48,9 @@ const TopPage = lazy(() => import("./pages/TopPage"));
 const ImportPage = lazy(() => import("./pages/ImportPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
+const CreatorRegisterPage = lazy(() => import("./pages/CreatorRegisterPage"));
+const CreatorDashboardPage = lazy(() => import("./pages/CreatorDashboardPage"));
+const DMCAPage = lazy(() => import("./pages/DMCAPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Minimal loading fallback for route transitions
@@ -125,6 +128,9 @@ const App = () => (
                             <Route path="/import" element={<ProtectedRoute><ImportPage /></ProtectedRoute>} />
                             <Route path="/privacy" element={<PrivacyPage />} />
                             <Route path="/terms" element={<TermsPage />} />
+                            <Route path="/creator/register" element={<ProtectedRoute><CreatorRegisterPage /></ProtectedRoute>} />
+                            <Route path="/creator/dashboard" element={<ProtectedRoute><CreatorDashboardPage /></ProtectedRoute>} />
+                            <Route path="/dmca" element={<DMCAPage />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </AnimatedRoutes>

@@ -9,7 +9,8 @@ import { Footer } from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReportQueue } from "@/components/admin/ReportQueue";
 import { UserManagement } from "@/components/admin/UserManagement";
-import { Shield, AlertTriangle, Users, Loader2 } from "lucide-react";
+import { ContentModerationQueue } from "@/components/admin/ContentModerationQueue";
+import { Shield, AlertTriangle, Users, Loader2, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function AdminPage() {
@@ -77,10 +78,14 @@ export default function AdminPage() {
         </div>
 
         <Tabs defaultValue="reports" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsList className="grid w-full grid-cols-3 max-w-lg">
             <TabsTrigger value="reports" className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4" />
               {t("admin.reports")}
+            </TabsTrigger>
+            <TabsTrigger value="content" className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4" />
+              Content
             </TabsTrigger>
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
@@ -90,6 +95,10 @@ export default function AdminPage() {
 
           <TabsContent value="reports">
             <ReportQueue />
+          </TabsContent>
+
+          <TabsContent value="content">
+            <ContentModerationQueue />
           </TabsContent>
 
           <TabsContent value="users">
