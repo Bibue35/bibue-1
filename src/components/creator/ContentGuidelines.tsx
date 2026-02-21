@@ -18,7 +18,6 @@ export function ContentGuidelines() {
           </h4>
           <ul className="list-disc list-inside space-y-1 text-muted-foreground">
             <li>No pornographic or sexually explicit content</li>
-            <li>No graphic violence/gore beyond typical shounen manga</li>
             <li>No hate speech or discriminatory content</li>
             <li>No copyrighted content you don't own</li>
           </ul>
