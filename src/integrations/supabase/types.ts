@@ -464,6 +464,82 @@ export type Database = {
         }
         Relationships: []
       }
+      list_entries: {
+        Row: {
+          created_at: string
+          entry_type: string | null
+          id: string
+          image_url: string | null
+          list_id: string
+          mal_id: number
+          media_type: string
+          note: string | null
+          position: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          entry_type?: string | null
+          id?: string
+          image_url?: string | null
+          list_id: string
+          mal_id: number
+          media_type?: string
+          note?: string | null
+          position?: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          entry_type?: string | null
+          id?: string
+          image_url?: string | null
+          list_id?: string
+          mal_id?: number
+          media_type?: string
+          note?: string | null
+          position?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "list_entries_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "user_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      list_likes: {
+        Row: {
+          created_at: string
+          id: string
+          list_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          list_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          list_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "list_likes_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "user_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media_votes: {
         Row: {
           created_at: string
@@ -696,6 +772,42 @@ export type Database = {
           follower_id?: string
           following_id?: string
           id?: string
+        }
+        Relationships: []
+      }
+      user_lists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean
+          likes_count: number
+          slug: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          likes_count?: number
+          slug: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          likes_count?: number
+          slug?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

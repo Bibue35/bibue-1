@@ -223,6 +223,19 @@ export default function SettingsPage() {
           </h2>
           <LinkedAccounts variant="mobile" />
         </section>
+
+        {/* Import */}
+        <section className="space-y-4 mb-8">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
+            Import Your List
+          </h2>
+          <div className="rounded-xl bg-card border border-border p-4">
+            <p className="text-sm text-muted-foreground mb-3">Import your anime & manga list from MyAnimeList or AniList.</p>
+            <Button variant="outline" size="sm" onClick={() => navigate("/import")} className="gap-2">
+              Import List
+            </Button>
+          </div>
+        </section>
       </div>
 
       {/* Save bar — fixed bottom */}
