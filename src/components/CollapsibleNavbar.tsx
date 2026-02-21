@@ -1,260 +1,178 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Menu, X, Users, LogIn } from "lucide-react";
+import { Search, X, ChevronDown, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
-import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 const AuthModal = lazy(() => import("./AuthModal").then(m => ({ default: m.AuthModal })));
 import bibueTower from "@/assets/bibue-tower.png";
 
 export function CollapsibleNavbar() {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const location = useLocation();
   const scrollRef = useRef(0);
   const { t } = useLanguage();
   const { user } = useAuth();
+  const isMobile = useIsMobile();
 
-  const navLinks = [
+  const primaryLinks = [
     { href: "/anime", label: t("nav.anime") },
     { href: "/manga", label: t("nav.manga") },
     { href: "/seasonal", label: "Seasonal" },
     { href: "/schedule", label: "Schedule" },
+  ];
+
+  const moreLinks = [
     { href: "/guides", label: "Guides" },
     { href: "/news", label: t("nav.news") },
     { href: "/recommendations", label: t("nav.forYou") },
+    { href: "/community", label: t("nav.community") },
+    { href: "/genres", label: "Genres" },
   ];
-
-  // Mobile menu only shows non-swipable pages
-  const mobileMenuLinks = [
-    { href: "/seasonal", label: "Seasonal" },
-    { href: "/schedule", label: "Schedule" },
-    { href: "/guides", label: "Guides" },
-    { href: "/news", label: t("nav.news") },
-    { href: "/recommendations", label: t("nav.forYou") },
-  ];
-
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      setIsVisible(true);
-    }
-  }, [isMobileMenuOpen]);
 
   useEffect(() => {
     let ticking = false;
-
     const onScroll = () => {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
-        const currentScrollY = window.scrollY;
-        const scrollDelta = currentScrollY - scrollRef.current;
-
-        if (!isMobileMenuOpen) {
-          if (scrollDelta > 10 && currentScrollY > 150) {
-            setIsVisible(false);
-          } else if (scrollDelta < -5 || currentScrollY < 50) {
-            setIsVisible(true);
-          }
-        }
-
-        setIsScrolled(currentScrollY > 30);
-        scrollRef.current = currentScrollY;
+        const y = window.scrollY;
+        const delta = y - scrollRef.current;
+        if (delta > 10 && y > 120) setIsVisible(false);
+        else if (delta < -5 || y < 50) setIsVisible(true);
+        setIsScrolled(y > 20);
+        scrollRef.current = y;
         ticking = false;
       });
     };
-
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [isMobileMenuOpen]);
-
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location]);
+  }, []);
 
   return (
     <>
-      {/* Skip to main content link */}
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[60] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-medium"
       >
         Skip to content
       </a>
+
       <nav
         aria-label="Main navigation"
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out transform-gpu",
-          isScrolled ? "liquid-glass-strong py-2" : "bg-transparent py-3",
+          "bg-background/80 backdrop-blur-md border-b border-border/10",
           !isVisible && "-translate-y-full pointer-events-none"
         )}
-        style={{
-          transitionProperty: "transform, opacity, background-color, padding",
-          willChange: "transform",
-        }}
+        style={{ willChange: "transform" }}
       >
-        <div className="container mx-auto px-3 sm:px-4">
-          <div className="flex items-center justify-between gap-2">
-            {/* Left: Logo */}
-            <Link to="/" className="flex items-center gap-1.5">
-              <div className="h-8 sm:h-10 w-auto flex items-center justify-center">
-                <img
-                  src={bibueTower}
-                  alt=""
-                  width={40}
-                  height={40}
-                  className="h-full w-auto object-contain dark:brightness-0 dark:invert logo-stable"
-                  loading="eager"
-                  decoding="sync"
-                />
-              </div>
-              <span className="text-lg sm:text-xl font-sacred font-semibold tracking-wide">
-                Bibue
-              </span>
-            </Link>
+        <div className="container mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2">
+          {/* Left: Logo */}
+          <Link to="/" className="flex items-center gap-1.5 shrink-0">
+            <img
+              src={bibueTower}
+              alt=""
+              width={32}
+              height={32}
+              className="h-7 w-auto object-contain dark:brightness-0 dark:invert logo-stable"
+              loading="eager"
+              decoding="sync"
+            />
+            <span className="text-base font-sacred font-semibold tracking-wide">
+              Bibue
+            </span>
+          </Link>
 
-            {/* Center: nav links — desktop only */}
-            <div className="hidden md:flex items-center justify-center gap-1">
-              {navLinks.map((link) => (
+          {/* Center: Nav links — desktop only */}
+          {!isMobile && (
+            <div className="flex items-center gap-0.5">
+              {primaryLinks.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
                   className={cn(
-                    "px-4 py-2 text-sm font-medium rounded-full transition-all duration-200",
+                    "px-3 py-1.5 text-sm font-medium rounded-full transition-colors",
                     location.pathname === link.href
-                      ? "text-foreground bg-foreground/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                      ? "text-foreground bg-foreground/8"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   {link.label}
                 </Link>
               ))}
+
+              {/* More dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={cn(
+                      "flex items-center gap-0.5 px-3 py-1.5 text-sm font-medium rounded-full transition-colors",
+                      moreLinks.some(l => location.pathname === l.href)
+                        ? "text-foreground bg-foreground/8"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    More
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="w-44">
+                  {moreLinks.map((link) => (
+                    <DropdownMenuItem key={link.href} asChild className="cursor-pointer">
+                      <Link
+                        to={link.href}
+                        className={cn(
+                          location.pathname === link.href && "bg-accent"
+                        )}
+                      >
+                        {link.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-
-            {/* Right: search + desktop actions + hamburger (mobile) */}
-            <div className="flex items-center justify-end gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsSearchOpen(true)}
-                className="rounded-full hover:bg-foreground/5 h-9 w-9"
-                aria-label={t("nav.search")}
-              >
-                <Search className="w-5 h-5" />
-              </Button>
-
-              <div className="hidden md:block">
-                <ThemeSelector />
-              </div>
-
-              <div className="hidden md:block">
-                <UserMenu />
-              </div>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden rounded-full h-9 w-9"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-                aria-expanded={isMobileMenuOpen}
-              >
-                {isMobileMenuOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        <div
-          className={cn(
-            "md:hidden fixed top-14 left-3 right-3 z-[55] bg-popover/95 backdrop-blur-md border border-border/50 rounded-2xl overflow-hidden transition-all duration-200 shadow-lg",
-            isMobileMenuOpen
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 -translate-y-4 pointer-events-none"
           )}
-        >
-          <div className="p-3 space-y-0.5">
-            {mobileMenuLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className={cn(
-                  "block px-4 py-3 rounded-xl text-sm font-medium transition-colors",
-                  location.pathname === link.href
-                    ? "text-foreground bg-foreground/5"
-                    : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
-                )}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
 
-            <Link
-              to="/community"
-              className={cn(
-                "block px-4 py-3 rounded-xl text-sm font-medium transition-colors",
-                location.pathname === "/community"
-                  ? "text-foreground bg-foreground/5"
-                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
-              )}
-              onClick={() => setIsMobileMenuOpen(false)}
+          {/* Right: Search + Auth */}
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="p-2 rounded-full text-muted-foreground hover:text-foreground transition-colors"
+              aria-label={t("nav.search")}
             >
-              {t("nav.community")}
-            </Link>
+              <Search className="w-[18px] h-[18px]" />
+            </button>
 
-            {/* Theme toggle — text with color, under Community */}
-            <ThemeSelector variant="text" />
+            {!isMobile && <UserMenu />}
 
-            {user && (
-              <Link
-                to="/settings"
-                className={cn(
-                  "block px-4 py-3 rounded-xl text-sm font-medium transition-colors",
-                  location.pathname === "/settings"
-                    ? "text-foreground bg-foreground/5"
-                    : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
-                )}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {t("nav.settings")}
-              </Link>
-            )}
-
-            {!user && (
+            {/* Mobile: show sign-in icon if not logged in (UserMenu hidden on mobile — bottom bar handles it) */}
+            {isMobile && !user && (
               <button
-                onClick={() => {
-                  setAuthModalOpen(true);
-                  setIsMobileMenuOpen(false);
-                }}
-                className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-primary hover:bg-primary/5 transition-colors"
+                onClick={() => setAuthModalOpen(true)}
+                className="p-2 rounded-full text-muted-foreground hover:text-foreground transition-colors"
+                aria-label={t("auth.signIn")}
               >
-                {t("auth.signIn")}
+                <User className="w-[18px] h-[18px]" />
               </button>
             )}
           </div>
         </div>
       </nav>
-
-      {/* Mobile Menu Backdrop */}
-      {isMobileMenuOpen && (
-        <div
-          className="md:hidden fixed inset-0 z-[49] bg-black/40 backdrop-blur-sm"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
 
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       {authModalOpen && (

@@ -1,9 +1,11 @@
-import { memo, useEffect } from "react";
+import { memo, useEffect, useState } from "react";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { MobileBottomNav } from "./MobileBottomNav";
+import { SearchModal } from "./SearchModal";
 import {
   getTopAnime,
   getSeasonalAnime,
@@ -40,6 +42,7 @@ export const SwipeNavigationWrapper = memo(function SwipeNavigationWrapper({
     threshold: 80,
   });
   const isMobile = useIsMobile();
+  const [bottomSearchOpen, setBottomSearchOpen] = useState(false);
   const location = useLocation();
   const queryClient = useQueryClient();
   const { language } = useLanguage();
@@ -87,10 +90,9 @@ export const SwipeNavigationWrapper = memo(function SwipeNavigationWrapper({
 
   return (
     <div ref={containerRef} className="relative min-h-screen" style={{ touchAction: "pan-y" }}>
-      {children}
-
-
-
+      <div className={isMobile ? "pb-16" : ""}>
+        {children}
+      </div>
 
       {/* Navigation indicator pill */}
       <div
@@ -103,6 +105,9 @@ export const SwipeNavigationWrapper = memo(function SwipeNavigationWrapper({
           willChange: "opacity, transform",
         }}
       />
+
+      <MobileBottomNav onSearchOpen={() => setBottomSearchOpen(true)} />
+      <SearchModal isOpen={bottomSearchOpen} onClose={() => setBottomSearchOpen(false)} />
     </div>
   );
 });
