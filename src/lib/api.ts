@@ -465,6 +465,26 @@ export async function getAnimeByGenre(
   return data.Page.media.map(m => toAnime(m, language));
 }
 
+// Get short anime (12 or fewer episodes) for "Late Night Binge" mood
+export async function getShortAnime(
+  page = 1,
+  limit = 15,
+  language: SupportedLanguage = "en"
+): Promise<Anime[]> {
+  const query = `
+    query ($page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: ANIME, episodes_lesser: 13, episodes_greater: 0, status: FINISHED, sort: [SCORE_DESC], isAdult: false, averageScore_greater: 72) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit });
+  return data.Page.media.map(m => toAnime(m, language));
+}
+
 export async function getSeasonalAnime(year?: number, season?: string, language: SupportedLanguage = "en"): Promise<Anime[]> {
   const currentDate = new Date();
   const y = year || currentDate.getFullYear();

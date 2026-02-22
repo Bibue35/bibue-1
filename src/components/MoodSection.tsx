@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getAnimeByGenre, Anime, SupportedLanguage } from "@/lib/api";
+import { getAnimeByGenre, getShortAnime, Anime, SupportedLanguage } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HorizontalScroll } from "./HorizontalScroll";
 import { AnimeCard } from "./AnimeCard";
@@ -17,6 +17,8 @@ export interface MoodConfig {
   genre: string;
   accentClass: string; // Tailwind text color for accent
   sort?: "SCORE_DESC" | "POPULARITY_DESC" | "TRENDING_DESC";
+  /** If true, uses getShortAnime (≤12 eps) instead of genre filter */
+  useShortFilter?: boolean;
 }
 
 export const MOOD_CONFIGS: MoodConfig[] = [
@@ -25,14 +27,20 @@ export const MOOD_CONFIGS: MoodConfig[] = [
   { id: "cozy", title: "Cozy Vibes", emoji: "☕", genre: "Slice of Life", accentClass: "text-amber-400", sort: "SCORE_DESC" },
   { id: "mind", title: "Mind-Bending", emoji: "🧠", genre: "Psychological", accentClass: "text-purple-400", sort: "SCORE_DESC" },
   { id: "epic", title: "Epic Adventures", emoji: "⚔️", genre: "Adventure", accentClass: "text-emerald-400", sort: "POPULARITY_DESC" },
+  { id: "binge", title: "Late Night Binge", emoji: "🌙", genre: "", accentClass: "text-indigo-400", sort: "SCORE_DESC", useShortFilter: true },
   { id: "gems", title: "Hidden Gems", emoji: "💎", genre: "Fantasy", accentClass: "text-cyan-400", sort: "SCORE_DESC" },
 ];
 
-function useMoodAnime(genre: string, sort: "SCORE_DESC" | "POPULARITY_DESC" | "TRENDING_DESC" = "POPULARITY_DESC", enabled = true) {
+function useMoodAnime(mood: MoodConfig, enabled = true) {
   const { language } = useLanguage();
   return useQuery({
-    queryKey: ["moodAnime", genre, sort, language],
-    queryFn: () => getAnimeByGenre(genre, 1, 15, sort, language as SupportedLanguage),
+    queryKey: mood.useShortFilter
+      ? ["moodAnime", "short", language]
+      : ["moodAnime", mood.genre, mood.sort, language],
+    queryFn: () =>
+      mood.useShortFilter
+        ? getShortAnime(1, 15, language as SupportedLanguage)
+        : getAnimeByGenre(mood.genre, 1, 15, mood.sort, language as SupportedLanguage),
     staleTime: 1000 * 60 * 15,
     gcTime: 1000 * 60 * 60,
     enabled,
@@ -45,7 +53,7 @@ interface MoodRowProps {
 }
 
 const MoodRow = memo(function MoodRow({ mood, enabled = true }: MoodRowProps) {
-  const { data, isLoading, isError, refetch } = useMoodAnime(mood.genre, mood.sort, enabled);
+  const { data, isLoading, isError, refetch } = useMoodAnime(mood, enabled);
   const isMobile = useIsMobile();
 
   return (
