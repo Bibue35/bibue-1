@@ -9,6 +9,8 @@ const ja: Record<string, string> = {
   "nav.community": "コミュニティ",
   "nav.search": "検索",
   "nav.settings": "設定",
+  "nav.seasonal": "シーズン",
+  "nav.profile": "プロフィール",
   "nav.saved": "保存済み",
   "hero.watchNow": "今すぐ見る",
   "hero.viewDetails": "詳細を見る",

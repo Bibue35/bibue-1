@@ -10,6 +10,8 @@ const en: Record<string, string> = {
   "nav.community": "Community",
   "nav.search": "Search",
   "nav.settings": "Settings",
+  "nav.seasonal": "Seasonal",
+  "nav.profile": "Profile",
   "nav.saved": "Saved",
   "hero.watchNow": "Watch Now",
   "hero.viewDetails": "View Details",

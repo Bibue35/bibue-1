@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense, useMemo } from "react";
+import { useState, useEffect, lazy, Suspense, useMemo, memo } from "react";
 import { Play, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Anime, formatScore } from "@/lib/api";
@@ -13,7 +13,7 @@ interface HeroSectionProps {
   isLoading?: boolean;
 }
 
-function HeroSynopsis({ text }: { text?: string }) {
+const HeroSynopsis = memo(function HeroSynopsis({ text }: { text?: string }) {
   const translated = useTranslatedText(text);
   if (!translated) return null;
   return (
@@ -21,7 +21,7 @@ function HeroSynopsis({ text }: { text?: string }) {
       {translated}
     </p>
   );
-}
+});
 
 export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -81,9 +81,9 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
                   height={1080}
                   loading={isFirst || isActive ? "eager" : "lazy"}
                   decoding={isFirst || isActive ? "sync" : "async"}
-                  fetchPriority={isFirst || isActive ? "high" : "auto"}
                   sizes="100vw"
                   className="absolute inset-0 w-full h-full object-cover"
+                  {...(isFirst || isActive ? { fetchPriority: "high" as any } : {})}
                 />
               </div>
             );
