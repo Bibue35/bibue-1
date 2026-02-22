@@ -40,23 +40,39 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Generate mock episode data
-  const generateEpisodes = (count: number) => {
-    return Array.from({ length: Math.min(count, 24) }, (_, i) => ({
-      number: i + 1,
-      title: i === 0 ? "Episode 1" : `Episode ${i + 1}`,
-      description: `Episode ${i + 1} of ${anime?.title || "this anime"}...`,
-      thumbnail: anime?.images?.webp?.large_image_url,
-    }));
-  };
-
-  const episodes = anime ? generateEpisodes(anime.episodes || 12) : [];
-  const episodesPerPage = 4;
-  const totalPages = Math.ceil(episodes.length / episodesPerPage);
+  // Build episode list from API data or generate numbered list
+  const EPISODES_PER_RANGE = 12;
+  const totalEpisodeCount = anime?.episodes || 12;
+  const streamingEps = anime?.streamingEpisodes || [];
+  
+  const episodes = Array.from({ length: totalEpisodeCount }, (_, i) => {
+    const epNum = i + 1;
+    // Try to find matching streaming episode by parsing title for episode number
+    const matchingStream = streamingEps.find(se => {
+      if (!se.title) return false;
+      const match = se.title.match(/(?:Episode|Ep\.?|E)\s*(\d+)/i);
+      return match && parseInt(match[1]) === epNum;
+    });
+    return {
+      number: epNum,
+      title: matchingStream?.title || `Episode ${epNum}`,
+      thumbnail: matchingStream?.thumbnail || undefined,
+      url: matchingStream?.url || undefined,
+    };
+  });
+  
+  const rangeCount = Math.ceil(episodes.length / EPISODES_PER_RANGE);
+  const rangeOptions = Array.from({ length: rangeCount }, (_, i) => ({
+    start: i * EPISODES_PER_RANGE + 1,
+    end: Math.min((i + 1) * EPISODES_PER_RANGE, episodes.length),
+  }));
   const displayedEpisodes = episodes.slice(
-    episodeRange * episodesPerPage,
-    (episodeRange + 1) * episodesPerPage
+    episodeRange * EPISODES_PER_RANGE,
+    (episodeRange + 1) * EPISODES_PER_RANGE
   );
+  const isAiring = anime?.status === "RELEASING";
+  const nextEpNumber = anime?.nextAiringEpisode?.episode;
+  const nextAiringAt = anime?.nextAiringEpisode?.airingAt;
 
   // Comments query
   const { data: comments, isLoading: commentsLoading } = useQuery({
@@ -263,37 +279,99 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
             </div>
           </TabsContent>
 
-          {/* Episodes Tab */}
+          {/* Episodes Tab — Netflix vertical list */}
           <TabsContent value="episodes">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm sm:text-lg font-bold font-sacred">EPISODES</h2>
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-muted-foreground">
-                  {episodeRange * episodesPerPage + 1}-{Math.min((episodeRange + 1) * episodesPerPage, episodes.length)}
-                </span>
-                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" disabled={episodeRange === 0} onClick={() => setEpisodeRange(p => p - 1)}>
-                  <ChevronLeft className="w-3.5 h-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" disabled={episodeRange >= totalPages - 1} onClick={() => setEpisodeRange(p => p + 1)}>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Button>
+            {/* Header: title + episode count + range dropdown */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm sm:text-lg font-bold font-sacred">EPISODES</h2>
+                <span className="text-xs text-muted-foreground">{totalEpisodeCount} Episodes</span>
               </div>
+              {rangeCount > 1 && (
+                <select
+                  value={episodeRange}
+                  onChange={(e) => setEpisodeRange(Number(e.target.value))}
+                  className="bg-muted/50 border border-border/50 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+                >
+                  {rangeOptions.map((range, i) => (
+                    <option key={i} value={i}>
+                      Episodes {range.start}–{range.end}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
-              {displayedEpisodes.map((ep) => (
-                <button key={ep.number} onClick={() => handlePlay(ep.number)} className="text-left group">
-                  <div className="relative aspect-video rounded-lg overflow-hidden mb-1.5">
-                    <img src={ep.thumbnail} alt={ep.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                    <div className="absolute top-1.5 right-1.5 bg-background/80 text-foreground text-[10px] font-bold px-1 py-0.5 rounded">E{ep.number}</div>
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                        <Play className="w-3.5 h-3.5 text-white fill-white" />
+
+            {/* Episode rows */}
+            <div className="space-y-0">
+              {displayedEpisodes.map((ep) => {
+                const isUnaired = isAiring && nextEpNumber !== undefined && ep.number >= nextEpNumber;
+                const isNext = isAiring && ep.number === nextEpNumber;
+                const nextAirDate = isNext && nextAiringAt
+                  ? new Date(nextAiringAt * 1000).toLocaleDateString(undefined, { month: "short", day: "numeric" })
+                  : null;
+
+                return (
+                  <button
+                    key={ep.number}
+                    onClick={() => !isUnaired && handlePlay(ep.number)}
+                    disabled={isUnaired && !isNext}
+                    className={cn(
+                      "w-full text-left group flex items-start gap-3 sm:gap-4 py-3 sm:py-4 transition-colors duration-150 border-b border-border/10",
+                      isUnaired ? "opacity-50 cursor-default" : "hover:bg-muted/30 cursor-pointer",
+                      isNext && "border-l-2 border-l-primary pl-3 opacity-100"
+                    )}
+                  >
+                    {/* Episode number */}
+                    <span className="text-lg sm:text-2xl font-bold text-muted-foreground/50 w-8 sm:w-10 text-center flex-shrink-0 pt-1">
+                      {ep.number}
+                    </span>
+
+                    {/* Thumbnail */}
+                    <div className="relative w-28 sm:w-48 aspect-video rounded-md overflow-hidden flex-shrink-0 bg-muted/30">
+                      {ep.thumbnail ? (
+                        <img
+                          src={ep.thumbnail}
+                          alt={ep.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-muted/20">
+                          <span className="text-2xl sm:text-3xl font-bold text-muted-foreground/20">{ep.number}</span>
+                        </div>
+                      )}
+                      {/* Play icon overlay */}
+                      {!isUnaired && (
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-black/30">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                            <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white fill-white" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0 pt-0.5">
+                      <h3 className={cn(
+                        "font-medium text-xs sm:text-sm line-clamp-2 leading-tight mb-1 transition-colors",
+                        isUnaired ? "text-muted-foreground" : "text-foreground group-hover:text-primary"
+                      )}>
+                        {ep.title}
+                      </h3>
+                      <div className="flex items-center gap-2 text-[10px] sm:text-xs text-muted-foreground">
+                        {anime?.duration && <span>{anime.duration}</span>}
+                        {isNext && nextAirDate && (
+                          <span className="text-primary font-medium">Coming {nextAirDate}</span>
+                        )}
+                        {isUnaired && !isNext && (
+                          <span>Not yet aired</span>
+                        )}
                       </div>
                     </div>
-                  </div>
-                  <h3 className="font-medium text-xs group-hover:text-primary transition-colors line-clamp-1">{ep.number}. {ep.title}</h3>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           </TabsContent>
 
