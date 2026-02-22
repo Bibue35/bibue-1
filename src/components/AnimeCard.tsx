@@ -98,11 +98,7 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
         onClick={() => setModalOpen(true)}
         onMouseEnter={prefetchDetail}
         onTouchStart={prefetchDetail}
-        className={cn(
-          "block group text-left w-full active:scale-[0.98]",
-          "transition-all duration-200 ease-out",
-          "md:hover:-translate-y-1.5 md:hover:z-10 md:hover:shadow-lg md:hover:shadow-black/40 relative rounded-xl sm:rounded-2xl"
-        )}
+        className="block group text-left w-full relative rounded-xl sm:rounded-2xl transition-transform duration-200 ease-out active:scale-[0.98]"
       >
         {/* Image — 2:3 portrait, overflow-hidden clips the scale */}
         <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted">
@@ -115,27 +111,19 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
             loading={eager ? "eager" : "lazy"}
             decoding={eager ? "sync" : "async"}
             sizes="(max-width: 640px) 112px, (max-width: 768px) 144px, 176px"
-            className={cn(
-              "w-full h-full object-cover will-change-transform transform-gpu",
-              "transition-transform duration-200 ease-out",
-              "md:group-hover:scale-105"
-            )}
+            className="w-full h-full object-cover transition-transform duration-300 ease-out md:group-hover:scale-105 will-change-transform transform-gpu"
           />
 
-          {/* HOVER: dark gradient on bottom 40% + rating pill — desktop only */}
-          <div
-            className="absolute inset-0 hidden md:flex items-end opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-out pointer-events-none"
-            style={{
-              background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 40%)",
-            }}
-          >
-            {anime.score && (
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-white bg-black/50 rounded-full px-2 py-0.5 m-2.5">
-                <Star className="w-3 h-3 fill-white text-white" />
+          {/* Score badge - visible on hover */}
+          {anime.score && (
+            <div className="absolute bottom-0 left-0 right-0 p-2 opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+              style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)" }}>
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-white/90">
+                <Star className="w-2.5 h-2.5 fill-white/90 text-white/90" />
                 {formatScore(anime.score)}
               </span>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Title — always visible below image */}
