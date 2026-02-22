@@ -47,15 +47,20 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
   
   const episodes = Array.from({ length: totalEpisodeCount }, (_, i) => {
     const epNum = i + 1;
-    // Try to find matching streaming episode by parsing title for episode number
     const matchingStream = streamingEps.find(se => {
       if (!se.title) return false;
       const match = se.title.match(/(?:Episode|Ep\.?|E)\s*(\d+)/i);
       return match && parseInt(match[1]) === epNum;
     });
+    // Parse clean title: strip "Episode X - " prefix from streaming titles
+    let cleanTitle = `Episode ${epNum}`;
+    if (matchingStream?.title) {
+      const titleMatch = matchingStream.title.match(/(?:Episode|Ep\.?|E)\s*\d+\s*[-–:]\s*(.+)/i);
+      cleanTitle = titleMatch ? titleMatch[1].trim() : matchingStream.title;
+    }
     return {
       number: epNum,
-      title: matchingStream?.title || `Episode ${epNum}`,
+      title: cleanTitle,
       thumbnail: matchingStream?.thumbnail || undefined,
       url: matchingStream?.url || undefined,
     };
@@ -354,12 +359,12 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                     {/* Info */}
                     <div className="flex-1 min-w-0 pt-0.5">
                       <h3 className={cn(
-                        "font-medium text-xs sm:text-sm line-clamp-2 leading-tight mb-1 transition-colors",
+                        "font-medium text-xs sm:text-sm line-clamp-1 leading-tight mb-0.5 transition-colors",
                         isUnaired ? "text-muted-foreground" : "text-foreground group-hover:text-primary"
                       )}>
                         {ep.title}
                       </h3>
-                      <div className="flex items-center gap-2 text-[10px] sm:text-xs text-muted-foreground">
+                      <div className="flex items-center gap-2 text-[10px] sm:text-xs text-muted-foreground mb-1">
                         {anime?.duration && <span>{anime.duration}</span>}
                         {isNext && nextAirDate && (
                           <span className="text-primary font-medium">Coming {nextAirDate}</span>
@@ -368,6 +373,11 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                           <span>Not yet aired</span>
                         )}
                       </div>
+                      {anime?.synopsis && !isUnaired && (
+                        <p className="text-[10px] sm:text-xs text-muted-foreground/70 line-clamp-2 leading-relaxed">
+                          {anime.synopsis}
+                        </p>
+                      )}
                     </div>
                   </button>
                 );
