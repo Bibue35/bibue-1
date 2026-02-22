@@ -1,7 +1,10 @@
 import { useState, memo, forwardRef, lazy, Suspense, useCallback } from "react";
-import { Anime, getAnimeById } from "@/lib/api";
+import { Star } from "lucide-react";
+import { Anime, formatScore, getAnimeById } from "@/lib/api";
 import { cn } from "@/lib/utils";
 const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ default: m.AnimeDetailModal })));
+import { useWatchlist } from "@/hooks/useWatchlist";
+import { useAuth } from "@/contexts/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -9,6 +12,7 @@ interface AnimeCardProps {
   anime: Anime;
   index?: number;
   variant?: "default" | "compact";
+  /** Load image eagerly (for above-fold first row) */
   eager?: boolean;
 }
 
@@ -16,6 +20,9 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
   const [modalOpen, setModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const { language } = useLanguage();
+  const { user } = useAuth();
+  const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
+  const inWatchlist = isInWatchlist(anime.anilist_id, "anime");
 
   const prefetchDetail = useCallback(() => {
     queryClient.prefetchQuery({
@@ -24,6 +31,23 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
       staleTime: 1000 * 60 * 60,
     });
   }, [queryClient, anime.anilist_id, language]);
+
+  const handleSave = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) return;
+    if (inWatchlist) {
+      removeFromWatchlist.mutate({ mal_id: anime.anilist_id, media_type: "anime" });
+    } else {
+      addToWatchlist.mutate({
+        mal_id: anime.anilist_id,
+        media_type: "anime",
+        title: anime.title,
+        title_japanese: anime.title_japanese,
+        image_url: anime.images.webp.image_url,
+        score: anime.score,
+      });
+    }
+  }, [user, inWatchlist, anime, addToWatchlist, removeFromWatchlist]);
 
   if (variant === "compact") {
     return (
@@ -38,10 +62,10 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
             src={anime.images.webp.image_url}
             alt={`${anime.title} cover art`}
             width={64}
-            height={96}
+            height={80}
             loading="lazy"
             decoding="async"
-            className="w-14 sm:w-16 aspect-[2/3] object-cover rounded-lg bg-muted"
+            className="w-14 sm:w-16 h-18 sm:h-20 object-cover rounded-lg bg-muted"
           />
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-sm sm:text-base truncate group-hover:text-foreground/80 transition-colors">
@@ -66,33 +90,59 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
     );
   }
 
+  // === NETFLIX-STYLE DEFAULT CARD ===
+  // Default: cover image + title only. Hover: lift, shadow, image zoom, rating pill.
   return (
     <>
-      <div
-        ref={ref}
+      <button
         onClick={() => setModalOpen(true)}
         onMouseEnter={prefetchDetail}
         onTouchStart={prefetchDetail}
         className={cn(
-          "cursor-pointer group",
+          "block group text-left w-full active:scale-[0.98]",
           "transition-all duration-200 ease-out",
-          "md:hover:-translate-y-1.5 md:hover:shadow-lg md:hover:shadow-black/40",
-          "rounded-lg"
+          "md:hover:-translate-y-1.5 md:hover:z-10 md:hover:shadow-lg md:hover:shadow-black/40 relative rounded-xl sm:rounded-2xl"
         )}
       >
-        <div className="aspect-[2/3] rounded-lg overflow-hidden bg-muted">
+        {/* Image — 2:3 portrait, overflow-hidden clips the scale */}
+        <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted">
           <img
             src={anime.images.webp.image_url}
+            srcSet={`${anime.images.webp.image_url} 230w, ${anime.images.webp.medium_image_url || anime.images.webp.large_image_url} 460w, ${anime.images.webp.large_image_url} 600w`}
             alt={`${anime.title} cover art`}
-            width={190}
-            height={285}
+            width={176}
+            height={264}
             loading={eager ? "eager" : "lazy"}
             decoding={eager ? "sync" : "async"}
-            className="w-full h-full object-cover transition-transform duration-200 ease-out md:group-hover:scale-[1.03]"
+            sizes="(max-width: 640px) 112px, (max-width: 768px) 144px, 176px"
+            className={cn(
+              "w-full h-full object-cover will-change-transform transform-gpu",
+              "transition-transform duration-200 ease-out",
+              "md:group-hover:scale-105"
+            )}
           />
+
+          {/* HOVER: dark gradient on bottom 40% + rating pill — desktop only */}
+          <div
+            className="absolute inset-0 hidden md:flex items-end opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-out pointer-events-none"
+            style={{
+              background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 40%)",
+            }}
+          >
+            {anime.score && (
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-white bg-black/50 rounded-full px-2 py-0.5 m-2.5">
+                <Star className="w-3 h-3 fill-white text-white" />
+                {formatScore(anime.score)}
+              </span>
+            )}
+          </div>
         </div>
-        <p className="text-sm font-medium truncate mt-1.5 px-0.5">{anime.title}</p>
-      </div>
+
+        {/* Title — always visible below image */}
+        <h3 className="font-medium text-[11px] sm:text-xs md:text-sm line-clamp-2 mb-0.5 transition-colors leading-tight">
+          {anime.title}
+        </h3>
+      </button>
       
       {modalOpen && (
         <Suspense fallback={null}>
