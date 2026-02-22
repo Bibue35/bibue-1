@@ -7,6 +7,7 @@ import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useImageColor } from "@/hooks/useImageColor";
 
 interface MobileAnimeCardProps {
   anime: Anime;
@@ -31,6 +32,7 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
   const queryClient = useQueryClient();
   const { language } = useLanguage();
   const isBookmarked = isInWatchlist(anime.anilist_id, "anime");
+  const dominantColor = useImageColor(anime.images.webp.image_url);
 
   const prefetchDetail = useCallback(() => {
     queryClient.prefetchQuery({
@@ -135,6 +137,11 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
     );
   }
 
+  // Dynamic glow style from dominant color
+  const glowStyle = dominantColor
+    ? { "--card-glow": `${dominantColor.h} ${Math.min(dominantColor.s, 70)}% ${Math.min(dominantColor.l + 10, 60)}%` } as React.CSSProperties
+    : undefined;
+
   // === IMMERSIVE DEFAULT — Image dominant, minimal text ===
   return (
     <>
@@ -143,6 +150,7 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
         onMouseEnter={prefetchDetail}
         onTouchStart={prefetchDetail}
         className="block group text-left w-full active:scale-[0.97] transition-transform duration-150"
+        style={glowStyle}
       >
         <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-1.5 bg-card shadow-lg shadow-black/10 will-change-transform transform-gpu">
           <img
@@ -177,7 +185,13 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
           {/* Progress bar */}
           {showProgress && progress > 0 && (
             <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-black/40">
-              <div className="h-full bg-primary rounded-full" style={{ width: `${Math.min(progress, 100)}%` }} />
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{
+                  width: `${Math.min(progress, 100)}%`,
+                  backgroundColor: dominantColor ? `hsl(${dominantColor.h} ${Math.min(dominantColor.s, 80)}% 55%)` : "hsl(var(--primary))",
+                }}
+              />
             </div>
           )}
         </div>
