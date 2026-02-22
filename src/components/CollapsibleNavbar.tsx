@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, lazy, Suspense } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Search, User } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,12 +12,9 @@ const AuthModal = lazy(() => import("./AuthModal").then(m => ({ default: m.AuthM
 import bibueTower from "@/assets/bibue-tower.png";
 
 export function CollapsibleNavbar() {
-  const [isVisible, setIsVisible] = useState(true);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const location = useLocation();
-  const scrollRef = useRef(0);
   const { t } = useLanguage();
   const { user } = useAuth();
   const isMobile = useIsMobile();
@@ -26,27 +23,8 @@ export function CollapsibleNavbar() {
     { href: "/anime", label: t("nav.anime") },
     { href: "/manga", label: t("nav.manga") },
     { href: "/seasonal", label: "Seasonal" },
-    { href: "/community", label: t("nav.community") },
+    { href: "/schedule", label: "Schedule" },
   ];
-
-  useEffect(() => {
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const y = window.scrollY;
-        const delta = y - scrollRef.current;
-        if (delta > 10 && y > 120) setIsVisible(false);
-        else if (delta < -5 || y < 50) setIsVisible(true);
-        setIsScrolled(y > 20);
-        scrollRef.current = y;
-        ticking = false;
-      });
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   return (
     <>
@@ -59,12 +37,7 @@ export function CollapsibleNavbar() {
 
       <nav
         aria-label="Main navigation"
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out transform-gpu",
-          "bg-background/80 backdrop-blur-md border-b border-border/10",
-          !isVisible && "-translate-y-full pointer-events-none"
-        )}
-        style={{ willChange: "transform" }}
+        className="sticky top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/10"
       >
         <div className="container mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2">
           {/* Left: Logo */}
@@ -117,7 +90,6 @@ export function CollapsibleNavbar() {
 
             {!isMobile && <UserMenu />}
 
-            {/* Mobile: show sign-in icon if not logged in (UserMenu hidden on mobile — bottom bar handles it) */}
             {isMobile && !user && (
               <button
                 onClick={() => setAuthModalOpen(true)}
