@@ -4,6 +4,10 @@ import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { getAnimeRecommendations, getMangaRecommendations } from "@/lib/api";
 
 interface WatchlistButtonProps {
   mal_id: number;
@@ -29,35 +33,65 @@ export function WatchlistButton({
   const { user } = useAuth();
   const { t } = useLanguage();
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
+  const queryClient = useQueryClient();
 
   const inWatchlist = isInWatchlist(mal_id, media_type);
   const isLoading = addToWatchlist.isPending || removeFromWatchlist.isPending;
+
+  // Show a recommendation after adding to watchlist
+  const showRecommendation = useCallback(async (mediaId: number, mediaType: "anime" | "manga", addedTitle: string) => {
+    try {
+      const recs = mediaType === "anime" 
+        ? await queryClient.fetchQuery({
+            queryKey: ["animeRecommendations", mediaId],
+            queryFn: () => getAnimeRecommendations(mediaId),
+            staleTime: 1000 * 60 * 15,
+          })
+        : await queryClient.fetchQuery({
+            queryKey: ["mangaRecommendations", mediaId],
+            queryFn: () => getMangaRecommendations(mediaId),
+            staleTime: 1000 * 60 * 15,
+          });
+
+      if (recs && recs.length > 0) {
+        const rec = recs[0].entry;
+        toast(`Since you liked ${addedTitle}`, {
+          description: `Check out "${rec.title}"`,
+          duration: 5000,
+          action: {
+            label: "View",
+            onClick: () => {
+              window.location.href = `/${mediaType}/${rec.anilist_id}`;
+            },
+          },
+        });
+      }
+    } catch {
+      // Silently fail — recommendation is non-critical
+    }
+  }, [queryClient]);
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
 
-    if (!user) {
-      return;
-    }
+    if (!user) return;
 
     if (inWatchlist) {
       removeFromWatchlist.mutate({ mal_id, media_type });
     } else {
-      addToWatchlist.mutate({
-        mal_id,
-        media_type,
-        title,
-        title_japanese,
-        image_url,
-        score,
-      });
+      addToWatchlist.mutate(
+        { mal_id, media_type, title, title_japanese, image_url, score },
+        {
+          onSuccess: () => {
+            showRecommendation(mal_id, media_type, title);
+          },
+        }
+      );
     }
   };
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   if (variant === "full") {
     return (
