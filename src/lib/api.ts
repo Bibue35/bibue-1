@@ -56,6 +56,19 @@ export interface Anime {
   nextAiringEpisode?: { airingAt: number; episode: number };
   streamingEpisodes?: Array<{ title?: string; thumbnail?: string; url?: string; site?: string }>;
   bannerImage?: string;
+  idMal?: number;
+}
+
+export interface JikanEpisode {
+  mal_id: number;
+  title: string;
+  title_japanese?: string;
+  title_romanji?: string;
+  aired?: string;
+  score?: number;
+  filler?: boolean;
+  recap?: boolean;
+  synopsis?: string;
 }
 
 export interface Manga {
@@ -206,6 +219,7 @@ function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime
     nextAiringEpisode: media.nextAiringEpisode || undefined,
     streamingEpisodes: media.streamingEpisodes || undefined,
     bannerImage: media.bannerImage || undefined,
+    idMal: media.idMal || undefined,
   };
 }
 
@@ -523,6 +537,28 @@ export async function getAnimeById(id: number, language: SupportedLanguage = "en
 
   const data = await anilistQuery<{ Media: AniListMedia }>(query, { id });
   return toAnime(data.Media, language);
+}
+
+// Fetch episode details from Jikan (MAL) API — provides titles and synopses
+export async function getAnimeEpisodes(malId: number, page = 1): Promise<JikanEpisode[]> {
+  try {
+    const response = await fetch(`https://api.jikan.moe/v4/anime/${malId}/episodes?page=${page}`);
+    if (!response.ok) return [];
+    const json = await response.json();
+    return (json.data || []).map((ep: any) => ({
+      mal_id: ep.mal_id,
+      title: ep.title || `Episode ${ep.mal_id}`,
+      title_japanese: ep.title_japanese || undefined,
+      title_romanji: ep.title_romanji || undefined,
+      aired: ep.aired || undefined,
+      score: ep.score || undefined,
+      filler: ep.filler || false,
+      recap: ep.recap || false,
+      synopsis: ep.synopsis || undefined,
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export async function searchAnime(searchQuery: string, page = 1, limit = 25, language: SupportedLanguage = "en", sort: "SEARCH_MATCH" | "START_DATE_DESC" | "POPULARITY_DESC" = "START_DATE_DESC"): Promise<Anime[]> {
