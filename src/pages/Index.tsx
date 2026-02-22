@@ -2,7 +2,7 @@
  * Bibue - Anime & Manga Platform
  * Main landing page — content psychology redesign
  */
-import { SEO, websiteJsonLd } from "@/components/SEO";
+import { SEO, websiteJsonLd, organizationJsonLd } from "@/components/SEO";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { SectionError } from "@/components/SectionError";
 import { HeroSection } from "@/components/HeroSection";
@@ -88,7 +88,7 @@ const Index = () => {
         title={undefined}
         description="Discover your next favorite anime and manga with Bibue. Track your watchlist, explore trending titles, and connect with the community."
         url="/"
-        jsonLd={websiteJsonLd()}
+        jsonLd={[websiteJsonLd(), organizationJsonLd()]}
       />
       <CollapsibleNavbar />
       <PullToRefresh onRefresh={handleRefresh}>
