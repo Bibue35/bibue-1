@@ -37,7 +37,7 @@ export function CollapsibleNavbar() {
 
       <nav
         aria-label="Main navigation"
-        className="absolute top-0 left-0 w-full z-50"
+        className="absolute top-0 left-0 w-full z-30 bg-black/60 backdrop-blur-xl"
       >
         <div className="container mx-auto px-4 sm:px-6 h-[60px] flex items-center justify-between">
           {/* Left: Logo */}
@@ -58,16 +58,16 @@ export function CollapsibleNavbar() {
 
           {/* Center: Nav links — desktop only */}
           {!isMobile && (
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-6">
               {primaryLinks.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
                   className={cn(
-                    "text-base font-normal tracking-wide transition-colors duration-150",
+                    "text-sm font-medium tracking-wide transition-colors duration-150",
                     location.pathname === link.href
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "text-white bg-white/10 rounded-full px-4 py-1.5"
+                      : "text-gray-400 hover:text-white"
                   )}
                 >
                   {link.label}
