@@ -241,7 +241,7 @@ const Index = () => {
         title={t("anime.allTimeTop")}
         titleJp={t("anime.allTimeTopJp")}
         icon={Trophy}
-        linkTo="/rankings?type=anime&sort=score"
+        linkTo="/top?type=anime&sort=score"
       >
         {allTimeError ? (
           <SectionError onRetry={() => refetchAllTime()} />
