@@ -18,8 +18,6 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { BackToTop } from "@/components/BackToTop";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BackgroundParticles } from "@/components/BackgroundParticles";
-import { CustomCursor } from "@/components/CustomCursor";
 
 // Lazy load all page components for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -74,11 +72,11 @@ const PageLoader = () => (
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5,
-      gcTime: 1000 * 60 * 30,
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      retry: 1,
+      staleTime: 1000 * 60 * 5,       // data stays fresh for 5 minutes
+      gcTime: 1000 * 60 * 30,          // keep in cache for 30 minutes
+      refetchOnWindowFocus: false,     // don't refetch when tab regains focus
+      refetchOnMount: false,           // don't refetch when component remounts (instant back nav)
+      retry: 1,                        // only retry once on failure
     },
   },
 });
@@ -91,8 +89,6 @@ const App = () => (
           <IncognitoProvider>
             <MiniPlayerProvider>
               <TooltipProvider>
-                <BackgroundParticles />
-                <CustomCursor />
                 <IncognitoOverlay />
                 <Toaster />
                 <Sonner />

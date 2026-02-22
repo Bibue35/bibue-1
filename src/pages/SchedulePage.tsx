@@ -1,5 +1,5 @@
 import { useState, useMemo, lazy, Suspense } from "react";
-import { useQueries } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getScheduleByDay, ScheduleItem, formatScore } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -32,14 +32,15 @@ const SchedulePage = () => {
   const [onlyWatchlist, setOnlyWatchlist] = useState(false);
   const [modalAnimeId, setModalAnimeId] = useState<number | null>(null);
 
-  // Use useQueries instead of calling useQuery inside a map (Rules of Hooks)
-  const dayQueries = useQueries({
-    queries: DAYS.map((day) => ({
+  // Fetch all 7 days for desktop, selected day for mobile
+  const dayQueries = DAYS.map((day, i) =>
+    useQuery({
       queryKey: ["schedule", day.toLowerCase(), language],
       queryFn: () => getScheduleByDay(day.toLowerCase(), language),
       staleTime: 1000 * 60 * 60,
-    })),
-  });
+      enabled: true,
+    })
+  );
 
   const getFilteredItems = (items: ScheduleItem[] | undefined) => {
     if (!items) return [];
@@ -101,9 +102,6 @@ const SchedulePage = () => {
                     loading="lazy"
                     width={40}
                     height={56}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/placeholder.svg";
-                    }}
                   />
                   <div className="flex-1 min-w-0">
                     <h3 className="text-xs font-medium truncate group-hover:text-foreground/80 transition-colors">

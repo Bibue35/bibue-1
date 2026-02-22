@@ -24,7 +24,7 @@ export function useActivityLogger() {
   ) => {
     // Don't log anything if user is in incognito mode
     if (isIncognito) {
-      // Activity not logged in incognito mode
+      console.log("[Incognito] Activity not logged:", activityType, title);
       return;
     }
 

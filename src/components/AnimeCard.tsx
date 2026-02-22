@@ -1,4 +1,4 @@
-import { useState, memo, forwardRef, lazy, Suspense, useCallback, useRef } from "react";
+import { useState, memo, forwardRef, lazy, Suspense, useCallback } from "react";
 import { Star, Plus, Check, Play } from "lucide-react";
 import { Anime, formatScore, getAnimeById } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -7,25 +7,22 @@ import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useImageColor } from "@/hooks/useImageColor";
 
 interface AnimeCardProps {
   anime: Anime;
   index?: number;
   variant?: "default" | "compact";
+  /** Load image eagerly (for above-fold first row) */
   eager?: boolean;
-  /** Show progress bar (0-100) */
-  progress?: number;
 }
 
-export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(function AnimeCard({ anime, index = 0, variant = "default", eager = false, progress }, ref) {
+export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(function AnimeCard({ anime, index = 0, variant = "default", eager = false }, ref) {
   const [modalOpen, setModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const { language } = useLanguage();
   const { user } = useAuth();
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
   const inWatchlist = isInWatchlist(anime.anilist_id, "anime");
-  const dominantColor = useImageColor(anime.images.webp.image_url);
 
   const prefetchDetail = useCallback(() => {
     queryClient.prefetchQuery({
@@ -51,11 +48,6 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
       });
     }
   }, [user, inWatchlist, anime, addToWatchlist, removeFromWatchlist]);
-
-  // Dynamic shadow color from extracted color
-  const glowStyle = dominantColor
-    ? { "--card-glow": `${dominantColor.h} ${Math.min(dominantColor.s, 70)}% ${Math.min(dominantColor.l + 10, 60)}%` } as React.CSSProperties
-    : undefined;
 
   if (variant === "compact") {
     return (
@@ -99,24 +91,17 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
   }
 
   // === IMMERSIVE DEFAULT CARD ===
+  // Default: IMAGE dominates (80%+), title below, details on HOVER only
   return (
     <>
       <button
-        ref={ref as any}
         onClick={() => setModalOpen(true)}
         onMouseEnter={prefetchDetail}
         onTouchStart={prefetchDetail}
-        className="block group text-left w-full active:scale-[0.97] transition-all duration-200"
-        style={glowStyle}
+        className="block group text-left w-full active:scale-[0.98] transition-transform duration-150"
       >
         {/* Image — 2:3 portrait ratio, ~85% of card area */}
-        <div
-          className={cn(
-            "relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted will-change-transform transform-gpu",
-            "transition-all duration-300 ease-out",
-            "group-hover:-translate-y-2 group-hover:shadow-[0_12px_40px_hsl(var(--card-glow,var(--primary))/0.25)]"
-          )}
-        >
+        <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted will-change-transform transform-gpu">
           <img
             src={anime.images.webp.image_url}
             srcSet={`${anime.images.webp.image_url} 230w, ${anime.images.webp.medium_image_url || anime.images.webp.large_image_url} 460w, ${anime.images.webp.large_image_url} 600w`}
@@ -126,17 +111,19 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
             loading={eager ? "eager" : "lazy"}
             decoding={eager ? "sync" : "async"}
             sizes="(max-width: 640px) 112px, (max-width: 768px) 144px, 176px"
-            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] will-change-transform transform-gpu"
+            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 will-change-transform transform-gpu"
           />
 
           {/* HOVER OVERLAY — synopsis, rating, genres, save button */}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-3 sm:p-4">
+            {/* Synopsis */}
             {anime.synopsis && (
               <p className="text-[10px] sm:text-xs text-foreground/80 line-clamp-3 mb-2 leading-relaxed">
                 {anime.synopsis}
               </p>
             )}
 
+            {/* Rating + Genres */}
             <div className="flex items-center gap-1.5 flex-wrap mb-2">
               {anime.score && (
                 <span className="flex items-center gap-0.5 text-xs font-bold">
@@ -151,6 +138,7 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
               ))}
             </div>
 
+            {/* Single CTA */}
             {user && (
               <button
                 onClick={handleSave}
@@ -166,19 +154,6 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
               </button>
             )}
           </div>
-
-          {/* Progress bar — reading/watching progress */}
-          {progress !== undefined && progress > 0 && (
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-background/40">
-              <div
-                className="h-full rounded-full transition-all duration-500"
-                style={{
-                  width: `${Math.min(progress, 100)}%`,
-                  backgroundColor: dominantColor ? `hsl(${dominantColor.h} ${Math.min(dominantColor.s, 80)}% 55%)` : "hsl(var(--primary))",
-                }}
-              />
-            </div>
-          )}
         </div>
 
         {/* Title — small, clean, below image */}
