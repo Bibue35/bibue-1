@@ -37,11 +37,11 @@ export function CollapsibleNavbar() {
 
       <nav
         aria-label="Main navigation"
-        className="relative w-full z-50 bg-transparent"
+        className="relative w-full z-50 bg-background"
       >
-        <div className="container mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2">
+        <div className="container mx-auto px-4 sm:px-6 h-[60px] flex items-center justify-between">
           {/* Left: Logo */}
-          <Link to="/" className="flex items-center gap-1.5 shrink-0">
+          <Link to="/" className="flex items-center gap-2 shrink-0">
             <img
               src={bibueTower}
               alt=""
@@ -58,15 +58,15 @@ export function CollapsibleNavbar() {
 
           {/* Center: Nav links — desktop only */}
           {!isMobile && (
-            <div className="flex items-center gap-0.5">
+            <div className="flex items-center gap-8">
               {primaryLinks.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
                   className={cn(
-                    "px-3 py-1.5 text-sm font-medium rounded-full transition-colors",
+                    "text-sm font-normal tracking-wide transition-colors duration-150",
                     location.pathname === link.href
-                      ? "text-foreground bg-foreground/8"
+                      ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
@@ -76,11 +76,11 @@ export function CollapsibleNavbar() {
             </div>
           )}
 
-          {/* Right: Search + Auth */}
-          <div className="flex items-center gap-1 shrink-0">
+          {/* Right: Search + Theme + Auth */}
+          <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="p-2 rounded-full text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors duration-150"
               aria-label={t("nav.search")}
             >
               <Search className="w-[18px] h-[18px]" />
@@ -93,10 +93,10 @@ export function CollapsibleNavbar() {
             {isMobile && !user && (
               <button
                 onClick={() => setAuthModalOpen(true)}
-                className="p-2 rounded-full text-muted-foreground hover:text-foreground transition-colors"
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
                 aria-label={t("auth.signIn")}
               >
-                <User className="w-[18px] h-[18px]" />
+                <User className="w-[16px] h-[16px]" />
               </button>
             )}
           </div>
