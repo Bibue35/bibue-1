@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { SearchModal } from "./SearchModal";
-import { FloatingPillTabs } from "./FloatingPillTabs";
+
 import {
   getTopAnime,
   getSeasonalAnime,
@@ -107,7 +107,6 @@ export const SwipeNavigationWrapper = memo(function SwipeNavigationWrapper({
         }}
       />
 
-      <FloatingPillTabs />
       <MobileBottomNav onSearchOpen={() => setBottomSearchOpen(true)} />
       <SearchModal isOpen={bottomSearchOpen} onClose={() => setBottomSearchOpen(false)} />
     </div>
