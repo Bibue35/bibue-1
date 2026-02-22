@@ -1,6 +1,6 @@
 /**
  * Bibue - Anime & Manga Platform
- * Main landing page with modern mobile-first design
+ * Main landing page — content psychology redesign
  */
 import { SEO, websiteJsonLd } from "@/components/SEO";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
@@ -15,12 +15,13 @@ import { ContentSection } from "@/components/ContentSection";
 import { Footer } from "@/components/Footer";
 import { AdUnit } from "@/components/AdUnit";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { MoodSections } from "@/components/MoodSection";
+import { KeepExploring } from "@/components/KeepExploring";
 import { useTopAnime, useSeasonalAnime, useTopManga, useClassicAnime, useAllTimeTopAnime, useTrendingManhwa, useTrendingManhua } from "@/hooks/useAnimeData";
 import { CardSkeleton, CardSkeletonRow, HeroSkeleton } from "@/components/skeletons";
 import { Link } from "react-router-dom";
-import { ArrowRight, Rocket, TrendingUp, Sparkles, Clock, BookOpen, Flame, History, Trophy, Zap, Play } from "lucide-react";
+import { ArrowRight, Flame, Sparkles, BookOpen, History, Trophy, Zap, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useViewingHistory } from "@/hooks/useViewingHistory";
@@ -29,23 +30,19 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useDeferredSection } from "@/hooks/useDeferredSection";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-// Lazy load below-fold heavy components
 const ScheduleSection = lazy(() => import("@/components/ScheduleSection").then(m => ({ default: m.ScheduleSection })));
 
 const Index = () => {
-  // Above-fold hooks — load immediately
   const { data: airingAnime, isLoading: airingLoading, isError: airingError, refetch: refetchAiring } = useTopAnime(1, 'airing');
   const { data: seasonalAnime, isLoading: seasonalLoading, isError: seasonalError, refetch: refetchSeasonal } = useSeasonalAnime();
 
-  // Below-fold deferred rendering — only mount components when scrolled near
-  const popularSection = useDeferredSection("400px");
-  const upcomingSection = useDeferredSection("400px");
+  // Below-fold deferred rendering
+  const moodSection = useDeferredSection("400px");
   const allTimeSection = useDeferredSection("400px");
   const classicSection = useDeferredSection("400px");
   const mangaSection = useDeferredSection("400px");
+  const keepExploringSection = useDeferredSection("400px");
 
-  const { data: popularAnime, isLoading: popularLoading, isError: popularError, refetch: refetchPopular } = useTopAnime(1, 'bypopularity', popularSection.isVisible);
-  const { data: upcomingAnime, isLoading: upcomingLoading, isError: upcomingError, refetch: refetchUpcoming } = useTopAnime(1, 'upcoming', upcomingSection.isVisible);
   const { data: allTimeTop, isLoading: allTimeLoading, isError: allTimeError, refetch: refetchAllTime } = useAllTimeTopAnime(1, allTimeSection.isVisible);
   const { data: classicAnime, isLoading: classicLoading, isError: classicError, refetch: refetchClassic } = useClassicAnime(1, classicSection.isVisible);
   const { data: topManga, isLoading: topMangaLoading, isError: topMangaError, refetch: refetchTopManga } = useTopManga(1, undefined, 'popularity', mangaSection.isVisible);
@@ -57,7 +54,6 @@ const Index = () => {
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
-  // Pull-to-refresh handler
   const handleRefresh = useCallback(async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["topAnime"] }),
@@ -67,27 +63,24 @@ const Index = () => {
       queryClient.invalidateQueries({ queryKey: ["allTimeTopAnime"] }),
       queryClient.invalidateQueries({ queryKey: ["trendingManhwa"] }),
       queryClient.invalidateQueries({ queryKey: ["trendingManhua"] }),
+      queryClient.invalidateQueries({ queryKey: ["moodAnime"] }),
     ]);
   }, [queryClient]);
 
-  // Get recommended anime for hero section
   const heroAnime = useMemo(() => {
     if (!seasonalAnime?.length) return [];
-    
-    const airingAnime = seasonalAnime
+    return seasonalAnime
       .filter(anime => anime.status === "RELEASING")
       .sort((a, b) => {
         const scoreA = a.score || 0;
         const scoreB = b.score || 0;
         const popA = a.popularity || 999999;
         const popB = b.popularity || 999999;
-        
         if (scoreB !== scoreA) return scoreB - scoreA;
         return popA - popB;
-      });
-    
-    return airingAnime.slice(0, 5);
-  }, [seasonalAnime, user]);
+      })
+      .slice(0, 5);
+  }, [seasonalAnime]);
 
   return (
     <>
@@ -101,9 +94,9 @@ const Index = () => {
       <PullToRefresh onRefresh={handleRefresh}>
       <main id="main-content">
       
-      {/* Hero Section - Use FeaturedCarousel on mobile for cleaner look */}
+      {/* Hero — Full viewport, image dominant (70%+) */}
       {isMobile ? (
-        <section className="pb-4">
+        <section className="pb-2">
           <div className="container mx-auto px-3">
             <FeaturedCarousel 
               items={heroAnime.length > 0 ? heroAnime : (seasonalAnime?.slice(0, 5) || [])} 
@@ -119,7 +112,7 @@ const Index = () => {
         />
       )}
 
-      {/* Recently Viewed - Only for logged-in users with history */}
+      {/* Recently Viewed */}
       {user && viewingHistory.length > 0 && (
         <ContentSection
           title={t("history.recentlyViewed") || "Recently Viewed"}
@@ -155,13 +148,10 @@ const Index = () => {
                       )}
                     </div>
                   )}
-                  {/* Resume indicator */}
                   {(entry.last_episode || entry.last_chapter) && (
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 to-transparent px-2 py-1.5">
                       <span className="text-[10px] font-medium">
-                        {entry.last_episode
-                          ? `EP ${entry.last_episode}`
-                          : `CH ${entry.last_chapter}`}
+                        {entry.last_episode ? `EP ${entry.last_episode}` : `CH ${entry.last_chapter}`}
                       </span>
                     </div>
                   )}
@@ -175,7 +165,7 @@ const Index = () => {
         </ContentSection>
       )}
 
-      {/* Trending Now - Mobile-optimized horizontal scroll with larger cards */}
+      {/* Trending Now */}
       <ContentSection
         title={t("section.trending")}
         titleJp={t("section.trendingJp")}
@@ -204,12 +194,7 @@ const Index = () => {
         )}
       </ContentSection>
 
-      {/* Schedule Section - lazy loaded */}
-      <Suspense fallback={<div className="py-8 sm:py-12" />}>
-        <ScheduleSection />
-      </Suspense>
-
-      {/* This Season's Hits */}
+      {/* This Season */}
       <ContentSection
         title={t("section.thisSeason")}
         titleJp={t("section.thisSeasonJp")}
@@ -242,69 +227,11 @@ const Index = () => {
         <AdUnit slot="1234567890" format="horizontal" className="my-4 sm:my-6 md:my-8" />
       </div>
 
-      {/* Most Popular */}
-      <div ref={popularSection.ref}>
-      {popularSection.isVisible ? (
-      <ContentSection
-        title={t("anime.mostPopular")}
-        titleJp={t("anime.mostPopularJp")}
-        icon={TrendingUp}
-        linkTo="/rankings?type=anime"
-        linkText={t("section.rankings")}
-      >
-        {popularError ? (
-          <SectionError onRetry={() => refetchPopular()} />
-        ) : (
-          <HorizontalScroll showArrows={!isMobile}>
-            {popularLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              popularAnime?.slice(0, 10).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
-        )}
-      </ContentSection>
-      ) : <div className="py-6 sm:py-10" />}
-      </div>
-
-      {/* Coming Soon */}
-      <div ref={upcomingSection.ref}>
-      {upcomingSection.isVisible ? (
-      <ContentSection
-        title={t("anime.comingSoon")}
-        titleJp={t("anime.comingSoonJp")}
-        icon={Clock}
-        linkTo="/anime?filter=upcoming"
-      >
-        {upcomingError ? (
-          <SectionError onRetry={() => refetchUpcoming()} />
-        ) : (
-          <HorizontalScroll showArrows={!isMobile}>
-            {upcomingLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              upcomingAnime?.slice(0, 10).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
-        )}
-      </ContentSection>
-      ) : <div className="py-6 sm:py-10" />}
+      {/* === MOOD-BASED BROWSING — Emotional discovery === */}
+      <div ref={moodSection.ref}>
+        {moodSection.isVisible ? (
+          <MoodSections indices={[0, 1, 2]} enabled={moodSection.isVisible} />
+        ) : <div className="py-10 sm:py-16" />}
       </div>
 
       {/* All-Time Top Rated */}
@@ -339,7 +266,14 @@ const Index = () => {
       ) : <div className="py-6 sm:py-10" />}
       </div>
 
-      {/* Classic Anime (Pre-2010) */}
+      {/* More mood rows */}
+      <div>
+        {moodSection.isVisible && (
+          <MoodSections indices={[3, 4, 5]} enabled={moodSection.isVisible} />
+        )}
+      </div>
+
+      {/* Classic Anime */}
       <div ref={classicSection.ref}>
       {classicSection.isVisible ? (
       <ContentSection
@@ -383,7 +317,6 @@ const Index = () => {
       <>
       <section className="py-10 sm:py-16 md:py-20">
         <div className="container mx-auto px-3 sm:px-4">
-          {/* Manga Section Header */}
           <div className="flex items-center justify-between mb-6 sm:mb-8 md:mb-10">
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-primary/10">
@@ -403,9 +336,8 @@ const Index = () => {
             </Button>
           </div>
 
-          {/* Manga Grid - responsive columns */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-            {/* Top Manga Column */}
+            {/* Top Manga */}
             <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-base sm:text-lg font-semibold">{t("section.topManga")}</h3>
@@ -428,7 +360,7 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Manhwa Column - Trending */}
+            {/* Manhwa */}
             <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-base sm:text-lg font-semibold flex items-center gap-1.5">
@@ -454,7 +386,7 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Manhua Column - Trending */}
+            {/* Manhua */}
             <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-base sm:text-lg font-semibold flex items-center gap-1.5">
@@ -488,6 +420,13 @@ const Index = () => {
       </div>
       </>
       ) : <div className="py-10 sm:py-16 md:py-20" />}
+      </div>
+
+      {/* Keep Exploring — never let the user hit a dead end */}
+      <div ref={keepExploringSection.ref}>
+        {keepExploringSection.isVisible && (
+          <KeepExploring enabled={keepExploringSection.isVisible} />
+        )}
       </div>
 
       </main>
