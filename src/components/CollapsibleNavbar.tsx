@@ -38,21 +38,20 @@ export function CollapsibleNavbar() {
       <nav
         aria-label="Main navigation"
         className="absolute top-0 left-0 w-full z-50"
-        style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
       >
         <div className="container mx-auto px-4 sm:px-6 h-[60px] flex items-center justify-between">
           {/* Left: Logo */}
-          <Link to="/" className="flex items-center gap-2 shrink-0">
+          <Link to="/" className="flex items-center gap-2.5 shrink-0">
             <img
               src={bibueTower}
               alt=""
-              width={32}
-              height={32}
-              className="h-7 w-auto object-contain dark:brightness-0 dark:invert logo-stable"
+              width={36}
+              height={36}
+              className="h-8 w-auto object-contain dark:brightness-0 dark:invert logo-stable"
               loading="eager"
               decoding="sync"
             />
-            <span className="text-base font-sacred font-semibold tracking-wide">
+            <span className="text-lg font-sacred font-semibold tracking-wide text-foreground">
               Bibue
             </span>
           </Link>
@@ -65,7 +64,7 @@ export function CollapsibleNavbar() {
                   key={link.href}
                   to={link.href}
                   className={cn(
-                    "text-sm font-normal tracking-wide transition-colors duration-150",
+                    "text-base font-normal tracking-wide transition-colors duration-150",
                     location.pathname === link.href
                       ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground"
