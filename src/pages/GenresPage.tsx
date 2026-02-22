@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
-import { genreDefinitions } from "@/data/watchOrderGuides";
+import { genreDefinitions } from "@/data/genreDefinitions";
 
 const GenresPage = () => {
   return (
@@ -34,7 +34,7 @@ const GenresPage = () => {
                 {genre.name}
               </h2>
               <p className="text-[11px] text-muted-foreground line-clamp-2">
-                {genre.description.slice(0, 80)}...
+                {genre.description}
               </p>
             </Link>
           ))}

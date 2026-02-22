@@ -18,7 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIncognito } from "@/contexts/IncognitoContext";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
-import { useUnreadCount } from "@/hooks/useMessages";
+
 const AuthModal = lazy(() => import("./AuthModal").then(m => ({ default: m.AuthModal })));
 import { cn } from "@/lib/utils";
 
@@ -37,7 +37,7 @@ export function UserMenu() {
   const { user, profile, signOut, loading } = useAuth();
   const { isIncognito, toggleIncognito } = useIncognito();
   const { language, setLanguage, t } = useLanguage();
-  const { data: unreadCount } = useUnreadCount();
+  
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const currentLanguage = languages.find((l) => l.code === language);
@@ -129,35 +129,9 @@ export function UserMenu() {
         </DropdownMenuItem>
         
         <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
-          <Link to="/recommendations">
+          <Link to="/lists">
             <Heart className="w-4 h-4" />
-            <span>{t("user.forYou")}</span>
-          </Link>
-        </DropdownMenuItem>
-        
-        <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
-          <Link to="/messages">
-            <MessageCircle className="w-4 h-4" />
-            <span className="flex-1">{t("user.messages")}</span>
-            {(unreadCount ?? 0) > 0 && (
-              <Badge variant="default" className="h-5 min-w-5 px-1.5 text-xs">
-                {unreadCount}
-              </Badge>
-            )}
-          </Link>
-        </DropdownMenuItem>
-
-        <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
-          <Link to="/community">
-            <Users className="w-4 h-4" />
-            <span>{t("nav.community")}</span>
-          </Link>
-        </DropdownMenuItem>
-
-        <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
-          <Link to="/stats">
-            <BarChart3 className="w-4 h-4" />
-            <span>{t("user.myStats")}</span>
+            <span>My Lists</span>
           </Link>
         </DropdownMenuItem>
         

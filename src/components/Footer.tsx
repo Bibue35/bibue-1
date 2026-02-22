@@ -22,8 +22,8 @@ export function Footer() {
               <li><Link to="/" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Home</Link></li>
               <li><Link to="/anime" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Anime</Link></li>
               <li><Link to="/manga" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Manga</Link></li>
-              <li><Link to="/recommendations" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">For You</Link></li>
-              <li><Link to="/community" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Community</Link></li>
+              <li><Link to="/seasonal" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Seasonal</Link></li>
+              <li><Link to="/top" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Top Rated</Link></li>
             </ul>
           </div>
 

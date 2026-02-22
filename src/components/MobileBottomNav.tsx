@@ -4,14 +4,13 @@ import { Home, Search, Calendar, Bookmark, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 const tabs = [
-  { href: "/", icon: Home, labelKey: "nav.home" as const, fallback: "Home" },
-  { href: "/__search__", icon: Search, labelKey: "nav.search" as const, fallback: "Search" },
-  { href: "/seasonal", icon: Calendar, labelKey: "nav.seasonal" as const, fallback: "Seasonal" },
-  { href: "/watchlist", icon: Bookmark, labelKey: "nav.watchlist" as const, fallback: "Watchlist" },
-  { href: "/settings", icon: User, labelKey: "nav.profile" as const, fallback: "Profile" },
+  { href: "/", icon: Home, label: "Home" },
+  { href: "/__search__", icon: Search, label: "Search" },
+  { href: "/seasonal", icon: Calendar, label: "Seasonal" },
+  { href: "/watchlist", icon: Bookmark, label: "Watchlist" },
+  { href: "/settings", icon: User, label: "Profile" },
 ] as const;
 
 interface MobileBottomNavProps {
@@ -22,7 +21,6 @@ export const MobileBottomNav = memo(function MobileBottomNav({ onSearchOpen }: M
   const location = useLocation();
   const { user } = useAuth();
   const isMobile = useIsMobile();
-  const { t } = useLanguage();
 
   if (!isMobile) return null;
 
@@ -41,28 +39,23 @@ export const MobileBottomNav = memo(function MobileBottomNav({ onSearchOpen }: M
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active = isActive(tab.href);
-          const label = t(tab.labelKey) || tab.fallback;
 
-          // Search tab opens modal instead of navigating
           if (tab.href === "/__search__") {
             return (
               <button
                 key={tab.href}
                 onClick={onSearchOpen}
                 className="flex flex-col items-center justify-center gap-0.5 min-w-[48px] py-1 text-muted-foreground"
-                aria-label={label}
+                aria-label={tab.label}
               >
                 <Icon className="w-5 h-5" />
-                <span className="text-[10px] font-medium">{label}</span>
+                <span className="text-[10px] font-medium">{tab.label}</span>
               </button>
             );
           }
 
-          // Profile tab: go to settings if logged in, otherwise same
           const href = tab.href === "/settings" && user
             ? `/user/${user.id}`
-            : tab.href === "/settings"
-            ? "/settings"
             : tab.href;
 
           return (
@@ -71,15 +64,13 @@ export const MobileBottomNav = memo(function MobileBottomNav({ onSearchOpen }: M
               to={href}
               className={cn(
                 "flex flex-col items-center justify-center gap-0.5 min-w-[48px] py-1 transition-colors",
-                active
-                  ? "text-primary"
-                  : "text-muted-foreground"
+                active ? "text-primary" : "text-muted-foreground"
               )}
-              aria-label={label}
+              aria-label={tab.label}
               aria-current={active ? "page" : undefined}
             >
               <Icon className={cn("w-5 h-5", active && "text-primary")} />
-              <span className={cn("text-[10px] font-medium", active && "text-primary")}>{label}</span>
+              <span className={cn("text-[10px] font-medium", active && "text-primary")}>{tab.label}</span>
             </Link>
           );
         })}
