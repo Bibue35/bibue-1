@@ -12,7 +12,7 @@ const tabs = [
   { href: "/seasonal", icon: Calendar, labelKey: "nav.seasonal" as const, fallback: "Seasonal" },
   { href: "/watchlist", icon: Bookmark, labelKey: "nav.watchlist" as const, fallback: "Watchlist" },
   { href: "/settings", icon: User, labelKey: "nav.profile" as const, fallback: "Profile" },
-];
+] as const;
 
 interface MobileBottomNavProps {
   onSearchOpen?: () => void;

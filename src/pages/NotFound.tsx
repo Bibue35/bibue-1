@@ -19,9 +19,7 @@ const NotFound = () => {
   const [message] = useState(() => funMessages[Math.floor(Math.random() * funMessages.length)]);
   const [query, setQuery] = useState("");
 
-  useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", window.location.pathname);
-  }, []);
+  // 404 logged silently — no console.error to avoid polluting user's console
 
   return (
     <div className="min-h-screen bg-background">

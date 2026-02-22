@@ -91,7 +91,11 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
             )}
           </div>
         </button>
-        <AnimeDetailModal animeId={anime.anilist_id} open={modalOpen} onOpenChange={setModalOpen} />
+        {modalOpen && (
+          <Suspense fallback={null}>
+            <AnimeDetailModal animeId={anime.anilist_id} open={modalOpen} onOpenChange={setModalOpen} />
+          </Suspense>
+        )}
       </>
     );
   }
