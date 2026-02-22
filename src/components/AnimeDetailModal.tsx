@@ -6,7 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAnimeDetails, useAnimeRecommendations } from "@/hooks/useAnimeData";
-import { formatScore } from "@/lib/api";
+import { formatScore, getAnimeEpisodes } from "@/lib/api";
+import type { JikanEpisode } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,6 +41,15 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
   const { user } = useAuth();
   const { toast } = useToast();
 
+  // Fetch episode details from Jikan (MAL) for titles and synopses
+  const malId = anime?.idMal;
+  const { data: jikanEpisodes } = useQuery({
+    queryKey: ["jikan-episodes", malId, episodeRange],
+    queryFn: () => getAnimeEpisodes(malId!, episodeRange + 1),
+    enabled: !!malId && open && activeTab === "episodes",
+    staleTime: 1000 * 60 * 60, // 1 hour
+  });
+
   // Build episode list from API data or generate numbered list
   const EPISODES_PER_RANGE = 12;
   const totalEpisodeCount = anime?.episodes || 12;
@@ -52,15 +62,19 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
       const match = se.title.match(/(?:Episode|Ep\.?|E)\s*(\d+)/i);
       return match && parseInt(match[1]) === epNum;
     });
-    // Parse clean title: strip "Episode X - " prefix from streaming titles
-    let cleanTitle = `Episode ${epNum}`;
-    if (matchingStream?.title) {
-      const titleMatch = matchingStream.title.match(/(?:Episode|Ep\.?|E)\s*\d+\s*[-–:]\s*(.+)/i);
-      cleanTitle = titleMatch ? titleMatch[1].trim() : matchingStream.title;
-    }
+    // Use Jikan episode data for title and synopsis
+    const jikanEp = jikanEpisodes?.find(je => je.mal_id === epNum);
+    const title = jikanEp?.title || (matchingStream?.title ? (() => {
+      const m = matchingStream.title!.match(/(?:Episode|Ep\.?|E)\s*\d+\s*[-–:]\s*(.+)/i);
+      return m ? m[1].trim() : matchingStream.title!;
+    })() : `Episode ${epNum}`);
     return {
       number: epNum,
-      title: cleanTitle,
+      title,
+      synopsis: jikanEp?.synopsis || undefined,
+      aired: jikanEp?.aired || undefined,
+      filler: jikanEp?.filler || false,
+      recap: jikanEp?.recap || false,
       thumbnail: matchingStream?.thumbnail || undefined,
       url: matchingStream?.url || undefined,
     };
@@ -366,6 +380,11 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                       </h3>
                       <div className="flex items-center gap-2 text-[10px] sm:text-xs text-muted-foreground mb-1">
                         {anime?.duration && <span>{anime.duration}</span>}
+                        {ep.filler && <span className="text-amber-400 font-medium">Filler</span>}
+                        {ep.recap && <span className="text-muted-foreground font-medium">Recap</span>}
+                        {ep.aired && !isUnaired && (
+                          <span>{new Date(ep.aired).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}</span>
+                        )}
                         {isNext && nextAirDate && (
                           <span className="text-primary font-medium">Coming {nextAirDate}</span>
                         )}
@@ -373,9 +392,9 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                           <span>Not yet aired</span>
                         )}
                       </div>
-                      {anime?.synopsis && !isUnaired && (
+                      {ep.synopsis && !isUnaired && (
                         <p className="text-[10px] sm:text-xs text-muted-foreground/70 line-clamp-2 leading-relaxed">
-                          {anime.synopsis}
+                          {ep.synopsis}
                         </p>
                       )}
                     </div>
