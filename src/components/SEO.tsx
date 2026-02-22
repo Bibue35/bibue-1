@@ -11,7 +11,7 @@ interface SEOProps {
   image?: string;
   url?: string;
   type?: "website" | "article";
-  jsonLd?: Record<string, any>;
+  jsonLd?: Record<string, any> | Record<string, any>[];
   noIndex?: boolean;
 }
 
@@ -54,9 +54,17 @@ export function SEO({
 
       {/* JSON-LD */}
       {jsonLd && (
-        <script type="application/ld+json">
-          {JSON.stringify(jsonLd)}
-        </script>
+        Array.isArray(jsonLd)
+          ? jsonLd.map((ld, i) => (
+              <script key={i} type="application/ld+json">
+                {JSON.stringify(ld)}
+              </script>
+            ))
+          : (
+            <script type="application/ld+json">
+              {JSON.stringify(jsonLd)}
+            </script>
+          )
       )}
     </Helmet>
   );
@@ -68,16 +76,32 @@ export function websiteJsonLd() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: SITE_NAME,
+    alternateName: ["Bibue.net", "Bibue Anime"],
     url: SITE_URL,
     description: DEFAULT_DESCRIPTION,
     potentialAction: {
       "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${SITE_URL}/anime?q={search_term_string}`,
-      },
+      target: `${SITE_URL}/search?q={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
+  };
+}
+
+export function organizationJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: `${SITE_URL}/logo.png`,
+    description:
+      "Bibue — Where every anime fan belongs. The unified platform for discovering and tracking anime, manga, manhwa, manhua, and donghua from Japan, Korea, and China.",
+    sameAs: [
+      "https://twitter.com/bibue",
+      "https://instagram.com/bibue",
+      "https://discord.gg/YOUR_INVITE",
+      "https://github.com/YOUR_USERNAME/bibue",
+    ],
   };
 }
 
