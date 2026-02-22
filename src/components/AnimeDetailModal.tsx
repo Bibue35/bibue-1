@@ -41,13 +41,13 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Fetch episode details from Jikan (MAL) for titles and synopses
+  // Fetch episode details from Jikan (MAL) for titles and air dates
   const malId = anime?.idMal;
   const { data: jikanEpisodes } = useQuery({
     queryKey: ["jikan-episodes", malId, episodeRange],
     queryFn: () => getAnimeEpisodes(malId!, episodeRange + 1),
     enabled: !!malId && open && activeTab === "episodes",
-    staleTime: 1000 * 60 * 60, // 1 hour
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours — episodes don't change
   });
 
   // Build episode list from API data or generate numbered list
@@ -71,12 +71,9 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
     return {
       number: epNum,
       title,
-      synopsis: jikanEp?.synopsis || undefined,
       aired: jikanEp?.aired || undefined,
       filler: jikanEp?.filler || false,
       recap: jikanEp?.recap || false,
-      thumbnail: matchingStream?.thumbnail || undefined,
-      url: matchingStream?.url || undefined,
     };
   });
   
@@ -346,28 +343,9 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                       {ep.number}
                     </span>
 
-                    {/* Thumbnail */}
-                    <div className="relative w-28 sm:w-48 aspect-video rounded-md overflow-hidden flex-shrink-0 bg-muted/30">
-                      {ep.thumbnail ? (
-                        <img
-                          src={ep.thumbnail}
-                          alt={ep.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-muted/20">
-                          <span className="text-2xl sm:text-3xl font-bold text-muted-foreground/20">{ep.number}</span>
-                        </div>
-                      )}
-                      {/* Play icon overlay */}
-                      {!isUnaired && (
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-black/30">
-                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                            <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white fill-white" />
-                          </div>
-                        </div>
-                      )}
+                    {/* Dark card with episode number — no fake thumbnails */}
+                    <div className="relative w-28 sm:w-40 aspect-video rounded-md overflow-hidden flex-shrink-0 bg-muted/20 flex items-center justify-center">
+                      <span className="text-2xl sm:text-3xl font-bold text-muted-foreground/30">{ep.number}</span>
                     </div>
 
                     {/* Info */}
@@ -378,25 +356,20 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                       )}>
                         {ep.title}
                       </h3>
-                      <div className="flex items-center gap-2 text-[10px] sm:text-xs text-muted-foreground mb-1">
+                      <div className="flex items-center gap-2 text-[10px] sm:text-xs text-muted-foreground">
                         {anime?.duration && <span>{anime.duration}</span>}
-                        {ep.filler && <span className="text-amber-400 font-medium">Filler</span>}
-                        {ep.recap && <span className="text-muted-foreground font-medium">Recap</span>}
+                        {ep.filler && <span className="text-yellow-500 font-medium">Filler</span>}
+                        {ep.recap && <span className="font-medium">Recap</span>}
                         {ep.aired && !isUnaired && (
                           <span>{new Date(ep.aired).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}</span>
                         )}
                         {isNext && nextAirDate && (
-                          <span className="text-primary font-medium">Coming {nextAirDate}</span>
+                          <span className="text-primary font-medium">Airing {nextAirDate}</span>
                         )}
                         {isUnaired && !isNext && (
                           <span>Not yet aired</span>
                         )}
                       </div>
-                      {ep.synopsis && !isUnaired && (
-                        <p className="text-[10px] sm:text-xs text-muted-foreground/70 line-clamp-2 leading-relaxed">
-                          {ep.synopsis}
-                        </p>
-                      )}
                     </div>
                   </button>
                 );
