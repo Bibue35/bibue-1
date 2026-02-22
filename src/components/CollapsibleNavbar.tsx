@@ -37,7 +37,7 @@ export function CollapsibleNavbar() {
 
       <nav
         aria-label="Main navigation"
-        className="fixed top-0 left-0 right-0 z-50 bg-background/40 backdrop-blur-xl"
+        className="relative w-full z-50 bg-transparent"
       >
         <div className="container mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2">
           {/* Left: Logo */}
@@ -102,8 +102,6 @@ export function CollapsibleNavbar() {
           </div>
         </div>
       </nav>
-      {/* Spacer to offset fixed navbar height */}
-      <div className="h-14" />
 
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       {authModalOpen && (
