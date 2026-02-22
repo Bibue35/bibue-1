@@ -1,5 +1,5 @@
 import { useState, memo, forwardRef, lazy, Suspense, useCallback } from "react";
-import { Star, Plus, Check, Play } from "lucide-react";
+import { Star, Plus, Check } from "lucide-react";
 import { Anime, formatScore, getAnimeById } from "@/lib/api";
 import { cn } from "@/lib/utils";
 const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ default: m.AnimeDetailModal })));
@@ -90,18 +90,22 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
     );
   }
 
-  // === IMMERSIVE DEFAULT CARD ===
-  // Default: IMAGE dominates (80%+), title below, details on HOVER only
+  // === NETFLIX-STYLE DEFAULT CARD ===
+  // Default: cover image + title only. Hover: lift, gradient, minimal overlay info.
   return (
     <>
       <button
         onClick={() => setModalOpen(true)}
         onMouseEnter={prefetchDetail}
         onTouchStart={prefetchDetail}
-        className="block group text-left w-full active:scale-[0.98] transition-transform duration-150"
+        className={cn(
+          "block group text-left w-full active:scale-[0.98]",
+          "transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)]",
+          "md:hover:-translate-y-2 md:hover:z-10 md:hover:shadow-xl md:hover:shadow-black/50 relative rounded-xl sm:rounded-2xl"
+        )}
       >
-        {/* Image — 2:3 portrait ratio, ~85% of card area */}
-        <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted will-change-transform transform-gpu">
+        {/* Image — 2:3 portrait, overflow-hidden for scale */}
+        <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted">
           <img
             src={anime.images.webp.image_url}
             srcSet={`${anime.images.webp.image_url} 230w, ${anime.images.webp.medium_image_url || anime.images.webp.large_image_url} 460w, ${anime.images.webp.large_image_url} 600w`}
@@ -111,53 +115,66 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
             loading={eager ? "eager" : "lazy"}
             decoding={eager ? "sync" : "async"}
             sizes="(max-width: 640px) 112px, (max-width: 768px) 144px, 176px"
-            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 will-change-transform transform-gpu"
+            className={cn(
+              "w-full h-full object-cover will-change-transform transform-gpu",
+              "transition-transform duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)]",
+              "md:group-hover:scale-[1.03]"
+            )}
           />
 
-          {/* HOVER OVERLAY — synopsis, rating, genres, save button */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-3 sm:p-4">
-            {/* Synopsis */}
-            {anime.synopsis && (
-              <p className="text-[10px] sm:text-xs text-foreground/80 line-clamp-3 mb-2 leading-relaxed">
-                {anime.synopsis}
-              </p>
+          {/* HOVER GRADIENT + INFO — desktop only */}
+          <div
+            className={cn(
+              "absolute inset-0 hidden md:flex flex-col justify-end",
+              "opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)]",
+              "pointer-events-none"
             )}
+            style={{
+              background: "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 40%, transparent 100%)",
+            }}
+          >
+            <div className="p-3 pointer-events-auto">
+              {/* Title */}
+              <h3 className="text-sm font-semibold text-white line-clamp-2 leading-tight mb-1.5">
+                {anime.title}
+              </h3>
 
-            {/* Rating + Genres */}
-            <div className="flex items-center gap-1.5 flex-wrap mb-2">
+              {/* Rating pill */}
               {anime.score && (
-                <span className="flex items-center gap-0.5 text-xs font-bold">
-                  <Star className="w-3 h-3 text-primary fill-primary" />
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-white bg-white/20 backdrop-blur-sm rounded-full px-2 py-0.5 mb-1.5">
+                  <Star className="w-3 h-3 fill-white text-white" />
                   {formatScore(anime.score)}
                 </span>
               )}
-              {anime.genres?.slice(0, 2).map((g) => (
-                <span key={g.mal_id} className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-foreground/10 text-foreground/70">
-                  {g.name}
-                </span>
-              ))}
-            </div>
 
-            {/* Single CTA */}
-            {user && (
-              <button
-                onClick={handleSave}
-                className={cn(
-                  "flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg text-xs font-medium transition-colors",
-                  inWatchlist
-                    ? "bg-primary/20 text-primary"
-                    : "bg-foreground/10 text-foreground hover:bg-foreground/20"
-                )}
-              >
-                {inWatchlist ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-                {inWatchlist ? "Saved" : "Add to List"}
-              </button>
-            )}
+              {/* One-line synopsis */}
+              {anime.synopsis && (
+                <p className="text-xs text-white/70 line-clamp-2 leading-relaxed mb-2">
+                  {anime.synopsis}
+                </p>
+              )}
+
+              {/* Add to watchlist icon */}
+              {user && (
+                <button
+                  onClick={handleSave}
+                  className={cn(
+                    "absolute top-3 right-3 flex items-center justify-center w-7 h-7 rounded-full",
+                    "transition-colors duration-200",
+                    inWatchlist
+                      ? "bg-primary/80 text-primary-foreground"
+                      : "bg-black/50 text-white hover:bg-black/70"
+                  )}
+                >
+                  {inWatchlist ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Title — small, clean, below image */}
-        <h3 className="font-medium text-[11px] sm:text-xs md:text-sm line-clamp-2 mb-0.5 group-hover:text-foreground/80 transition-colors leading-tight">
+        {/* Title — always visible below image */}
+        <h3 className="font-medium text-[11px] sm:text-xs md:text-sm line-clamp-2 mb-0.5 transition-colors leading-tight">
           {anime.title}
         </h3>
       </button>
