@@ -5,7 +5,7 @@ import { useLocation, useNavigationType } from "react-router-dom";
  * Smart scroll management:
  * - PUSH navigation (clicking a link): scroll to top
  * - POP navigation (browser back/forward): restore saved scroll position
- * - Saves scroll position per pathname on every scroll event (throttled)
+ * - Saves scroll position per pathname on scroll (throttled via rAF)
  */
 export function ScrollToTop() {
   const { pathname } = useLocation();
@@ -13,19 +13,28 @@ export function ScrollToTop() {
   const scrollPositions = useRef<Map<string, number>>(new Map());
   const prevPathname = useRef(pathname);
 
-  // Save scroll position before leaving a page
+  // Save scroll position before leaving a page — throttled to one write per frame
   useEffect(() => {
-    const saveScroll = () => {
-      scrollPositions.current.set(prevPathname.current, window.scrollY);
+    let rafId = 0;
+    let latestY = 0;
+
+    const onScroll = () => {
+      latestY = window.scrollY;
+      if (!rafId) {
+        rafId = requestAnimationFrame(() => {
+          scrollPositions.current.set(prevPathname.current, latestY);
+          rafId = 0;
+        });
+      }
     };
 
-    // Save on every scroll (passive, browser-optimized)
-    window.addEventListener("scroll", saveScroll, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
-      // Save final position when unmounting / route changing
-      saveScroll();
-      window.removeEventListener("scroll", saveScroll);
+      cancelAnimationFrame(rafId);
+      // Save final position synchronously when unmounting / route changing
+      scrollPositions.current.set(prevPathname.current, window.scrollY);
+      window.removeEventListener("scroll", onScroll);
     };
   }, [pathname]);
 
@@ -37,7 +46,6 @@ export function ScrollToTop() {
       // Back/forward: restore saved position
       const saved = scrollPositions.current.get(pathname);
       if (saved !== undefined) {
-        // Use rAF to ensure DOM has rendered before restoring
         requestAnimationFrame(() => {
           window.scrollTo(0, saved);
         });
