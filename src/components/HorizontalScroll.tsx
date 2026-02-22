@@ -123,12 +123,11 @@ export const HorizontalScroll = memo(function HorizontalScroll({
         </div>
       )}
       
-      {/* Scroll container */}
-      <div className="relative">
-        
+      {/* Scroll container — outer clips horizontal overflow, inner allows card hover expansion */}
+      <div className="relative overflow-hidden -mx-3 px-3 sm:mx-0 sm:px-0">
         <div
           ref={scrollRef}
-          className="flex gap-2.5 sm:gap-4 overflow-x-auto hide-scrollbar scroll-smooth pb-4 -mx-3 px-3 sm:mx-0 sm:px-0 transform-gpu snap-x snap-mandatory [&>*]:snap-start"
+          className="flex gap-2.5 sm:gap-4 overflow-x-auto hide-scrollbar scroll-smooth py-16 -my-16 transform-gpu snap-x snap-mandatory [&>*]:snap-start"
           style={{
             WebkitOverflowScrolling: "touch",
             scrollbarWidth: "none",

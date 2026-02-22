@@ -1,5 +1,5 @@
-import { useState, memo, forwardRef, lazy, Suspense, useCallback } from "react";
-import { Star } from "lucide-react";
+import { useState, useRef, useEffect, memo, forwardRef, lazy, Suspense, useCallback } from "react";
+import { Star, Plus, Check, ThumbsUp, ChevronDown, Play } from "lucide-react";
 import { Anime, formatScore, getAnimeById } from "@/lib/api";
 import { cn } from "@/lib/utils";
 const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ default: m.AnimeDetailModal })));
@@ -18,6 +18,9 @@ interface AnimeCardProps {
 
 export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(function AnimeCard({ anime, index = 0, variant = "default", eager = false }, ref) {
   const [modalOpen, setModalOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const { language } = useLanguage();
   const { user } = useAuth();
@@ -48,6 +51,27 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
       });
     }
   }, [user, inWatchlist, anime, addToWatchlist, removeFromWatchlist]);
+
+  const handleMouseEnter = useCallback(() => {
+    prefetchDetail();
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovered(true);
+    }, 300);
+  }, [prefetchDetail]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    setIsHovered(false);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    };
+  }, []);
 
   if (variant === "compact") {
     return (
@@ -90,59 +114,145 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
     );
   }
 
-  // === NETFLIX-STYLE DEFAULT CARD ===
-  // Default: cover image + title only. Hover: lift, shadow, image zoom, rating pill.
+  // Episode/type label
+  const typeLabel = anime.episodes === 1 ? "Movie" : anime.episodes ? `${anime.episodes} eps` : "";
+  const genreText = anime.genres?.slice(0, 3).map(g => g.name).join(" • ") || "";
+
   return (
     <>
-      <button
-        onClick={() => setModalOpen(true)}
-        onMouseEnter={prefetchDetail}
-        onTouchStart={prefetchDetail}
-        className={cn(
-          "block group text-left w-full active:scale-[0.98]",
-          "transition-all duration-200 ease-out",
-          "md:hover:-translate-y-1.5 md:hover:z-10 md:hover:shadow-lg md:hover:shadow-black/40 relative rounded-xl sm:rounded-2xl"
-        )}
+      <div
+        ref={cardRef}
+        className="relative flex-shrink-0 w-[112px] sm:w-[144px] md:w-[176px]"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        style={{ zIndex: isHovered ? 50 : "auto" }}
       >
-        {/* Image — 2:3 portrait, overflow-hidden clips the scale */}
-        <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted">
-          <img
-            src={anime.images.webp.image_url}
-            srcSet={`${anime.images.webp.image_url} 230w, ${anime.images.webp.medium_image_url || anime.images.webp.large_image_url} 460w, ${anime.images.webp.large_image_url} 600w`}
-            alt={`${anime.title} cover art`}
-            width={176}
-            height={264}
-            loading={eager ? "eager" : "lazy"}
-            decoding={eager ? "sync" : "async"}
-            sizes="(max-width: 640px) 112px, (max-width: 768px) 144px, 176px"
-            className={cn(
-              "w-full h-full object-cover will-change-transform transform-gpu",
-              "transition-transform duration-200 ease-out",
-              "md:group-hover:scale-105"
-            )}
-          />
-
-          {/* HOVER: dark gradient on bottom 40% + rating pill — desktop only */}
-          <div
-            className="absolute inset-0 hidden md:flex items-end opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-out pointer-events-none"
-            style={{
-              background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 40%)",
-            }}
-          >
-            {anime.score && (
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-white bg-black/50 rounded-full px-2 py-0.5 m-2.5">
-                <Star className="w-3 h-3 fill-white text-white" />
-                {formatScore(anime.score)}
-              </span>
-            )}
+        {/* Base card — always visible, just the poster */}
+        <div
+          onClick={() => setModalOpen(true)}
+          className="cursor-pointer"
+        >
+          <div className="aspect-[2/3] rounded-lg sm:rounded-xl overflow-hidden bg-muted">
+            <img
+              src={anime.images.webp.image_url}
+              srcSet={`${anime.images.webp.image_url} 230w, ${anime.images.webp.medium_image_url || anime.images.webp.large_image_url} 460w, ${anime.images.webp.large_image_url} 600w`}
+              alt={`${anime.title} cover art`}
+              width={176}
+              height={264}
+              loading={eager ? "eager" : "lazy"}
+              decoding={eager ? "sync" : "async"}
+              sizes="(max-width: 640px) 112px, (max-width: 768px) 144px, 176px"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
 
-        {/* Title — always visible below image */}
-        <h3 className="font-medium text-[11px] sm:text-xs md:text-sm line-clamp-2 mb-0.5 transition-colors leading-tight">
-          {anime.title}
-        </h3>
-      </button>
+        {/* Expanded hover card — desktop only, uses @media(hover:hover) via hidden class + isHovered */}
+        <div
+          className={cn(
+            "absolute top-1/2 left-1/2 hidden md:block pointer-events-none",
+            "transition-all duration-300 ease-out",
+            isHovered
+              ? "opacity-100 scale-[1.4] pointer-events-auto"
+              : "opacity-0 scale-100"
+          )}
+          style={{
+            width: "100%",
+            transformOrigin: "center center",
+            transform: isHovered
+              ? "translate(-50%, -50%) scale(1.4)"
+              : "translate(-50%, -50%) scale(1)",
+            transition: isHovered
+              ? "transform 300ms ease-out, opacity 300ms ease-out"
+              : "transform 200ms ease-in, opacity 200ms ease-in",
+          }}
+        >
+          {/* Image section */}
+          <div
+            className="rounded-t-lg overflow-hidden cursor-pointer"
+            onClick={() => setModalOpen(true)}
+          >
+            <div className="aspect-[2/3] overflow-hidden">
+              <img
+                src={anime.images.webp.large_image_url}
+                alt={anime.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+
+          {/* Info panel below image */}
+          <div
+            className={cn(
+              "bg-[hsl(var(--card))] rounded-b-lg px-3 py-2.5 shadow-2xl shadow-black/80",
+              "transition-opacity duration-300",
+              isHovered ? "opacity-100" : "opacity-0"
+            )}
+          >
+            {/* Action buttons row */}
+            <div className="flex items-center gap-1.5 mb-2">
+              {/* Play */}
+              <button
+                onClick={() => setModalOpen(true)}
+                className="w-7 h-7 rounded-full bg-foreground text-background flex items-center justify-center hover:bg-foreground/90 transition-colors"
+                aria-label="Play"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" />
+              </button>
+              {/* Add to list */}
+              {user && (
+                <button
+                  onClick={handleSave}
+                  className={cn(
+                    "w-7 h-7 rounded-full border-2 flex items-center justify-center transition-colors",
+                    inWatchlist
+                      ? "border-primary bg-primary/20 text-primary"
+                      : "border-muted-foreground/50 text-muted-foreground hover:border-foreground hover:text-foreground"
+                  )}
+                  aria-label={inWatchlist ? "Remove from list" : "Add to list"}
+                >
+                  {inWatchlist ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                </button>
+              )}
+              {/* Like */}
+              <button
+                className="w-7 h-7 rounded-full border-2 border-muted-foreground/50 text-muted-foreground flex items-center justify-center hover:border-foreground hover:text-foreground transition-colors"
+                aria-label="Like"
+              >
+                <ThumbsUp className="w-3 h-3" />
+              </button>
+              {/* Spacer */}
+              <div className="flex-1" />
+              {/* More info */}
+              <button
+                onClick={() => setModalOpen(true)}
+                className="w-7 h-7 rounded-full border-2 border-muted-foreground/50 text-muted-foreground flex items-center justify-center hover:border-foreground hover:text-foreground transition-colors"
+                aria-label="More info"
+              >
+                <ChevronDown className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Rating + type */}
+            <div className="flex items-center gap-2 mb-1">
+              {anime.score && (
+                <span className="text-xs font-semibold text-emerald-400 flex items-center gap-0.5">
+                  <Star className="w-3 h-3 fill-current" />
+                  {formatScore(anime.score)}
+                </span>
+              )}
+              {typeLabel && (
+                <span className="text-xs text-foreground">{typeLabel}</span>
+              )}
+            </div>
+
+            {/* Genres */}
+            {genreText && (
+              <p className="text-[10px] text-muted-foreground truncate">{genreText}</p>
+            )}
+          </div>
+        </div>
+      </div>
       
       {modalOpen && (
         <Suspense fallback={null}>
