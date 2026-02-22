@@ -180,12 +180,12 @@ const Index = () => {
             {airingLoading ? (
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-[150px] sm:w-[170px] md:w-[190px]" />
             ) : (
-              airingAnime?.slice(0, 10).map((anime, index, arr) => (
+              airingAnime?.slice(0, 10).map((anime, index) => (
                 <div key={anime.anilist_id} className="flex-shrink-0 w-[150px] sm:w-[170px] md:w-[190px]">
                   {isMobile ? (
                     <MobileAnimeCard anime={anime} index={index} eager={index < 4} />
                   ) : (
-                    <AnimeCard anime={anime} index={index} eager={index < 6} position={index === 0 ? "first" : index === arr.length - 1 ? "last" : "middle"} />
+                    <AnimeCard anime={anime} index={index} eager={index < 6} />
                   )}
                 </div>
               ))
@@ -208,12 +208,12 @@ const Index = () => {
             {seasonalLoading ? (
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-[150px] sm:w-[170px] md:w-[190px]" />
             ) : (
-              seasonalAnime?.slice(0, 10).map((anime, index, arr) => (
+              seasonalAnime?.slice(0, 10).map((anime, index) => (
                 <div key={anime.anilist_id} className="flex-shrink-0 w-[150px] sm:w-[170px] md:w-[190px]">
                   {isMobile ? (
                     <MobileAnimeCard anime={anime} index={index} />
                   ) : (
-                    <AnimeCard anime={anime} index={index} position={index === 0 ? "first" : index === arr.length - 1 ? "last" : "middle"} />
+                    <AnimeCard anime={anime} index={index} />
                   )}
                 </div>
               ))
@@ -250,12 +250,12 @@ const Index = () => {
             {allTimeLoading ? (
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-[150px] sm:w-[170px] md:w-[190px]" />
             ) : (
-              allTimeTop?.slice(0, 10).map((anime, index, arr) => (
+              allTimeTop?.slice(0, 10).map((anime, index) => (
                 <div key={anime.anilist_id} className="flex-shrink-0 w-[150px] sm:w-[170px] md:w-[190px]">
                   {isMobile ? (
                     <MobileAnimeCard anime={anime} index={index} />
                   ) : (
-                    <AnimeCard anime={anime} index={index} position={index === 0 ? "first" : index === arr.length - 1 ? "last" : "middle"} />
+                    <AnimeCard anime={anime} index={index} />
                   )}
                 </div>
               ))
@@ -290,12 +290,12 @@ const Index = () => {
             {classicLoading ? (
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-[150px] sm:w-[170px] md:w-[190px]" />
             ) : (
-              classicAnime?.slice(0, 10).map((anime, index, arr) => (
+              classicAnime?.slice(0, 10).map((anime, index) => (
                 <div key={anime.anilist_id} className="flex-shrink-0 w-[150px] sm:w-[170px] md:w-[190px]">
                   {isMobile ? (
                     <MobileAnimeCard anime={anime} index={index} />
                   ) : (
-                    <AnimeCard anime={anime} index={index} position={index === 0 ? "first" : index === arr.length - 1 ? "last" : "middle"} />
+                    <AnimeCard anime={anime} index={index} />
                   )}
                 </div>
               ))
