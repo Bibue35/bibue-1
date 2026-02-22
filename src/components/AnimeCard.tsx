@@ -1,5 +1,5 @@
 import { useState, memo, forwardRef, lazy, Suspense, useCallback } from "react";
-import { Star, Plus, Check } from "lucide-react";
+import { Star } from "lucide-react";
 import { Anime, formatScore, getAnimeById } from "@/lib/api";
 import { cn } from "@/lib/utils";
 const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ default: m.AnimeDetailModal })));
@@ -91,7 +91,7 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
   }
 
   // === NETFLIX-STYLE DEFAULT CARD ===
-  // Default: cover image + title only. Hover: lift, gradient, minimal overlay info.
+  // Default: cover image + title only. Hover: lift, shadow, image zoom, rating pill.
   return (
     <>
       <button
@@ -100,11 +100,11 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
         onTouchStart={prefetchDetail}
         className={cn(
           "block group text-left w-full active:scale-[0.98]",
-          "transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)]",
-          "md:hover:-translate-y-2 md:hover:z-10 md:hover:shadow-xl md:hover:shadow-black/50 relative rounded-xl sm:rounded-2xl"
+          "transition-all duration-200 ease-out",
+          "md:hover:-translate-y-1.5 md:hover:z-10 md:hover:shadow-lg md:hover:shadow-black/40 relative rounded-xl sm:rounded-2xl"
         )}
       >
-        {/* Image — 2:3 portrait, overflow-hidden for scale */}
+        {/* Image — 2:3 portrait, overflow-hidden clips the scale */}
         <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted">
           <img
             src={anime.images.webp.image_url}
@@ -117,59 +117,24 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
             sizes="(max-width: 640px) 112px, (max-width: 768px) 144px, 176px"
             className={cn(
               "w-full h-full object-cover will-change-transform transform-gpu",
-              "transition-transform duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)]",
-              "md:group-hover:scale-[1.03]"
+              "transition-transform duration-200 ease-out",
+              "md:group-hover:scale-105"
             )}
           />
 
-          {/* HOVER GRADIENT + INFO — desktop only */}
+          {/* HOVER: dark gradient on bottom 40% + rating pill — desktop only */}
           <div
-            className={cn(
-              "absolute inset-0 hidden md:flex flex-col justify-end",
-              "opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)]",
-              "pointer-events-none"
-            )}
+            className="absolute inset-0 hidden md:flex items-end opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-out pointer-events-none"
             style={{
-              background: "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 40%, transparent 100%)",
+              background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 40%)",
             }}
           >
-            <div className="p-3 pointer-events-auto">
-              {/* Title */}
-              <h3 className="text-sm font-semibold text-white line-clamp-2 leading-tight mb-1.5">
-                {anime.title}
-              </h3>
-
-              {/* Rating pill */}
-              {anime.score && (
-                <span className="inline-flex items-center gap-1 text-xs font-medium text-white bg-white/20 backdrop-blur-sm rounded-full px-2 py-0.5 mb-1.5">
-                  <Star className="w-3 h-3 fill-white text-white" />
-                  {formatScore(anime.score)}
-                </span>
-              )}
-
-              {/* One-line synopsis */}
-              {anime.synopsis && (
-                <p className="text-xs text-white/70 line-clamp-2 leading-relaxed mb-2">
-                  {anime.synopsis}
-                </p>
-              )}
-
-              {/* Add to watchlist icon */}
-              {user && (
-                <button
-                  onClick={handleSave}
-                  className={cn(
-                    "absolute top-3 right-3 flex items-center justify-center w-7 h-7 rounded-full",
-                    "transition-colors duration-200",
-                    inWatchlist
-                      ? "bg-primary/80 text-primary-foreground"
-                      : "bg-black/50 text-white hover:bg-black/70"
-                  )}
-                >
-                  {inWatchlist ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-                </button>
-              )}
-            </div>
+            {anime.score && (
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-white bg-black/50 rounded-full px-2 py-0.5 m-2.5">
+                <Star className="w-3 h-3 fill-white text-white" />
+                {formatScore(anime.score)}
+              </span>
+            )}
           </div>
         </div>
 
