@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense, useMemo } from "react";
+import { useState, useEffect, useRef, lazy, Suspense, useMemo } from "react";
 import { Play, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Anime, formatScore } from "@/lib/api";
@@ -7,6 +7,7 @@ const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ de
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslatedText } from "@/hooks/useTranslatedText";
 import { HeroSkeleton } from "./skeletons";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface HeroSectionProps {
   featuredAnime?: Anime[];
@@ -27,7 +28,9 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const { t } = useLanguage();
-  
+  const isMobile = useIsMobile();
+  const parallaxRef = useRef<HTMLDivElement>(null);
+
   const featured = featuredAnime?.[selectedIndex];
 
   // Preload first hero image for LCP
@@ -42,6 +45,28 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
     document.head.appendChild(link);
     return () => { link.remove(); };
   }, [featuredAnime]);
+
+  // Parallax scroll effect — desktop only
+  useEffect(() => {
+    if (isMobile) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        if (parallaxRef.current) {
+          const scrollY = window.scrollY;
+          parallaxRef.current.style.transform = `translate3d(0, ${scrollY * 0.3}px, 0)`;
+        }
+        ticking = false;
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isMobile]);
 
   // Auto-rotate every 8s
   useEffect(() => {
@@ -58,9 +83,9 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
 
   return (
     <section aria-label="Featured anime" className="relative min-h-[75vh] sm:min-h-[80vh] md:min-h-[90vh] flex items-end overflow-hidden">
-      {/* Full-bleed background image — takes 70%+ viewport */}
-      <div className="absolute inset-0 z-0">
-        <div className="relative w-full h-full transform-gpu">
+      {/* Full-bleed background image with parallax */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <div ref={parallaxRef} className="relative w-full h-[120%] -top-[10%] transform-gpu will-change-transform">
           {featuredAnime?.slice(0, 4).map((anime, index) => {
             const isActive = index === selectedIndex;
             const isFirst = index === 0;

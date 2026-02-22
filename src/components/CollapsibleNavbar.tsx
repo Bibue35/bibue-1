@@ -61,24 +61,25 @@ export function CollapsibleNavbar() {
         aria-label="Main navigation"
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out transform-gpu",
-          "bg-background/80 backdrop-blur-md border-b border-border/10",
+          // Glassmorphism navbar
+          "bg-background/60 backdrop-blur-xl border-b border-foreground/5",
           !isVisible && "-translate-y-full pointer-events-none"
         )}
         style={{ willChange: "transform" }}
       >
         <div className="container mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2">
-          {/* Left: Logo */}
-          <Link to="/" className="flex items-center gap-1.5 shrink-0">
+          {/* Left: Logo with idle animation */}
+          <Link to="/" className="flex items-center gap-1.5 shrink-0 group">
             <img
               src={bibueTower}
               alt=""
               width={32}
               height={32}
-              className="h-7 w-auto object-contain dark:brightness-0 dark:invert logo-stable"
+              className="h-7 w-auto object-contain dark:brightness-0 dark:invert logo-stable logo-idle"
               loading="eager"
               decoding="sync"
             />
-            <span className="text-base font-sacred font-semibold tracking-wide">
+            <span className="text-base font-sacred font-semibold tracking-wide group-hover:text-primary transition-colors duration-300">
               Bibue
             </span>
           </Link>
@@ -117,7 +118,6 @@ export function CollapsibleNavbar() {
 
             {!isMobile && <UserMenu />}
 
-            {/* Mobile: show sign-in icon if not logged in (UserMenu hidden on mobile — bottom bar handles it) */}
             {isMobile && !user && (
               <button
                 onClick={() => setAuthModalOpen(true)}
