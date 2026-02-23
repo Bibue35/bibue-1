@@ -47,7 +47,6 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
       link.rel = 'preload';
       link.as = 'image';
       link.href = url;
-      link.crossOrigin = 'anonymous';
       document.head.appendChild(link);
       preloadedRef.current.push(link);
     });

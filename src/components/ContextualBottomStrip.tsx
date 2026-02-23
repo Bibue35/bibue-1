@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { CalendarDays, Clock, Newspaper, Sparkles, Grid3X3 } from "lucide-react";
+import { CalendarDays, Clock, Newspaper, Sparkles, Grid3X3, Globe, Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -10,6 +10,8 @@ const stripLinks = [
   { href: "/news", icon: Newspaper, labelKey: "nav.news" },
   { href: "/recommendations", icon: Sparkles, labelKey: "nav.forYou" },
   { href: "/genres", icon: Grid3X3, labelKey: "Genres" },
+  { href: "/map", icon: Globe, labelKey: "Galaxy" },
+  { href: "/vibe", icon: Palette, labelKey: "Vibe" },
 ];
 
 export function ContextualBottomStrip() {

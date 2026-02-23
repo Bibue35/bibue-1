@@ -49,6 +49,7 @@ const TermsPage = lazy(() => import("./pages/TermsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AnimeMapPage = lazy(() => import("./pages/AnimeMapPage"));
 const VibeCheckPage = lazy(() => import("./pages/VibeCheckPage"));
+const RankingsPage = lazy(() => import("./pages/Rankings"));
 
 // Minimal loading fallback for route transitions
 const PageLoader = () => (
@@ -125,6 +126,7 @@ const App = () => (
                             <Route path="/terms" element={<TermsPage />} />
                             <Route path="/map" element={<AnimeMapPage />} />
                             <Route path="/vibe" element={<VibeCheckPage />} />
+                            <Route path="/rankings" element={<RankingsPage />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </AnimatedRoutes>
