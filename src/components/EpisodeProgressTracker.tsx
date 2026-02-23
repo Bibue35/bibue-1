@@ -44,7 +44,7 @@ export function EpisodeProgressTracker({
         value: epNum,
       });
 
-      // Auto-complete when all episodes are watched
+      // Auto-update status based on progress
       if (epNum >= totalEpisodes && totalEpisodes > 0 && item.status !== "completed") {
         updateStatus.mutate({
           mal_id: malId,
@@ -56,6 +56,14 @@ export function EpisodeProgressTracker({
           description: `All ${totalEpisodes} episodes watched.`,
         });
       } else {
+        // Auto-set to Watching if still Plan to Watch
+        if (epNum > 0 && (item.status === "plan_to_watch" || item.status === "Plan to Watch")) {
+          updateStatus.mutate({
+            mal_id: malId,
+            media_type: "anime",
+            status: "watching",
+          });
+        }
         toast({
           title: `${animeTitle}: Episode ${epNum} of ${totalEpisodes} ✓`,
         });
