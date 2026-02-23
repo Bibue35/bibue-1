@@ -2,7 +2,7 @@ import { useRef, useEffect, useState, useCallback, memo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useThemeContext } from "@/contexts/ThemeContext";
+
 
 interface HorizontalScrollProps {
   children: React.ReactNode;
@@ -22,7 +22,7 @@ export const HorizontalScroll = memo(function HorizontalScroll({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-  const { flavor } = useThemeContext();
+  
 
   const rafIdRef = useRef<number>(0);
 
@@ -89,11 +89,7 @@ export const HorizontalScroll = memo(function HorizontalScroll({
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2
-              className={cn(
-                "text-2xl font-semibold tracking-tight",
-                flavor === "liquid-glass" && "chromatic-text"
-              )}
-              {...(flavor === "liquid-glass" && title ? { "data-text": title } : {})}
+              className="text-2xl font-semibold tracking-tight"
             >
               {title}
             </h2>

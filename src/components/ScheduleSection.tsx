@@ -10,6 +10,7 @@ import { useScheduleByDay } from "@/hooks/useAnimeData";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
+// flavor used for conditional liquid-glass styling
 
 const DAY_KEYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] as const;
 const DAY_TRANSLATION_KEYS = ["days.sun", "days.mon", "days.tue", "days.wed", "days.thu", "days.fri", "days.sat"] as const;
@@ -36,11 +37,7 @@ export function ScheduleSection() {
             </div>
             <div>
               <h2
-                className={cn(
-                  "text-lg sm:text-xl md:text-2xl font-semibold tracking-tight",
-                  flavor === "liquid-glass" && "chromatic-text"
-                )}
-                {...(flavor === "liquid-glass" ? { "data-text": isToday ? t("schedule.todaySchedule") : `${selectedDayLabel}${t("schedule.daySchedule")}` } : {})}
+                className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight"
               >
                 {isToday ? t("schedule.todaySchedule") : `${selectedDayLabel}${t("schedule.daySchedule")}`}
               </h2>
