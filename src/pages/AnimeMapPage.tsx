@@ -255,9 +255,14 @@ function InstancedNodes({
   );
 }
 
-// ─── Web-like connection lines (the main visual) ───────────────
+// ─── Animated web lines (draw-in effect) ───────────────────────
 function WebLines({ nodes, connections }: { nodes: GalaxyNode[]; connections: Connection[] }) {
-  const { positions, colors } = useMemo(() => {
+  const lineRef = useRef<THREE.LineSegments>(null);
+  const progressRef = useRef(0);
+  const materialRef = useRef<THREE.LineBasicMaterial>(null);
+
+  // Full target positions & colors
+  const { targetPositions, colors } = useMemo(() => {
     const pos = new Float32Array(connections.length * 6);
     const col = new Float32Array(connections.length * 6);
 
@@ -269,7 +274,6 @@ function WebLines({ nodes, connections }: { nodes: GalaxyNode[]; connections: Co
       pos[offset] = from.position.x; pos[offset + 1] = from.position.y; pos[offset + 2] = from.position.z;
       pos[offset + 3] = to.position.x; pos[offset + 4] = to.position.y; pos[offset + 5] = to.position.z;
 
-      // Blend colors from both ends
       const c1 = new THREE.Color(from.color);
       const c2 = new THREE.Color(to.color);
 
@@ -278,26 +282,69 @@ function WebLines({ nodes, connections }: { nodes: GalaxyNode[]; connections: Co
       } else if (conn.type === "related") {
         c1.set("#6366f1"); c2.set("#6366f1");
       } else if (conn.type === "web") {
-        // Cross-genre: blend both node colors, very subtle
         c1.lerp(c2, 0.5).multiplyScalar(0.5);
         c2.copy(c1);
       }
-      // genre type: use node colors directly
 
       col[offset] = c1.r; col[offset + 1] = c1.g; col[offset + 2] = c1.b;
       col[offset + 3] = c2.r; col[offset + 4] = c2.g; col[offset + 5] = c2.b;
     });
 
-    return { positions: pos, colors: col };
+    return { targetPositions: pos, colors: col };
   }, [nodes, connections]);
 
+  // Animated positions: lines start collapsed at "from" node, then extend to "to" node
+  const animPositions = useMemo(() => {
+    const pos = new Float32Array(connections.length * 6);
+    // Initialize all endpoints to the "from" position (lines start as points)
+    connections.forEach((conn, i) => {
+      const from = nodes[conn.from];
+      const offset = i * 6;
+      pos[offset] = from.position.x; pos[offset + 1] = from.position.y; pos[offset + 2] = from.position.z;
+      pos[offset + 3] = from.position.x; pos[offset + 4] = from.position.y; pos[offset + 5] = from.position.z;
+    });
+    return pos;
+  }, [nodes, connections]);
+
+  // Animate: progressively draw lines over ~3 seconds with staggered timing
+  useFrame((_, delta) => {
+    if (progressRef.current >= 1) return;
+    progressRef.current = Math.min(1, progressRef.current + delta * 0.4); // ~2.5s total
+    const p = progressRef.current;
+
+    const geom = lineRef.current?.geometry;
+    if (!geom) return;
+    const posAttr = geom.getAttribute("position") as THREE.BufferAttribute;
+    const arr = posAttr.array as Float32Array;
+    const total = connections.length;
+
+    for (let i = 0; i < total; i++) {
+      // Stagger: each line starts drawing at a different time
+      const stagger = i / total * 0.6; // spread over 60% of duration
+      const localP = Math.max(0, Math.min(1, (p - stagger) / 0.4)); // each line draws in 40% of duration
+      const eased = localP * localP * (3 - 2 * localP); // smoothstep
+
+      const offset = i * 6;
+      // "from" stays fixed, "to" interpolates
+      arr[offset + 3] = arr[offset] + (targetPositions[offset + 3] - targetPositions[offset]) * eased;
+      arr[offset + 4] = arr[offset + 1] + (targetPositions[offset + 4] - targetPositions[offset + 1]) * eased;
+      arr[offset + 5] = arr[offset + 2] + (targetPositions[offset + 5] - targetPositions[offset + 2]) * eased;
+    }
+    posAttr.needsUpdate = true;
+
+    // Fade in opacity
+    if (materialRef.current) {
+      materialRef.current.opacity = Math.min(0.35, p * 0.5);
+    }
+  });
+
   return (
-    <lineSegments>
+    <lineSegments ref={lineRef}>
       <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-position" args={[animPositions, 3]} />
         <bufferAttribute attach="attributes-color" args={[colors, 3]} />
       </bufferGeometry>
-      <lineBasicMaterial vertexColors transparent opacity={0.35} toneMapped={false} />
+      <lineBasicMaterial ref={materialRef} vertexColors transparent opacity={0} toneMapped={false} />
     </lineSegments>
   );
 }
