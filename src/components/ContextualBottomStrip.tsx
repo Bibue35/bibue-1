@@ -1,17 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { CalendarDays, Clock, Newspaper, Sparkles, Grid3X3, Globe, Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const stripLinks = [
-  { href: "/seasonal", icon: CalendarDays, labelKey: "Seasonal" },
-  { href: "/schedule", icon: Clock, labelKey: "Schedule" },
-  { href: "/news", icon: Newspaper, labelKey: "nav.news" },
-  { href: "/recommendations", icon: Sparkles, labelKey: "nav.forYou" },
-  { href: "/genres", icon: Grid3X3, labelKey: "Genres" },
-  { href: "/map", icon: Globe, labelKey: "Galaxy" },
-  { href: "/vibe", icon: Palette, labelKey: "Vibe" },
+  { href: "/seasonal", label: "Seasonal" },
+  { href: "/schedule", label: "Schedule" },
+  { href: "/news", label: "News" },
+  { href: "/recommendations", label: "For You" },
+  { href: "/genre/action", label: "Ruthless MC" },
+  { href: "/genre/psychological", label: "Cold-Hearted" },
+  { href: "/genre/thriller", label: "Dark Thriller" },
+  { href: "/genre/romance", label: "Slow Burn" },
+  { href: "/genre/fantasy", label: "OP Protagonist" },
 ];
 
 export function ContextualBottomStrip() {
@@ -45,38 +46,34 @@ export function ContextualBottomStrip() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const getLabel = (key: string) => {
-    // Keys that exist in translations
-    if (key.startsWith("nav.")) return t(key);
-    return key;
-  };
-
   return (
     <div
       className={cn(
-        "fixed bottom-4 left-1/2 -translate-x-1/2 z-40 transition-all duration-300 ease-out transform-gpu",
+        "fixed bottom-4 left-1/2 -translate-x-1/2 z-40 transition-all duration-300 ease-out transform-gpu max-w-[95vw]",
         isVisible
           ? "opacity-100 translate-y-0"
           : "opacity-0 translate-y-8 pointer-events-none"
       )}
     >
-      <div className="flex items-center gap-2 px-1">
-        {stripLinks.map(({ href, icon: Icon, labelKey }) => {
+      <div
+        className="flex items-center gap-1.5 px-2 py-1.5 rounded-full liquid-glass-strong border border-border/20 shadow-lg overflow-x-auto hide-scrollbar"
+        style={{ scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}
+      >
+        {stripLinks.map(({ href, label }) => {
           const isActive = location.pathname === href;
           return (
             <Link
               key={href}
               to={href}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-200 text-xs font-medium whitespace-nowrap",
-                "liquid-glass-strong border border-border/30 shadow-md",
+                "px-2.5 py-1 rounded-full transition-all duration-200 text-[11px] font-medium whitespace-nowrap",
                 isActive
-                  ? "text-primary bg-primary/10 border-primary/30"
-                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                  ? "text-primary bg-primary/10"
+                  : "text-muted-foreground hover:text-foreground"
               )}
+              style={{ scrollSnapAlign: "start" }}
             >
-              <Icon className="w-3.5 h-3.5" />
-              <span>{getLabel(labelKey)}</span>
+              {label}
             </Link>
           );
         })}
