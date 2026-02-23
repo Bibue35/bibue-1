@@ -60,7 +60,7 @@ export function ContextualBottomStrip() {
           : "opacity-0 translate-y-8 pointer-events-none"
       )}
     >
-      <div className="flex items-center gap-1 px-3 py-2 rounded-2xl liquid-glass-strong border border-border/30 shadow-lg">
+      <div className="flex items-center gap-2 px-1">
         {stripLinks.map(({ href, icon: Icon, labelKey }) => {
           const isActive = location.pathname === href;
           return (
@@ -68,14 +68,15 @@ export function ContextualBottomStrip() {
               key={href}
               to={href}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200 min-w-[52px]",
+                "flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-200 text-xs font-medium whitespace-nowrap",
+                "liquid-glass-strong border border-border/30 shadow-md",
                 isActive
-                  ? "text-primary bg-primary/10"
+                  ? "text-primary bg-primary/10 border-primary/30"
                   : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
               )}
             >
-              <Icon className="w-4 h-4" />
-              <span className="text-[10px] font-medium leading-none">{getLabel(labelKey)}</span>
+              <Icon className="w-3.5 h-3.5" />
+              <span>{getLabel(labelKey)}</span>
             </Link>
           );
         })}
