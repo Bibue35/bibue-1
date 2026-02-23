@@ -14,6 +14,7 @@ import { FollowersModal } from "@/components/community/FollowersModal";
 import { UserBadge } from "@/components/community/UserBadge";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { SendMessageDialog } from "@/components/messages/SendMessageDialog";
+import { CrossMediaTimeline } from "@/components/CrossMediaTimeline";
 import { useFollow } from "@/hooks/useFollow";
 import { useUserBadges } from "@/hooks/useUserBadges";
 import { useUserReputation } from "@/hooks/useUserReputation";
@@ -253,6 +254,7 @@ const UserProfile = () => {
           <Tabs defaultValue="activity" className="space-y-6">
             <TabsList className="liquid-glass-subtle p-1 rounded-full">
               <TabsTrigger value="activity" className="rounded-full">{t("profile.activity")}</TabsTrigger>
+              <TabsTrigger value="media" className="rounded-full">Media</TabsTrigger>
               <TabsTrigger value="badges" className="rounded-full">{t("profile.badges")}</TabsTrigger>
               <TabsTrigger value="lists" className="rounded-full">{t("profile.lists")}</TabsTrigger>
             </TabsList>
@@ -261,6 +263,13 @@ const UserProfile = () => {
               <div className="liquid-glass rounded-2xl p-6">
                 <h3 className="text-lg font-semibold mb-4">{t("profile.recentActivity")}</h3>
                 <ActivityFeed userId={userId} limit={20} showUser={false} />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="media">
+              <div className="liquid-glass rounded-2xl p-6">
+                <h3 className="text-lg font-semibold mb-4">Cross-Media Timeline</h3>
+                <CrossMediaTimeline userId={userId!} />
               </div>
             </TabsContent>
 
