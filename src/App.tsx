@@ -133,6 +133,7 @@ const App = () => (
                             <Route path="/privacy" element={<PrivacyPage />} />
                             <Route path="/terms" element={<TermsPage />} />
                             <Route path="/map" element={<AnimeMapPage />} />
+                            <Route path="/galaxy" element={<AnimeMapPage />} />
                             <Route path="/vibe" element={<VibeCheckPage />} />
                             <Route path="/rankings" element={<RankingsPage />} />
                             <Route path="/party/:code" element={<WatchPartyPage />} />
