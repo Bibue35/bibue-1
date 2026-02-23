@@ -10,9 +10,10 @@ const stripLinks = [
 ];
 
 export function ContextualBottomStrip() {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const scrollRef = useRef(0);
   const location = useLocation();
+  const isHome = location.pathname === "/";
 
   useEffect(() => {
     let ticking = false;
@@ -24,9 +25,11 @@ export function ContextualBottomStrip() {
         const currentScrollY = window.scrollY;
         const scrollDelta = currentScrollY - scrollRef.current;
 
-        if (scrollDelta < -3 && currentScrollY > 150) {
+        if (isHome && currentScrollY < 200) {
           setIsVisible(true);
-        } else if (scrollDelta > 30 || currentScrollY < 50) {
+        } else if (scrollDelta < -3 && currentScrollY > 150) {
+          setIsVisible(true);
+        } else if (scrollDelta > 30) {
           setIsVisible(false);
         }
 

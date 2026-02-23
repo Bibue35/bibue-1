@@ -194,12 +194,6 @@ export default function MangaPage() {
                       {t("nav.forYou")}
                     </Link>
                   </Button>
-                  <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
-                    <Link to="/community">
-                      <Users className="w-4 h-4" />
-                      {t("nav.community")}
-                    </Link>
-                  </Button>
                 </>
               ) : null}
               <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
