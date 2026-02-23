@@ -20,7 +20,7 @@ export function EpisodeProgressTracker({
   animeTitle,
 }: EpisodeProgressTrackerProps) {
   const { user } = useAuth();
-  const { getWatchlistItem, updateProgress } = useWatchlist();
+  const { getWatchlistItem, updateProgress, updateStatus } = useWatchlist();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -43,11 +43,25 @@ export function EpisodeProgressTracker({
         field: "last_episode_watched",
         value: epNum,
       });
-      toast({
-        title: `${animeTitle}: Episode ${epNum} of ${totalEpisodes} ✓`,
-      });
+
+      // Auto-complete when all episodes are watched
+      if (epNum >= totalEpisodes && totalEpisodes > 0 && item.status !== "completed") {
+        updateStatus.mutate({
+          mal_id: malId,
+          media_type: "anime",
+          status: "completed",
+        });
+        toast({
+          title: `🎉 ${animeTitle} completed!`,
+          description: `All ${totalEpisodes} episodes watched.`,
+        });
+      } else {
+        toast({
+          title: `${animeTitle}: Episode ${epNum} of ${totalEpisodes} ✓`,
+        });
+      }
     },
-    [malId, item, animeTitle, totalEpisodes, updateProgress, toast]
+    [malId, item, animeTitle, totalEpisodes, updateProgress, updateStatus, toast]
   );
 
   const handleToggleEpisode = useCallback(
