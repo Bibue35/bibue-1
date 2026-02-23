@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Anime } from "@/lib/api";
 import { formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useThemeContext } from "@/contexts/ThemeContext";
 const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ default: m.AnimeDetailModal })));
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslatedText } from "@/hooks/useTranslatedText";
@@ -28,6 +29,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const { t, language } = useLanguage();
+  const { flavor } = useThemeContext();
   
   const featured = featuredAnime?.[selectedIndex];
   const sideCards = featuredAnime?.slice(0, 4).filter((_, i) => i !== selectedIndex) || [];
@@ -128,7 +130,10 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
           </div>
 
           {/* Title */}
-          <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-bold font-sacred mb-1.5 sm:mb-3 tracking-wide leading-tight">
+          <h1 className={cn(
+            "text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-bold font-sacred mb-1.5 sm:mb-3 tracking-wide leading-tight",
+            flavor === "liquid-glass" && "chromatic-text"
+          )}>
             {featured.title}
           </h1>
 
