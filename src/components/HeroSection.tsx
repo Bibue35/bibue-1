@@ -96,46 +96,73 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
 
       {/* Content overlaid on the bottom of the image */}
       <div className="container mx-auto px-3 sm:px-4 relative z-10 pb-12 sm:pb-16 md:pb-20">
-        <div className="max-w-lg">
-          {/* Genres — 2 max */}
-          {featured.genres && featured.genres.length > 0 && (
-            <div className="flex gap-1.5 mb-3">
-              {featured.genres.slice(0, 2).map((genre) => (
-                <span
-                  key={genre.mal_id}
-                  className="px-2.5 py-0.5 rounded-full bg-foreground/10 backdrop-blur-sm text-xs font-medium text-foreground/80"
+        <div className="flex items-end justify-between">
+          <div className="max-w-lg">
+            {/* Genres — 2 max */}
+            {featured.genres && featured.genres.length > 0 && (
+              <div className="flex gap-1.5 mb-3">
+                {featured.genres.slice(0, 3).map((genre) => (
+                  <span
+                    key={genre.mal_id}
+                    className="px-2.5 py-0.5 rounded-full bg-foreground/10 backdrop-blur-sm text-xs font-medium text-foreground/80"
+                  >
+                    {genre.name}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Title — large, bold, readable in 1 second */}
+            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-sacred mb-2 sm:mb-3 tracking-wide leading-[1.1]">
+              {featured.title}
+            </h1>
+
+            {/* Rating — single number */}
+            {featured.score && (
+              <div className="flex items-center gap-1.5 mb-3 sm:mb-4">
+                <Star className="w-4 h-4 text-primary fill-primary" />
+                <span className="text-sm sm:text-base font-semibold">{formatScore(featured.score)}</span>
+              </div>
+            )}
+
+            <HeroSynopsis text={featured.synopsis} />
+
+            {/* Single CTA */}
+            <Button 
+              size="lg"
+              variant="primary" 
+              className="gap-2 text-sm sm:text-base h-10 sm:h-12 px-6 sm:px-8 rounded-full"
+              onClick={() => setModalOpen(true)}
+            >
+              <Play className="w-4 h-4 sm:w-5 sm:h-5" />
+              {t("hero.watchNow")}
+            </Button>
+          </div>
+
+          {/* Side preview cards — right side */}
+          <div className="hidden lg:flex flex-col gap-3 items-end">
+            {featuredAnime?.slice(0, 4).filter((_, i) => i !== selectedIndex).slice(0, 3).map((anime, i) => {
+              const originalIndex = featuredAnime.findIndex(a => a.anilist_id === anime.anilist_id);
+              return (
+                <button
+                  key={anime.anilist_id}
+                  onClick={() => setSelectedIndex(originalIndex)}
+                  className={cn(
+                    "w-36 xl:w-40 aspect-[4/3] rounded-2xl overflow-hidden border-2 transition-all duration-300 hover:scale-105",
+                    "border-foreground/10 hover:border-primary/50 shadow-lg"
+                  )}
                 >
-                  {genre.name}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Title — large, bold, readable in 1 second */}
-          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-sacred mb-2 sm:mb-3 tracking-wide leading-[1.1]">
-            {featured.title}
-          </h1>
-
-          {/* Rating — single number */}
-          {featured.score && (
-            <div className="flex items-center gap-1.5 mb-3 sm:mb-4">
-              <Star className="w-4 h-4 text-primary fill-primary" />
-              <span className="text-sm sm:text-base font-semibold">{formatScore(featured.score)}</span>
-            </div>
-          )}
-
-          <HeroSynopsis text={featured.synopsis} />
-
-          {/* Single CTA */}
-          <Button 
-            size="lg"
-            variant="primary" 
-            className="gap-2 text-sm sm:text-base h-10 sm:h-12 px-6 sm:px-8 rounded-full"
-            onClick={() => setModalOpen(true)}
-          >
-            <Play className="w-4 h-4 sm:w-5 sm:h-5" />
-            {t("hero.watchNow")}
-          </Button>
+                  <img
+                    src={anime.images.webp.large_image_url}
+                    alt={anime.title}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
