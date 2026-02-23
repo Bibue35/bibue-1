@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { IncognitoProvider } from "@/contexts/IncognitoContext";
+import { SpoilerFreeProvider } from "@/contexts/SpoilerFreeContext";
 import { MiniPlayerProvider } from "@/contexts/MiniPlayerContext";
 import { IncognitoOverlay } from "@/components/IncognitoOverlay";
 import { MiniPlayer } from "@/components/MiniPlayer";
@@ -46,6 +47,8 @@ const GenreDetailPage = lazy(() => import("./pages/GenreDetailPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const AnimeMapPage = lazy(() => import("./pages/AnimeMapPage"));
+const VibeCheckPage = lazy(() => import("./pages/VibeCheckPage"));
 
 // Minimal loading fallback for route transitions
 const PageLoader = () => (
@@ -78,6 +81,7 @@ const App = () => (
       <LanguageProvider>
         <AuthProvider>
           <IncognitoProvider>
+            <SpoilerFreeProvider>
             <MiniPlayerProvider>
               <TooltipProvider>
                 <IncognitoOverlay />
@@ -119,6 +123,8 @@ const App = () => (
                             <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                             <Route path="/privacy" element={<PrivacyPage />} />
                             <Route path="/terms" element={<TermsPage />} />
+                            <Route path="/map" element={<AnimeMapPage />} />
+                            <Route path="/vibe" element={<VibeCheckPage />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </AnimatedRoutes>
@@ -128,6 +134,7 @@ const App = () => (
                 </BrowserRouter>
               </TooltipProvider>
             </MiniPlayerProvider>
+            </SpoilerFreeProvider>
           </IncognitoProvider>
         </AuthProvider>
       </LanguageProvider>

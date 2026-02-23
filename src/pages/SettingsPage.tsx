@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { SEO } from "@/components/SEO";
 import { useNavigate } from "react-router-dom";
-import { User, Camera, Loader2, ArrowLeft, Check, X } from "lucide-react";
+import { User, Camera, Loader2, ArrowLeft, Check, X, EyeOff } from "lucide-react";
 import { FloatingNav } from "@/components/FloatingNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,12 +14,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { AvatarPicker } from "@/components/settings/AvatarPicker";
 import { LinkedAccounts } from "@/components/settings/LinkedAccounts";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSpoilerFree } from "@/contexts/SpoilerFreeContext";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
   const { user, profile, loading: authLoading, refreshProfile } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { isSpoilerFree, toggleSpoilerFree } = useSpoilerFree();
 
   const [username, setUsername] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -222,6 +225,30 @@ export default function SettingsPage() {
             {t("settings.connectedAccounts")}
           </h2>
           <LinkedAccounts variant="mobile" />
+        </section>
+
+        {/* Spoiler-Free Mode */}
+        <section className="space-y-4 mb-8">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
+            Privacy & Content
+          </h2>
+          <div className="rounded-xl bg-card border border-border overflow-hidden">
+            <div className="px-4 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <EyeOff className="w-5 h-5 text-muted-foreground" />
+                <div>
+                  <Label className="text-sm font-medium">Spoiler-Free Mode</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Hide synopses, reviews, and comments behind spoiler tags
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={isSpoilerFree}
+                onCheckedChange={toggleSpoilerFree}
+              />
+            </div>
+          </div>
         </section>
       </div>
 
