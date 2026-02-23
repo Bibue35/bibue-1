@@ -1,10 +1,8 @@
-import { useState, memo, forwardRef, lazy, Suspense, useCallback } from "react";
+import { useState, memo, forwardRef, lazy, Suspense } from "react";
 import { Star, BookOpen, Calendar } from "lucide-react";
-import { Manga, formatScore, getMangaById } from "@/lib/api";
+import { Manga, formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
 const MangaDetailModal = lazy(() => import("./MangaDetailModal").then(m => ({ default: m.MangaDetailModal })));
-import { useQueryClient } from "@tanstack/react-query";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { WatchlistButton } from "./WatchlistButton";
 import { TitleTooltip } from "./TitleTooltip";
 
@@ -16,17 +14,6 @@ interface MangaCardProps {
 
 export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(function MangaCard({ manga, index = 0, variant = "default" }, ref) {
   const [modalOpen, setModalOpen] = useState(false);
-  const queryClient = useQueryClient();
-  const { language } = useLanguage();
-
-  // Prefetch detail data on hover/touch
-  const prefetchDetail = useCallback(() => {
-    queryClient.prefetchQuery({
-      queryKey: ["manga", manga.anilist_id, language],
-      queryFn: () => getMangaById(manga.anilist_id, language as any),
-      staleTime: 1000 * 60 * 60,
-    });
-  }, [queryClient, manga.anilist_id, language]);
 
   // Format published date
   const getPublishedInfo = () => {
@@ -46,8 +33,6 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
       <>
         <button
           onClick={() => setModalOpen(true)}
-          onMouseEnter={prefetchDetail}
-          onTouchStart={prefetchDetail}
           className="flex items-center gap-3 sm:gap-4 p-3 rounded-xl transition-all duration-150 group text-left w-full hover:bg-foreground/5 active:scale-[0.98]"
         >
           <img
@@ -106,21 +91,18 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
     <>
       <button
         onClick={() => setModalOpen(true)}
-        onMouseEnter={prefetchDetail}
-        onTouchStart={prefetchDetail}
         className="block group text-left w-full active:scale-[0.98] transition-transform duration-150"
       >
         {/* Image with simple hover effect */}
         <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted will-change-transform transform-gpu">
           <img
             src={manga.images.webp.image_url}
-            srcSet={`${manga.images.webp.image_url} 230w, ${manga.images.webp.medium_image_url || manga.images.webp.large_image_url} 460w, ${manga.images.webp.large_image_url} 600w`}
             alt={`${manga.title} cover art`}
             width={176}
             height={264}
             loading="lazy"
             decoding="async"
-            sizes="(max-width: 640px) 112px, (max-width: 768px) 144px, 176px"
+            sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, 176px"
             className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 will-change-transform transform-gpu"
           />
           {/* Chapter count badge */}

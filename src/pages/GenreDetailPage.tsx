@@ -8,7 +8,7 @@ import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { AnimeCard } from "@/components/AnimeCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { genreDefinitions } from "@/data/genreDefinitions";
+import { genreDefinitions } from "@/data/watchOrderGuides";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 

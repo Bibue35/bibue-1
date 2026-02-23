@@ -6,8 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAnimeDetails, useAnimeRecommendations } from "@/hooks/useAnimeData";
-import { formatScore, getAnimeEpisodes } from "@/lib/api";
-import type { JikanEpisode } from "@/lib/api";
+import { formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,54 +40,23 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Fetch episode details from Jikan (MAL) for titles and air dates
-  const malId = anime?.idMal;
-  const { data: jikanEpisodes } = useQuery({
-    queryKey: ["jikan-episodes", malId, episodeRange],
-    queryFn: () => getAnimeEpisodes(malId!, episodeRange + 1),
-    enabled: !!malId && open && activeTab === "episodes",
-    staleTime: 1000 * 60 * 60 * 24, // 24 hours — episodes don't change
-  });
+  // Generate mock episode data
+  const generateEpisodes = (count: number) => {
+    return Array.from({ length: Math.min(count, 24) }, (_, i) => ({
+      number: i + 1,
+      title: i === 0 ? "Episode 1" : `Episode ${i + 1}`,
+      description: `Episode ${i + 1} of ${anime?.title || "this anime"}...`,
+      thumbnail: anime?.images?.webp?.large_image_url,
+    }));
+  };
 
-  // Build episode list from API data or generate numbered list
-  const EPISODES_PER_RANGE = 12;
-  const totalEpisodeCount = anime?.episodes || 12;
-  const streamingEps = anime?.streamingEpisodes || [];
-  
-  const episodes = Array.from({ length: totalEpisodeCount }, (_, i) => {
-    const epNum = i + 1;
-    const matchingStream = streamingEps.find(se => {
-      if (!se.title) return false;
-      const match = se.title.match(/(?:Episode|Ep\.?|E)\s*(\d+)/i);
-      return match && parseInt(match[1]) === epNum;
-    });
-    // Use Jikan episode data for title and synopsis
-    const jikanEp = jikanEpisodes?.find(je => je.mal_id === epNum);
-    const title = jikanEp?.title || (matchingStream?.title ? (() => {
-      const m = matchingStream.title!.match(/(?:Episode|Ep\.?|E)\s*\d+\s*[-–:]\s*(.+)/i);
-      return m ? m[1].trim() : matchingStream.title!;
-    })() : `Episode ${epNum}`);
-    return {
-      number: epNum,
-      title,
-      aired: jikanEp?.aired || undefined,
-      filler: jikanEp?.filler || false,
-      recap: jikanEp?.recap || false,
-    };
-  });
-  
-  const rangeCount = Math.ceil(episodes.length / EPISODES_PER_RANGE);
-  const rangeOptions = Array.from({ length: rangeCount }, (_, i) => ({
-    start: i * EPISODES_PER_RANGE + 1,
-    end: Math.min((i + 1) * EPISODES_PER_RANGE, episodes.length),
-  }));
+  const episodes = anime ? generateEpisodes(anime.episodes || 12) : [];
+  const episodesPerPage = 4;
+  const totalPages = Math.ceil(episodes.length / episodesPerPage);
   const displayedEpisodes = episodes.slice(
-    episodeRange * EPISODES_PER_RANGE,
-    (episodeRange + 1) * EPISODES_PER_RANGE
+    episodeRange * episodesPerPage,
+    (episodeRange + 1) * episodesPerPage
   );
-  const isAiring = anime?.status === "RELEASING";
-  const nextEpNumber = anime?.nextAiringEpisode?.episode;
-  const nextAiringAt = anime?.nextAiringEpisode?.airingAt;
 
   // Comments query
   const { data: comments, isLoading: commentsLoading } = useQuery({
@@ -295,85 +263,37 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
             </div>
           </TabsContent>
 
-          {/* Episodes Tab — Netflix vertical list */}
+          {/* Episodes Tab */}
           <TabsContent value="episodes">
-            {/* Header: title + episode count + range dropdown */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm sm:text-lg font-bold font-sacred">EPISODES</h2>
-                <span className="text-xs text-muted-foreground">{totalEpisodeCount} Episodes</span>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm sm:text-lg font-bold font-sacred">EPISODES</h2>
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-muted-foreground">
+                  {episodeRange * episodesPerPage + 1}-{Math.min((episodeRange + 1) * episodesPerPage, episodes.length)}
+                </span>
+                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" disabled={episodeRange === 0} onClick={() => setEpisodeRange(p => p - 1)}>
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" disabled={episodeRange >= totalPages - 1} onClick={() => setEpisodeRange(p => p + 1)}>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Button>
               </div>
-              {rangeCount > 1 && (
-                <select
-                  value={episodeRange}
-                  onChange={(e) => setEpisodeRange(Number(e.target.value))}
-                  className="bg-muted/50 border border-border/50 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
-                >
-                  {rangeOptions.map((range, i) => (
-                    <option key={i} value={i}>
-                      Episodes {range.start}–{range.end}
-                    </option>
-                  ))}
-                </select>
-              )}
             </div>
-
-            {/* Episode rows */}
-            <div className="space-y-0">
-              {displayedEpisodes.map((ep) => {
-                const isUnaired = isAiring && nextEpNumber !== undefined && ep.number >= nextEpNumber;
-                const isNext = isAiring && ep.number === nextEpNumber;
-                const nextAirDate = isNext && nextAiringAt
-                  ? new Date(nextAiringAt * 1000).toLocaleDateString(undefined, { month: "short", day: "numeric" })
-                  : null;
-
-                return (
-                  <button
-                    key={ep.number}
-                    onClick={() => !isUnaired && handlePlay(ep.number)}
-                    disabled={isUnaired && !isNext}
-                    className={cn(
-                      "w-full text-left group flex items-start gap-3 sm:gap-4 py-3 sm:py-4 transition-colors duration-150 border-b border-border/10",
-                      isUnaired ? "opacity-50 cursor-default" : "hover:bg-muted/30 cursor-pointer",
-                      isNext && "border-l-2 border-l-primary pl-3 opacity-100"
-                    )}
-                  >
-                    {/* Episode number */}
-                    <span className="text-lg sm:text-2xl font-bold text-muted-foreground/50 w-8 sm:w-10 text-center flex-shrink-0 pt-1">
-                      {ep.number}
-                    </span>
-
-                    {/* Dark card with episode number — no fake thumbnails */}
-                    <div className="relative w-28 sm:w-40 aspect-video rounded-md overflow-hidden flex-shrink-0 bg-muted/20 flex items-center justify-center">
-                      <span className="text-2xl sm:text-3xl font-bold text-muted-foreground/30">{ep.number}</span>
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0 pt-0.5">
-                      <h3 className={cn(
-                        "font-medium text-xs sm:text-sm line-clamp-1 leading-tight mb-0.5 transition-colors",
-                        isUnaired ? "text-muted-foreground" : "text-foreground group-hover:text-primary"
-                      )}>
-                        {ep.title}
-                      </h3>
-                      <div className="flex items-center gap-2 text-[10px] sm:text-xs text-muted-foreground">
-                        {anime?.duration && <span>{anime.duration}</span>}
-                        {ep.filler && <span className="text-yellow-500 font-medium">Filler</span>}
-                        {ep.recap && <span className="font-medium">Recap</span>}
-                        {ep.aired && !isUnaired && (
-                          <span>{new Date(ep.aired).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}</span>
-                        )}
-                        {isNext && nextAirDate && (
-                          <span className="text-primary font-medium">Airing {nextAirDate}</span>
-                        )}
-                        {isUnaired && !isNext && (
-                          <span>Not yet aired</span>
-                        )}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
+              {displayedEpisodes.map((ep) => (
+                <button key={ep.number} onClick={() => handlePlay(ep.number)} className="text-left group">
+                  <div className="relative aspect-video rounded-lg overflow-hidden mb-1.5">
+                    <img src={ep.thumbnail} alt={ep.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                    <div className="absolute top-1.5 right-1.5 bg-background/80 text-foreground text-[10px] font-bold px-1 py-0.5 rounded">E{ep.number}</div>
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                        <Play className="w-3.5 h-3.5 text-white fill-white" />
                       </div>
                     </div>
-                  </button>
-                );
-              })}
+                  </div>
+                  <h3 className="font-medium text-xs group-hover:text-primary transition-colors line-clamp-1">{ep.number}. {ep.title}</h3>
+                </button>
+              ))}
             </div>
           </TabsContent>
 

@@ -128,12 +128,7 @@ export const HorizontalScroll = memo(function HorizontalScroll({
         
         <div
           ref={scrollRef}
-          className="flex gap-2.5 sm:gap-4 overflow-x-auto hide-scrollbar scroll-smooth pb-4 -mx-3 px-3 sm:mx-0 sm:px-0 transform-gpu snap-x snap-mandatory [&>*]:snap-start"
-          style={{
-            WebkitOverflowScrolling: "touch",
-            scrollbarWidth: "none",
-            touchAction: "pan-x",
-          }}
+          className="flex gap-2.5 sm:gap-4 overflow-x-auto hide-scrollbar scroll-smooth pb-4 -mx-3 px-3 sm:mx-0 sm:px-0 transform-gpu"
         >
           {children}
         </div>

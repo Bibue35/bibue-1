@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { SEO } from "@/components/SEO";
 import { useNavigate } from "react-router-dom";
 import { User, Camera, Loader2, ArrowLeft, Check, X } from "lucide-react";
-import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
+import { FloatingNav } from "@/components/FloatingNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -142,7 +142,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-background">
       <SEO title="Settings" description="Manage your Bibue profile settings." url="/settings" noIndex />
-      <CollapsibleNavbar />
+      <FloatingNav />
 
       <div className="max-w-2xl mx-auto px-3 sm:px-4 pt-16 sm:pt-24 pb-24">
         {/* Header */}
@@ -222,19 +222,6 @@ export default function SettingsPage() {
             {t("settings.connectedAccounts")}
           </h2>
           <LinkedAccounts variant="mobile" />
-        </section>
-
-        {/* Import */}
-        <section className="space-y-4 mb-8">
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
-            Import Your List
-          </h2>
-          <div className="rounded-xl bg-card border border-border p-4">
-            <p className="text-sm text-muted-foreground mb-3">Import your anime & manga list from MyAnimeList or AniList.</p>
-            <Button variant="outline" size="sm" onClick={() => navigate("/import")} className="gap-2">
-              Import List
-            </Button>
-          </div>
         </section>
       </div>
 

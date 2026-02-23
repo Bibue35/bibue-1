@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { SEO, itemListJsonLd } from "@/components/SEO";
 import { useSearchParams, Link } from "react-router-dom";
 import { Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Trophy, Star, Zap, Users, Swords, Heart, Wand2, BookOpen, CheckCircle, RefreshCw } from "lucide-react";
+import { DeferredTrendingManhwaSection, DeferredTopManhwaSection, DeferredTrendingManhuaSection, DeferredTopManhuaSection, DeferredNewThisWeekSection, DeferredCompletedSection, DeferredMangaGenreSection } from "@/components/DeferredMangaSections";
 import { SectionError } from "@/components/SectionError";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
@@ -323,6 +324,28 @@ export default function MangaPage() {
         </ContentSection>
       )}
 
+      {/* Trending Manhwa - Deferred */}
+      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhwa") && <DeferredTrendingManhwaSection isMobile={isMobile} />}
+
+      {/* Top Manhwa - Deferred */}
+      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhwa") && <DeferredTopManhwaSection isMobile={isMobile} />}
+
+      {/* Trending Manhua - Deferred */}
+      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhua") && <DeferredTrendingManhuaSection isMobile={isMobile} />}
+
+      {/* Top Manhua - Deferred */}
+      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhua") && <DeferredTopManhuaSection isMobile={isMobile} />}
+
+      {/* New This Week - Deferred */}
+      {!isSearching && !genreId && <DeferredNewThisWeekSection isMobile={isMobile} />}
+
+      {/* Completed Series - Deferred */}
+      {!isSearching && !genreId && <DeferredCompletedSection isMobile={isMobile} />}
+
+      {/* Genre Sections - Deferred */}
+      {!isSearching && !genreId && <DeferredMangaGenreSection genre="Action" titleJp="アクション" icon={Swords} linkTo="/manga?genre=1" isMobile={isMobile} />}
+      {!isSearching && !genreId && <DeferredMangaGenreSection genre="Romance" titleJp="ロマンス" icon={Heart} linkTo="/manga?genre=22" isMobile={isMobile} />}
+      {!isSearching && !genreId && <DeferredMangaGenreSection genre="Fantasy" titleJp="ファンタジー" icon={Wand2} linkTo="/manga?genre=10" isMobile={isMobile} />}
 
       {/* Results anchor */}
       <div ref={resultsRef} />

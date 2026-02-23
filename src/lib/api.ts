@@ -33,7 +33,7 @@ export interface Anime {
   title_japanese?: string;
   images: {
     jpg: { large_image_url: string; image_url: string };
-    webp: { large_image_url: string; image_url: string; medium_image_url?: string };
+    webp: { large_image_url: string; image_url: string };
   };
   trailer?: { youtube_id?: string; url?: string };
   synopsis?: string;
@@ -54,21 +54,6 @@ export interface Anime {
   year?: number;
   season?: string;
   nextAiringEpisode?: { airingAt: number; episode: number };
-  streamingEpisodes?: Array<{ title?: string; thumbnail?: string; url?: string; site?: string }>;
-  bannerImage?: string;
-  idMal?: number;
-}
-
-export interface JikanEpisode {
-  mal_id: number;
-  title: string;
-  title_japanese?: string;
-  title_romanji?: string;
-  aired?: string;
-  score?: number;
-  filler?: boolean;
-  recap?: boolean;
-  synopsis?: string;
 }
 
 export interface Manga {
@@ -82,7 +67,7 @@ export interface Manga {
   title_japanese?: string;
   images: {
     jpg: { large_image_url: string; image_url: string };
-    webp: { large_image_url: string; image_url: string; medium_image_url?: string };
+    webp: { large_image_url: string; image_url: string };
   };
   synopsis?: string;
   score?: number;
@@ -177,10 +162,9 @@ async function anilistQuery<T>(query: string, variables: Record<string, unknown>
 
 // Convert AniList media to our Anime format
 function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime {
-  // AniList sizes: medium ~230px, large ~460px, extraLarge ~600px
-  const extraLarge = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
-  const large = media.coverImage.large || extraLarge;
-  const medium = media.coverImage.medium || large;
+  // Use large/extraLarge for hero/carousel, medium for card thumbnails
+  const largeImageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
+  const cardImageUrl = media.coverImage.medium || media.coverImage.large || largeImageUrl;
   
   // IMPORTANT: Always use AniList ID for consistency across the app
   // This ensures the ID passed to cards matches the ID used for detail fetches
@@ -192,8 +176,8 @@ function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime
     title_english: media.title.english || undefined,
     title_japanese: media.title.native || undefined,
     images: {
-      jpg: { large_image_url: extraLarge, image_url: medium },
-      webp: { large_image_url: extraLarge, image_url: medium, medium_image_url: large },
+      jpg: { large_image_url: largeImageUrl, image_url: cardImageUrl },
+      webp: { large_image_url: largeImageUrl, image_url: cardImageUrl },
     },
     trailer: media.trailer ? { youtube_id: media.trailer.id, url: media.trailer.site === "youtube" ? `https://youtube.com/watch?v=${media.trailer.id}` : undefined } : undefined,
     synopsis: media.description?.replace(/<[^>]*>/g, "") || undefined,
@@ -217,28 +201,27 @@ function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime
     year: media.seasonYear || media.startDate?.year || undefined,
     season: media.season?.toLowerCase() || undefined,
     nextAiringEpisode: media.nextAiringEpisode || undefined,
-    streamingEpisodes: media.streamingEpisodes || undefined,
-    bannerImage: media.bannerImage || undefined,
-    idMal: media.idMal || undefined,
   };
 }
 
 // Convert AniList media to our Manga format
 function toManga(media: AniListMedia, language: SupportedLanguage = "en"): Manga {
-  const extraLarge = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
-  const large = media.coverImage.large || extraLarge;
-  const medium = media.coverImage.medium || large;
+  // Use large/extraLarge for hero/detail, medium for card thumbnails
+  const largeImageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
+  const cardImageUrl = media.coverImage.medium || media.coverImage.large || largeImageUrl;
   
+  // IMPORTANT: Always use AniList ID for consistency across the app
+  // This ensures the ID passed to cards matches the ID used for detail fetches
   return {
-    anilist_id: media.id,
-    mal_id: media.id,
+    anilist_id: media.id, // Primary AniList ID for all API calls
+    mal_id: media.id, // Keep for backward compatibility (also AniList ID)
     title: getTitleForLanguage(media.title, language),
     title_romaji: media.title.romaji || undefined,
     title_english: media.title.english || undefined,
     title_japanese: media.title.native || undefined,
     images: {
-      jpg: { large_image_url: extraLarge, image_url: medium },
-      webp: { large_image_url: extraLarge, image_url: medium, medium_image_url: large },
+      jpg: { large_image_url: largeImageUrl, image_url: cardImageUrl },
+      webp: { large_image_url: largeImageUrl, image_url: cardImageUrl },
     },
     synopsis: media.description?.replace(/<[^>]*>/g, "") || undefined,
     score: media.averageScore ? media.averageScore / 10 : undefined,
@@ -291,7 +274,6 @@ interface AniListMedia {
   stats?: { scoreDistribution?: Array<{ score: number; amount: number }> };
   recommendations?: { nodes: Array<{ mediaRecommendation: AniListMedia }> };
   nextAiringEpisode?: { airingAt: number; episode: number };
-  streamingEpisodes?: Array<{ title?: string; thumbnail?: string; url?: string; site?: string }>;
 }
 
 const MEDIA_FRAGMENT = `
@@ -484,26 +466,6 @@ export async function getAnimeByGenre(
   return data.Page.media.map(m => toAnime(m, language));
 }
 
-// Get short anime (12 or fewer episodes) for "Late Night Binge" mood
-export async function getShortAnime(
-  page = 1,
-  limit = 15,
-  language: SupportedLanguage = "en"
-): Promise<Anime[]> {
-  const query = `
-    query ($page: Int, $perPage: Int) {
-      Page(page: $page, perPage: $perPage) {
-        media(type: ANIME, episodes_lesser: 13, episodes_greater: 0, status: FINISHED, sort: [SCORE_DESC], isAdult: false, averageScore_greater: 72) {
-          ${MEDIA_FRAGMENT}
-        }
-      }
-    }
-  `;
-
-  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit });
-  return data.Page.media.map(m => toAnime(m, language));
-}
-
 export async function getSeasonalAnime(year?: number, season?: string, language: SupportedLanguage = "en"): Promise<Anime[]> {
   const currentDate = new Date();
   const y = year || currentDate.getFullYear();
@@ -530,35 +492,12 @@ export async function getAnimeById(id: number, language: SupportedLanguage = "en
       Media(id: $id, type: ANIME) {
         ${MEDIA_FRAGMENT}
         stats { scoreDistribution { score amount } }
-        streamingEpisodes { title thumbnail url site }
       }
     }
   `;
 
   const data = await anilistQuery<{ Media: AniListMedia }>(query, { id });
   return toAnime(data.Media, language);
-}
-
-// Fetch episode details from Jikan (MAL) API — provides titles and synopses
-export async function getAnimeEpisodes(malId: number, page = 1): Promise<JikanEpisode[]> {
-  try {
-    const response = await fetch(`https://api.jikan.moe/v4/anime/${malId}/episodes?page=${page}`);
-    if (!response.ok) return [];
-    const json = await response.json();
-    return (json.data || []).map((ep: any) => ({
-      mal_id: ep.mal_id,
-      title: ep.title || `Episode ${ep.mal_id}`,
-      title_japanese: ep.title_japanese || undefined,
-      title_romanji: ep.title_romanji || undefined,
-      aired: ep.aired || undefined,
-      score: ep.score || undefined,
-      filler: ep.filler || false,
-      recap: ep.recap || false,
-      synopsis: ep.synopsis || undefined,
-    }));
-  } catch {
-    return [];
-  }
 }
 
 export async function searchAnime(searchQuery: string, page = 1, limit = 25, language: SupportedLanguage = "en", sort: "SEARCH_MATCH" | "START_DATE_DESC" | "POPULARITY_DESC" = "START_DATE_DESC"): Promise<Anime[]> {
