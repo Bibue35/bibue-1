@@ -13,6 +13,7 @@ interface MobileAnimeCardProps {
   variant?: "default" | "featured" | "compact";
   showProgress?: boolean;
   progress?: number;
+  eager?: boolean;
 }
 
 export const MobileAnimeCard = memo(function MobileAnimeCard({ 
@@ -21,6 +22,7 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
   variant = "default",
   showProgress = false,
   progress = 0,
+  eager = false,
 }: MobileAnimeCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const { addToWatchlist, removeFromWatchlist, isInWatchlist, isLoading } = useWatchlist();
@@ -247,9 +249,9 @@ export const MobileAnimeCard = memo(function MobileAnimeCard({
           <img
             src={anime.images.webp.image_url}
             alt={`${anime.title} cover art`}
-            width={176}
-            height={264}
-            loading="lazy"
+            width={300}
+            height={450}
+            loading={eager ? "eager" : "lazy"}
             decoding="async"
             className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 will-change-transform transform-gpu"
           />
