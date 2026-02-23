@@ -2,7 +2,7 @@ import { useState, useRef, useMemo, useCallback, useEffect, Suspense, lazy } fro
 import { SEO } from "@/components/SEO";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { useQuery } from "@tanstack/react-query";
-import { getTopAnime, getAnimeBatchByIds, Anime } from "@/lib/api";
+import { getTopAnime, getAnimeBatchByIds, getTopManga, getMangaBatchByIds, Anime, Manga } from "@/lib/api";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -12,8 +12,10 @@ import { useWatchlist, WatchlistItem } from "@/hooks/useWatchlist";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "next-themes";
+import { cn } from "@/lib/utils";
 
 const AnimeDetailModal = lazy(() => import("@/components/AnimeDetailModal").then(m => ({ default: m.AnimeDetailModal })));
+const MangaDetailModal = lazy(() => import("@/components/MangaDetailModal").then(m => ({ default: m.MangaDetailModal })));
 
 // ─── Genre config ──────────────────────────────────────────────
 const GENRE_COLORS: Record<string, string> = {
@@ -54,10 +56,16 @@ const GENRE_CLUSTERS: Record<string, [number, number, number]> = {
   Music: [-6, -18, -6],
 };
 
+type MediaMode = "anime" | "manga";
+
 // ─── Types ─────────────────────────────────────────────────────
-interface GalaxyNode {
+interface WebNode {
   id: number;
-  anime: Anime;
+  title: string;
+  imageUrl?: string;
+  score?: number;
+  episodes?: number;
+  chapters?: number;
   position: THREE.Vector3;
   color: string;
   size: number;
@@ -65,6 +73,8 @@ interface GalaxyNode {
   watchStatus?: string;
   userScore?: number | null;
   genre: string;
+  mediaType: MediaMode;
+  popularity?: number;
 }
 
 interface Connection {
@@ -74,70 +84,77 @@ interface Connection {
 }
 
 // ─── Layout helpers ────────────────────────────────────────────
-function buildGalaxyNodes(
+function buildNodes(
   animeList: Anime[],
-  watchlistMap: Map<number, WatchlistItem>
-): GalaxyNode[] {
-  const nodes: GalaxyNode[] = [];
+  mangaList: Manga[],
+  watchlistMap: Map<number, WatchlistItem>,
+  mode: MediaMode
+): WebNode[] {
+  const nodes: WebNode[] = [];
 
-  animeList.forEach((anime) => {
-    const primaryGenre = anime.genres?.[0]?.name || "Action";
-    const cluster = GENRE_CLUSTERS[primaryGenre] || [0, 0, 0];
-    const spread = 10;
-
-    const seed = anime.anilist_id;
-    const r1 = Math.sin(seed * 12.9898 + 78.233) * 0.5 + 0.5;
-    const r2 = Math.sin(seed * 43.2391 + 21.134) * 0.5 + 0.5;
-    const r3 = Math.sin(seed * 91.3482 + 52.847) * 0.5 + 0.5;
-
-    const position = new THREE.Vector3(
-      cluster[0] + (r1 - 0.5) * spread,
-      cluster[1] + (r2 - 0.5) * spread,
-      cluster[2] + (r3 - 0.5) * spread
-    );
-
-    const wlItem = watchlistMap.get(anime.anilist_id);
-    const userScore = wlItem?.score;
-    const watchStatus = wlItem?.status;
-
-    let size: number;
-    if (userScore && userScore > 0) {
-      size = 0.08 + (userScore / 10) * 0.22; // smaller nodes for web style
-    } else {
-      const pop = anime.popularity || 1000;
-      size = Math.max(0.08, Math.min(0.2, Math.log10(pop) / 8));
-    }
-
-    const score = anime.score || 5;
-    const brightness = Math.max(0.3, score / 10);
-    const color = GENRE_COLORS[primaryGenre] || "#9ca3af";
-
-    nodes.push({ id: anime.anilist_id, anime, position, color, size, brightness, watchStatus, userScore, genre: primaryGenre });
-  });
+  if (mode === "anime") {
+    animeList.forEach((anime) => {
+      const primaryGenre = anime.genres?.[0]?.name || "Action";
+      const cluster = GENRE_CLUSTERS[primaryGenre] || [0, 0, 0];
+      const spread = 10;
+      const seed = anime.anilist_id;
+      const r1 = Math.sin(seed * 12.9898 + 78.233) * 0.5 + 0.5;
+      const r2 = Math.sin(seed * 43.2391 + 21.134) * 0.5 + 0.5;
+      const r3 = Math.sin(seed * 91.3482 + 52.847) * 0.5 + 0.5;
+      const position = new THREE.Vector3(cluster[0] + (r1 - 0.5) * spread, cluster[1] + (r2 - 0.5) * spread, cluster[2] + (r3 - 0.5) * spread);
+      const wlItem = watchlistMap.get(anime.anilist_id);
+      let size: number;
+      if (wlItem?.score && wlItem.score > 0) {
+        size = 0.08 + (wlItem.score / 10) * 0.22;
+      } else {
+        const pop = anime.popularity || 1000;
+        size = Math.max(0.08, Math.min(0.2, Math.log10(pop) / 8));
+      }
+      const score = anime.score || 5;
+      const color = GENRE_COLORS[primaryGenre] || "#9ca3af";
+      nodes.push({
+        id: anime.anilist_id, title: anime.title, imageUrl: anime.images?.webp?.image_url,
+        score: anime.score, episodes: anime.episodes, position, color, size,
+        brightness: Math.max(0.3, score / 10), watchStatus: wlItem?.status,
+        userScore: wlItem?.score, genre: primaryGenre, mediaType: "anime", popularity: anime.popularity,
+      });
+    });
+  } else {
+    mangaList.forEach((manga) => {
+      const primaryGenre = manga.genres?.[0]?.name || "Action";
+      const cluster = GENRE_CLUSTERS[primaryGenre] || [0, 0, 0];
+      const spread = 10;
+      const seed = manga.anilist_id;
+      const r1 = Math.sin(seed * 12.9898 + 78.233) * 0.5 + 0.5;
+      const r2 = Math.sin(seed * 43.2391 + 21.134) * 0.5 + 0.5;
+      const r3 = Math.sin(seed * 91.3482 + 52.847) * 0.5 + 0.5;
+      const position = new THREE.Vector3(cluster[0] + (r1 - 0.5) * spread, cluster[1] + (r2 - 0.5) * spread, cluster[2] + (r3 - 0.5) * spread);
+      const wlItem = watchlistMap.get(manga.anilist_id);
+      let size: number;
+      if (wlItem?.score && wlItem.score > 0) {
+        size = 0.08 + (wlItem.score / 10) * 0.22;
+      } else {
+        const pop = manga.popularity || 1000;
+        size = Math.max(0.08, Math.min(0.2, Math.log10(pop) / 8));
+      }
+      const score = manga.score || 5;
+      const color = GENRE_COLORS[primaryGenre] || "#9ca3af";
+      nodes.push({
+        id: manga.anilist_id, title: manga.title, imageUrl: manga.images?.webp?.image_url,
+        score: manga.score, chapters: manga.chapters, position, color, size,
+        brightness: Math.max(0.3, score / 10), watchStatus: wlItem?.status,
+        userScore: wlItem?.score, genre: primaryGenre, mediaType: "manga", popularity: manga.popularity,
+      });
+    });
+  }
 
   return nodes;
 }
 
-function buildConnections(nodes: GalaxyNode[], animeList: Anime[]): Connection[] {
+function buildConnections(nodes: WebNode[]): Connection[] {
   const connections: Connection[] = [];
-  const idToIndex = new Map<number, number>();
-  nodes.forEach((n, i) => idToIndex.set(n.id, i));
 
-  // Relation-based connections
-  animeList.forEach((anime) => {
-    const fromIdx = idToIndex.get(anime.anilist_id);
-    if (fromIdx === undefined) return;
-    const relations = (anime as any)._relations as Array<{ id: number; type: string }> | undefined;
-    if (!relations) return;
-    relations.forEach((rel) => {
-      const toIdx = idToIndex.get(rel.id);
-      if (toIdx === undefined || toIdx <= fromIdx) return;
-      const type = ["SEQUEL", "PREQUEL", "PARENT", "SIDE_STORY"].includes(rel.type) ? "sequel" : "related";
-      connections.push({ from: fromIdx, to: toIdx, type });
-    });
-  });
-
-  // Dense genre web connections (spider web style — connect to multiple neighbors)
+  // Dense genre web connections
   const genreGroups: Record<string, number[]> = {};
   nodes.forEach((n, i) => {
     if (!genreGroups[n.genre]) genreGroups[n.genre] = [];
@@ -146,7 +163,6 @@ function buildConnections(nodes: GalaxyNode[], animeList: Anime[]): Connection[]
 
   Object.values(genreGroups).forEach((group) => {
     for (let i = 0; i < group.length; i++) {
-      // Sort others by distance and connect to nearest 3
       const distances: { idx: number; dist: number }[] = [];
       for (let j = 0; j < group.length; j++) {
         if (i === j) continue;
@@ -157,7 +173,6 @@ function buildConnections(nodes: GalaxyNode[], animeList: Anime[]): Connection[]
       for (let k = 0; k < connectCount; k++) {
         const a = Math.min(group[i], group[distances[k].idx]);
         const b = Math.max(group[i], group[distances[k].idx]);
-        // Avoid exact duplicates
         if (!connections.some(c => c.from === a && c.to === b && c.type === "genre")) {
           connections.push({ from: a, to: b, type: "genre" });
         }
@@ -165,7 +180,7 @@ function buildConnections(nodes: GalaxyNode[], animeList: Anime[]): Connection[]
     }
   });
 
-  // Cross-genre web connections (connect nearby nodes across genres for spider web feel)
+  // Cross-genre web connections
   for (let i = 0; i < nodes.length; i++) {
     for (let j = i + 1; j < nodes.length; j++) {
       const dist = nodes[i].position.distanceTo(nodes[j].position);
@@ -178,14 +193,63 @@ function buildConnections(nodes: GalaxyNode[], animeList: Anime[]): Connection[]
   return connections;
 }
 
-// ─── Small node dots (instanced) ───────────────────────────────
+// ─── Celestial body (sun/moon) ─────────────────────────────────
+function CelestialBody({ isDark }: { isDark: boolean }) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const glowRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (meshRef.current) {
+      meshRef.current.rotation.y = t * 0.05;
+    }
+    if (glowRef.current) {
+      const scale = 1 + Math.sin(t * 0.8) * 0.05;
+      glowRef.current.scale.setScalar(scale);
+    }
+  });
+
+  if (isDark) {
+    // Moon
+    return (
+      <group position={[30, 25, -20]}>
+        <mesh ref={meshRef}>
+          <sphereGeometry args={[3, 32, 32]} />
+          <meshStandardMaterial color="#c4ccd8" emissive="#8899aa" emissiveIntensity={0.3} roughness={0.8} />
+        </mesh>
+        <mesh ref={glowRef}>
+          <sphereGeometry args={[3.8, 32, 32]} />
+          <meshBasicMaterial color="#8899bb" transparent opacity={0.08} />
+        </mesh>
+        <pointLight color="#8899cc" intensity={0.4} distance={80} />
+      </group>
+    );
+  }
+
+  // Sun
+  return (
+    <group position={[30, 25, -20]}>
+      <mesh ref={meshRef}>
+        <sphereGeometry args={[4, 32, 32]} />
+        <meshBasicMaterial color="#fcd34d" />
+      </mesh>
+      <mesh ref={glowRef}>
+        <sphereGeometry args={[6, 32, 32]} />
+        <meshBasicMaterial color="#fbbf24" transparent opacity={0.12} />
+      </mesh>
+      <pointLight color="#fbbf24" intensity={0.8} distance={100} />
+    </group>
+  );
+}
+
+// ─── Instanced Nodes ───────────────────────────────────────────
 function InstancedNodes({
   nodes,
   hoveredIndex,
   onHover,
   onClick,
 }: {
-  nodes: GalaxyNode[];
+  nodes: WebNode[];
   hoveredIndex: number | null;
   onHover: (idx: number | null) => void;
   onClick: (idx: number) => void;
@@ -214,8 +278,8 @@ function InstancedNodes({
     const time = state.clock.elapsedTime;
     nodes.forEach((node, i) => {
       let scale = node.size;
-      if (node.watchStatus === "watching") scale *= 1 + Math.sin(time * 3 + node.id) * 0.15;
-      if (node.watchStatus === "plan_to_watch") scale *= 0.6;
+      if (node.watchStatus === "watching" || node.watchStatus === "reading") scale *= 1 + Math.sin(time * 3 + node.id) * 0.15;
+      if (node.watchStatus === "plan_to_watch" || node.watchStatus === "plan_to_read") scale *= 0.6;
       if (hoveredIndex === i) scale *= 2.5;
       dummy.position.copy(node.position);
       dummy.scale.setScalar(scale);
@@ -255,45 +319,32 @@ function InstancedNodes({
   );
 }
 
-// ─── Animated web lines (draw-in + hover highlight) ────────────
-function WebLines({ nodes, connections, hoveredNodeIndex }: { nodes: GalaxyNode[]; connections: Connection[]; hoveredNodeIndex: number | null }) {
+// ─── Animated web lines ────────────────────────────────────────
+function WebLines({ nodes, connections, hoveredNodeIndex }: { nodes: WebNode[]; connections: Connection[]; hoveredNodeIndex: number | null }) {
   const lineRef = useRef<THREE.LineSegments>(null);
   const progressRef = useRef(0);
   const materialRef = useRef<THREE.LineBasicMaterial>(null);
 
-  // Base colors per connection
   const { targetPositions, baseColors } = useMemo(() => {
     const pos = new Float32Array(connections.length * 6);
     const col = new Float32Array(connections.length * 6);
-
     connections.forEach((conn, i) => {
       const from = nodes[conn.from];
       const to = nodes[conn.to];
       const offset = i * 6;
-
       pos[offset] = from.position.x; pos[offset + 1] = from.position.y; pos[offset + 2] = from.position.z;
       pos[offset + 3] = to.position.x; pos[offset + 4] = to.position.y; pos[offset + 5] = to.position.z;
-
       const c1 = new THREE.Color(from.color);
       const c2 = new THREE.Color(to.color);
-
-      if (conn.type === "sequel") {
-        c1.set("#f59e0b"); c2.set("#f59e0b");
-      } else if (conn.type === "related") {
-        c1.set("#6366f1"); c2.set("#6366f1");
-      } else if (conn.type === "web") {
-        c1.lerp(c2, 0.5).multiplyScalar(0.5);
-        c2.copy(c1);
-      }
-
+      if (conn.type === "sequel") { c1.set("#f59e0b"); c2.set("#f59e0b"); }
+      else if (conn.type === "related") { c1.set("#6366f1"); c2.set("#6366f1"); }
+      else if (conn.type === "web") { c1.lerp(c2, 0.5).multiplyScalar(0.5); c2.copy(c1); }
       col[offset] = c1.r; col[offset + 1] = c1.g; col[offset + 2] = c1.b;
       col[offset + 3] = c2.r; col[offset + 4] = c2.g; col[offset + 5] = c2.b;
     });
-
     return { targetPositions: pos, baseColors: col };
   }, [nodes, connections]);
 
-  // Animated positions
   const animPositions = useMemo(() => {
     const pos = new Float32Array(connections.length * 6);
     connections.forEach((conn, i) => {
@@ -305,14 +356,11 @@ function WebLines({ nodes, connections, hoveredNodeIndex }: { nodes: GalaxyNode[
     return pos;
   }, [nodes, connections]);
 
-  // Connected set for hovered node
   const connectedSet = useMemo(() => {
     if (hoveredNodeIndex === null) return null;
     const set = new Set<number>();
     connections.forEach((conn, i) => {
-      if (conn.from === hoveredNodeIndex || conn.to === hoveredNodeIndex) {
-        set.add(i);
-      }
+      if (conn.from === hoveredNodeIndex || conn.to === hoveredNodeIndex) set.add(i);
     });
     return set;
   }, [hoveredNodeIndex, connections]);
@@ -320,17 +368,13 @@ function WebLines({ nodes, connections, hoveredNodeIndex }: { nodes: GalaxyNode[
   useFrame((_, delta) => {
     const geom = lineRef.current?.geometry;
     if (!geom) return;
-
-    // Draw-in animation
     if (progressRef.current < 1) {
       progressRef.current = Math.min(1, progressRef.current + delta * 0.4);
       const p = progressRef.current;
       const posAttr = geom.getAttribute("position") as THREE.BufferAttribute;
       const arr = posAttr.array as Float32Array;
-      const total = connections.length;
-
-      for (let i = 0; i < total; i++) {
-        const stagger = i / total * 0.6;
+      for (let i = 0; i < connections.length; i++) {
+        const stagger = i / connections.length * 0.6;
         const localP = Math.max(0, Math.min(1, (p - stagger) / 0.4));
         const eased = localP * localP * (3 - 2 * localP);
         const offset = i * 6;
@@ -339,38 +383,22 @@ function WebLines({ nodes, connections, hoveredNodeIndex }: { nodes: GalaxyNode[
         arr[offset + 5] = arr[offset + 2] + (targetPositions[offset + 5] - targetPositions[offset + 2]) * eased;
       }
       posAttr.needsUpdate = true;
-
-      if (materialRef.current) {
-        materialRef.current.opacity = Math.min(0.35, p * 0.5);
-      }
+      if (materialRef.current) materialRef.current.opacity = Math.min(0.35, p * 0.5);
     }
-
-    // Hover highlight: brighten connected lines, dim others
     const colAttr = geom.getAttribute("color") as THREE.BufferAttribute;
     const colArr = colAttr.array as Float32Array;
-
     if (connectedSet) {
       for (let i = 0; i < connections.length; i++) {
         const offset = i * 6;
-        const isConnected = connectedSet.has(i);
-        const mult = isConnected ? 1.8 : 0.15;
-        for (let j = 0; j < 6; j++) {
-          colArr[offset + j] = baseColors[offset + j] * mult;
-        }
+        const mult = connectedSet.has(i) ? 1.8 : 0.15;
+        for (let j = 0; j < 6; j++) colArr[offset + j] = baseColors[offset + j] * mult;
       }
       colAttr.needsUpdate = true;
-      if (materialRef.current && progressRef.current >= 1) {
-        materialRef.current.opacity = 0.7;
-      }
+      if (materialRef.current && progressRef.current >= 1) materialRef.current.opacity = 0.7;
     } else {
-      // Restore base colors
-      for (let i = 0; i < colArr.length; i++) {
-        colArr[i] = baseColors[i];
-      }
+      for (let i = 0; i < colArr.length; i++) colArr[i] = baseColors[i];
       colAttr.needsUpdate = true;
-      if (materialRef.current && progressRef.current >= 1) {
-        materialRef.current.opacity = 0.35;
-      }
+      if (materialRef.current && progressRef.current >= 1) materialRef.current.opacity = 0.35;
     }
   });
 
@@ -395,7 +423,10 @@ function GenreLabels() {
     <>
       {labels.map((label) => (
         <Html key={label.name} position={[label.position[0], label.position[1] + 7, label.position[2]]} center distanceFactor={45} style={{ pointerEvents: "none" }}>
-          <span className="text-[10px] font-bold uppercase tracking-widest select-none" style={{ color: label.color, opacity: 0.6 }}>
+          <span
+            className="text-[10px] font-bold uppercase tracking-widest select-none drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]"
+            style={{ color: label.color, textShadow: "0 1px 4px rgba(0,0,0,0.6), 0 0 8px rgba(0,0,0,0.3)" }}
+          >
             {label.name}
           </span>
         </Html>
@@ -405,29 +436,30 @@ function GenreLabels() {
 }
 
 // ─── Hover tooltip ─────────────────────────────────────────────
-function NodeTooltip({ node }: { node: GalaxyNode }) {
+function NodeTooltip({ node }: { node: WebNode }) {
   const statusLabel: Record<string, string> = {
     watching: "🔵 Watching", completed: "✅ Completed", plan_to_watch: "📋 Plan to Watch",
-    on_hold: "⏸ On Hold", dropped: "❌ Dropped",
+    on_hold: "⏸ On Hold", dropped: "❌ Dropped", reading: "🔵 Reading", plan_to_read: "📋 Plan to Read",
   };
 
   return (
     <Html position={[node.position.x, node.position.y + node.size + 0.8, node.position.z]} center distanceFactor={20} style={{ pointerEvents: "none" }}>
-      <div className="bg-white/95 backdrop-blur-xl border border-black/10 rounded-xl shadow-2xl overflow-hidden min-w-[200px] max-w-[240px]">
-        {node.anime.images?.webp?.image_url && (
+      <div className="bg-popover/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl overflow-hidden min-w-[200px] max-w-[240px]">
+        {node.imageUrl && (
           <div className="h-20 w-full overflow-hidden">
-            <img src={node.anime.images.webp.image_url} alt="" className="w-full h-full object-cover" />
+            <img src={node.imageUrl} alt="" className="w-full h-full object-cover" />
           </div>
         )}
         <div className="px-3 py-2">
-          <p className="text-sm font-semibold text-gray-900 leading-tight truncate">{node.anime.title}</p>
-          <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 flex-wrap">
-            {node.anime.score && <span>★ {node.anime.score.toFixed(1)}</span>}
+          <p className="text-sm font-semibold text-foreground leading-tight truncate">{node.title}</p>
+          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
+            {node.score && <span>★ {node.score.toFixed(1)}</span>}
             <span style={{ color: node.color }}>{node.genre}</span>
-            {node.anime.episodes && <span>{node.anime.episodes} ep</span>}
+            {node.episodes && <span>{node.episodes} ep</span>}
+            {node.chapters && <span>{node.chapters} ch</span>}
           </div>
           {node.watchStatus && <p className="text-xs mt-1" style={{ color: node.color }}>{statusLabel[node.watchStatus] || node.watchStatus}</p>}
-          {node.userScore && node.userScore > 0 && <p className="text-xs text-gray-400">Your rating: {node.userScore}/10</p>}
+          {node.userScore && node.userScore > 0 && <p className="text-xs text-muted-foreground">Your rating: {node.userScore}/10</p>}
         </div>
       </div>
     </Html>
@@ -463,19 +495,19 @@ function IdleControl() {
 }
 
 // ─── Main scene ────────────────────────────────────────────────
-function GalaxyScene({ nodes, connections, onSelectAnime }: { nodes: GalaxyNode[]; connections: Connection[]; onSelectAnime: (anime: Anime) => void }) {
+function WebScene({ nodes, connections, onSelectNode, isDark }: { nodes: WebNode[]; connections: Connection[]; onSelectNode: (node: WebNode) => void; isDark: boolean }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const handleClick = useCallback((idx: number) => {
-    if (nodes[idx]) onSelectAnime(nodes[idx].anime);
-  }, [nodes, onSelectAnime]);
+    if (nodes[idx]) onSelectNode(nodes[idx]);
+  }, [nodes, onSelectNode]);
 
   return (
     <>
-      <ambientLight intensity={0.6} />
-      <pointLight position={[0, 0, 0]} intensity={0.3} color="#8b5cf6" distance={60} />
-      <pointLight position={[25, 15, -15]} intensity={0.2} color="#f59e0b" distance={60} />
+      <ambientLight intensity={isDark ? 0.4 : 0.6} />
+      <pointLight position={[0, 0, 0]} intensity={0.3} color={isDark ? "#8b5cf6" : "#d97706"} distance={60} />
 
+      <CelestialBody isDark={isDark} />
       <WebLines nodes={nodes} connections={connections} hoveredNodeIndex={hoveredIndex} />
       <GenreLabels />
       <InstancedNodes nodes={nodes} hoveredIndex={hoveredIndex} onHover={setHoveredIndex} onClick={handleClick} />
@@ -488,26 +520,12 @@ function GalaxyScene({ nodes, connections, onSelectAnime }: { nodes: GalaxyNode[
   );
 }
 
-// ─── Light theme enforcer ──────────────────────────────────────
-function useForceLight() {
-  const { theme, setTheme } = useTheme();
-  const previousTheme = useRef<string | undefined>(undefined);
-
-  useEffect(() => {
-    previousTheme.current = theme;
-    if (theme !== "light") setTheme("light");
-    return () => {
-      if (previousTheme.current && previousTheme.current !== "light") {
-        setTheme(previousTheme.current);
-      }
-    };
-  }, []); // only on mount/unmount
-}
-
 // ─── Page component ────────────────────────────────────────────
 export default function AnimeMapPage() {
-  useForceLight();
-  const [selectedAnime, setSelectedAnime] = useState<Anime | null>(null);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+  const [mode, setMode] = useState<MediaMode>("anime");
+  const [selectedNode, setSelectedNode] = useState<WebNode | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
   const { user } = useAuth();
@@ -516,65 +534,96 @@ export default function AnimeMapPage() {
 
   const watchlistMap = useMemo(() => {
     const map = new Map<number, WatchlistItem>();
-    watchlist?.forEach((item) => { if (item.media_type === "anime") map.set(item.mal_id, item); });
+    watchlist?.forEach((item) => {
+      if ((mode === "anime" && item.media_type === "anime") || (mode === "manga" && item.media_type === "manga")) {
+        map.set(item.mal_id, item);
+      }
+    });
     return map;
-  }, [watchlist]);
+  }, [watchlist, mode]);
 
-  const watchlistAnimeIds = useMemo(() => Array.from(watchlistMap.keys()).slice(0, 500), [watchlistMap]);
-  const hasWatchlist = watchlistAnimeIds.length > 0;
+  const watchlistIds = useMemo(() => Array.from(watchlistMap.keys()).slice(0, 500), [watchlistMap]);
+  const hasWatchlist = watchlistIds.length > 0;
 
-  const { data: watchlistAnime, isLoading: batchLoading } = useQuery({
-    queryKey: ["galaxy-watchlist-batch", watchlistAnimeIds, language],
-    queryFn: () => getAnimeBatchByIds(watchlistAnimeIds, language as any),
-    enabled: hasWatchlist && watchlistAnimeIds.length > 0,
+  // Anime data
+  const { data: watchlistAnime, isLoading: batchAnimeLoading } = useQuery({
+    queryKey: ["web-watchlist-anime", watchlistIds, language],
+    queryFn: () => getAnimeBatchByIds(watchlistIds, language as any),
+    enabled: mode === "anime" && hasWatchlist,
     staleTime: 1000 * 60 * 30,
-    gcTime: 1000 * 60 * 60,
   });
 
-  const { data: popularAnime, isLoading: popularLoading } = useQuery({
-    queryKey: ["galaxy-popular-seed", language],
+  const { data: popularAnime, isLoading: popularAnimeLoading } = useQuery({
+    queryKey: ["web-popular-anime", language],
     queryFn: () => getTopAnime(1, 80, "bypopularity", language as any),
-    enabled: !hasWatchlist,
+    enabled: mode === "anime" && !hasWatchlist,
     staleTime: 1000 * 60 * 30,
   });
 
-  const isLoading = watchlistLoading || (hasWatchlist ? batchLoading : popularLoading);
-  const animeList = hasWatchlist ? (watchlistAnime || []) : (popularAnime || []);
+  // Manga data
+  const { data: watchlistManga, isLoading: batchMangaLoading } = useQuery({
+    queryKey: ["web-watchlist-manga", watchlistIds, language],
+    queryFn: () => getMangaBatchByIds(watchlistIds, language as any),
+    enabled: mode === "manga" && hasWatchlist,
+    staleTime: 1000 * 60 * 30,
+  });
+
+  const { data: popularManga, isLoading: popularMangaLoading } = useQuery({
+    queryKey: ["web-popular-manga", language],
+    queryFn: () => getTopManga(1, 80, undefined, "popularity", language as any),
+    enabled: mode === "manga" && !hasWatchlist,
+    staleTime: 1000 * 60 * 30,
+  });
+
+  const isLoading = watchlistLoading ||
+    (mode === "anime" ? (hasWatchlist ? batchAnimeLoading : popularAnimeLoading) : (hasWatchlist ? batchMangaLoading : popularMangaLoading));
+
+  const animeList = mode === "anime" ? (hasWatchlist ? (watchlistAnime || []) : (popularAnime || [])) : [];
+  const mangaList = mode === "manga" ? (hasWatchlist ? (watchlistManga || []) : (popularManga || [])) : [];
 
   const { nodes, connections } = useMemo(() => {
-    if (animeList.length === 0) return { nodes: [], connections: [] };
-    const n = buildGalaxyNodes(animeList, watchlistMap);
-    const c = buildConnections(n, animeList);
+    const n = buildNodes(animeList, mangaList, watchlistMap, mode);
+    if (n.length === 0) return { nodes: [], connections: [] };
+    const c = buildConnections(n);
     return { nodes: n, connections: c };
-  }, [animeList, watchlistMap]);
+  }, [animeList, mangaList, watchlistMap, mode]);
 
-  const handleSelectAnime = useCallback((anime: Anime) => {
-    setSelectedAnime(anime);
+  const handleSelectNode = useCallback((node: WebNode) => {
+    setSelectedNode(node);
     setModalOpen(true);
   }, []);
 
-  const statusCounts = useMemo(() => {
-    const counts = { watching: 0, completed: 0, plan_to_watch: 0, other: 0 };
-    nodes.forEach((n) => {
-      if (n.watchStatus === "watching") counts.watching++;
-      else if (n.watchStatus === "completed") counts.completed++;
-      else if (n.watchStatus === "plan_to_watch") counts.plan_to_watch++;
-      else if (n.watchStatus) counts.other++;
-    });
-    return counts;
-  }, [nodes]);
+  const bgColor = isDark ? "#0a0a14" : "#f0f1f5";
 
   return (
-    <div className="h-screen w-screen overflow-hidden relative" style={{ background: "#f8f9fc" }}>
-      <SEO title="Anime Galaxy — Your Universe — Bibue" description="Explore your anime universe as an interactive 3D web constellation." url="/map" />
+    <div className="h-screen w-screen overflow-hidden relative" style={{ background: bgColor }}>
+      <SEO title="Media Web — Your Universe — Bibue" description="Explore your anime & manga universe as an interactive 3D web." url="/map" />
       <CollapsibleNavbar />
 
+      {/* Mode toggle */}
+      <div className="absolute top-20 right-4 md:right-6 z-20 flex gap-1 p-1 rounded-full bg-popover/80 backdrop-blur-md border border-border/30">
+        {(["anime", "manga"] as MediaMode[]).map((m) => (
+          <button
+            key={m}
+            onClick={() => setMode(m)}
+            className={cn(
+              "px-3 py-1.5 rounded-full text-xs font-medium transition-all capitalize",
+              mode === m
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {m === "anime" ? "📺 Anime" : "📖 Manga"}
+          </button>
+        ))}
+      </div>
+
       {isLoading && (
-        <div className="absolute inset-0 z-30 flex items-center justify-center" style={{ background: "#f8f9fc" }}>
+        <div className="absolute inset-0 z-30 flex items-center justify-center" style={{ background: bgColor }}>
           <div className="text-center space-y-4">
-            <Sparkles className="w-12 h-12 text-purple-500 mx-auto animate-pulse" />
-            <p className="text-gray-500 text-sm">{hasWatchlist ? "Weaving your galaxy..." : "Loading the anime web..."}</p>
-            <p className="text-gray-400 text-xs">{hasWatchlist ? `Connecting ${watchlistAnimeIds.length} anime` : "Discovering connections"}</p>
+            <Sparkles className="w-12 h-12 text-primary mx-auto animate-pulse" />
+            <p className="text-muted-foreground text-sm">{hasWatchlist ? "Weaving your web..." : `Loading the ${mode} web...`}</p>
+            <p className="text-muted-foreground/60 text-xs">{hasWatchlist ? `Connecting ${watchlistIds.length} titles` : "Discovering connections"}</p>
           </div>
         </div>
       )}
@@ -585,32 +634,25 @@ export default function AnimeMapPage() {
           className="!absolute inset-0"
           dpr={[1, 2]}
           gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
-          style={{ background: "#f0f1f5" }}
+          style={{ background: bgColor }}
         >
-          <GalaxyScene nodes={nodes} connections={connections} onSelectAnime={handleSelectAnime} />
+          <WebScene nodes={nodes} connections={connections} onSelectNode={handleSelectNode} isDark={isDark} />
         </Canvas>
       )}
 
       {/* Title overlay */}
       <div className="absolute top-20 left-4 md:left-6 z-20 max-w-xs">
-        <h1 className="text-xl md:text-3xl font-bold font-sacred" style={{ color: "#1a1a2e" }}>
-          {hasWatchlist ? "Your Galaxy" : "Anime Galaxy"}
+        <h1 className="text-xl md:text-3xl font-bold font-sacred text-foreground drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+          {hasWatchlist ? "Your Web" : `${mode === "anime" ? "Anime" : "Manga"} Web`}
         </h1>
-        <p className="text-xs md:text-sm mt-1" style={{ color: "#6b7280" }}>
+        <p className="text-xs md:text-sm mt-1 text-muted-foreground drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
           {nodes.length} nodes • {connections.length} connections
         </p>
         {!hasWatchlist && !isLoading && (
-          <div className="mt-3 bg-white/70 backdrop-blur-sm border border-black/5 rounded-xl px-3 py-2">
-            <p className="text-xs" style={{ color: "#6b7280" }}>
-              {user ? "Add anime to your watchlist to build your personal web ✨" : "Sign in and start watching to create your universe 🌌"}
+          <div className="mt-3 bg-popover/70 backdrop-blur-sm border border-border/30 rounded-xl px-3 py-2">
+            <p className="text-xs text-muted-foreground">
+              {user ? `Add ${mode} to your list to build your personal web ✨` : "Sign in and start tracking to create your universe 🌌"}
             </p>
-          </div>
-        )}
-        {hasWatchlist && !isLoading && (
-          <div className="flex gap-3 mt-2 text-[10px]" style={{ color: "#9ca3af" }}>
-            {statusCounts.watching > 0 && <span>🔵 {statusCounts.watching} watching</span>}
-            {statusCounts.completed > 0 && <span>✅ {statusCounts.completed} completed</span>}
-            {statusCounts.plan_to_watch > 0 && <span>📋 {statusCounts.plan_to_watch} planned</span>}
           </div>
         )}
       </div>
@@ -620,7 +662,7 @@ export default function AnimeMapPage() {
         <Button
           variant="outline"
           size="icon"
-          className="bg-white/60 backdrop-blur-sm border-black/10 text-gray-600 hover:text-gray-900 hover:bg-white/80 h-9 w-9 rounded-full"
+          className="bg-popover/60 backdrop-blur-sm border-border/30 text-muted-foreground hover:text-foreground hover:bg-popover/80 h-9 w-9 rounded-full"
           onClick={() => setShowLegend(!showLegend)}
         >
           <Info className="w-4 h-4" />
@@ -629,33 +671,25 @@ export default function AnimeMapPage() {
 
       {/* Legend */}
       {showLegend && (
-        <div className="absolute bottom-6 right-4 md:right-6 z-20 bg-white/90 backdrop-blur-xl border border-black/10 rounded-2xl p-4 max-w-[220px]">
-          <h3 className="text-xs font-bold text-gray-700 mb-3 uppercase tracking-wider">Genre Clusters</h3>
+        <div className="absolute bottom-6 right-4 md:right-6 z-20 bg-popover/90 backdrop-blur-xl border border-border/30 rounded-2xl p-4 max-w-[220px]">
+          <h3 className="text-xs font-bold text-muted-foreground mb-3 uppercase tracking-wider">Genre Clusters</h3>
           <div className="grid grid-cols-2 gap-1.5">
             {Object.entries(GENRE_COLORS).slice(0, 12).map(([genre, color]) => (
               <div key={genre} className="flex items-center gap-1.5 text-[10px]">
                 <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-                <span className="text-gray-500 truncate">{genre}</span>
+                <span className="text-muted-foreground truncate">{genre}</span>
               </div>
             ))}
           </div>
-          <div className="border-t border-black/5 mt-3 pt-2 space-y-1">
-            <p className="text-[10px] text-gray-400">★ Size = your rating</p>
-            <p className="text-[10px] text-gray-400">🔵 Pulsing = watching</p>
-            <p className="text-[10px] text-gray-400">🕸 Lines = connections</p>
+          <div className="border-t border-border/30 mt-3 pt-2 space-y-1">
+            <p className="text-[10px] text-muted-foreground">★ Size = your rating</p>
+            <p className="text-[10px] text-muted-foreground">🔵 Pulsing = in progress</p>
+            <p className="text-[10px] text-muted-foreground">🕸 Lines = connections</p>
           </div>
-          <div className="border-t border-black/5 mt-2 pt-2 space-y-1">
+          <div className="border-t border-border/30 mt-2 pt-2 space-y-1">
             <div className="flex items-center gap-2 text-[10px]">
-              <div className="w-4 h-0.5 bg-amber-500 rounded" />
-              <span className="text-gray-400">Sequel/Prequel</span>
-            </div>
-            <div className="flex items-center gap-2 text-[10px]">
-              <div className="w-4 h-0.5 bg-indigo-500 rounded" />
-              <span className="text-gray-400">Related</span>
-            </div>
-            <div className="flex items-center gap-2 text-[10px]">
-              <div className="w-4 h-0.5 bg-gray-300 rounded" />
-              <span className="text-gray-400">Genre web</span>
+              <div className="w-4 h-0.5 rounded" style={{ backgroundColor: "hsl(var(--muted-foreground))" }} />
+              <span className="text-muted-foreground">Genre web</span>
             </div>
           </div>
         </div>
@@ -663,15 +697,20 @@ export default function AnimeMapPage() {
 
       {/* Controls hint */}
       {!isLoading && nodes.length > 0 && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 text-[10px] text-center pointer-events-none" style={{ color: "#9ca3af" }}>
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 text-[10px] text-center pointer-events-none text-muted-foreground drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
           Drag to rotate • Scroll to zoom • Click a node to explore
         </div>
       )}
 
-      {/* Detail modal */}
-      {modalOpen && selectedAnime && (
+      {/* Detail modals */}
+      {modalOpen && selectedNode && selectedNode.mediaType === "anime" && (
         <Suspense fallback={null}>
-          <AnimeDetailModal animeId={selectedAnime.anilist_id} open={modalOpen} onOpenChange={setModalOpen} />
+          <AnimeDetailModal animeId={selectedNode.id} open={modalOpen} onOpenChange={setModalOpen} />
+        </Suspense>
+      )}
+      {modalOpen && selectedNode && selectedNode.mediaType === "manga" && (
+        <Suspense fallback={null}>
+          <MangaDetailModal mangaId={selectedNode.id} open={modalOpen} onOpenChange={setModalOpen} />
         </Suspense>
       )}
     </div>
