@@ -8,6 +8,7 @@ import { EpisodeCountdown } from "@/components/EpisodeCountdown";
 import { Link } from "react-router-dom";
 import { useScheduleByDay } from "@/hooks/useAnimeData";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useThemeContext } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
 
 const DAY_KEYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] as const;
@@ -17,6 +18,7 @@ export function ScheduleSection() {
   const today = new Date().getDay();
   const [selectedDay, setSelectedDay] = useState<string>(DAY_KEYS[today]);
   const { t, language } = useLanguage();
+  const { flavor } = useThemeContext();
   
   const { data: scheduleData, isLoading } = useScheduleByDay(selectedDay);
 
@@ -33,7 +35,13 @@ export function ScheduleSection() {
               <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight">
+              <h2
+                className={cn(
+                  "text-lg sm:text-xl md:text-2xl font-semibold tracking-tight",
+                  flavor === "liquid-glass" && "chromatic-text"
+                )}
+                {...(flavor === "liquid-glass" ? { "data-text": isToday ? t("schedule.todaySchedule") : `${selectedDayLabel}${t("schedule.daySchedule")}` } : {})}
+              >
                 {isToday ? t("schedule.todaySchedule") : `${selectedDayLabel}${t("schedule.daySchedule")}`}
               </h2>
               {language === "ja" && (
