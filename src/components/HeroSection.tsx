@@ -82,7 +82,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
                   loading={isFirst || isActive ? "eager" : "lazy"}
                   decoding={isFirst || isActive ? "sync" : "async"}
                   sizes="100vw"
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-cover opacity-40"
                   {...(isFirst || isActive ? { fetchPriority: "high" as any } : {})}
                 />
               </div>
@@ -90,8 +90,8 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
           })}
         </div>
         {/* Minimal gradient — let image breathe, just enough for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent" />
       </div>
 
       {/* Content overlaid on the bottom of the image */}
