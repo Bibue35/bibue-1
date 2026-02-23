@@ -6,6 +6,7 @@ const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ de
 import { WatchlistButton } from "./WatchlistButton";
 import { TitleTooltip } from "./TitleTooltip";
 import { EpisodeCountdown } from "./EpisodeCountdown";
+import { usePrefetch } from "@/hooks/usePrefetch";
 
 interface AnimeCardProps {
   anime: Anime;
@@ -15,6 +16,7 @@ interface AnimeCardProps {
 
 export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(function AnimeCard({ anime, index = 0, variant = "default" }, ref) {
   const [modalOpen, setModalOpen] = useState(false);
+  const { onHoverStart, onHoverEnd } = usePrefetch();
 
   // Format aired date
   const getAiredInfo = () => {
@@ -111,6 +113,8 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
     <>
       <button
         onClick={() => setModalOpen(true)}
+        onMouseEnter={() => onHoverStart("anime", anime.anilist_id)}
+        onMouseLeave={onHoverEnd}
         className="block group text-left w-full active:scale-[0.98] transition-transform duration-150"
       >
         {/* Image with simple hover effect */}

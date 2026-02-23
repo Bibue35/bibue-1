@@ -18,6 +18,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { BackToTop } from "@/components/BackToTop";
 import { ContextualBottomStrip } from "@/components/ContextualBottomStrip";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -85,6 +86,7 @@ const App = () => (
             <SpoilerFreeProvider>
             <MiniPlayerProvider>
               <TooltipProvider>
+                <OfflineBanner />
                 <IncognitoOverlay />
                 <Toaster />
                 <Sonner />
