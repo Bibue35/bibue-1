@@ -939,3 +939,89 @@ export function formatNumber(num?: number): string {
   if (num >= 1000) return (num / 1000).toFixed(1) + "K";
   return num.toString();
 }
+
+// Batch fetch anime by IDs (for galaxy map)
+export async function getAnimeBatchByIds(ids: number[], language: SupportedLanguage = "en"): Promise<Anime[]> {
+  if (ids.length === 0) return [];
+  // AniList allows up to 50 per page query, so we chunk
+  const chunks: number[][] = [];
+  for (let i = 0; i < ids.length; i += 50) {
+    chunks.push(ids.slice(i, i + 50));
+  }
+  
+  const results: Anime[] = [];
+  for (const chunk of chunks) {
+    const query = `
+      query ($ids: [Int], $perPage: Int) {
+        Page(page: 1, perPage: $perPage) {
+          media(id_in: $ids, type: ANIME, isAdult: false) {
+            ${MEDIA_FRAGMENT}
+            relations {
+              edges {
+                relationType
+                node {
+                  id
+                  type
+                  format
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+    const data = await anilistQuery<{ Page: { media: (AniListMedia & { relations?: { edges: Array<{ relationType: string; node: { id: number; type: string; format?: string } }> } })[] } }>(query, { ids: chunk, perPage: chunk.length });
+    results.push(...data.Page.media.map(m => {
+      const anime = toAnime(m, language);
+      // Attach relations data
+      (anime as any)._relations = m.relations?.edges?.filter(e => e.node.type === 'ANIME').map(e => ({
+        id: e.node.id,
+        type: e.relationType,
+      })) || [];
+      return anime;
+    }));
+  }
+  return results;
+}
+
+// Batch fetch manga by IDs (for galaxy map)
+export async function getMangaBatchByIds(ids: number[], language: SupportedLanguage = "en"): Promise<Manga[]> {
+  if (ids.length === 0) return [];
+  const chunks: number[][] = [];
+  for (let i = 0; i < ids.length; i += 50) {
+    chunks.push(ids.slice(i, i + 50));
+  }
+  
+  const results: Manga[] = [];
+  for (const chunk of chunks) {
+    const query = `
+      query ($ids: [Int], $perPage: Int) {
+        Page(page: 1, perPage: $perPage) {
+          media(id_in: $ids, type: MANGA, isAdult: false) {
+            ${MEDIA_FRAGMENT}
+            relations {
+              edges {
+                relationType
+                node {
+                  id
+                  type
+                  format
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+    const data = await anilistQuery<{ Page: { media: (AniListMedia & { relations?: { edges: Array<{ relationType: string; node: { id: number; type: string; format?: string } }> } })[] } }>(query, { ids: chunk, perPage: chunk.length });
+    results.push(...data.Page.media.map(m => {
+      const manga = toManga(m, language);
+      (manga as any)._relations = m.relations?.edges?.filter(e => e.node.type === 'MANGA').map(e => ({
+        id: e.node.id,
+        type: e.relationType,
+      })) || [];
+      return manga;
+    }));
+  }
+  return results;
+}
