@@ -412,28 +412,29 @@ export async function getAnimeByDecade(decade: "70s" | "80s" | "90s" | "2000s" |
   return getAnimeByYearRange(start, end, page, limit, "SCORE_DESC", language);
 }
 
-// Get recently updated anime (currently airing, sorted by most recently updated)
+// Get recently updated anime (currently airing, sorted by trending to show truly active content)
 export async function getRecentlyUpdatedAnime(page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Anime[]> {
+  const currentYear = new Date().getFullYear();
   const query = `
-    query ($page: Int, $perPage: Int) {
+    query ($page: Int, $perPage: Int, $seasonYear: Int) {
       Page(page: $page, perPage: $perPage) {
-        media(type: ANIME, status: RELEASING, sort: [UPDATED_AT_DESC], isAdult: false) {
+        media(type: ANIME, status: RELEASING, sort: [TRENDING_DESC, POPULARITY_DESC], seasonYear_greater: $seasonYear, isAdult: false) {
           ${MEDIA_FRAGMENT}
         }
       }
     }
   `;
 
-  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit });
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, seasonYear: currentYear - 2 });
   return data.Page.media.map(m => toAnime(m, language));
 }
 
-// Get recently updated manga (currently releasing, sorted by most recently updated)
+// Get recently updated manga (currently releasing, sorted by trending to show truly active content)
 export async function getRecentlyUpdatedManga(page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Manga[]> {
   const query = `
     query ($page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
-        media(type: MANGA, status: RELEASING, sort: [UPDATED_AT_DESC], isAdult: false) {
+        media(type: MANGA, status: RELEASING, sort: [TRENDING_DESC, POPULARITY_DESC], isAdult: false) {
           ${MEDIA_FRAGMENT}
         }
       }
