@@ -23,8 +23,7 @@ export function Footer() {
               <li><Link to="/anime" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Anime</Link></li>
               <li><Link to="/manga" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Manga</Link></li>
               <li><Link to="/rankings" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Rankings</Link></li>
-              <li><Link to="/map" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Anime Galaxy</Link></li>
-              <li><Link to="/vibe" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Vibe Check</Link></li>
+              <li><Link to="/community" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Community</Link></li>
               <li><Link to="/community" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Community</Link></li>
             </ul>
           </div>
