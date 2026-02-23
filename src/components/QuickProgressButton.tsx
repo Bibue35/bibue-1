@@ -1,6 +1,7 @@
 import { Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWatchlist } from "@/hooks/useWatchlist";
+import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 interface QuickProgressButtonProps {
@@ -21,6 +22,7 @@ export function QuickProgressButton({
   size = "sm",
 }: QuickProgressButtonProps) {
   const { getWatchlistItem, updateProgress } = useWatchlist();
+  const { toast } = useToast();
   const item = getWatchlistItem(mal_id, media_type);
 
   if (!item) return null;
@@ -41,6 +43,9 @@ export function QuickProgressButton({
     const newValue = current + 1;
     updateProgress.mutate({ mal_id, media_type, field, value: newValue });
     updateProgress.mutate({ mal_id, media_type, field: lastField, value: newValue });
+    toast({
+      title: `${item.title}: ${label} ${newValue}${total ? ` of ${total}` : ""} ✓`,
+    });
   };
 
   const handleDecrement = (e: React.MouseEvent) => {
