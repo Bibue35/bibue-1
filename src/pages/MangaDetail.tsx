@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { validateComment } from "@/lib/validation";
 import { MangaReader } from "@/components/MangaReader";
+import { ChapterProgressTracker } from "@/components/ChapterProgressTracker";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
 import { useTranslatedText } from "@/hooks/useTranslatedText";
 import { useViewingHistory } from "@/hooks/useViewingHistory";
@@ -349,6 +350,16 @@ export default function MangaDetailPage() {
                     </div>
                   ))}
                 </div>
+                {/* Chapter Progress Tracker */}
+                {manga && (
+                  <div className="mb-6">
+                    <ChapterProgressTracker
+                      malId={Number(id)}
+                      totalChapters={manga.chapters || totalChapters}
+                      mangaTitle={manga.title}
+                    />
+                  </div>
+                )}
 
                 {/* Chapters Section */}
                 <div className="rounded-xl border border-border/30 bg-muted/20 p-4 sm:p-6">

@@ -20,6 +20,7 @@ import { useTopAnime, useSeasonalAnime, useTopManga, useClassicAnime, useAllTime
 import { CardSkeleton, CardSkeletonRow, HeroSkeleton } from "@/components/skeletons";
 import { Link } from "react-router-dom";
 import { ArrowRight, Rocket, TrendingUp, Sparkles, Clock, BookOpen, Flame, History, Trophy, Zap, Play } from "lucide-react";
+import { ContinueWatchingRow, ContinueReadingRow } from "@/components/ContinueRow";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -116,6 +117,10 @@ const Index = () => {
           isLoading={seasonalLoading} 
         />
       )}
+
+      {/* Continue Watching/Reading - Top priority for logged-in users */}
+      <ContinueWatchingRow />
+      <ContinueReadingRow />
 
       {/* Recently Viewed - Only for logged-in users with history */}
       {user && viewingHistory.length > 0 && (

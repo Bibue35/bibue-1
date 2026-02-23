@@ -9,6 +9,7 @@ import { ShareButton } from "@/components/ShareButton";
 import { WatchlistStatus } from "@/components/WatchlistStatus";
 import { ResolutionSelector, type Resolution } from "@/components/ResolutionSelector";
 import { CollapsibleEpisodeList } from "@/components/CollapsibleEpisodeList";
+import { EpisodeProgressTracker } from "@/components/EpisodeProgressTracker";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -614,6 +615,17 @@ export default function AnimeDetailPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Episode Progress Tracker */}
+              {anime && (
+                <div className="mt-6">
+                  <EpisodeProgressTracker
+                    malId={Number(id)}
+                    totalEpisodes={anime.episodes || episodes.length}
+                    animeTitle={anime.title}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>

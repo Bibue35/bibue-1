@@ -19,6 +19,8 @@ export interface WatchlistItem {
   notes: string | null;
   episodes_watched: number;
   chapters_read: number;
+  last_episode_watched: number | null;
+  last_chapter_read: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -35,9 +37,9 @@ export function useWatchlist() {
       if (!user) return [];
       const { data, error } = await supabase
         .from("watchlist")
-        .select("id, user_id, mal_id, media_type, title, title_japanese, image_url, score, status, category, notes, episodes_watched, chapters_read, created_at, updated_at")
+        .select("id, user_id, mal_id, media_type, title, title_japanese, image_url, score, status, category, notes, episodes_watched, chapters_read, last_episode_watched, last_chapter_read, created_at, updated_at")
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .order("updated_at", { ascending: false });
 
       if (error) throw error;
       return data as WatchlistItem[];
@@ -93,7 +95,7 @@ export function useWatchlist() {
           image_url: item.image_url || null,
           score: item.score || null,
         })
-        .select("id, user_id, mal_id, media_type, title, title_japanese, image_url, score, status, category, notes, episodes_watched, chapters_read, created_at, updated_at")
+        .select("id, user_id, mal_id, media_type, title, title_japanese, image_url, score, status, category, notes, episodes_watched, chapters_read, last_episode_watched, last_chapter_read, created_at, updated_at")
         .single();
 
       if (error) throw error;
@@ -119,6 +121,8 @@ export function useWatchlist() {
         notes: null,
         episodes_watched: 0,
         chapters_read: 0,
+        last_episode_watched: null,
+        last_chapter_read: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
