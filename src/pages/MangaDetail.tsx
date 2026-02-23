@@ -18,6 +18,7 @@ import { formatDistanceToNow } from "date-fns";
 import { validateComment } from "@/lib/validation";
 import { MangaReader } from "@/components/MangaReader";
 import { ChapterProgressTracker } from "@/components/ChapterProgressTracker";
+import { RelatedMedia } from "@/components/RelatedMedia";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
 import { useTranslatedText } from "@/hooks/useTranslatedText";
 import { useViewingHistory } from "@/hooks/useViewingHistory";
@@ -357,6 +358,18 @@ export default function MangaDetailPage() {
                       malId={Number(id)}
                       totalChapters={manga.chapters || totalChapters}
                       mangaTitle={manga.title}
+                    />
+                  </div>
+                )}
+
+                {/* Related Media / Cross-Media Linking */}
+                {manga && (
+                  <div className="mb-6">
+                    <RelatedMedia
+                      mediaId={Number(id)}
+                      mediaType="manga"
+                      currentTitle={manga.title}
+                      currentStatus={manga.status}
                     />
                   </div>
                 )}
