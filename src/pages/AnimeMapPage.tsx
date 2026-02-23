@@ -246,7 +246,7 @@ function InstancedNodes({
   }, [raycaster, camera, pointer, onClick]);
 
   return (
-    <group onPointerMove={handlePointerMove} onClick={handleClick}>
+    <group onPointerMove={handlePointerMove} onClick={handleClick} onPointerLeave={() => onHover(null)}>
       <instancedMesh ref={meshRef} args={[undefined, undefined, nodes.length]} frustumCulled={false}>
         <sphereGeometry args={[1, 10, 10]} />
         <meshBasicMaterial toneMapped={false} />
