@@ -14,8 +14,10 @@ export function ContextualBottomStrip() {
   const scrollRef = useRef(0);
   const location = useLocation();
   const isHome = location.pathname === "/";
+  const isGalaxy = location.pathname === "/map" || location.pathname === "/galaxy";
 
   useEffect(() => {
+    if (isGalaxy) return;
     let ticking = false;
 
     const onScroll = () => {
@@ -40,7 +42,9 @@ export function ContextualBottomStrip() {
 
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [isGalaxy, isHome]);
+
+  if (isGalaxy) return null;
 
   return (
     <div
