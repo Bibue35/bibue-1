@@ -48,7 +48,7 @@ export function ContextualBottomStrip() {
           : "opacity-0 translate-y-8 pointer-events-none"
       )}
     >
-      <div className="flex items-center gap-0.5 px-1 py-0.5 rounded-full bg-background/80 backdrop-blur-xl border border-border/15 shadow-sm">
+      <div className="flex items-center gap-2">
         {stripLinks.map(({ href, label }) => {
           const isActive = location.pathname === href;
           return (
@@ -56,9 +56,10 @@ export function ContextualBottomStrip() {
               key={href}
               to={href}
               className={cn(
-                "px-3 py-1.5 rounded-full text-[11px] font-medium tracking-wide transition-colors duration-150",
+                "px-3.5 py-1.5 rounded-full text-xs font-medium tracking-wide transition-colors duration-150",
+                "bg-background/80 backdrop-blur-xl border border-border/15 shadow-sm",
                 isActive
-                  ? "text-foreground bg-foreground/8"
+                  ? "text-foreground border-primary/30 bg-primary/10"
                   : "text-muted-foreground/70 hover:text-foreground/90"
               )}
             >
