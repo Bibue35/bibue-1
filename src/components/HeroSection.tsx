@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, lazy, Suspense, useMemo } from "react";
+const Spline = lazy(() => import("@splinetool/react-spline"));
 import { Play, Star, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Anime } from "@/lib/api";
@@ -81,11 +82,21 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
   return (
     <section aria-label="Featured anime" className="relative min-h-[65vh] sm:min-h-[75vh] md:min-h-[85vh] flex items-center overflow-hidden">
       {/* Background Image with smooth transition */}
+      {/* Spline 3D Background */}
       <div className="absolute inset-0 z-0">
+        <Suspense fallback={null}>
+          <Spline
+            scene="https://prod.spline.design/5c61cf31-df4d-4c99-a1bd-92034a630a99/scene.splinecode"
+            className="absolute inset-0 w-full h-full"
+          />
+        </Suspense>
+      </div>
+
+      {/* Anime background images */}
+      <div className="absolute inset-0 z-[1]">
         <div className="relative w-full h-full transform-gpu">
           {featuredAnime?.slice(0, 4).map((anime, index) => {
             const isActive = index === selectedIndex;
-            // First image is always eager + high priority since it's the LCP candidate on initial load
             const isFirstImage = index === 0;
             return (
               <img
@@ -101,15 +112,15 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
                 fetchPriority={isFirstImage || isActive ? "high" : "auto"}
                 sizes="100vw"
                 className={cn(
-                  "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
-                  isActive ? "opacity-100" : "opacity-0"
+                  "absolute inset-0 w-full h-full object-cover transition-opacity duration-500 mix-blend-overlay opacity-60",
+                  isActive ? "opacity-60" : "opacity-0"
                 )}
               />
             );
           })}
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
       </div>
 
       {/* Content */}
