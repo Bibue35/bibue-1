@@ -17,7 +17,7 @@ const HeroSynopsis = memo(function HeroSynopsis({ text }: { text?: string }) {
   const translated = useTranslatedText(text);
   if (!translated) return null;
   return (
-    <p className="text-foreground/70 text-xs sm:text-sm md:text-base leading-relaxed max-w-lg mb-4 sm:mb-6 line-clamp-2 sm:line-clamp-3">
+    <p className="text-white/60 text-xs sm:text-sm md:text-base leading-relaxed max-w-lg mb-4 sm:mb-6 line-clamp-2 sm:line-clamp-3">
       {translated}
     </p>
   );
@@ -57,7 +57,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
   }
 
   return (
-    <section aria-label="Featured anime" className="relative min-h-[75vh] sm:min-h-[80vh] md:min-h-[90vh] flex items-end overflow-hidden">
+    <section aria-label="Featured anime" className="relative min-h-[80vh] sm:min-h-[85vh] md:min-h-[90vh] flex items-end overflow-hidden">
       {/* Full-bleed background image — takes 70%+ viewport */}
       <div className="absolute inset-0 z-0">
         <div className="relative w-full h-full transform-gpu">
@@ -82,34 +82,37 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
                   loading={isFirst || isActive ? "eager" : "lazy"}
                   decoding={isFirst || isActive ? "sync" : "async"}
                   sizes="100vw"
-                  className="absolute inset-0 w-full h-full object-cover opacity-30"
+                  className="absolute inset-0 w-full h-full object-cover"
                   {...(isFirst || isActive ? { fetchPriority: "high" as any } : {})}
                 />
               </div>
             );
           })}
         </div>
-        {/* Minimal gradient — let image breathe, just enough for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/50" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent" />
+        {/* Overall darkening layer */}
+        <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.2)' }} />
+        {/* Strong left-side gradient for text readability */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.1) 70%, transparent 100%)' }} />
+        {/* Bottom gradient for content area */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 30%, transparent 60%)' }} />
       </div>
 
       {/* Content overlaid on the bottom of the image */}
       <div className="container mx-auto px-3 sm:px-4 relative z-10 pb-12 sm:pb-16 md:pb-20">
         <div className="flex items-end justify-between">
-          <div className="max-w-xl">
+          <div className="max-w-xl pt-[25vh] sm:pt-[30vh]">
             {/* Rating pill */}
             {featured.score && (
               <div className="flex items-center gap-1.5 mb-5 sm:mb-6">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-foreground/10 backdrop-blur-sm text-sm font-medium text-foreground/80">
-                  <Star className="w-3.5 h-3.5 text-foreground/70 fill-foreground/70" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm text-sm font-medium text-white/90">
+                  <Star className="w-3.5 h-3.5 text-white/80 fill-white/80" />
                   {formatScore(featured.score)} Rating
                 </span>
               </div>
             )}
 
             {/* Title */}
-            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-sacred mb-4 sm:mb-5 tracking-wide leading-[1.1]">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-sacred mb-4 sm:mb-5 tracking-wide leading-[1.1] text-white">
               {featured.title}
             </h1>
 
@@ -119,7 +122,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
                 {featured.genres.slice(0, 3).map((genre) => (
                   <span
                     key={genre.mal_id}
-                    className="px-3 py-1 rounded-full border border-foreground/20 text-xs sm:text-sm font-medium text-foreground/70"
+                    className="px-3 py-1 rounded-full border border-white/20 text-xs sm:text-sm font-medium text-white/70"
                   >
                     {genre.name}
                   </span>
