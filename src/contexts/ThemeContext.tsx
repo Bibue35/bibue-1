@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useTheme } from "next-themes";
 
-export type ThemeFlavor = "default" | "mocha" | "latte" | "frappe" | "macchiato";
+export type ThemeFlavor = "default" | "mocha" | "latte" | "frappe" | "macchiato" | "liquid-glass";
 
 interface ThemeContextType {
   mode: string;
@@ -12,6 +12,14 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+const ALL_FLAVOR_CLASSES = [
+  "theme-mocha",
+  "theme-latte",
+  "theme-frappe",
+  "theme-macchiato",
+  "theme-liquid-glass",
+];
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -26,7 +34,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement;
     
     // Remove all flavor classes
-    root.classList.remove("theme-mocha", "theme-latte", "theme-frappe", "theme-macchiato");
+    ALL_FLAVOR_CLASSES.forEach(cls => root.classList.remove(cls));
     
     // Apply flavor
     if (flavor !== "default") {
