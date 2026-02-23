@@ -1,7 +1,9 @@
-const CACHE_VERSION = 'bibue-v1';
+const CACHE_VERSION = 'bibue-v2';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const API_CACHE = `api-${CACHE_VERSION}`;
 const IMAGE_CACHE = `images-${CACHE_VERSION}`;
+const WATCHLIST_CACHE = `watchlist-${CACHE_VERSION}`;
+const DETAIL_CACHE = `detail-${CACHE_VERSION}`;
 
 const STATIC_ASSETS = [
   '/',
@@ -19,11 +21,12 @@ self.addEventListener('install', (event) => {
 
 // Activate: clean old caches
 self.addEventListener('activate', (event) => {
+  const validCaches = [STATIC_CACHE, API_CACHE, IMAGE_CACHE, WATCHLIST_CACHE, DETAIL_CACHE];
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((key) => key !== STATIC_CACHE && key !== API_CACHE && key !== IMAGE_CACHE)
+          .filter((key) => !validCaches.includes(key))
           .map((key) => caches.delete(key))
       )
     )
@@ -42,6 +45,18 @@ self.addEventListener('fetch', (event) => {
   // Strategy: Stale-while-revalidate for AniList images
   if (url.hostname === 's4.anilist.co') {
     event.respondWith(staleWhileRevalidate(request, IMAGE_CACHE, 7 * 24 * 60 * 60 * 1000));
+    return;
+  }
+
+  // Strategy: Network-first for watchlist API calls (cache for offline)
+  if (url.pathname.includes('/rest/v1/watchlist')) {
+    event.respondWith(networkFirst(request, WATCHLIST_CACHE, 60 * 60 * 1000));
+    return;
+  }
+
+  // Strategy: Network-first for anime detail proxy calls (cache recently viewed)
+  if (url.pathname.includes('/functions/v1/anime-proxy')) {
+    event.respondWith(networkFirst(request, DETAIL_CACHE, 30 * 60 * 1000));
     return;
   }
 
@@ -70,7 +85,21 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(fetch(request));
+});
 
+// Listen for messages from the app
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'CACHE_DETAIL') {
+    // Pre-cache an anime/manga detail page data
+    const { url } = event.data;
+    if (url) {
+      caches.open(DETAIL_CACHE).then(cache => {
+        fetch(url).then(response => {
+          if (response.ok) cache.put(url, response);
+        }).catch(() => {});
+      });
+    }
+  }
 });
 
 // Cache-first: use cache, fallback to network
