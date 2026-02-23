@@ -12,9 +12,10 @@ interface AnimeCardProps {
   anime: Anime;
   index?: number;
   variant?: "default" | "compact";
+  eager?: boolean;
 }
 
-export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(function AnimeCard({ anime, index = 0, variant = "default" }, ref) {
+export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(function AnimeCard({ anime, index = 0, variant = "default", eager = false }, ref) {
   const [modalOpen, setModalOpen] = useState(false);
   const { onHoverStart, onHoverEnd } = usePrefetch();
 
@@ -122,12 +123,15 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
           <img
             src={anime.images.webp.image_url}
             alt={`${anime.title} cover art`}
-            width={176}
-            height={264}
-            loading="lazy"
+            width={300}
+            height={450}
+            loading={eager ? "eager" : "lazy"}
             decoding="async"
             sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, 176px"
-            className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 will-change-transform transform-gpu"
+            className={cn(
+              "w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 will-change-transform transform-gpu",
+            )}
+            style={{ opacity: 1 }}
           />
           {/* Episode count badge */}
           {episodeCount && !anime.nextAiringEpisode && (

@@ -132,16 +132,18 @@ const Index = () => {
                 key={entry.id}
                 to={`/${entry.media_type}/${entry.media_id}`}
                 className="flex-shrink-0 w-28 sm:w-36 md:w-44 group"
+                style={{ scrollSnapAlign: "start" }}
               >
                 <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted mb-1.5">
                   {entry.image_url ? (
                     <img
                       src={entry.image_url}
                       alt={`${entry.title} cover art`}
-                      width={176}
-                      height={264}
+                      width={150}
+                      height={225}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
+                      decoding="async"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
@@ -188,11 +190,11 @@ const Index = () => {
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-44" />
             ) : (
               airingAnime?.slice(0, 10).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44">
+                <div key={anime.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44" style={{ scrollSnapAlign: "start" }}>
                   {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
+                    <MobileAnimeCard anime={anime} index={index} eager={index < 4} />
                   ) : (
-                    <AnimeCard anime={anime} index={index} />
+                    <AnimeCard anime={anime} index={index} eager={index < 6} />
                   )}
                 </div>
               ))
@@ -219,7 +221,7 @@ const Index = () => {
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
               seasonalAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44" style={{ scrollSnapAlign: "start" }}>
                   {isMobile ? (
                     <MobileAnimeCard anime={anime} index={index} />
                   ) : (
@@ -255,7 +257,7 @@ const Index = () => {
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
               popularAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44" style={{ scrollSnapAlign: "start" }}>
                   {isMobile ? (
                     <MobileAnimeCard anime={anime} index={index} />
                   ) : (
@@ -287,7 +289,7 @@ const Index = () => {
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
               upcomingAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44" style={{ scrollSnapAlign: "start" }}>
                   {isMobile ? (
                     <MobileAnimeCard anime={anime} index={index} />
                   ) : (
@@ -319,7 +321,7 @@ const Index = () => {
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
               allTimeTop?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44" style={{ scrollSnapAlign: "start" }}>
                   {isMobile ? (
                     <MobileAnimeCard anime={anime} index={index} />
                   ) : (
@@ -352,7 +354,7 @@ const Index = () => {
               <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
               classicAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44" style={{ scrollSnapAlign: "start" }}>
                   {isMobile ? (
                     <MobileAnimeCard anime={anime} index={index} />
                   ) : (
