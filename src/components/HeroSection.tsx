@@ -130,10 +130,13 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
           </div>
 
           {/* Title */}
-          <h1 className={cn(
-            "text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-bold font-sacred mb-1.5 sm:mb-3 tracking-wide leading-tight",
-            flavor === "liquid-glass" && "chromatic-text"
-          )}>
+          <h1
+            className={cn(
+              "text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-bold font-sacred mb-1.5 sm:mb-3 tracking-wide leading-tight",
+              flavor === "liquid-glass" && "chromatic-text"
+            )}
+            {...(flavor === "liquid-glass" ? { "data-text": featured.title } : {})}
+          >
             {featured.title}
           </h1>
 
