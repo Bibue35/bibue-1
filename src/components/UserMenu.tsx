@@ -115,6 +115,13 @@ export function UserMenu() {
           </div>
         </div>
         <DropdownMenuSeparator />
+
+        <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
+          <Link to={`/user/${user.id}`}>
+            <User className="w-4 h-4" />
+            <span>{t("user.myProfile") || "My Profile"}</span>
+          </Link>
+        </DropdownMenuItem>
         
         {/* Quick Links */}
         <DropdownMenuLabel className="text-xs text-muted-foreground font-normal px-3">

@@ -20,7 +20,7 @@ const NotFound = () => {
   const [query, setQuery] = useState("");
 
   useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", window.location.pathname);
+    // 404 - invalid route accessed
   }, []);
 
   return (
