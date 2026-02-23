@@ -1,0 +1,83 @@
+import { useState, useEffect, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { CalendarDays, Clock, Newspaper, Sparkles, Grid3X3 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const stripLinks = [
+  { href: "/seasonal", icon: CalendarDays, labelKey: "Seasonal" },
+  { href: "/schedule", icon: Clock, labelKey: "Schedule" },
+  { href: "/news", icon: Newspaper, labelKey: "nav.news" },
+  { href: "/recommendations", icon: Sparkles, labelKey: "nav.forYou" },
+  { href: "/genres", icon: Grid3X3, labelKey: "Genres" },
+];
+
+export function ContextualBottomStrip() {
+  const [isVisible, setIsVisible] = useState(false);
+  const scrollRef = useRef(0);
+  const location = useLocation();
+  const { t } = useLanguage();
+
+  useEffect(() => {
+    let ticking = false;
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+        const scrollDelta = currentScrollY - scrollRef.current;
+
+        if (scrollDelta < -5 && currentScrollY > 200) {
+          setIsVisible(true);
+        } else if (scrollDelta > 10 || currentScrollY < 100) {
+          setIsVisible(false);
+        }
+
+        scrollRef.current = currentScrollY;
+        ticking = false;
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const getLabel = (key: string) => {
+    // Keys that exist in translations
+    if (key.startsWith("nav.")) return t(key);
+    return key;
+  };
+
+  return (
+    <div
+      className={cn(
+        "fixed bottom-4 left-1/2 -translate-x-1/2 z-40 transition-all duration-300 ease-out transform-gpu",
+        isVisible
+          ? "opacity-100 translate-y-0"
+          : "opacity-0 translate-y-8 pointer-events-none"
+      )}
+    >
+      <div className="flex items-center gap-1 px-3 py-2 rounded-2xl liquid-glass-strong border border-border/30 shadow-lg">
+        {stripLinks.map(({ href, icon: Icon, labelKey }) => {
+          const isActive = location.pathname === href;
+          return (
+            <Link
+              key={href}
+              to={href}
+              className={cn(
+                "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200 min-w-[52px]",
+                isActive
+                  ? "text-primary bg-primary/10"
+                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+              )}
+            >
+              <Icon className="w-4 h-4" />
+              <span className="text-[10px] font-medium leading-none">{getLabel(labelKey)}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

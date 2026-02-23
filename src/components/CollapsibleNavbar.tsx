@@ -25,20 +25,16 @@ export function CollapsibleNavbar() {
   const navLinks = [
     { href: "/anime", label: t("nav.anime") },
     { href: "/manga", label: t("nav.manga") },
-    { href: "/seasonal", label: "Seasonal" },
-    { href: "/schedule", label: "Schedule" },
-    { href: "/guides", label: "Guides" },
-    { href: "/news", label: t("nav.news") },
-    { href: "/recommendations", label: t("nav.forYou") },
+    { href: "/community", label: t("nav.community") },
   ];
 
   // Mobile menu only shows non-swipable pages
   const mobileMenuLinks = [
     { href: "/seasonal", label: "Seasonal" },
     { href: "/schedule", label: "Schedule" },
-    { href: "/guides", label: "Guides" },
     { href: "/news", label: t("nav.news") },
     { href: "/recommendations", label: t("nav.forYou") },
+    { href: "/genres", label: "Genres" },
   ];
 
   useEffect(() => {
@@ -202,20 +198,7 @@ export function CollapsibleNavbar() {
               </Link>
             ))}
 
-            <Link
-              to="/community"
-              className={cn(
-                "block px-4 py-3 rounded-xl text-sm font-medium transition-colors",
-                location.pathname === "/community"
-                  ? "text-foreground bg-foreground/5"
-                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
-              )}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              {t("nav.community")}
-            </Link>
-
-            {/* Theme toggle — text with color, under Community */}
+            {/* Theme toggle */}
             <ThemeSelector variant="text" />
 
             {user && (

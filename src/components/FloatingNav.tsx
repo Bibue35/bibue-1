@@ -24,11 +24,15 @@ export function FloatingNav() {
   const navLinks = [
     { href: "/anime", label: t("nav.anime") },
     { href: "/manga", label: t("nav.manga") },
+    { href: "/community", label: t("nav.community") },
+  ];
+
+  const mobileMenuLinks = [
     { href: "/seasonal", label: "Seasonal" },
     { href: "/schedule", label: "Schedule" },
-    { href: "/guides", label: "Guides" },
     { href: "/news", label: t("nav.news") },
     { href: "/recommendations", label: t("nav.forYou") },
+    { href: "/genres", label: "Genres" },
   ];
 
   useEffect(() => {
@@ -151,7 +155,7 @@ export function FloatingNav() {
         )}
       >
         <div className="p-3 space-y-0.5 md:hidden">
-          {navLinks.map((link) => (
+          {mobileMenuLinks.map((link) => (
             <Link
               key={link.href}
               to={link.href}
