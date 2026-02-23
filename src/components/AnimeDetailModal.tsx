@@ -21,6 +21,8 @@ import { WatchlistStatus } from "./WatchlistStatus";
 import { RelatedMedia } from "./RelatedMedia";
 import { ResponsiveModal } from "./ResponsiveModal";
 import { AnimeCard } from "./AnimeCard";
+import { QuickReactions } from "./QuickReactions";
+import { CreateWatchParty } from "./CreateWatchParty";
 
 interface AnimeDetailModalProps {
   animeId: number;
@@ -167,6 +169,7 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
             <span className="hidden xs:inline">PLAY</span>
           </Button>
           <ShareButton title={anime?.title || ""} url={`/anime/${animeId}`} />
+          <CreateWatchParty animeId={animeId} animeTitle={anime?.title || ""} animeImage={anime?.images?.webp?.large_image_url} />
         </div>
         <WatchlistStatus
           malId={animeId}
@@ -177,6 +180,11 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
           score={anime?.score}
           totalEpisodes={anime?.episodes}
         />
+      </div>
+
+      {/* Quick Reactions */}
+      <div className="px-4 sm:px-6 md:px-8 py-3 border-b border-border/30">
+        <QuickReactions mediaId={animeId} mediaType="anime" />
       </div>
 
       {/* Tabbed Content */}

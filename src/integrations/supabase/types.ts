@@ -825,6 +825,33 @@ export type Database = {
           },
         ]
       }
+      media_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          media_id: number
+          media_type: string
+          reaction: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          media_id: number
+          media_type: string
+          reaction: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          media_id?: number
+          media_type?: string
+          reaction?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       media_votes: {
         Row: {
           created_at: string
@@ -1280,6 +1307,109 @@ export type Database = {
           viewed_at?: string
         }
         Relationships: []
+      }
+      watch_parties: {
+        Row: {
+          anime_id: number
+          anime_image: string | null
+          anime_title: string
+          created_at: string
+          current_episode: number
+          host_id: string
+          id: string
+          share_code: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          anime_id: number
+          anime_image?: string | null
+          anime_title: string
+          created_at?: string
+          current_episode?: number
+          host_id: string
+          id?: string
+          share_code?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          anime_id?: number
+          anime_image?: string | null
+          anime_title?: string
+          created_at?: string
+          current_episode?: number
+          host_id?: string
+          id?: string
+          share_code?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      watch_party_members: {
+        Row: {
+          id: string
+          joined_at: string
+          party_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          party_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          party_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watch_party_members_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "watch_parties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      watch_party_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          party_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          party_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          party_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watch_party_messages_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "watch_parties"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       watchlist: {
         Row: {

@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RecommendationCard } from "@/components/RecommendationCard";
+import { AIRecommendations } from "@/components/AIRecommendations";
 import { useRecommendations, MediaType } from "@/hooks/useRecommendations";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -89,6 +90,15 @@ export default function RecommendationsPage() {
           )}
         </div>
       </section>
+
+      {/* AI Recommendations */}
+      {activeType === "anime" && (
+        <section className="pb-4 sm:pb-6">
+          <div className="container mx-auto px-4">
+            <AIRecommendations />
+          </div>
+        </section>
+      )}
 
       {/* Recommendations Grid */}
       <section className="py-8 pb-24">
