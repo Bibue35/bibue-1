@@ -124,6 +124,7 @@ const en: Record<string, string> = {
   "schedule.daySchedule": "'s Schedule",
   "schedule.broadcastSchedule": "放送スケジュール",
   "schedule.viewFull": "Full Schedule",
+  "user.myProfile": "My Profile",
   "user.library": "Library",
   "user.myWatchlist": "My Watchlist",
   "user.forYou": "For You",
