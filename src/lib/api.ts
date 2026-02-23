@@ -164,7 +164,7 @@ async function anilistQuery<T>(query: string, variables: Record<string, unknown>
 function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime {
   // Use large/extraLarge for hero/carousel, medium for card thumbnails
   const largeImageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
-  const cardImageUrl = media.coverImage.medium || media.coverImage.large || largeImageUrl;
+  const cardImageUrl = media.coverImage.large || media.coverImage.extraLarge || media.coverImage.medium || largeImageUrl;
   
   // IMPORTANT: Always use AniList ID for consistency across the app
   // This ensures the ID passed to cards matches the ID used for detail fetches
@@ -208,7 +208,7 @@ function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime
 function toManga(media: AniListMedia, language: SupportedLanguage = "en"): Manga {
   // Use large/extraLarge for hero/detail, medium for card thumbnails
   const largeImageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
-  const cardImageUrl = media.coverImage.medium || media.coverImage.large || largeImageUrl;
+  const cardImageUrl = media.coverImage.large || media.coverImage.extraLarge || media.coverImage.medium || largeImageUrl;
   
   // IMPORTANT: Always use AniList ID for consistency across the app
   // This ensures the ID passed to cards matches the ID used for detail fetches
