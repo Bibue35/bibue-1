@@ -19,6 +19,7 @@ import { validateComment } from "@/lib/validation";
 import { MangaReader } from "@/components/MangaReader";
 import { ChapterProgressTracker } from "@/components/ChapterProgressTracker";
 import { RelatedMedia } from "@/components/RelatedMedia";
+import { NotificationToggle } from "@/components/NotificationToggle";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
 import { useTranslatedText } from "@/hooks/useTranslatedText";
 import { useViewingHistory } from "@/hooks/useViewingHistory";
@@ -260,10 +261,19 @@ export default function MangaDetailPage() {
                         <ChevronsRight className="w-3 h-3" />
                       </Button>
                     </div>
-                    <Button variant="outline" className="w-full gap-2">
-                      <Bookmark className="w-4 h-4" />
-                      {t("detail.bookmark")}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button variant="outline" className="flex-1 gap-2">
+                        <Bookmark className="w-4 h-4" />
+                        {t("detail.bookmark")}
+                      </Button>
+                      {manga && (
+                        <NotificationToggle
+                          mediaId={Number(id)}
+                          mediaType="manga"
+                          title={manga.title}
+                        />
+                      )}
+                    </div>
                   </div>
 
                   {/* Stats */}

@@ -11,6 +11,7 @@ import { ResolutionSelector, type Resolution } from "@/components/ResolutionSele
 import { CollapsibleEpisodeList } from "@/components/CollapsibleEpisodeList";
 import { EpisodeProgressTracker } from "@/components/EpisodeProgressTracker";
 import { RelatedMedia } from "@/components/RelatedMedia";
+import { NotificationToggle } from "@/components/NotificationToggle";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -533,21 +534,28 @@ export default function AnimeDetailPage() {
                     )}
                   </div>
 
-                  {/* Share + Watchlist Status */}
-                  <div className="flex items-center justify-center xs:justify-start gap-2 flex-wrap">
-                    <ShareButton title={anime?.title || ""} url={`/anime/${id}`} />
-                    {anime && (
-                      <WatchlistStatus
-                        malId={Number(id)}
-                        mediaType="anime"
-                        title={anime.title}
-                        titleJapanese={anime.title_japanese}
-                        imageUrl={anime.images?.webp?.large_image_url}
-                        score={anime.score}
-                        totalEpisodes={anime.episodes}
-                      />
-                    )}
-                  </div>
+                   {/* Share + Watchlist Status + Notification Toggle */}
+                   <div className="flex items-center justify-center xs:justify-start gap-2 flex-wrap">
+                     <ShareButton title={anime?.title || ""} url={`/anime/${id}`} />
+                     {anime && (
+                       <WatchlistStatus
+                         malId={Number(id)}
+                         mediaType="anime"
+                         title={anime.title}
+                         titleJapanese={anime.title_japanese}
+                         imageUrl={anime.images?.webp?.large_image_url}
+                         score={anime.score}
+                         totalEpisodes={anime.episodes}
+                       />
+                     )}
+                     {anime && (
+                       <NotificationToggle
+                         mediaId={Number(id)}
+                         mediaType="anime"
+                         title={anime.title}
+                       />
+                     )}
+                   </div>
                 </div>
               </div>
 

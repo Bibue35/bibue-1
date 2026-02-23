@@ -21,6 +21,7 @@ import { CardSkeleton, CardSkeletonRow, HeroSkeleton } from "@/components/skelet
 import { Link } from "react-router-dom";
 import { ArrowRight, Rocket, TrendingUp, Sparkles, Clock, BookOpen, Flame, History, Trophy, Zap, Play } from "lucide-react";
 import { ContinueWatchingRow, ContinueReadingRow } from "@/components/ContinueRow";
+import { useNotificationGenerator } from "@/hooks/useNotificationGenerator";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -52,6 +53,9 @@ const Index = () => {
   const { data: trendingManhua, isLoading: trendingManhuaLoading, isError: trendingManhuaError, refetch: refetchTrendingManhua } = useTrendingManhua(1, mangaSection.isVisible);
   const { t, language } = useLanguage();
   const { user } = useAuth();
+  
+  // Generate notifications on site visit
+  useNotificationGenerator();
   const { history: viewingHistory } = useViewingHistory(10);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();

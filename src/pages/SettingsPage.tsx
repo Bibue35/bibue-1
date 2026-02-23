@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { SEO } from "@/components/SEO";
 import { useNavigate } from "react-router-dom";
-import { User, Camera, Loader2, ArrowLeft, Check, X, EyeOff } from "lucide-react";
+import { User, Camera, Loader2, ArrowLeft, Check, X, EyeOff, Bell } from "lucide-react";
 import { FloatingNav } from "@/components/FloatingNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { AvatarPicker } from "@/components/settings/AvatarPicker";
 import { LinkedAccounts } from "@/components/settings/LinkedAccounts";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSpoilerFree } from "@/contexts/SpoilerFreeContext";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -250,6 +251,9 @@ export default function SettingsPage() {
             </div>
           </div>
         </section>
+
+        {/* Notification Settings */}
+        <NotificationSettings userId={user.id} />
       </div>
 
       {/* Save bar — fixed bottom */}
@@ -289,5 +293,88 @@ export default function SettingsPage() {
         onUpload={handleAvatarUpload}
       />
     </div>
+  );
+}
+
+function NotificationSettings({ userId }: { userId: string }) {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const { data: prefs, isLoading } = useQuery({
+    queryKey: ["notification-settings", userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_preferences")
+        .select("notify_new_episodes, notify_new_chapters, notify_season_announcements")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (error) throw error;
+      return data || { notify_new_episodes: true, notify_new_chapters: true, notify_season_announcements: true };
+    },
+  });
+
+  const updatePref = useMutation({
+    mutationFn: async (updates: Record<string, boolean>) => {
+      const { error } = await supabase
+        .from("user_preferences")
+        .upsert({ user_id: userId, ...updates }, { onConflict: "user_id" });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notification-settings"] });
+      toast({ title: "Notification settings updated" });
+    },
+  });
+
+  if (isLoading) return null;
+
+  const settings = [
+    {
+      key: "notify_new_episodes",
+      label: "New Episodes",
+      description: "Get notified when new episodes air for anime you're watching",
+      value: prefs?.notify_new_episodes ?? true,
+    },
+    {
+      key: "notify_new_chapters",
+      label: "New Chapters",
+      description: "Get notified when new chapters release for manga you're reading",
+      value: prefs?.notify_new_chapters ?? true,
+    },
+    {
+      key: "notify_season_announcements",
+      label: "Season Announcements",
+      description: "Get notified about new season confirmations and premieres",
+      value: prefs?.notify_season_announcements ?? true,
+    },
+  ];
+
+  return (
+    <section className="space-y-4 mb-8">
+      <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1 flex items-center gap-2">
+        <Bell className="w-4 h-4" />
+        Notifications
+      </h2>
+      <div className="rounded-xl bg-card border border-border overflow-hidden">
+        {settings.map((setting, i) => (
+          <div key={setting.key}>
+            {i > 0 && <div className="border-t border-border mx-4" />}
+            <div className="px-4 py-3 flex items-center justify-between">
+              <div>
+                <Label className="text-sm font-medium">{setting.label}</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">{setting.description}</p>
+              </div>
+              <Switch
+                checked={setting.value}
+                onCheckedChange={(checked) =>
+                  updatePref.mutate({ [setting.key]: checked })
+                }
+                disabled={updatePref.isPending}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
