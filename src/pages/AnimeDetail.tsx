@@ -10,6 +10,7 @@ import { WatchlistStatus } from "@/components/WatchlistStatus";
 import { ResolutionSelector, type Resolution } from "@/components/ResolutionSelector";
 import { CollapsibleEpisodeList } from "@/components/CollapsibleEpisodeList";
 import { EpisodeProgressTracker } from "@/components/EpisodeProgressTracker";
+import { RelatedMedia } from "@/components/RelatedMedia";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -623,6 +624,18 @@ export default function AnimeDetailPage() {
                     malId={Number(id)}
                     totalEpisodes={anime.episodes || episodes.length}
                     animeTitle={anime.title}
+                  />
+                </div>
+              )}
+
+              {/* Related Media / Cross-Media Linking */}
+              {anime && (
+                <div className="mt-6">
+                  <RelatedMedia
+                    mediaId={Number(id)}
+                    mediaType="anime"
+                    currentTitle={anime.title}
+                    currentStatus={anime.status}
                   />
                 </div>
               )}

@@ -1,7 +1,11 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Film, BookOpen, Book, ArrowRight, Loader2 } from "lucide-react";
+import { Film, BookOpen, Book, ArrowRight, Loader2, Tv, Gamepad2, Plus, Play, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useWatchlist } from "@/hooks/useWatchlist";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 interface RelatedMediaItem {
   id: number;
@@ -9,14 +13,21 @@ interface RelatedMediaItem {
   type: "ANIME" | "MANGA";
   format: string;
   relationType: string;
+  relationRaw: string;
   image: string;
   status?: string;
+  episodes?: number;
+  chapters?: number;
+  volumes?: number;
 }
 
 interface RelatedMediaProps {
   mediaId: number;
   mediaType: "anime" | "manga";
   onNavigate?: () => void;
+  /** Current title for cross-media banner context */
+  currentTitle?: string;
+  currentStatus?: string;
 }
 
 const ANILIST_API = "https://graphql.anilist.co";
@@ -36,6 +47,9 @@ async function fetchRelatedMedia(mediaId: number, mediaType: "anime" | "manga"):
               type
               format
               status
+              episodes
+              chapters
+              volumes
               coverImage { large medium }
             }
           }
@@ -56,29 +70,19 @@ async function fetchRelatedMedia(mediaId: number, mediaType: "anime" | "manga"):
   const json = await response.json();
   const relations = json.data?.Media?.relations?.edges || [];
 
-  // Filter for relevant cross-media relations
-  const relevantRelations = relations
-    .filter((edge: any) => {
-      const node = edge.node;
-      // Show opposite media types (anime->manga, manga->anime)
-      // Also show light novels for manga
-      if (mediaType === "anime") {
-        return node.type === "MANGA";
-      } else {
-        return node.type === "ANIME" || node.format === "NOVEL";
-      }
-    })
-    .map((edge: any) => ({
-      id: edge.node.id,
-      title: edge.node.title.english || edge.node.title.romaji,
-      type: edge.node.type,
-      format: edge.node.format,
-      relationType: formatRelationType(edge.relationType),
-      image: edge.node.coverImage?.large || edge.node.coverImage?.medium || "",
-      status: edge.node.status,
-    }));
-
-  return relevantRelations;
+  return relations.map((edge: any) => ({
+    id: edge.node.id,
+    title: edge.node.title.english || edge.node.title.romaji,
+    type: edge.node.type,
+    format: edge.node.format,
+    relationType: formatRelationType(edge.relationType),
+    relationRaw: edge.relationType,
+    image: edge.node.coverImage?.large || edge.node.coverImage?.medium || "",
+    status: edge.node.status,
+    episodes: edge.node.episodes,
+    chapters: edge.node.chapters,
+    volumes: edge.node.volumes,
+  }));
 }
 
 function formatRelationType(type: string): string {
@@ -92,11 +96,14 @@ function formatRelationType(type: string): string {
     SPIN_OFF: "Spin-off",
     ALTERNATIVE: "Alternative",
     OTHER: "Related",
+    CHARACTER: "Shared Characters",
+    SUMMARY: "Summary",
+    COMPILATION: "Compilation",
   };
   return map[type] || type;
 }
 
-function formatMediaType(format: string): string {
+function formatMediaFormat(format: string): string {
   const map: Record<string, string> = {
     TV: "Anime",
     TV_SHORT: "Anime Short",
@@ -107,23 +114,155 @@ function formatMediaType(format: string): string {
     MANGA: "Manga",
     NOVEL: "Light Novel",
     ONE_SHOT: "One-shot",
+    MUSIC: "Music",
   };
   return map[format] || format;
 }
 
-export function RelatedMedia({ mediaId, mediaType, onNavigate }: RelatedMediaProps) {
+function formatStatus(status?: string): string {
+  const map: Record<string, string> = {
+    FINISHED: "Completed",
+    RELEASING: "Ongoing",
+    NOT_YET_RELEASED: "Upcoming",
+    CANCELLED: "Cancelled",
+    HIATUS: "Hiatus",
+  };
+  return status ? map[status] || status : "";
+}
+
+function getFormatIcon(format: string) {
+  switch (format) {
+    case "TV":
+    case "TV_SHORT":
+    case "ONA":
+      return Tv;
+    case "MOVIE":
+    case "SPECIAL":
+    case "OVA":
+      return Film;
+    case "MANGA":
+    case "ONE_SHOT":
+      return BookOpen;
+    case "NOVEL":
+      return Book;
+    default:
+      return Film;
+  }
+}
+
+function getFormatEmoji(format: string): string {
+  switch (format) {
+    case "TV":
+    case "TV_SHORT":
+    case "ONA":
+      return "📺";
+    case "MOVIE":
+    case "SPECIAL":
+    case "OVA":
+      return "🎬";
+    case "MANGA":
+    case "ONE_SHOT":
+      return "📖";
+    case "NOVEL":
+      return "📚";
+    default:
+      return "🔗";
+  }
+}
+
+// Priority for sorting relation types
+const RELATION_PRIORITY: Record<string, number> = {
+  SOURCE: 0,
+  ADAPTATION: 1,
+  PREQUEL: 2,
+  SEQUEL: 3,
+  PARENT: 4,
+  SIDE_STORY: 5,
+  SPIN_OFF: 6,
+  ALTERNATIVE: 7,
+  SUMMARY: 8,
+  COMPILATION: 9,
+  CHARACTER: 10,
+  OTHER: 11,
+};
+
+export function RelatedMedia({ mediaId, mediaType, onNavigate, currentTitle, currentStatus }: RelatedMediaProps) {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { watchlist, addToWatchlist } = useWatchlist();
   
   const { data: relatedMedia, isLoading } = useQuery({
-    queryKey: ["related-media", mediaId, mediaType],
+    queryKey: ["related-media-full", mediaId, mediaType],
     queryFn: () => fetchRelatedMedia(mediaId, mediaType),
     staleTime: 1000 * 60 * 15,
   });
+
+  // Group by format category and sort by relation priority
+  const grouped = useMemo(() => {
+    if (!relatedMedia?.length) return null;
+
+    const sorted = [...relatedMedia].sort(
+      (a, b) => (RELATION_PRIORITY[a.relationRaw] ?? 99) - (RELATION_PRIORITY[b.relationRaw] ?? 99)
+    );
+
+    const groups: Record<string, RelatedMediaItem[]> = {};
+    sorted.forEach((item) => {
+      const key = item.type === "ANIME" ? "Anime" : item.format === "NOVEL" ? "Light Novel" : "Manga";
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(item);
+    });
+
+    return groups;
+  }, [relatedMedia]);
+
+  // Find cross-media suggestions
+  const crossMediaSuggestion = useMemo(() => {
+    if (!relatedMedia?.length || !user) return null;
+
+    // Find adaptation / source relations (the most important cross-media links)
+    const adaptations = relatedMedia.filter(
+      (r) => r.relationRaw === "ADAPTATION" || r.relationRaw === "SOURCE"
+    );
+    if (!adaptations.length) return null;
+
+    for (const item of adaptations) {
+      const isTracking = watchlist?.some(
+        (w) => w.mal_id === item.id
+      );
+
+      if (!isTracking) {
+        // User is NOT tracking this adaptation
+        const isAnime = item.type === "ANIME";
+        return {
+          item,
+          message: isAnime
+            ? "The anime adaptation is available — want to add it to your list?"
+            : "The source manga is available — want to add it to your list?",
+          type: "add" as const,
+        };
+      }
+    }
+    return null;
+  }, [relatedMedia, watchlist, user]);
 
   const handleClick = (item: RelatedMediaItem) => {
     const path = item.type === "ANIME" ? `/anime/${item.id}` : `/manga/${item.id}`;
     onNavigate?.();
     navigate(path);
+  };
+
+  const handleAddToList = (item: RelatedMediaItem) => {
+    addToWatchlist.mutate({
+      mal_id: item.id,
+      media_type: item.type === "ANIME" ? "anime" : "manga",
+      title: item.title,
+      image_url: item.image,
+    });
+  };
+
+  const getUserProgress = (itemId: number) => {
+    if (!watchlist) return null;
+    return watchlist.find((w) => w.mal_id === itemId);
   };
 
   if (isLoading) {
@@ -134,77 +273,146 @@ export function RelatedMedia({ mediaId, mediaType, onNavigate }: RelatedMediaPro
     );
   }
 
-  if (!relatedMedia || relatedMedia.length === 0) {
+  if (!grouped || Object.keys(grouped).length === 0) {
     return null;
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-        {mediaType === "anime" ? (
-          <>
-            <BookOpen className="w-4 h-4" />
-            Read the Manga
-          </>
-        ) : (
-          <>
-            <Film className="w-4 h-4" />
-            Watch the Anime
-          </>
-        )}
+        <Sparkles className="w-4 h-4" />
+        Related Media
       </h3>
-      
-      <div className="space-y-2">
-        {relatedMedia.slice(0, 4).map((item) => (
-          <button
-            key={item.id}
-            onClick={() => handleClick(item)}
-            className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-muted/30 hover:bg-muted/60 transition-all group text-left"
-          >
-            <img
-              src={item.image || "/placeholder.svg"}
-              alt={item.title}
-              className="w-10 h-14 sm:w-12 sm:h-16 object-cover rounded-lg flex-shrink-0"
-            />
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm truncate group-hover:text-primary transition-colors">
-                {item.title}
-              </p>
-              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-              <span className={cn(
-                  "text-xs px-2 py-0.5 rounded-full",
-                  item.type === "ANIME" 
-                    ? "bg-primary/10 text-primary" 
-                    : item.format === "NOVEL"
-                      ? "bg-accent/50 text-accent-foreground"
-                      : "bg-secondary text-secondary-foreground"
-                )}>
-                  {item.type === "ANIME" ? (
-                    <span className="flex items-center gap-1">
-                      <Film className="w-3 h-3" />
-                      {formatMediaType(item.format)}
-                    </span>
-                  ) : item.format === "NOVEL" ? (
-                    <span className="flex items-center gap-1">
-                      <Book className="w-3 h-3" />
-                      Light Novel
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1">
-                      <BookOpen className="w-3 h-3" />
-                      {formatMediaType(item.format)}
-                    </span>
-                  )}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {item.relationType}
-                </span>
-              </div>
-            </div>
-            <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
-          </button>
-        ))}
-      </div>
+
+      {/* Cross-media suggestion banner */}
+      {crossMediaSuggestion && (
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 flex items-center gap-3">
+          <img
+            src={crossMediaSuggestion.item.image || "/placeholder.svg"}
+            alt={crossMediaSuggestion.item.title}
+            className="w-10 h-14 object-cover rounded-lg flex-shrink-0"
+          />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-primary font-medium mb-0.5">
+              {crossMediaSuggestion.message}
+            </p>
+            <p className="text-xs text-muted-foreground truncate">
+              {crossMediaSuggestion.item.title}
+            </p>
+          </div>
+          <div className="flex gap-1.5 flex-shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs gap-1"
+              onClick={() => handleClick(crossMediaSuggestion.item)}
+            >
+              View
+            </Button>
+            <Button
+              size="sm"
+              className="h-7 text-xs gap-1"
+              onClick={() => handleAddToList(crossMediaSuggestion.item)}
+            >
+              <Plus className="w-3 h-3" />
+              Add
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Grouped relations */}
+      {Object.entries(grouped).map(([groupName, items]) => (
+        <div key={groupName}>
+          <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">
+            {groupName === "Anime" ? "📺" : groupName === "Manga" ? "📖" : "📚"} {groupName}
+          </p>
+          <div className="space-y-1.5">
+            {items.map((item) => {
+              const progress = getUserProgress(item.id);
+              const Icon = getFormatIcon(item.format);
+              const statusStr = formatStatus(item.status);
+
+              // Build progress text
+              let progressText = "";
+              if (progress) {
+                if (item.type === "ANIME") {
+                  const ep = progress.episodes_watched || 0;
+                  const total = item.episodes;
+                  progressText = total
+                    ? `Episode ${ep} of ${total}`
+                    : `Episode ${ep}`;
+                  progressText += ` (You're ${progress.status || "tracking"})`;
+                } else {
+                  const ch = progress.chapters_read || 0;
+                  const total = item.chapters;
+                  progressText = total
+                    ? `Chapter ${ch} of ${total}`
+                    : `Chapter ${ch}`;
+                  progressText += ` (You're ${progress.status || "tracking"})`;
+                }
+              }
+
+              // Build info text
+              let infoText = formatMediaFormat(item.format);
+              if (item.type === "ANIME" && item.episodes) {
+                infoText += ` · ${item.episodes} eps`;
+              } else if (item.type === "MANGA" && item.chapters) {
+                infoText += ` · ${item.chapters} ch`;
+              }
+              if (statusStr) infoText += ` · ${statusStr}`;
+
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleClick(item)}
+                  className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-muted/30 hover:bg-muted/60 transition-all group text-left"
+                >
+                  <img
+                    src={item.image || "/placeholder.svg"}
+                    alt={item.title}
+                    className="w-10 h-14 sm:w-12 sm:h-16 object-cover rounded-lg flex-shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate group-hover:text-primary transition-colors">
+                      {item.title}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                      <span
+                        className={cn(
+                          "text-xs px-2 py-0.5 rounded-full inline-flex items-center gap-1",
+                          item.type === "ANIME"
+                            ? "bg-primary/10 text-primary"
+                            : item.format === "NOVEL"
+                              ? "bg-accent/50 text-accent-foreground"
+                              : "bg-secondary text-secondary-foreground"
+                        )}
+                      >
+                        <Icon className="w-3 h-3" />
+                        {item.relationType}
+                      </span>
+                      <span className="text-xs text-muted-foreground">{infoText}</span>
+                    </div>
+                    {/* User progress */}
+                    {progress && (
+                      <p className="text-[11px] text-primary/80 mt-1 truncate">
+                        {getFormatEmoji(item.format)} {progressText}
+                      </p>
+                    )}
+                    {/* Not on list prompt */}
+                    {!progress && user && (
+                      <p className="text-[11px] text-muted-foreground/60 mt-1">
+                        Not on your list
+                      </p>
+                    )}
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
