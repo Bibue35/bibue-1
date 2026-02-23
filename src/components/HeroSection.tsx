@@ -82,7 +82,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
                   loading={isFirst || isActive ? "eager" : "lazy"}
                   decoding={isFirst || isActive ? "sync" : "async"}
                   sizes="100vw"
-                  className="absolute inset-0 w-full h-full object-cover opacity-40"
+                  className="absolute inset-0 w-full h-full object-cover opacity-30"
                   {...(isFirst || isActive ? { fetchPriority: "high" as any } : {})}
                 />
               </div>
@@ -90,21 +90,36 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
           })}
         </div>
         {/* Minimal gradient — let image breathe, just enough for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/60" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/50" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent" />
       </div>
 
       {/* Content overlaid on the bottom of the image */}
       <div className="container mx-auto px-3 sm:px-4 relative z-10 pb-12 sm:pb-16 md:pb-20">
         <div className="flex items-end justify-between">
-          <div className="max-w-lg">
-            {/* Genres — 2 max */}
+          <div className="max-w-xl">
+            {/* Rating pill */}
+            {featured.score && (
+              <div className="flex items-center gap-1.5 mb-5 sm:mb-6">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-foreground/10 backdrop-blur-sm text-sm font-medium text-foreground/80">
+                  <Star className="w-3.5 h-3.5 text-foreground/70 fill-foreground/70" />
+                  {formatScore(featured.score)} Rating
+                </span>
+              </div>
+            )}
+
+            {/* Title */}
+            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-sacred mb-4 sm:mb-5 tracking-wide leading-[1.1]">
+              {featured.title}
+            </h1>
+
+            {/* Genres */}
             {featured.genres && featured.genres.length > 0 && (
-              <div className="flex gap-1.5 mb-3">
+              <div className="flex gap-2 mb-4 sm:mb-5">
                 {featured.genres.slice(0, 3).map((genre) => (
                   <span
                     key={genre.mal_id}
-                    className="px-2.5 py-0.5 rounded-full bg-foreground/10 backdrop-blur-sm text-xs font-medium text-foreground/80"
+                    className="px-3 py-1 rounded-full border border-foreground/20 text-xs sm:text-sm font-medium text-foreground/70"
                   >
                     {genre.name}
                   </span>
@@ -112,22 +127,10 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
               </div>
             )}
 
-            {/* Title — large, bold, readable in 1 second */}
-            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-sacred mb-2 sm:mb-3 tracking-wide leading-[1.1]">
-              {featured.title}
-            </h1>
-
-            {/* Rating — single number */}
-            {featured.score && (
-              <div className="flex items-center gap-1.5 mb-3 sm:mb-4">
-                <Star className="w-4 h-4 text-primary fill-primary" />
-                <span className="text-sm sm:text-base font-semibold">{formatScore(featured.score)}</span>
-              </div>
-            )}
-
+            {/* Synopsis */}
             <HeroSynopsis text={featured.synopsis} />
 
-            {/* Single CTA */}
+            {/* CTA */}
             <Button 
               size="lg"
               variant="primary" 
@@ -139,17 +142,17 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
             </Button>
           </div>
 
-          {/* Side preview cards — right side */}
-          <div className="hidden lg:flex flex-col gap-3 items-end">
-            {featuredAnime?.slice(0, 4).filter((_, i) => i !== selectedIndex).slice(0, 3).map((anime, i) => {
+          {/* Side preview cards */}
+          <div className="hidden lg:flex flex-col gap-4 items-end">
+            {featuredAnime?.slice(0, 4).filter((_, i) => i !== selectedIndex).slice(0, 3).map((anime) => {
               const originalIndex = featuredAnime.findIndex(a => a.anilist_id === anime.anilist_id);
               return (
                 <button
                   key={anime.anilist_id}
                   onClick={() => setSelectedIndex(originalIndex)}
                   className={cn(
-                    "w-36 xl:w-40 aspect-[4/3] rounded-2xl overflow-hidden border-2 transition-all duration-300 hover:scale-105",
-                    "border-foreground/10 hover:border-primary/50 shadow-lg"
+                    "w-40 xl:w-44 aspect-[4/3] rounded-2xl overflow-hidden border-2 transition-all duration-300 hover:scale-105",
+                    "border-foreground/10 hover:border-primary/40 shadow-lg"
                   )}
                 >
                   <img
