@@ -86,6 +86,88 @@ export type Database = {
         }
         Relationships: []
       }
+      chapter_pages: {
+        Row: {
+          chapter_id: string
+          created_at: string
+          file_size: number | null
+          id: string
+          image_url: string
+          original_filename: string | null
+          page_number: number
+        }
+        Insert: {
+          chapter_id: string
+          created_at?: string
+          file_size?: number | null
+          id?: string
+          image_url: string
+          original_filename?: string | null
+          page_number: number
+        }
+        Update: {
+          chapter_id?: string
+          created_at?: string
+          file_size?: number | null
+          id?: string
+          image_url?: string
+          original_filename?: string | null
+          page_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapter_pages_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chapter_reports: {
+        Row: {
+          chapter_id: string
+          created_at: string
+          description: string | null
+          id: string
+          report_type: string
+          reporter_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+        }
+        Insert: {
+          chapter_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          report_type: string
+          reporter_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Update: {
+          chapter_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          report_type?: string
+          reporter_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapter_reports_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chapter_votes: {
         Row: {
           chapter_number: number
@@ -115,6 +197,59 @@ export type Database = {
           vote_type?: string
         }
         Relationships: []
+      }
+      chapters: {
+        Row: {
+          chapter_number: number
+          created_at: string
+          creator_id: string
+          id: string
+          page_count: number
+          published_at: string | null
+          rejection_reason: string | null
+          scheduled_publish_at: string | null
+          series_id: string
+          status: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          chapter_number: number
+          created_at?: string
+          creator_id: string
+          id?: string
+          page_count?: number
+          published_at?: string | null
+          rejection_reason?: string | null
+          scheduled_publish_at?: string | null
+          series_id: string
+          status?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          chapter_number?: number
+          created_at?: string
+          creator_id?: string
+          id?: string
+          page_count?: number
+          published_at?: string | null
+          rejection_reason?: string | null
+          scheduled_publish_at?: string | null
+          series_id?: string
+          status?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapters_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "series"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       comment_likes: {
         Row: {
@@ -181,6 +316,63 @@ export type Database = {
         }
         Relationships: []
       }
+      content_moderation_queue: {
+        Row: {
+          chapter_id: string | null
+          content_type: string
+          created_at: string
+          creator_id: string
+          flagged_reason: string | null
+          id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewer_id: string | null
+          series_id: string | null
+          status: string
+        }
+        Insert: {
+          chapter_id?: string | null
+          content_type: string
+          created_at?: string
+          creator_id: string
+          flagged_reason?: string | null
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          series_id?: string | null
+          status?: string
+        }
+        Update: {
+          chapter_id?: string | null
+          content_type?: string
+          created_at?: string
+          creator_id?: string
+          flagged_reason?: string | null
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          series_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_moderation_queue_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_moderation_queue_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "series"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_reports: {
         Row: {
           content_id: number
@@ -215,6 +407,51 @@ export type Database = {
           id?: string
           report_type?: string
           status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      creator_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          display_name: string
+          guidelines_accepted_at: string | null
+          id: string
+          is_verified: boolean
+          social_links: Json | null
+          status: string
+          strike_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name: string
+          guidelines_accepted_at?: string | null
+          id?: string
+          is_verified?: boolean
+          social_links?: Json | null
+          status?: string
+          strike_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string
+          guidelines_accepted_at?: string | null
+          id?: string
+          is_verified?: boolean
+          social_links?: Json | null
+          status?: string
+          strike_count?: number
           updated_at?: string
           user_id?: string
         }
@@ -354,6 +591,54 @@ export type Database = {
           },
         ]
       }
+      dmca_requests: {
+        Row: {
+          admin_notes: string | null
+          claimant_company: string | null
+          claimant_email: string
+          claimant_name: string
+          content_url: string
+          created_at: string
+          description: string
+          id: string
+          original_work_url: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          sworn_statement: boolean
+        }
+        Insert: {
+          admin_notes?: string | null
+          claimant_company?: string | null
+          claimant_email: string
+          claimant_name: string
+          content_url: string
+          created_at?: string
+          description: string
+          id?: string
+          original_work_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          sworn_statement?: boolean
+        }
+        Update: {
+          admin_notes?: string | null
+          claimant_company?: string | null
+          claimant_email?: string
+          claimant_name?: string
+          content_url?: string
+          created_at?: string
+          description?: string
+          id?: string
+          original_work_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          sworn_statement?: boolean
+        }
+        Relationships: []
+      }
       episode_comments: {
         Row: {
           anime_id: number
@@ -464,6 +749,82 @@ export type Database = {
         }
         Relationships: []
       }
+      list_entries: {
+        Row: {
+          created_at: string
+          entry_type: string | null
+          id: string
+          image_url: string | null
+          list_id: string
+          mal_id: number
+          media_type: string
+          note: string | null
+          position: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          entry_type?: string | null
+          id?: string
+          image_url?: string | null
+          list_id: string
+          mal_id: number
+          media_type?: string
+          note?: string | null
+          position?: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          entry_type?: string | null
+          id?: string
+          image_url?: string | null
+          list_id?: string
+          mal_id?: number
+          media_type?: string
+          note?: string | null
+          position?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "list_entries_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "user_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      list_likes: {
+        Row: {
+          created_at: string
+          id: string
+          list_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          list_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          list_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "list_likes_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "user_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media_votes: {
         Row: {
           created_at: string
@@ -570,6 +931,65 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
+      }
+      series: {
+        Row: {
+          approved_chapters_count: number
+          content_rating: string
+          cover_image_url: string | null
+          created_at: string
+          creator_id: string
+          description: string | null
+          genre_tags: string[] | null
+          id: string
+          language: string
+          reading_direction: string
+          rejection_reason: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          approved_chapters_count?: number
+          content_rating?: string
+          cover_image_url?: string | null
+          created_at?: string
+          creator_id: string
+          description?: string | null
+          genre_tags?: string[] | null
+          id?: string
+          language?: string
+          reading_direction?: string
+          rejection_reason?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          approved_chapters_count?: number
+          content_rating?: string
+          cover_image_url?: string | null
+          created_at?: string
+          creator_id?: string
+          description?: string | null
+          genre_tags?: string[] | null
+          id?: string
+          language?: string
+          reading_direction?: string
+          rejection_reason?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "series_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "creator_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       user_badges: {
         Row: {
@@ -696,6 +1116,42 @@ export type Database = {
           follower_id?: string
           following_id?: string
           id?: string
+        }
+        Relationships: []
+      }
+      user_lists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean
+          likes_count: number
+          slug: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          likes_count?: number
+          slug: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          likes_count?: number
+          slug?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
