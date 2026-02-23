@@ -123,6 +123,7 @@ const ja: Record<string, string> = {
   "schedule.daySchedule": "の放送予定",
   "schedule.broadcastSchedule": "放送スケジュール",
   "schedule.viewFull": "完全スケジュール",
+  "user.myProfile": "マイプロフィール",
   "user.library": "ライブラリ",
   "user.myWatchlist": "マイリスト",
   "user.forYou": "おすすめ",
