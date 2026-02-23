@@ -58,12 +58,6 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        liquid: {
-          indigo: "hsl(var(--liquid-indigo, 270 80% 20%))",
-          blue: "hsl(var(--liquid-blue, 200 100% 50%))",
-          pink: "hsl(var(--liquid-pink, 310 100% 50%))",
-          amber: "hsl(var(--liquid-amber, 33 100% 50%))",
-        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -74,12 +68,6 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-      },
-      backdropBlur: {
-        liquid: "40px",
-      },
-      backgroundImage: {
-        "rim-light": "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 50%)",
       },
       borderRadius: {
         lg: "var(--radius)",

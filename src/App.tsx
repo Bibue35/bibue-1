@@ -1,6 +1,5 @@
 import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
-import { LiquidGlassBackground } from "@/components/LiquidGlassBackground";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -95,7 +94,6 @@ const App = () => (
               <TooltipProvider>
                 <OfflineBanner />
                 <IncognitoOverlay />
-                <LiquidGlassBackground />
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>

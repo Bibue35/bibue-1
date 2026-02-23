@@ -94,7 +94,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
         className="block group text-left w-full active:scale-[0.98] transition-transform duration-150"
       >
         {/* Image with simple hover effect */}
-        <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted will-change-transform transform-gpu liquid-gpu-layer liquid-card-overlay">
+        <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted will-change-transform transform-gpu">
           <img
             src={manga.images.webp.image_url}
             alt={`${manga.title} cover art`}

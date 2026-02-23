@@ -8,9 +8,7 @@ import { EpisodeCountdown } from "@/components/EpisodeCountdown";
 import { Link } from "react-router-dom";
 import { useScheduleByDay } from "@/hooks/useAnimeData";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useThemeContext } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
-// flavor used for conditional liquid-glass styling
 
 const DAY_KEYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] as const;
 const DAY_TRANSLATION_KEYS = ["days.sun", "days.mon", "days.tue", "days.wed", "days.thu", "days.fri", "days.sat"] as const;
@@ -19,7 +17,6 @@ export function ScheduleSection() {
   const today = new Date().getDay();
   const [selectedDay, setSelectedDay] = useState<string>(DAY_KEYS[today]);
   const { t, language } = useLanguage();
-  const { flavor } = useThemeContext();
   
   const { data: scheduleData, isLoading } = useScheduleByDay(selectedDay);
 
@@ -36,9 +33,7 @@ export function ScheduleSection() {
               <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </div>
             <div>
-              <h2
-                className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight"
-              >
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight">
                 {isToday ? t("schedule.todaySchedule") : `${selectedDayLabel}${t("schedule.daySchedule")}`}
               </h2>
               {language === "ja" && (
@@ -93,7 +88,7 @@ export function ScheduleSection() {
         ) : scheduleData && scheduleData.length > 0 ? (
           <HorizontalScroll title="" titleJp="">
             {scheduleData.map((item, index) => (
-              <div key={item.anilist_id} className={cn("flex-shrink-0 w-28 sm:w-36 md:w-44", isToday && "liquid-frosted rounded-xl p-1.5")}>
+              <div key={item.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
                 <div className="mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2 flex-wrap">
                   <span className="text-[10px] sm:text-xs font-medium px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-primary/10 text-primary">
                     {item.airingTime}
