@@ -255,14 +255,14 @@ function InstancedNodes({
   );
 }
 
-// ─── Animated web lines (draw-in effect) ───────────────────────
-function WebLines({ nodes, connections }: { nodes: GalaxyNode[]; connections: Connection[] }) {
+// ─── Animated web lines (draw-in + hover highlight) ────────────
+function WebLines({ nodes, connections, hoveredNodeIndex }: { nodes: GalaxyNode[]; connections: Connection[]; hoveredNodeIndex: number | null }) {
   const lineRef = useRef<THREE.LineSegments>(null);
   const progressRef = useRef(0);
   const materialRef = useRef<THREE.LineBasicMaterial>(null);
 
-  // Full target positions & colors
-  const { targetPositions, colors } = useMemo(() => {
+  // Base colors per connection
+  const { targetPositions, baseColors } = useMemo(() => {
     const pos = new Float32Array(connections.length * 6);
     const col = new Float32Array(connections.length * 6);
 
@@ -290,13 +290,12 @@ function WebLines({ nodes, connections }: { nodes: GalaxyNode[]; connections: Co
       col[offset + 3] = c2.r; col[offset + 4] = c2.g; col[offset + 5] = c2.b;
     });
 
-    return { targetPositions: pos, colors: col };
+    return { targetPositions: pos, baseColors: col };
   }, [nodes, connections]);
 
-  // Animated positions: lines start collapsed at "from" node, then extend to "to" node
+  // Animated positions
   const animPositions = useMemo(() => {
     const pos = new Float32Array(connections.length * 6);
-    // Initialize all endpoints to the "from" position (lines start as points)
     connections.forEach((conn, i) => {
       const from = nodes[conn.from];
       const offset = i * 6;
@@ -306,35 +305,72 @@ function WebLines({ nodes, connections }: { nodes: GalaxyNode[]; connections: Co
     return pos;
   }, [nodes, connections]);
 
-  // Animate: progressively draw lines over ~3 seconds with staggered timing
-  useFrame((_, delta) => {
-    if (progressRef.current >= 1) return;
-    progressRef.current = Math.min(1, progressRef.current + delta * 0.4); // ~2.5s total
-    const p = progressRef.current;
+  // Connected set for hovered node
+  const connectedSet = useMemo(() => {
+    if (hoveredNodeIndex === null) return null;
+    const set = new Set<number>();
+    connections.forEach((conn, i) => {
+      if (conn.from === hoveredNodeIndex || conn.to === hoveredNodeIndex) {
+        set.add(i);
+      }
+    });
+    return set;
+  }, [hoveredNodeIndex, connections]);
 
+  useFrame((_, delta) => {
     const geom = lineRef.current?.geometry;
     if (!geom) return;
-    const posAttr = geom.getAttribute("position") as THREE.BufferAttribute;
-    const arr = posAttr.array as Float32Array;
-    const total = connections.length;
 
-    for (let i = 0; i < total; i++) {
-      // Stagger: each line starts drawing at a different time
-      const stagger = i / total * 0.6; // spread over 60% of duration
-      const localP = Math.max(0, Math.min(1, (p - stagger) / 0.4)); // each line draws in 40% of duration
-      const eased = localP * localP * (3 - 2 * localP); // smoothstep
+    // Draw-in animation
+    if (progressRef.current < 1) {
+      progressRef.current = Math.min(1, progressRef.current + delta * 0.4);
+      const p = progressRef.current;
+      const posAttr = geom.getAttribute("position") as THREE.BufferAttribute;
+      const arr = posAttr.array as Float32Array;
+      const total = connections.length;
 
-      const offset = i * 6;
-      // "from" stays fixed, "to" interpolates
-      arr[offset + 3] = arr[offset] + (targetPositions[offset + 3] - targetPositions[offset]) * eased;
-      arr[offset + 4] = arr[offset + 1] + (targetPositions[offset + 4] - targetPositions[offset + 1]) * eased;
-      arr[offset + 5] = arr[offset + 2] + (targetPositions[offset + 5] - targetPositions[offset + 2]) * eased;
+      for (let i = 0; i < total; i++) {
+        const stagger = i / total * 0.6;
+        const localP = Math.max(0, Math.min(1, (p - stagger) / 0.4));
+        const eased = localP * localP * (3 - 2 * localP);
+        const offset = i * 6;
+        arr[offset + 3] = arr[offset] + (targetPositions[offset + 3] - targetPositions[offset]) * eased;
+        arr[offset + 4] = arr[offset + 1] + (targetPositions[offset + 4] - targetPositions[offset + 1]) * eased;
+        arr[offset + 5] = arr[offset + 2] + (targetPositions[offset + 5] - targetPositions[offset + 2]) * eased;
+      }
+      posAttr.needsUpdate = true;
+
+      if (materialRef.current) {
+        materialRef.current.opacity = Math.min(0.35, p * 0.5);
+      }
     }
-    posAttr.needsUpdate = true;
 
-    // Fade in opacity
-    if (materialRef.current) {
-      materialRef.current.opacity = Math.min(0.35, p * 0.5);
+    // Hover highlight: brighten connected lines, dim others
+    const colAttr = geom.getAttribute("color") as THREE.BufferAttribute;
+    const colArr = colAttr.array as Float32Array;
+
+    if (connectedSet) {
+      for (let i = 0; i < connections.length; i++) {
+        const offset = i * 6;
+        const isConnected = connectedSet.has(i);
+        const mult = isConnected ? 1.8 : 0.15;
+        for (let j = 0; j < 6; j++) {
+          colArr[offset + j] = baseColors[offset + j] * mult;
+        }
+      }
+      colAttr.needsUpdate = true;
+      if (materialRef.current && progressRef.current >= 1) {
+        materialRef.current.opacity = 0.7;
+      }
+    } else {
+      // Restore base colors
+      for (let i = 0; i < colArr.length; i++) {
+        colArr[i] = baseColors[i];
+      }
+      colAttr.needsUpdate = true;
+      if (materialRef.current && progressRef.current >= 1) {
+        materialRef.current.opacity = 0.35;
+      }
     }
   });
 
@@ -342,7 +378,7 @@ function WebLines({ nodes, connections }: { nodes: GalaxyNode[]; connections: Co
     <lineSegments ref={lineRef}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[animPositions, 3]} />
-        <bufferAttribute attach="attributes-color" args={[colors, 3]} />
+        <bufferAttribute attach="attributes-color" args={[baseColors.slice(), 3]} />
       </bufferGeometry>
       <lineBasicMaterial ref={materialRef} vertexColors transparent opacity={0} toneMapped={false} />
     </lineSegments>
@@ -440,7 +476,7 @@ function GalaxyScene({ nodes, connections, onSelectAnime }: { nodes: GalaxyNode[
       <pointLight position={[0, 0, 0]} intensity={0.3} color="#8b5cf6" distance={60} />
       <pointLight position={[25, 15, -15]} intensity={0.2} color="#f59e0b" distance={60} />
 
-      <WebLines nodes={nodes} connections={connections} />
+      <WebLines nodes={nodes} connections={connections} hoveredNodeIndex={hoveredIndex} />
       <GenreLabels />
       <InstancedNodes nodes={nodes} hoveredIndex={hoveredIndex} onHover={setHoveredIndex} onClick={handleClick} />
 
