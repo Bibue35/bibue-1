@@ -175,12 +175,6 @@ export function UserMenu() {
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
-          <Link to="/vibe-check">
-            <Sparkles className="w-4 h-4" />
-            <span>Vibe Check</span>
-          </Link>
-        </DropdownMenuItem>
         
         <DropdownMenuSeparator />
         
