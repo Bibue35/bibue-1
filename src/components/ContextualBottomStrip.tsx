@@ -24,9 +24,9 @@ export function ContextualBottomStrip() {
         const currentScrollY = window.scrollY;
         const scrollDelta = currentScrollY - scrollRef.current;
 
-        if (scrollDelta < -5 && currentScrollY > 200) {
+        if (scrollDelta < -3 && currentScrollY > 150) {
           setIsVisible(true);
-        } else if (scrollDelta > 10 || currentScrollY < 100) {
+        } else if (scrollDelta > 30 || currentScrollY < 50) {
           setIsVisible(false);
         }
 
