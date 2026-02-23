@@ -172,7 +172,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
       </div>
 
       {/* Side preview cards - Clickable to change hero */}
-      <div className="absolute right-4 sm:right-8 top-[55%] -translate-y-1/2 hidden xl:flex flex-col gap-4">
+      <div className="absolute right-4 sm:right-8 top-[60%] -translate-y-1/2 hidden xl:flex flex-col gap-4">
         {sideCards.map((anime, index) => (
           <button
             key={anime.anilist_id}
