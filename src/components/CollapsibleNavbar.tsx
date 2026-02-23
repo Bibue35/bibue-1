@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Search, Menu, X, Users, LogIn } from "lucide-react";
+import { NotificationBell } from "./NotificationBell";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
@@ -145,6 +146,8 @@ export function CollapsibleNavbar() {
               >
                 <Search className="w-5 h-5" />
               </Button>
+
+              <NotificationBell />
 
               <div className="hidden md:block">
                 <ThemeSelector />

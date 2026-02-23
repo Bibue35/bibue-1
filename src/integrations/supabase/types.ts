@@ -882,6 +882,72 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          media_id: number
+          media_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          media_id: number
+          media_type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          media_id?: number
+          media_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string | null
+          is_read: boolean
+          media_id: number
+          media_type: string
+          message: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_read?: boolean
+          media_id: number
+          media_type?: string
+          message: string
+          title?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_read?: boolean
+          media_id?: number
+          media_type?: string
+          message?: string
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       poll_votes: {
         Row: {
           created_at: string
@@ -1188,6 +1254,9 @@ export type Database = {
           hide_activity: boolean | null
           id: string
           incognito_mode: boolean | null
+          notify_new_chapters: boolean | null
+          notify_new_episodes: boolean | null
+          notify_season_announcements: boolean | null
           theme: string | null
           updated_at: string
           user_id: string
@@ -1197,6 +1266,9 @@ export type Database = {
           hide_activity?: boolean | null
           id?: string
           incognito_mode?: boolean | null
+          notify_new_chapters?: boolean | null
+          notify_new_episodes?: boolean | null
+          notify_season_announcements?: boolean | null
           theme?: string | null
           updated_at?: string
           user_id: string
@@ -1206,6 +1278,9 @@ export type Database = {
           hide_activity?: boolean | null
           id?: string
           incognito_mode?: boolean | null
+          notify_new_chapters?: boolean | null
+          notify_new_episodes?: boolean | null
+          notify_season_announcements?: boolean | null
           theme?: string | null
           updated_at?: string
           user_id?: string
