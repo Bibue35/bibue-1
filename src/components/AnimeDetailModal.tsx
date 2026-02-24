@@ -1,11 +1,11 @@
 import { useState, lazy, Suspense } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Play, X, Star, Eye, Search, ChevronLeft, ChevronRight, ChevronDown, MessageCircle, Send, User, ThumbsUp, ArrowUpDown, Users, Tv, BookOpen, Heart as HeartIcon, SmilePlus, Clock, Calendar } from "lucide-react";
+import { Play, X, Star, Eye, Search, ChevronLeft, ChevronRight, ChevronDown, MessageCircle, Send, User, ThumbsUp, ArrowUpDown, Users, Tv, BookOpen, Heart as HeartIcon, Clock, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+
 import { useAnimeDetails, useAnimeRecommendations } from "@/hooks/useAnimeData";
 import { formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -22,7 +22,7 @@ import { WatchlistStatus } from "./WatchlistStatus";
 import { RelatedMedia } from "./RelatedMedia";
 import { ResponsiveModal } from "./ResponsiveModal";
 import { AnimeCard } from "./AnimeCard";
-import { QuickReactions } from "./QuickReactions";
+
 import { CreateWatchParty } from "./CreateWatchParty";
 
 interface AnimeDetailModalProps {
@@ -219,24 +219,6 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
           totalEpisodes={anime?.episodes}
         />
       </div>
-
-      {/* Quick Reactions - Collapsible */}
-      <Collapsible>
-        <div className="px-4 sm:px-6 md:px-8 py-2 border-b border-border/30 flex items-center">
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground h-7 px-2">
-              <SmilePlus className="w-3.5 h-3.5" />
-              React
-              <ChevronDown className="w-3 h-3 transition-transform [[data-state=open]_&]:rotate-180" />
-            </Button>
-          </CollapsibleTrigger>
-        </div>
-        <CollapsibleContent>
-          <div className="px-4 sm:px-6 md:px-8 pb-3">
-            <QuickReactions mediaId={animeId} mediaType="anime" />
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
 
       {/* Tabbed Content */}
       <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6">
