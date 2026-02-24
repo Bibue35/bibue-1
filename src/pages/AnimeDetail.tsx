@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { SEO, creativeWorkJsonLd } from "@/components/SEO";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -469,84 +470,6 @@ export default function AnimeDetailPage() {
                 />
               )}
 
-              {/* Comments */}
-              <div>
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <MessageCircle className="w-4 h-4 text-muted-foreground" />
-                    <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">
-                      {t("detail.commentSection")}
-                    </h2>
-                    {comments && (
-                      <span className="text-xs text-muted-foreground">({comments.length})</span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Button variant={sortBy === "latest" ? "secondary" : "ghost"} size="sm" onClick={() => setSortBy("latest")} className="gap-1 text-xs h-7 px-2">
-                      <ArrowUpDown className="w-3 h-3" /> {t("comments.latest")}
-                    </Button>
-                    <Button variant={sortBy === "likes" ? "secondary" : "ghost"} size="sm" onClick={() => setSortBy("likes")} className="gap-1 text-xs h-7 px-2">
-                      <ThumbsUp className="w-3 h-3" /> {t("comments.top")}
-                    </Button>
-                  </div>
-                </div>
-
-                <form onSubmit={handleSubmit} className="mb-4">
-                  <Textarea
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    placeholder={user ? t("comments.shareThoughts") : t("comments.signInPlaceholder")}
-                    className="mb-2 resize-none border-border/30"
-                    rows={2}
-                    disabled={!user}
-                  />
-                  <Button type="submit" size="sm" disabled={!user || !newComment.trim() || addCommentMutation.isPending} className="gap-1.5">
-                    <Send className="w-3.5 h-3.5" />
-                    {user ? t("comments.postComment") : t("comments.signInToComment")}
-                  </Button>
-                </form>
-
-                <div className="space-y-3">
-                  {commentsLoading ? (
-                    <div className="text-center py-6 text-muted-foreground text-sm">{t("comments.loadingComments")}</div>
-                  ) : comments && comments.length > 0 ? (
-                    comments.map((comment) => {
-                      const hasLiked = userLikes?.includes(comment.id);
-                      return (
-                        <div key={comment.id} className="rounded-xl bg-muted/30 p-3 sm:p-4">
-                          <div className="flex items-start gap-3">
-                            <div className="w-7 h-7 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0">
-                              <User className="w-3.5 h-3.5 text-muted-foreground" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-0.5">
-                                <span className="font-medium text-xs">{(comment.profiles as any)?.username || "Anonymous"}</span>
-                                <span className="text-[11px] text-muted-foreground">
-                                  {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
-                                </span>
-                              </div>
-                              <p className="text-sm text-muted-foreground mb-1.5">{comment.content}</p>
-                              <button
-                                onClick={() => likeMutation.mutate(comment.id)}
-                                disabled={!user || likeMutation.isPending}
-                                className={cn(
-                                  "flex items-center gap-1 text-xs transition-colors",
-                                  hasLiked ? "text-primary" : "text-muted-foreground hover:text-foreground"
-                                )}
-                              >
-                                <ThumbsUp className={cn("w-3 h-3", hasLiked && "fill-current")} />
-                                <span>{comment.likes || 0}</span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="text-center py-6 text-muted-foreground text-sm">{t("detail.noCommentsYet")}</div>
-                  )}
-                </div>
-              </div>
             </div>
 
             {/* Sidebar */}
@@ -608,6 +531,89 @@ export default function AnimeDetailPage() {
               )}
             </div>
           </div>
+
+          {/* ============ COMMENTS (collapsible, full-width) ============ */}
+          <Collapsible className="mt-8">
+            <CollapsibleTrigger className="flex items-center justify-between w-full group">
+              <div className="flex items-center gap-2">
+                <MessageCircle className="w-4 h-4 text-muted-foreground" />
+                <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">
+                  {t("detail.commentSection")}
+                </h2>
+                {comments && (
+                  <span className="text-xs text-muted-foreground">({comments.length})</span>
+                )}
+              </div>
+              <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+            </CollapsibleTrigger>
+
+            <CollapsibleContent className="mt-4">
+              <div className="flex items-center justify-end gap-1 mb-3">
+                <Button variant={sortBy === "latest" ? "secondary" : "ghost"} size="sm" onClick={() => setSortBy("latest")} className="gap-1 text-xs h-7 px-2">
+                  <ArrowUpDown className="w-3 h-3" /> {t("comments.latest")}
+                </Button>
+                <Button variant={sortBy === "likes" ? "secondary" : "ghost"} size="sm" onClick={() => setSortBy("likes")} className="gap-1 text-xs h-7 px-2">
+                  <ThumbsUp className="w-3 h-3" /> {t("comments.top")}
+                </Button>
+              </div>
+
+              <form onSubmit={handleSubmit} className="mb-4">
+                <Textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder={user ? t("comments.shareThoughts") : t("comments.signInPlaceholder")}
+                  className="mb-2 resize-none border-border/30"
+                  rows={2}
+                  disabled={!user}
+                />
+                <Button type="submit" size="sm" disabled={!user || !newComment.trim() || addCommentMutation.isPending} className="gap-1.5">
+                  <Send className="w-3.5 h-3.5" />
+                  {user ? t("comments.postComment") : t("comments.signInToComment")}
+                </Button>
+              </form>
+
+              <div className="space-y-3">
+                {commentsLoading ? (
+                  <div className="text-center py-6 text-muted-foreground text-sm">{t("comments.loadingComments")}</div>
+                ) : comments && comments.length > 0 ? (
+                  comments.map((comment) => {
+                    const hasLiked = userLikes?.includes(comment.id);
+                    return (
+                      <div key={comment.id} className="rounded-xl bg-muted/30 p-3 sm:p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-7 h-7 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0">
+                            <User className="w-3.5 h-3.5 text-muted-foreground" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <span className="font-medium text-xs">{(comment.profiles as any)?.username || "Anonymous"}</span>
+                              <span className="text-[11px] text-muted-foreground">
+                                {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                              </span>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-1.5">{comment.content}</p>
+                            <button
+                              onClick={() => likeMutation.mutate(comment.id)}
+                              disabled={!user || likeMutation.isPending}
+                              className={cn(
+                                "flex items-center gap-1 text-xs transition-colors",
+                                hasLiked ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                              )}
+                            >
+                              <ThumbsUp className={cn("w-3 h-3", hasLiked && "fill-current")} />
+                              <span>{comment.likes || 0}</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-6 text-muted-foreground text-sm">{t("detail.noCommentsYet")}</div>
+                )}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       </div>
     </div>
