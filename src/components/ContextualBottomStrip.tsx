@@ -13,11 +13,15 @@ export function ContextualBottomStrip() {
   const [isVisible, setIsVisible] = useState(true);
   const scrollRef = useRef(0);
   const location = useLocation();
-  const isHome = location.pathname === "/";
-  const isGalaxy = location.pathname === "/map" || location.pathname === "/galaxy";
+  const pathname = location.pathname;
+  const isHome = pathname === "/";
+  const isAnimePage = pathname === "/anime";
+  const isMangaPage = pathname === "/manga";
+  const isAllowedPage = isHome || isAnimePage || isMangaPage;
+  const isGalaxy = pathname === "/map" || pathname === "/galaxy";
 
   useEffect(() => {
-    if (isGalaxy) return;
+    if (isGalaxy || !isAllowedPage) return;
     let ticking = false;
 
     const onScroll = () => {
@@ -42,9 +46,9 @@ export function ContextualBottomStrip() {
 
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [isGalaxy, isHome]);
+  }, [isGalaxy, isHome, isAllowedPage]);
 
-  if (isGalaxy) return null;
+  if (isGalaxy || !isAllowedPage) return null;
 
   return (
     <div
