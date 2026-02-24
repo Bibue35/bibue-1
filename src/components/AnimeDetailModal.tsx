@@ -183,7 +183,7 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
           <Skeleton className="w-full h-full" />
         ) : (
           <>
-            <img src={anime?.images?.webp?.large_image_url} alt={anime?.title} className="w-full h-full object-cover" />
+            <img src={anime?.images?.webp?.large_image_url} alt={anime?.title} className="w-full h-full object-cover object-top" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-background/20" />
             <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
               <h1 className="text-2xl xs:text-2xl sm:text-3xl md:text-4xl font-bold font-sacred text-foreground mb-0.5 sm:mb-1 line-clamp-2">
@@ -355,12 +355,12 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                 >
                   <div className="flex gap-3 sm:gap-4 p-3 sm:p-4">
                     {/* Thumbnail */}
-                    <div className="relative w-28 sm:w-36 flex-shrink-0 aspect-video rounded-lg overflow-hidden">
+                    <div className="relative w-20 sm:w-24 flex-shrink-0 aspect-[2/3] rounded-lg overflow-hidden">
                       <img
                         src={ep.thumbnail}
                         alt={ep.title}
                         className={cn(
-                          "w-full h-full object-cover transition-transform",
+                          "w-full h-full object-cover object-top transition-transform",
                           ep.aired && "group-hover:scale-105"
                         )}
                       />
