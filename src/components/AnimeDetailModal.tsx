@@ -1,10 +1,11 @@
 import { useState, lazy, Suspense } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Play, X, Star, Eye, Search, ChevronLeft, ChevronRight, ChevronDown, MessageCircle, Send, User, ThumbsUp, ArrowUpDown, Users, Tv, BookOpen, Heart as HeartIcon } from "lucide-react";
+import { Play, X, Star, Eye, Search, ChevronLeft, ChevronRight, ChevronDown, MessageCircle, Send, User, ThumbsUp, ArrowUpDown, Users, Tv, BookOpen, Heart as HeartIcon, SmilePlus, Clock, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAnimeDetails, useAnimeRecommendations } from "@/hooks/useAnimeData";
 import { formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -34,7 +35,6 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
   const navigate = useNavigate();
   const { data: anime, isLoading } = useAnimeDetails(animeId, open);
   const { data: recommendations } = useAnimeRecommendations(animeId, open);
-  const [episodeRange, setEpisodeRange] = useState(0);
   const [activeTab, setActiveTab] = useState("overview");
   const [newComment, setNewComment] = useState("");
   const [sortBy, setSortBy] = useState<"latest" | "likes">("latest");
@@ -42,23 +42,35 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Generate mock episode data
-  const generateEpisodes = (count: number) => {
-    return Array.from({ length: Math.min(count, 24) }, (_, i) => ({
-      number: i + 1,
-      title: i === 0 ? "Episode 1" : `Episode ${i + 1}`,
-      description: `Episode ${i + 1} of ${anime?.title || "this anime"}...`,
-      thumbnail: anime?.images?.webp?.large_image_url,
-    }));
+  // Generate episode data with descriptions and air status
+  const generateEpisodes = (count: number, totalEps: number) => {
+    const now = new Date();
+    const airingStart = anime?.aired?.from ? new Date(anime.aired.from) : null;
+    
+    return Array.from({ length: totalEps || count }, (_, i) => {
+      const epNum = i + 1;
+      // Estimate air date based on weekly schedule from start
+      const estimatedAirDate = airingStart 
+        ? new Date(airingStart.getTime() + (i * 7 * 24 * 60 * 60 * 1000))
+        : null;
+      const isAired = estimatedAirDate ? estimatedAirDate <= now : epNum <= Math.min(count, 12);
+      const isUpcoming = estimatedAirDate ? estimatedAirDate > now && estimatedAirDate <= new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000) : false;
+      
+      return {
+        number: epNum,
+        title: `Episode ${epNum}`,
+        description: `Episode ${epNum} of ${anime?.title || "this anime"}. ${isAired ? "Watch now to continue the story." : "Coming soon."}`,
+        thumbnail: anime?.images?.webp?.large_image_url,
+        aired: isAired,
+        upcoming: isUpcoming,
+        airDate: estimatedAirDate,
+      };
+    });
   };
 
-  const episodes = anime ? generateEpisodes(anime.episodes || 12) : [];
-  const episodesPerPage = 4;
-  const totalPages = Math.ceil(episodes.length / episodesPerPage);
-  const displayedEpisodes = episodes.slice(
-    episodeRange * episodesPerPage,
-    (episodeRange + 1) * episodesPerPage
-  );
+  const allEpisodes = anime ? generateEpisodes(anime.episodes || 12, anime.episodes || 12) : [];
+  // Show only aired + upcoming episodes
+  const visibleEpisodes = allEpisodes.filter(ep => ep.aired || ep.upcoming);
 
   // Comments query
   const { data: comments, isLoading: commentsLoading } = useQuery({
@@ -182,10 +194,23 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
         />
       </div>
 
-      {/* Quick Reactions */}
-      <div className="px-4 sm:px-6 md:px-8 py-3 border-b border-border/30">
-        <QuickReactions mediaId={animeId} mediaType="anime" />
-      </div>
+      {/* Quick Reactions - Collapsible */}
+      <Collapsible>
+        <div className="px-4 sm:px-6 md:px-8 py-2 border-b border-border/30 flex items-center">
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground h-7 px-2">
+              <SmilePlus className="w-3.5 h-3.5" />
+              React
+              <ChevronDown className="w-3 h-3 transition-transform [[data-state=open]_&]:rotate-180" />
+            </Button>
+          </CollapsibleTrigger>
+        </div>
+        <CollapsibleContent>
+          <div className="px-4 sm:px-6 md:px-8 pb-3">
+            <QuickReactions mediaId={animeId} mediaType="anime" />
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
 
       {/* Tabbed Content */}
       <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6">
@@ -271,37 +296,90 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
             </div>
           </TabsContent>
 
-          {/* Episodes Tab */}
+          {/* Episodes Tab - Netflix Style */}
           <TabsContent value="episodes">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm sm:text-lg font-bold font-sacred">EPISODES</h2>
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-muted-foreground">
-                  {episodeRange * episodesPerPage + 1}-{Math.min((episodeRange + 1) * episodesPerPage, episodes.length)}
-                </span>
-                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" disabled={episodeRange === 0} onClick={() => setEpisodeRange(p => p - 1)}>
-                  <ChevronLeft className="w-3.5 h-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" disabled={episodeRange >= totalPages - 1} onClick={() => setEpisodeRange(p => p + 1)}>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Button>
-              </div>
+              <span className="text-xs text-muted-foreground">
+                {visibleEpisodes.length} of {allEpisodes.length} episodes
+              </span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
-              {displayedEpisodes.map((ep) => (
-                <button key={ep.number} onClick={() => handlePlay(ep.number)} className="text-left group">
-                  <div className="relative aspect-video rounded-lg overflow-hidden mb-1.5">
-                    <img src={ep.thumbnail} alt={ep.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                    <div className="absolute top-1.5 right-1.5 bg-background/80 text-foreground text-[10px] font-bold px-1 py-0.5 rounded">E{ep.number}</div>
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                        <Play className="w-3.5 h-3.5 text-white fill-white" />
+            <div className="space-y-3">
+              {visibleEpisodes.map((ep) => (
+                <button
+                  key={ep.number}
+                  onClick={() => ep.aired ? handlePlay(ep.number) : undefined}
+                  disabled={!ep.aired}
+                  className={cn(
+                    "w-full text-left group rounded-xl transition-all duration-200 overflow-hidden",
+                    "border border-border/30 hover:border-border/60",
+                    ep.aired
+                      ? "cursor-pointer hover:bg-muted/30 active:scale-[0.99]"
+                      : "opacity-60 cursor-default"
+                  )}
+                >
+                  <div className="flex gap-3 sm:gap-4 p-3 sm:p-4">
+                    {/* Thumbnail */}
+                    <div className="relative w-28 sm:w-36 flex-shrink-0 aspect-video rounded-lg overflow-hidden">
+                      <img
+                        src={ep.thumbnail}
+                        alt={ep.title}
+                        className={cn(
+                          "w-full h-full object-cover transition-transform",
+                          ep.aired && "group-hover:scale-105"
+                        )}
+                      />
+                      {ep.aired && (
+                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-primary/90 flex items-center justify-center">
+                            <Play className="w-3.5 h-3.5 text-primary-foreground fill-current" />
+                          </div>
+                        </div>
+                      )}
+                      {!ep.aired && (
+                        <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+                          <Clock className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="absolute bottom-1 right-1 bg-background/80 text-foreground text-[10px] font-bold px-1 py-0.5 rounded">
+                        E{ep.number}
                       </div>
                     </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className={cn(
+                          "font-medium text-sm sm:text-base truncate",
+                          ep.aired && "group-hover:text-primary transition-colors"
+                        )}>
+                          {ep.number}. {ep.title}
+                        </h3>
+                        {ep.upcoming && !ep.aired && (
+                          <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-primary/15 text-primary">
+                            UPCOMING
+                          </span>
+                        )}
+                      </div>
+                      {ep.airDate && (
+                        <div className="flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground">
+                          <Calendar className="w-3 h-3" />
+                          <span>{ep.airDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        </div>
+                      )}
+                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed">
+                        {ep.description}
+                      </p>
+                    </div>
                   </div>
-                  <h3 className="font-medium text-xs group-hover:text-primary transition-colors line-clamp-1">{ep.number}. {ep.title}</h3>
                 </button>
               ))}
+              {visibleEpisodes.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Clock className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                  <p className="text-sm">No episodes available yet</p>
+                </div>
+              )}
             </div>
           </TabsContent>
 
