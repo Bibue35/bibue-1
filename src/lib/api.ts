@@ -27,6 +27,8 @@ export interface Anime {
   anilist_id: number;
   /** @deprecated Use anilist_id instead. Kept for backward compatibility with existing code. */
   mal_id: number;
+  /** The real MyAnimeList ID, used for Jikan API calls */
+  idMal?: number;
   title: string;
   title_romaji?: string;
   title_english?: string;
@@ -172,6 +174,7 @@ function toAnime(media: AniListMedia, language: SupportedLanguage = "en"): Anime
   return {
     anilist_id: media.id, // Primary AniList ID for all API calls
     mal_id: media.id, // Keep for backward compatibility (also AniList ID)
+    idMal: media.idMal || undefined,
     title: getTitleForLanguage(media.title, language),
     title_romaji: media.title.romaji || undefined,
     title_english: media.title.english || undefined,
