@@ -72,139 +72,191 @@ function inkDrip(
   }
   ctx.lineWidth = width;
   ctx.stroke();
-  // Drip blob at bottom
   ctx.beginPath();
   ctx.arc(x, y + length, width * 0.6, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 }
 
+interface CachedRect { x: number; y: number; w: number; h: number }
+
 export function SketchOverlay() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
-  const lastDrawRef = useRef<number>(0);
+  const cachedRects = useRef<CachedRect[]>([]);
+  const needsRedraw = useRef(true);
+  const dripTime = useRef(0);
 
-  const draw = useCallback((time: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    // Throttle to ~15fps for performance — this is a decorative layer
-    if (time - lastDrawRef.current < 66) {
-      animRef.current = requestAnimationFrame(draw);
-      return;
-    }
-    lastDrawRef.current = time;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const dpr = Math.min(devicePixelRatio, 1.5);
-    const W = innerWidth;
-    const H = innerHeight;
-
-    if (canvas.width !== Math.floor(W * dpr) || canvas.height !== Math.floor(H * dpr)) {
-      canvas.width = W * dpr;
-      canvas.height = H * dpr;
-      canvas.style.width = W + "px";
-      canvas.style.height = H + "px";
-    }
-
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, W, H);
-
-    const rn = createRng(100);
-
-    ctx.strokeStyle = "rgba(40,35,50,0.05)";
-    ctx.fillStyle = "rgba(40,35,50,0.03)";
-    ctx.lineWidth = 0.5;
-    ctx.lineCap = "round";
-
-    // Find all card-like elements and draw cross-hatching borders on them
+  // Cache card rects on scroll/resize/mutation — not every frame
+  const cacheRects = useCallback(() => {
+    const W = innerWidth, H = innerHeight;
     const cards = document.querySelectorAll(
       ".rounded-xl, .rounded-2xl, [class*='rounded-lg']"
     );
-
-    const scrollY = window.scrollY;
-
+    const rects: CachedRect[] = [];
     cards.forEach((el) => {
       const rect = (el as HTMLElement).getBoundingClientRect();
-      // Only draw for visible elements of reasonable size
       if (
         rect.width < 40 || rect.height < 40 ||
         rect.bottom < -50 || rect.top > H + 50 ||
         rect.right < -50 || rect.left > W + 50
       ) return;
-
-      const x = rect.left;
-      const y = rect.top;
-      const w = rect.width;
-      const h = rect.height;
-
-      // Cross-hatching border effect — reduced density & opacity
-      ctx.strokeStyle = "rgba(40,35,50,0.03)";
-      ctx.lineWidth = 0.5;
-      crossHatch(ctx, x - 2, y - 2, w + 4, h + 4, rn, 14, 0.5, 0.02);
-      crossHatch(ctx, x - 2, y - 2, w + 4, h + 4, rn, 16, 2.1, 0.012);
-
-      // Hand-drawn border lines
-      ctx.strokeStyle = "rgba(40,35,50,0.04)";
-      ctx.lineWidth = 0.6;
-      sketchLine(ctx, x, y, x + w, y, rn, 1.5); // top
-      sketchLine(ctx, x + w, y, x + w, y + h, rn, 1.5); // right
-      sketchLine(ctx, x + w, y + h, x, y + h, rn, 1.5); // bottom
-      sketchLine(ctx, x, y + h, x, y, rn, 1.5); // left
+      rects.push({ x: rect.left, y: rect.top, w: rect.width, h: rect.height });
     });
-
-    // Animated ink drips from top of screen — subtler
-    ctx.strokeStyle = "rgba(30,25,40,0.025)";
-    ctx.fillStyle = "rgba(30,25,40,0.02)";
-    ctx.lineWidth = 0.8;
-
-    const dripRn = createRng(500 + Math.floor(time * 0.0002));
-    const dripX1 = W * 0.12 + Math.sin(time * 0.0003) * 20;
-    const dripProgress1 = (time * 0.0002) % 1;
-    inkDrip(ctx, dripX1, 0, dripProgress1 * H * 0.18, dripRn, 1.2);
-
-    const dripX2 = W * 0.88 + Math.cos(time * 0.00025) * 15;
-    const dripProgress2 = (time * 0.00018 + 0.5) % 1;
-    inkDrip(ctx, dripX2, 0, dripProgress2 * H * 0.14, dripRn, 1.0);
-
-    const dripX3 = W * 0.5 + Math.sin(time * 0.0002 + 2) * 30;
-    const dripProgress3 = (time * 0.00015 + 0.3) % 1;
-    inkDrip(ctx, dripX3, 0, dripProgress3 * H * 0.1, dripRn, 0.8);
-
-    // Scattered pen marks around screen edges
-    ctx.strokeStyle = "rgba(30,25,40,0.02)";
-    ctx.lineWidth = 0.4;
-    const markRn = createRng(700);
-    for (let i = 0; i < 12; i++) {
-      const sx = markRn() * W;
-      const sy = markRn() * H;
-      // Only near edges
-      if (sx > W * 0.15 && sx < W * 0.85 && sy > H * 0.15 && sy < H * 0.85) continue;
-      const len = 3 + markRn() * 6;
-      const angle = markRn() * Math.PI * 2;
-      sketchLine(ctx, sx, sy, sx + Math.cos(angle) * len, sy + Math.sin(angle) * len, markRn, 0.5);
-    }
-
-    // Tiny dots (pen taps) near edges
-    ctx.fillStyle = "rgba(30,25,40,0.02)";
-    for (let i = 0; i < 15; i++) {
-      const dx = markRn() * W;
-      const dy = markRn() * H;
-      if (dx > W * 0.2 && dx < W * 0.8 && dy > H * 0.2 && dy < H * 0.8) continue;
-      ctx.beginPath();
-      ctx.arc(dx, dy, 0.5 + markRn() * 1.2, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    animRef.current = requestAnimationFrame(draw);
+    cachedRects.current = rects;
+    needsRedraw.current = true;
   }, []);
 
   useEffect(() => {
-    animRef.current = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(animRef.current);
-  }, [draw]);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const dpr = Math.min(devicePixelRatio, 1.5);
+
+    function resize() {
+      const W = innerWidth, H = innerHeight;
+      canvas!.width = W * dpr;
+      canvas!.height = H * dpr;
+      canvas!.style.width = W + "px";
+      canvas!.style.height = H + "px";
+      cacheRects();
+    }
+    resize();
+
+    // Debounced scroll handler
+    let scrollTimer: ReturnType<typeof setTimeout>;
+    const onScroll = () => {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(cacheRects, 80);
+    };
+
+    // MutationObserver for DOM changes (lazy-loaded cards)
+    const observer = new MutationObserver(() => {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(cacheRects, 200);
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", resize);
+
+    // Static layer (cards) drawn to offscreen canvas, only when rects change
+    let staticCanvas: OffscreenCanvas | HTMLCanvasElement | null = null;
+    let staticCtx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null = null;
+
+    function drawStatic(W: number, H: number) {
+      if (typeof OffscreenCanvas !== "undefined") {
+        staticCanvas = new OffscreenCanvas(W * dpr, H * dpr);
+      } else {
+        staticCanvas = document.createElement("canvas");
+        staticCanvas.width = W * dpr;
+        staticCanvas.height = H * dpr;
+      }
+      staticCtx = staticCanvas.getContext("2d") as any;
+      if (!staticCtx) return;
+
+      staticCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      staticCtx.clearRect(0, 0, W, H);
+
+      const rn = createRng(100);
+      staticCtx.lineCap = "round";
+
+      // Card cross-hatching
+      cachedRects.current.forEach(({ x, y, w, h }) => {
+        (staticCtx as CanvasRenderingContext2D).strokeStyle = "rgba(40,35,50,0.03)";
+        (staticCtx as CanvasRenderingContext2D).lineWidth = 0.5;
+        crossHatch(staticCtx as CanvasRenderingContext2D, x - 2, y - 2, w + 4, h + 4, rn, 14, 0.5, 0.02);
+        crossHatch(staticCtx as CanvasRenderingContext2D, x - 2, y - 2, w + 4, h + 4, rn, 16, 2.1, 0.012);
+
+        (staticCtx as CanvasRenderingContext2D).strokeStyle = "rgba(40,35,50,0.04)";
+        (staticCtx as CanvasRenderingContext2D).lineWidth = 0.6;
+        sketchLine(staticCtx as CanvasRenderingContext2D, x, y, x + w, y, rn, 1.5);
+        sketchLine(staticCtx as CanvasRenderingContext2D, x + w, y, x + w, y + h, rn, 1.5);
+        sketchLine(staticCtx as CanvasRenderingContext2D, x + w, y + h, x, y + h, rn, 1.5);
+        sketchLine(staticCtx as CanvasRenderingContext2D, x, y + h, x, y, rn, 1.5);
+      });
+
+      // Edge pen marks & dots (static)
+      (staticCtx as CanvasRenderingContext2D).strokeStyle = "rgba(30,25,40,0.02)";
+      (staticCtx as CanvasRenderingContext2D).lineWidth = 0.4;
+      const markRn = createRng(700);
+      for (let i = 0; i < 12; i++) {
+        const sx = markRn() * W;
+        const sy = markRn() * H;
+        if (sx > W * 0.15 && sx < W * 0.85 && sy > H * 0.15 && sy < H * 0.85) continue;
+        const len = 3 + markRn() * 6;
+        const angle = markRn() * Math.PI * 2;
+        sketchLine(staticCtx as CanvasRenderingContext2D, sx, sy, sx + Math.cos(angle) * len, sy + Math.sin(angle) * len, markRn, 0.5);
+      }
+      (staticCtx as CanvasRenderingContext2D).fillStyle = "rgba(30,25,40,0.02)";
+      for (let i = 0; i < 15; i++) {
+        const dx = markRn() * W;
+        const dy = markRn() * H;
+        if (dx > W * 0.2 && dx < W * 0.8 && dy > H * 0.2 && dy < H * 0.8) continue;
+        staticCtx.beginPath();
+        staticCtx.arc(dx, dy, 0.5 + markRn() * 1.2, 0, Math.PI * 2);
+        staticCtx.fill();
+      }
+
+      needsRedraw.current = false;
+    }
+
+    // Animation loop — only redraws drips at ~8fps, composites static layer
+    function frame(time: number) {
+      const W = innerWidth, H = innerHeight;
+
+      if (needsRedraw.current || !staticCanvas) {
+        drawStatic(W, H);
+      }
+
+      // Throttle drip animation to ~8fps
+      if (time - dripTime.current < 125) {
+        animRef.current = requestAnimationFrame(frame);
+        return;
+      }
+      dripTime.current = time;
+
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx!.clearRect(0, 0, W, H);
+
+      // Composite static layer
+      if (staticCanvas) {
+        ctx!.setTransform(1, 0, 0, 1, 0, 0);
+        ctx!.drawImage(staticCanvas as any, 0, 0);
+        ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      // Animated ink drips only
+      ctx!.strokeStyle = "rgba(30,25,40,0.025)";
+      ctx!.fillStyle = "rgba(30,25,40,0.02)";
+      ctx!.lineWidth = 0.8;
+      ctx!.lineCap = "round";
+
+      const dripRn = createRng(500 + Math.floor(time * 0.0002));
+      const dripX1 = W * 0.12 + Math.sin(time * 0.0003) * 20;
+      inkDrip(ctx!, dripX1, 0, ((time * 0.0002) % 1) * H * 0.18, dripRn, 1.2);
+
+      const dripX2 = W * 0.88 + Math.cos(time * 0.00025) * 15;
+      inkDrip(ctx!, dripX2, 0, ((time * 0.00018 + 0.5) % 1) * H * 0.14, dripRn, 1.0);
+
+      const dripX3 = W * 0.5 + Math.sin(time * 0.0002 + 2) * 30;
+      inkDrip(ctx!, dripX3, 0, ((time * 0.00015 + 0.3) % 1) * H * 0.1, dripRn, 0.8);
+
+      animRef.current = requestAnimationFrame(frame);
+    }
+
+    animRef.current = requestAnimationFrame(frame);
+
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      clearTimeout(scrollTimer);
+      observer.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", resize);
+    };
+  }, [cacheRects]);
 
   return (
     <canvas
