@@ -1,5 +1,5 @@
 /* Fonts loaded via index.html preload for performance */
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=MedievalSharp&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -1693,4 +1693,172 @@ html.ink [class*="bg-foreground/30"] {
 html.ink .shadow-xl,
 html.ink .shadow-lg {
   box-shadow: 2px 3px 0 hsl(260 10% 65% / 0.12) !important;
+}
+
+/* ============================================
+ * MEDIEVAL THEME
+ * Stone, parchment, torchlight aesthetic
+ * ============================================ */
+
+html.medieval {
+  --background: 35 25% 88%;
+  --foreground: 30 30% 15%;
+  --card: 36 30% 91%;
+  --card-foreground: 30 30% 15%;
+  --popover: 36 30% 91%;
+  --popover-foreground: 30 30% 15%;
+  --primary: 30 60% 35%;
+  --primary-foreground: 40 40% 95%;
+  --secondary: 35 20% 82%;
+  --secondary-foreground: 30 30% 15%;
+  --muted: 35 18% 80%;
+  --muted-foreground: 30 15% 40%;
+  --accent: 35 25% 85%;
+  --accent-foreground: 30 30% 15%;
+  --destructive: 0 65% 45%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 30 20% 72%;
+  --input: 30 20% 72%;
+  --ring: 30 60% 35%;
+}
+
+html.medieval h1, html.medieval h2, html.medieval h3, html.medieval h4,
+html.medieval button, html.medieval a, html.medieval label,
+html.medieval .font-sketch {
+  font-family: 'MedievalSharp', serif !important;
+  letter-spacing: 0.5px;
+}
+
+html.medieval body {
+  font-family: 'MedievalSharp', serif;
+  font-size: 16px;
+}
+
+/* Stone texture background via CSS */
+html.medieval body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 48px,
+      rgba(60, 45, 30, 0.03) 48px,
+      rgba(60, 45, 30, 0.03) 50px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 48px,
+      rgba(60, 45, 30, 0.02) 48px,
+      rgba(60, 45, 30, 0.02) 50px
+    ),
+    linear-gradient(
+      180deg,
+      hsl(35 25% 86%),
+      hsl(35 22% 84%) 50%,
+      hsl(33 20% 82%)
+    );
+}
+
+/* Disable glass effects */
+html.medieval .liquid-glass::before,
+html.medieval .liquid-glass::after,
+html.medieval .liquid-glass-strong::before,
+html.medieval .liquid-glass-strong::after {
+  display: none;
+}
+
+html.medieval .liquid-glass,
+html.medieval .liquid-glass-strong,
+html.medieval .liquid-glass-subtle {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: hsl(36 30% 91% / 0.9);
+  border: 2px solid hsl(30 20% 60% / 0.3);
+  box-shadow: 2px 3px 0 hsl(30 20% 40% / 0.1);
+}
+
+/* Images — aged look */
+html.medieval img {
+  filter: saturate(0.5) contrast(1.05) sepia(0.25);
+  transition: filter 0.3s;
+}
+
+html.medieval button:hover img,
+html.medieval a:hover img,
+html.medieval .group:hover img {
+  filter: saturate(0.7) contrast(1.02) sepia(0.12);
+}
+
+/* Hero gradients */
+html.medieval [class*="bg-gradient-to-t"][class*="from-background"],
+html.medieval [class*="bg-gradient-to-r"][class*="from-background"] {
+  --tw-gradient-from: hsl(35 25% 88% / 0.92);
+  --tw-gradient-to: transparent;
+}
+
+html.medieval [class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Card borders — stone block style */
+html.medieval .rounded-2xl,
+html.medieval .rounded-xl,
+html.medieval .rounded-3xl {
+  border: 2px solid hsl(30 20% 62% / 0.3);
+  border-radius: 4px !important;
+}
+
+/* Hover effect — heavy stone lift */
+html.medieval .divine-hover:hover,
+html.medieval .hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 3px 5px 0 hsl(30 20% 40% / 0.15);
+}
+
+/* Badges — seal / wax stamp look */
+html.medieval [class*="rounded-full"][class*="bg-background"] {
+  background: hsl(36 30% 91% / 0.95) !important;
+  border: 2px solid hsl(30 25% 55% / 0.35) !important;
+  border-radius: 4px !important;
+}
+
+html.medieval [class*="rounded-full"][class*="bg-primary"] {
+  background: hsl(var(--primary)) !important;
+  border: 2px solid hsl(30 40% 20% / 0.5) !important;
+  border-radius: 4px !important;
+}
+
+/* Nav controls */
+html.medieval [class*="bg-background/70"],
+html.medieval [class*="bg-background/60"],
+html.medieval [class*="bg-background/50"] {
+  background: hsl(36 28% 90% / 0.92) !important;
+  border: 2px solid hsl(30 20% 60% / 0.3) !important;
+}
+
+/* Text contrast */
+html.medieval h1, html.medieval h2 {
+  text-shadow: 0 1px 3px hsl(35 25% 88% / 0.7);
+  color: hsl(30 35% 15%);
+}
+
+html.medieval .text-muted-foreground {
+  color: hsl(30 15% 35%);
+}
+
+/* Shadow overrides */
+html.medieval .shadow-xl,
+html.medieval .shadow-lg {
+  box-shadow: 3px 4px 0 hsl(30 20% 50% / 0.12) !important;
+}
+
+/* Content sits above overlay */
+html.medieval #root {
+  position: relative;
+  z-index: 1;
 }

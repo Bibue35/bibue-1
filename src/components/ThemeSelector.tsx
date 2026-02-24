@@ -1,4 +1,4 @@
-import { Moon, Sun, Pen } from "lucide-react";
+import { Moon, Sun, Pen, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
@@ -13,20 +13,32 @@ interface ThemeSelectorProps {
   variant?: "icon" | "text";
 }
 
+const themeIcons = {
+  dark: <Moon className="h-5 w-5" />,
+  light: <Sun className="h-5 w-5" />,
+  ink: <Pen className="h-5 w-5" />,
+  medieval: <Shield className="h-5 w-5" />,
+};
+
+const themeLabels = {
+  dark: "Dark Mode",
+  light: "Light Mode",
+  ink: "Ink & Paper",
+  medieval: "Medieval",
+};
+
+const themeOptions = [
+  { key: "light", icon: <Sun className="h-4 w-4" />, label: "Light" },
+  { key: "dark", icon: <Moon className="h-4 w-4" />, label: "Dark" },
+  { key: "ink", icon: <Pen className="h-4 w-4" />, label: "Ink & Paper" },
+  { key: "medieval", icon: <Shield className="h-4 w-4" />, label: "Medieval" },
+] as const;
+
 export function ThemeSelector({ variant = "icon" }: ThemeSelectorProps) {
   const { resolvedMode, setMode } = useThemeContext();
 
-  const icon = resolvedMode === "ink" 
-    ? <Pen className="h-5 w-5" /> 
-    : resolvedMode === "dark" 
-      ? <Moon className="h-5 w-5" /> 
-      : <Sun className="h-5 w-5" />;
-
-  const label = resolvedMode === "ink" 
-    ? "Ink & Paper" 
-    : resolvedMode === "dark" 
-      ? "Dark Mode" 
-      : "Light Mode";
+  const icon = themeIcons[resolvedMode] || themeIcons.dark;
+  const label = themeLabels[resolvedMode] || themeLabels.dark;
 
   if (variant === "text") {
     return (
@@ -42,15 +54,11 @@ export function ThemeSelector({ variant = "icon" }: ThemeSelectorProps) {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => setMode("light")} className="gap-2">
-            <Sun className="h-4 w-4" /> Light
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setMode("dark")} className="gap-2">
-            <Moon className="h-4 w-4" /> Dark
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setMode("ink")} className="gap-2">
-            <Pen className="h-4 w-4" /> Ink & Paper
-          </DropdownMenuItem>
+          {themeOptions.map((opt) => (
+            <DropdownMenuItem key={opt.key} onClick={() => setMode(opt.key)} className="gap-2">
+              {opt.icon} {opt.label}
+            </DropdownMenuItem>
+          ))}
         </DropdownMenuContent>
       </DropdownMenu>
     );
@@ -69,15 +77,11 @@ export function ThemeSelector({ variant = "icon" }: ThemeSelectorProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setMode("light")} className="gap-2">
-          <Sun className="h-4 w-4" /> Light
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setMode("dark")} className="gap-2">
-          <Moon className="h-4 w-4" /> Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setMode("ink")} className="gap-2">
-          <Pen className="h-4 w-4" /> Ink & Paper
-        </DropdownMenuItem>
+        {themeOptions.map((opt) => (
+          <DropdownMenuItem key={opt.key} onClick={() => setMode(opt.key)} className="gap-2">
+            {opt.icon} {opt.label}
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
