@@ -1595,9 +1595,9 @@ html.ink .liquid-glass-strong,
 html.ink .liquid-glass-subtle {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  background: hsl(38 22% 94% / 0.8);
-  border: 2px solid hsl(260 10% 70% / 0.4);
-  box-shadow: 2px 3px 0 hsl(260 10% 70% / 0.15);
+  background: hsl(38 22% 94% / 0.85);
+  border: 2px solid hsl(260 10% 60% / 0.35);
+  box-shadow: 2px 3px 0 hsl(260 10% 60% / 0.12);
 }
 
 /* Ink card hover — subtle sketch wobble */
@@ -1611,4 +1611,86 @@ html.ink .hover-lift:hover {
 html.ink #root {
   position: relative;
   z-index: 1;
+}
+
+/* ============================================
+ * INK THEME — Hero & Image Overlays
+ * Parchment-tinted gradients so text is readable
+ * over vibrant anime art
+ * ============================================ */
+html.ink img {
+  filter: saturate(0.35) contrast(1.1) sepia(0.15);
+  transition: filter 0.3s;
+}
+
+/* Restore full color on hover for interactive cards */
+html.ink button:hover img,
+html.ink a:hover img,
+html.ink .group:hover img {
+  filter: saturate(0.6) contrast(1.05) sepia(0.08);
+}
+
+/* Hero gradient overlays — warm parchment tones for readability */
+html.ink [class*="bg-gradient-to-t"][class*="from-background"],
+html.ink [class*="bg-gradient-to-r"][class*="from-background"] {
+  --tw-gradient-from: hsl(38 20% 92% / 0.92);
+  --tw-gradient-to: transparent;
+}
+
+/* Backdrop-blur elements → paper-solid in ink mode */
+html.ink [class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Badges and pills — sketchy outlined style */
+html.ink [class*="rounded-full"][class*="bg-background"] {
+  background: hsl(38 22% 94% / 0.9) !important;
+  border: 1.5px solid hsl(260 10% 60% / 0.3) !important;
+}
+
+html.ink [class*="rounded-full"][class*="bg-primary"] {
+  background: hsl(var(--primary)) !important;
+  border: 1.5px solid hsl(260 15% 20% / 0.4) !important;
+}
+
+/* Rounded cards — sketch border, paper bg */
+html.ink .rounded-2xl,
+html.ink .rounded-xl,
+html.ink .rounded-3xl {
+  border: 1.5px solid hsl(260 10% 65% / 0.25);
+}
+
+/* Nav arrow buttons, carousel controls — paper style */
+html.ink [class*="bg-background/70"],
+html.ink [class*="bg-background/60"],
+html.ink [class*="bg-background/50"] {
+  background: hsl(38 22% 93% / 0.9) !important;
+  border: 1.5px solid hsl(260 10% 65% / 0.3) !important;
+}
+
+/* Buttons in ink mode — outlined sketch style */
+html.ink button[class*="rounded-full"]:not([class*="bg-primary"]) {
+  box-shadow: 1px 2px 0 hsl(260 10% 65% / 0.12);
+}
+
+/* Text shadows for readability over desaturated images */
+html.ink h1, html.ink h2 {
+  text-shadow: 0 1px 2px hsl(38 20% 92% / 0.6);
+}
+
+/* Make text over hero images pop with contrast */
+html.ink .text-muted-foreground {
+  color: hsl(260 20% 25%);
+}
+
+/* Progress indicators */
+html.ink [class*="bg-foreground/30"] {
+  background: hsl(260 10% 65% / 0.35) !important;
+}
+
+/* Shadow overrides — remove heavy dark shadows */
+html.ink .shadow-xl,
+html.ink .shadow-lg {
+  box-shadow: 2px 3px 0 hsl(260 10% 65% / 0.12) !important;
 }
