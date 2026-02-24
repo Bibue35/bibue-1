@@ -412,9 +412,9 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                           <span>{ep.airDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                         </div>
                       )}
-                      {(ep.synopsis || anime?.synopsis) && (
+                      {ep.synopsis && (
                         <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed">
-                          {ep.synopsis || (anime?.synopsis ? anime.synopsis.slice(0, 120) + '...' : '')}
+                          {ep.synopsis}
                         </p>
                       )}
                     </div>
