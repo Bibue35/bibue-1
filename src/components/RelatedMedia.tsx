@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Film, BookOpen, Book, ArrowRight, Loader2, Tv, Gamepad2, Plus, Play, Sparkles } from "lucide-react";
+import { Film, BookOpen, Book, ArrowRight, Loader2, Tv, Gamepad2, Plus, Play, Sparkles, FastForward } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useWatchlist } from "@/hooks/useWatchlist";
@@ -186,10 +186,51 @@ const RELATION_PRIORITY: Record<string, number> = {
   OTHER: 11,
 };
 
+/**
+ * Estimate which manga chapter corresponds to a given anime episode.
+ * Uses a rough heuristic: ~2-3 manga chapters per anime episode on average.
+ * If we know total episodes and total chapters we can be more precise.
+ */
+function estimateChapterFromEpisode(
+  episodesWatched: number,
+  totalEpisodes?: number,
+  totalChapters?: number
+): number {
+  if (totalEpisodes && totalChapters && totalEpisodes > 0) {
+    // Proportional mapping
+    const ratio = totalChapters / totalEpisodes;
+    return Math.round(episodesWatched * ratio);
+  }
+  // Fallback: ~2.5 chapters per episode (common ratio)
+  return Math.round(episodesWatched * 2.5);
+}
+
+/**
+ * Estimate which anime episode corresponds to a given manga chapter.
+ */
+function estimateEpisodeFromChapter(
+  chaptersRead: number,
+  totalEpisodes?: number,
+  totalChapters?: number
+): number {
+  if (totalEpisodes && totalChapters && totalChapters > 0) {
+    const ratio = totalEpisodes / totalChapters;
+    return Math.round(chaptersRead * ratio);
+  }
+  // Fallback: ~1 episode per 2.5 chapters
+  return Math.max(1, Math.round(chaptersRead / 2.5));
+}
+
 export function RelatedMedia({ mediaId, mediaType, onNavigate, currentTitle, currentStatus }: RelatedMediaProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { watchlist, addToWatchlist } = useWatchlist();
+
+  // Get current media's progress from watchlist
+  const currentProgress = useMemo(() => {
+    if (!watchlist) return null;
+    return watchlist.find((w) => w.mal_id === mediaId);
+  }, [watchlist, mediaId]);
   
   const { data: relatedMedia, isLoading } = useQuery({
     queryKey: ["related-media-full", mediaId, mediaType],
@@ -215,11 +256,10 @@ export function RelatedMedia({ mediaId, mediaType, onNavigate, currentTitle, cur
     return groups;
   }, [relatedMedia]);
 
-  // Find cross-media suggestions
+  // Find cross-media suggestions with chapter/episode correlation
   const crossMediaSuggestion = useMemo(() => {
     if (!relatedMedia?.length || !user) return null;
 
-    // Find adaptation / source relations (the most important cross-media links)
     const adaptations = relatedMedia.filter(
       (r) => r.relationRaw === "ADAPTATION" || r.relationRaw === "SOURCE"
     );
@@ -231,19 +271,52 @@ export function RelatedMedia({ mediaId, mediaType, onNavigate, currentTitle, cur
       );
 
       if (!isTracking) {
-        // User is NOT tracking this adaptation
         const isAnime = item.type === "ANIME";
+        
+        // Calculate suggested starting point based on current progress
+        let startPoint: { label: string; value: number } | null = null;
+        
+        if (currentProgress) {
+          if (mediaType === "anime" && !isAnime) {
+            // Watching anime → suggesting manga: estimate chapter from episodes watched
+            const epsWatched = currentProgress.episodes_watched || currentProgress.last_episode_watched || 0;
+            if (epsWatched > 0) {
+              const chapter = estimateChapterFromEpisode(epsWatched, currentProgress.episodes_watched ? undefined : undefined, item.chapters);
+              // Try using total episodes from the current anime in the watchlist or fallback
+              const animeItem = relatedMedia.find(r => r.type === "ANIME" && r.id === mediaId);
+              const chapterEstimate = estimateChapterFromEpisode(
+                epsWatched,
+                animeItem?.episodes,
+                item.chapters
+              );
+              startPoint = { label: `Chapter ${chapterEstimate}`, value: chapterEstimate };
+            }
+          } else if (mediaType === "manga" && isAnime) {
+            // Reading manga → suggesting anime: estimate episode from chapters read
+            const chRead = currentProgress.chapters_read || currentProgress.last_chapter_read || 0;
+            if (chRead > 0) {
+              const episodeEstimate = estimateEpisodeFromChapter(
+                chRead,
+                item.episodes,
+                currentProgress.chapters_read ? undefined : undefined
+              );
+              startPoint = { label: `Episode ${episodeEstimate}`, value: episodeEstimate };
+            }
+          }
+        }
+
         return {
           item,
           message: isAnime
             ? "The anime adaptation is available — want to add it to your list?"
             : "The source manga is available — want to add it to your list?",
           type: "add" as const,
+          startPoint,
         };
       }
     }
     return null;
-  }, [relatedMedia, watchlist, user]);
+  }, [relatedMedia, watchlist, user, currentProgress, mediaId, mediaType]);
 
   const handleClick = (item: RelatedMediaItem) => {
     const path = item.type === "ANIME" ? `/anime/${item.id}` : `/manga/${item.id}`;
@@ -299,6 +372,12 @@ export function RelatedMedia({ mediaId, mediaType, onNavigate, currentTitle, cur
             <p className="text-xs text-muted-foreground truncate">
               {crossMediaSuggestion.item.title}
             </p>
+            {crossMediaSuggestion.startPoint && (
+              <p className="text-[11px] text-primary/70 mt-0.5 flex items-center gap-1">
+                <FastForward className="w-3 h-3" />
+                Pick up from {crossMediaSuggestion.startPoint.label} (est.)
+              </p>
+            )}
           </div>
           <div className="flex gap-1.5 flex-shrink-0">
             <Button
@@ -335,6 +414,7 @@ export function RelatedMedia({ mediaId, mediaType, onNavigate, currentTitle, cur
 
               // Build progress text
               let progressText = "";
+              let catchUpText = "";
               if (progress) {
                 if (item.type === "ANIME") {
                   const ep = progress.episodes_watched || 0;
@@ -350,6 +430,24 @@ export function RelatedMedia({ mediaId, mediaType, onNavigate, currentTitle, cur
                     ? `Chapter ${ch} of ${total}`
                     : `Chapter ${ch}`;
                   progressText += ` (You're ${progress.status || "tracking"})`;
+                }
+              } else if (
+                currentProgress &&
+                (item.relationRaw === "ADAPTATION" || item.relationRaw === "SOURCE")
+              ) {
+                // Show catch-up suggestion for untracked adaptations
+                if (mediaType === "anime" && item.type === "MANGA") {
+                  const epsWatched = currentProgress.episodes_watched || currentProgress.last_episode_watched || 0;
+                  if (epsWatched > 0) {
+                    const ch = estimateChapterFromEpisode(epsWatched, undefined, item.chapters);
+                    catchUpText = `Start from Chapter ${ch} (based on Ep ${epsWatched})`;
+                  }
+                } else if (mediaType === "manga" && item.type === "ANIME") {
+                  const chRead = currentProgress.chapters_read || currentProgress.last_chapter_read || 0;
+                  if (chRead > 0) {
+                    const ep = estimateEpisodeFromChapter(chRead, item.episodes, undefined);
+                    catchUpText = `Start from Episode ${ep} (based on Ch ${chRead})`;
+                  }
                 }
               }
 
@@ -399,8 +497,14 @@ export function RelatedMedia({ mediaId, mediaType, onNavigate, currentTitle, cur
                         {getFormatEmoji(item.format)} {progressText}
                       </p>
                     )}
-                    {/* Not on list prompt */}
-                    {!progress && user && (
+                    {/* Catch-up suggestion or not-on-list */}
+                    {!progress && catchUpText && (
+                      <p className="text-[11px] text-primary/70 mt-1 flex items-center gap-1 truncate">
+                        <FastForward className="w-3 h-3 flex-shrink-0" />
+                        {catchUpText} (est.)
+                      </p>
+                    )}
+                    {!progress && !catchUpText && user && (
                       <p className="text-[11px] text-muted-foreground/60 mt-1">
                         Not on your list
                       </p>
