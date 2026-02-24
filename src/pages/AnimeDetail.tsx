@@ -3,7 +3,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { SEO, creativeWorkJsonLd } from "@/components/SEO";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Play, Star, Clock, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, ThumbsUp, ArrowUpDown, ChevronDown, PictureInPicture2 } from "lucide-react";
+import { Play, Star, Clock, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, ThumbsUp, ArrowUpDown, ChevronDown, PictureInPicture2, Film } from "lucide-react";
 import bibueTower from "@/assets/bibue-tower.png";
 import { EpisodeCountdown } from "@/components/EpisodeCountdown";
 import { WhereToWatch } from "@/components/WhereToWatch";
@@ -290,13 +290,14 @@ export default function AnimeDetailPage() {
                 alt="" 
                 className="absolute inset-0 w-full h-full object-cover opacity-10 blur-md" 
               />
-              <div className="relative text-center z-10 flex flex-col items-center gap-3">
-                <img 
-                  src={bibueTower} 
-                  alt="Bibue" 
-                  className="w-14 h-14 sm:w-20 sm:h-20 opacity-40 dark:invert" 
-                />
-                <p className="text-white/50 text-xs">Content coming soon</p>
+              <div className="relative text-center z-10 flex flex-col items-center gap-4">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm flex items-center justify-center">
+                  <Film className="w-8 h-8 sm:w-10 sm:h-10 text-white/30" />
+                </div>
+                <div>
+                  <p className="text-white/40 text-sm font-medium mb-0.5">Content coming soon</p>
+                  <p className="text-white/25 text-[11px]">No licensed content available yet</p>
+                </div>
               </div>
             </div>
 
