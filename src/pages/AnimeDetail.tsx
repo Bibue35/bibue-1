@@ -95,6 +95,30 @@ export default function AnimeDetailPage() {
     enabled: !!id,
   });
 
+  // Real-time comment count updates
+  const [commentFlash, setCommentFlash] = useState(false);
+  useEffect(() => {
+    if (!id) return;
+    const channel = supabase
+      .channel(`comments-${id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "episode_comments",
+          filter: `anime_id=eq.${id}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["episode-comments", Number(id), selectedEpisode, sortBy] });
+          setCommentFlash(true);
+          setTimeout(() => setCommentFlash(false), 600);
+        }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [id, selectedEpisode, sortBy, queryClient]);
+
   const { data: userLikes } = useQuery({
     queryKey: ["user-likes", user?.id],
     queryFn: async () => {
@@ -464,8 +488,14 @@ export default function AnimeDetailPage() {
                 <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">
                   {t("detail.commentSection")}
                 </h2>
-                {comments && (
-                  <span className="text-xs text-muted-foreground">({comments.length})</span>
+                {comments && comments.length > 0 && (
+                  <span className={cn(
+                    "inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full text-[11px] font-semibold transition-all duration-300",
+                    "bg-primary/15 text-primary",
+                    commentFlash && "scale-125 bg-primary text-primary-foreground"
+                  )}>
+                    {comments.length}
+                  </span>
                 )}
               </div>
               <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
