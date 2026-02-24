@@ -481,7 +481,7 @@ export default function AnimeDetailPage() {
           </div>
 
           {/* ============ COMMENTS (collapsible, full-width) ============ */}
-          <Collapsible className="mt-8 border-t border-border/20 pt-6">
+          <Collapsible defaultOpen className="mt-8 border-t border-border/20 pt-6">
             <CollapsibleTrigger className="flex items-center justify-between w-full group">
               <div className="flex items-center gap-2">
                 <MessageCircle className="w-4 h-4 text-muted-foreground" />
