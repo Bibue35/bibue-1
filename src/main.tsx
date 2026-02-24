@@ -7,11 +7,8 @@ import "./index.css";
 
 // Prevent flash by setting flavor immediately before React hydration
 const storedFlavor = localStorage.getItem("theme-flavor");
-const storedInk = localStorage.getItem("theme-ink");
 
-if (storedInk === "true") {
-  document.documentElement.classList.add("ink");
-} else if (storedFlavor && storedFlavor !== "default") {
+if (storedFlavor && storedFlavor !== "default") {
   document.documentElement.classList.add(`theme-${storedFlavor}`);
 }
 

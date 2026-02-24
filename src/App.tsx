@@ -21,7 +21,6 @@ import { ContextualBottomStrip } from "@/components/ContextualBottomStrip";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Skeleton } from "@/components/ui/skeleton";
-import { InkBackgroundWrapper } from "@/components/InkBackgroundWrapper";
 
 // Lazy load all page components for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -95,7 +94,6 @@ const App = () => (
               <TooltipProvider>
                 <OfflineBanner />
                 <IncognitoOverlay />
-                <InkBackgroundWrapper />
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>
