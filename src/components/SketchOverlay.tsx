@@ -114,8 +114,8 @@ export function SketchOverlay() {
 
     const rn = createRng(100);
 
-    ctx.strokeStyle = "rgba(40,35,50,0.10)";
-    ctx.fillStyle = "rgba(40,35,50,0.06)";
+    ctx.strokeStyle = "rgba(40,35,50,0.05)";
+    ctx.fillStyle = "rgba(40,35,50,0.03)";
     ctx.lineWidth = 0.5;
     ctx.lineCap = "round";
 
@@ -140,55 +140,55 @@ export function SketchOverlay() {
       const w = rect.width;
       const h = rect.height;
 
-      // Cross-hatching border effect
-      ctx.strokeStyle = "rgba(40,35,50,0.06)";
+      // Cross-hatching border effect — reduced density & opacity
+      ctx.strokeStyle = "rgba(40,35,50,0.03)";
       ctx.lineWidth = 0.5;
-      crossHatch(ctx, x - 2, y - 2, w + 4, h + 4, rn, 10, 0.5, 0.04);
-      crossHatch(ctx, x - 2, y - 2, w + 4, h + 4, rn, 12, 2.1, 0.025);
+      crossHatch(ctx, x - 2, y - 2, w + 4, h + 4, rn, 14, 0.5, 0.02);
+      crossHatch(ctx, x - 2, y - 2, w + 4, h + 4, rn, 16, 2.1, 0.012);
 
       // Hand-drawn border lines
-      ctx.strokeStyle = "rgba(40,35,50,0.08)";
-      ctx.lineWidth = 0.8;
+      ctx.strokeStyle = "rgba(40,35,50,0.04)";
+      ctx.lineWidth = 0.6;
       sketchLine(ctx, x, y, x + w, y, rn, 1.5); // top
       sketchLine(ctx, x + w, y, x + w, y + h, rn, 1.5); // right
       sketchLine(ctx, x + w, y + h, x, y + h, rn, 1.5); // bottom
       sketchLine(ctx, x, y + h, x, y, rn, 1.5); // left
     });
 
-    // Animated ink drips from top of screen
-    ctx.strokeStyle = "rgba(30,25,40,0.05)";
-    ctx.fillStyle = "rgba(30,25,40,0.04)";
-    ctx.lineWidth = 1.2;
+    // Animated ink drips from top of screen — subtler
+    ctx.strokeStyle = "rgba(30,25,40,0.025)";
+    ctx.fillStyle = "rgba(30,25,40,0.02)";
+    ctx.lineWidth = 0.8;
 
     const dripRn = createRng(500 + Math.floor(time * 0.0002));
     const dripX1 = W * 0.12 + Math.sin(time * 0.0003) * 20;
     const dripProgress1 = (time * 0.0002) % 1;
-    inkDrip(ctx, dripX1, 0, dripProgress1 * H * 0.25, dripRn, 1.8);
+    inkDrip(ctx, dripX1, 0, dripProgress1 * H * 0.18, dripRn, 1.2);
 
     const dripX2 = W * 0.88 + Math.cos(time * 0.00025) * 15;
     const dripProgress2 = (time * 0.00018 + 0.5) % 1;
-    inkDrip(ctx, dripX2, 0, dripProgress2 * H * 0.2, dripRn, 1.5);
+    inkDrip(ctx, dripX2, 0, dripProgress2 * H * 0.14, dripRn, 1.0);
 
     const dripX3 = W * 0.5 + Math.sin(time * 0.0002 + 2) * 30;
     const dripProgress3 = (time * 0.00015 + 0.3) % 1;
-    inkDrip(ctx, dripX3, 0, dripProgress3 * H * 0.15, dripRn, 1.2);
+    inkDrip(ctx, dripX3, 0, dripProgress3 * H * 0.1, dripRn, 0.8);
 
     // Scattered pen marks around screen edges
-    ctx.strokeStyle = "rgba(30,25,40,0.04)";
-    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = "rgba(30,25,40,0.02)";
+    ctx.lineWidth = 0.4;
     const markRn = createRng(700);
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 12; i++) {
       const sx = markRn() * W;
       const sy = markRn() * H;
       // Only near edges
       if (sx > W * 0.15 && sx < W * 0.85 && sy > H * 0.15 && sy < H * 0.85) continue;
-      const len = 3 + markRn() * 8;
+      const len = 3 + markRn() * 6;
       const angle = markRn() * Math.PI * 2;
       sketchLine(ctx, sx, sy, sx + Math.cos(angle) * len, sy + Math.sin(angle) * len, markRn, 0.5);
     }
 
     // Tiny dots (pen taps) near edges
-    ctx.fillStyle = "rgba(30,25,40,0.04)";
+    ctx.fillStyle = "rgba(30,25,40,0.02)";
     for (let i = 0; i < 15; i++) {
       const dx = markRn() * W;
       const dy = markRn() * H;
