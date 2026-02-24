@@ -415,17 +415,18 @@ export async function getAnimeByDecade(decade: "70s" | "80s" | "90s" | "2000s" |
 // Get recently updated anime (currently airing, sorted by trending to show truly active content)
 export async function getRecentlyUpdatedAnime(page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Anime[]> {
   const currentYear = new Date().getFullYear();
+  const startDateGreater = (currentYear - 2) * 10000; // FuzzyDateInt format: YYYYMMDD
   const query = `
-    query ($page: Int, $perPage: Int, $seasonYear: Int) {
+    query ($page: Int, $perPage: Int, $startDate: FuzzyDateInt) {
       Page(page: $page, perPage: $perPage) {
-        media(type: ANIME, status: RELEASING, sort: [TRENDING_DESC, POPULARITY_DESC], seasonYear_greater: $seasonYear, isAdult: false) {
+        media(type: ANIME, status: RELEASING, sort: [TRENDING_DESC, POPULARITY_DESC], startDate_greater: $startDate, isAdult: false) {
           ${MEDIA_FRAGMENT}
         }
       }
     }
   `;
 
-  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, seasonYear: currentYear - 2 });
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, startDate: startDateGreater });
   return data.Page.media.map(m => toAnime(m, language));
 }
 
