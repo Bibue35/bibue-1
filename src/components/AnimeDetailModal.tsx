@@ -79,13 +79,15 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
     });
 
     // Build Jikan lookup by episode number
-    const jikanByNumber = new Map<number, { title: string; synopsis?: string; aired?: string }>();
+    const jikanByNumber = new Map<number, { title: string; synopsis?: string; aired?: string; filler?: boolean; recap?: boolean }>();
     if (jikanEpisodes) {
       jikanEpisodes.forEach(ep => {
         jikanByNumber.set(ep.mal_id, {
           title: ep.title || `Episode ${ep.mal_id}`,
           synopsis: ep.synopsis || undefined,
           aired: ep.aired || undefined,
+          filler: ep.filler || false,
+          recap: ep.recap || false,
         });
       });
     }
@@ -114,6 +116,8 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
         aired: isAired,
         upcoming: isUpcoming,
         airDate: actualAirDate,
+        filler: jikanData?.filler || false,
+        recap: jikanData?.recap || false,
       };
     });
   };
@@ -386,6 +390,16 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                         )}>
                           {ep.number}. {ep.title}
                         </h3>
+                        {ep.filler && (
+                          <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-destructive/15 text-destructive">
+                            FILLER
+                          </span>
+                        )}
+                        {ep.recap && (
+                          <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-muted text-muted-foreground">
+                            RECAP
+                          </span>
+                        )}
                         {ep.upcoming && !ep.aired && (
                           <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-primary/15 text-primary">
                             UPCOMING
