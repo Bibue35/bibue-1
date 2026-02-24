@@ -1,7 +1,13 @@
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, Pen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ThemeSelectorProps {
   variant?: "icon" | "text";
@@ -10,40 +16,69 @@ interface ThemeSelectorProps {
 export function ThemeSelector({ variant = "icon" }: ThemeSelectorProps) {
   const { resolvedMode, setMode } = useThemeContext();
 
-  const toggleTheme = () => {
-    setMode(resolvedMode === "dark" ? "light" : "dark");
-  };
+  const icon = resolvedMode === "ink" 
+    ? <Pen className="h-5 w-5" /> 
+    : resolvedMode === "dark" 
+      ? <Moon className="h-5 w-5" /> 
+      : <Sun className="h-5 w-5" />;
+
+  const label = resolvedMode === "ink" 
+    ? "Ink & Paper" 
+    : resolvedMode === "dark" 
+      ? "Dark Mode" 
+      : "Light Mode";
 
   if (variant === "text") {
     return (
-      <button
-        onClick={toggleTheme}
-        className={cn(
-          "px-4 py-3 rounded-xl text-sm font-medium transition-colors w-full text-left",
-          "hover:bg-foreground/5",
-          resolvedMode === "dark"
-            ? "text-blue-400"
-            : "text-amber-500"
-        )}
-      >
-        {resolvedMode === "dark" ? "Dark Mode" : "Light Mode"}
-      </button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            className={cn(
+              "px-4 py-3 rounded-xl text-sm font-medium transition-colors w-full text-left",
+              "hover:bg-foreground/5 text-foreground"
+            )}
+          >
+            {label}
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => setMode("light")} className="gap-2">
+            <Sun className="h-4 w-4" /> Light
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setMode("dark")} className="gap-2">
+            <Moon className="h-4 w-4" /> Dark
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setMode("ink")} className="gap-2">
+            <Pen className="h-4 w-4" /> Ink & Paper
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   }
 
   return (
-    <Button 
-      variant="ghost" 
-      size="icon" 
-      onClick={toggleTheme}
-      className="rounded-full hover:bg-foreground/5 transition-colors"
-    >
-      {resolvedMode === "dark" ? (
-        <Moon className="h-5 w-5" />
-      ) : (
-        <Sun className="h-5 w-5" />
-      )}
-      <span className="sr-only">Toggle theme</span>
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="rounded-full hover:bg-foreground/5 transition-colors"
+        >
+          {icon}
+          <span className="sr-only">Theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setMode("light")} className="gap-2">
+          <Sun className="h-4 w-4" /> Light
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setMode("dark")} className="gap-2">
+          <Moon className="h-4 w-4" /> Dark
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setMode("ink")} className="gap-2">
+          <Pen className="h-4 w-4" /> Ink & Paper
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
