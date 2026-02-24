@@ -42,25 +42,52 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Generate episode data with descriptions and air status
-  const generateEpisodes = (count: number, totalEps: number) => {
+  // Build episode data using streaming episodes from AniList when available
+  const buildEpisodes = () => {
+    if (!anime) return [];
     const now = new Date();
-    const airingStart = anime?.aired?.from ? new Date(anime.aired.from) : null;
-    
-    return Array.from({ length: totalEps || count }, (_, i) => {
+    const totalEps = anime.episodes || 12;
+    const airingStart = anime.aired?.from ? new Date(anime.aired.from) : null;
+    const streamingEps = anime.streamingEpisodes || [];
+
+    // Try to parse episode number from streaming episode title (e.g. "Episode 5 - Title")
+    const streamingByNumber = new Map<number, { title: string; thumbnail?: string }>();
+    streamingEps.forEach(se => {
+      if (!se.title) return;
+      const match = se.title.match(/(?:Episode|Ep\.?)\s*(\d+)/i);
+      if (match) {
+        const num = parseInt(match[1]);
+        // Extract the actual title part after the episode number
+        const titlePart = se.title.replace(/^.*?(?:Episode|Ep\.?)\s*\d+\s*[-–:.]?\s*/i, '').trim();
+        streamingByNumber.set(num, {
+          title: titlePart || se.title,
+          thumbnail: se.thumbnail || undefined,
+        });
+      } else {
+        // If no episode number found, try to use index
+        streamingByNumber.set(streamingByNumber.size + 1, {
+          title: se.title,
+          thumbnail: se.thumbnail || undefined,
+        });
+      }
+    });
+
+    return Array.from({ length: totalEps }, (_, i) => {
       const epNum = i + 1;
-      // Estimate air date based on weekly schedule from start
-      const estimatedAirDate = airingStart 
+      const streamingData = streamingByNumber.get(epNum);
+      const estimatedAirDate = airingStart
         ? new Date(airingStart.getTime() + (i * 7 * 24 * 60 * 60 * 1000))
         : null;
-      const isAired = estimatedAirDate ? estimatedAirDate <= now : epNum <= Math.min(count, 12);
+      const isAired = estimatedAirDate ? estimatedAirDate <= now : true;
       const isUpcoming = estimatedAirDate ? estimatedAirDate > now && estimatedAirDate <= new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000) : false;
-      
+
+      // Use real title from streaming data, or fallback
+      const epTitle = streamingData?.title || (anime.nextAiringEpisode && epNum >= (anime.nextAiringEpisode.episode || 1) ? `Episode ${epNum}` : `Episode ${epNum}`);
+
       return {
         number: epNum,
-        title: `Episode ${epNum}`,
-        description: `Episode ${epNum} of ${anime?.title || "this anime"}. ${isAired ? "Watch now to continue the story." : "Coming soon."}`,
-        thumbnail: anime?.images?.webp?.large_image_url,
+        title: epTitle,
+        thumbnail: streamingData?.thumbnail || anime.images?.webp?.large_image_url,
         aired: isAired,
         upcoming: isUpcoming,
         airDate: estimatedAirDate,
@@ -68,8 +95,7 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
     });
   };
 
-  const allEpisodes = anime ? generateEpisodes(anime.episodes || 12, anime.episodes || 12) : [];
-  // Show only aired + upcoming episodes
+  const allEpisodes = buildEpisodes();
   const visibleEpisodes = allEpisodes.filter(ep => ep.aired || ep.upcoming);
 
   // Comments query
@@ -367,9 +393,11 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                           <span>{ep.airDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                         </div>
                       )}
-                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed">
-                        {ep.description}
-                      </p>
+                      {anime?.synopsis && (
+                        <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed">
+                          {anime.synopsis.slice(0, 120)}...
+                        </p>
+                      )}
                     </div>
                   </div>
                 </button>
