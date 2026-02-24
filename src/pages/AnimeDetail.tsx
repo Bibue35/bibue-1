@@ -2,13 +2,12 @@ import { useState, useEffect, useRef } from "react";
 import { SEO, creativeWorkJsonLd } from "@/components/SEO";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Play, Star, Clock, Heart, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, ThumbsUp, ArrowUpDown, ChevronLeft, ChevronRight, PictureInPicture2 } from "lucide-react";
+import { Play, Star, Clock, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, ThumbsUp, ArrowUpDown, ChevronDown, PictureInPicture2 } from "lucide-react";
 import { EpisodeCountdown } from "@/components/EpisodeCountdown";
 import { WhereToWatch } from "@/components/WhereToWatch";
 import { ShareButton } from "@/components/ShareButton";
 import { WatchlistStatus } from "@/components/WatchlistStatus";
 import { ResolutionSelector, type Resolution } from "@/components/ResolutionSelector";
-import { CollapsibleEpisodeList } from "@/components/CollapsibleEpisodeList";
 import { EpisodeProgressTracker } from "@/components/EpisodeProgressTracker";
 import { RelatedMedia } from "@/components/RelatedMedia";
 import { NotificationToggle } from "@/components/NotificationToggle";
@@ -26,9 +25,9 @@ import { useToast } from "@/hooks/use-toast";
 import { validateComment } from "@/lib/validation";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useTranslatedText } from "@/hooks/useTranslatedText";
-import { useSwipeGesture } from "@/hooks/useSwipeGesture";
 import { useMiniPlayer } from "@/contexts/MiniPlayerContext";
 import { useViewingHistory } from "@/hooks/useViewingHistory";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function AnimeDetailPage() {
   const { t } = useLanguage();
@@ -40,8 +39,8 @@ export default function AnimeDetailPage() {
   const [showControls, setShowControls] = useState(true);
   const [newComment, setNewComment] = useState("");
   const [sortBy, setSortBy] = useState<"latest" | "likes">("latest");
-  const [isFavorite, setIsFavorite] = useState(false);
   const [resolution, setResolution] = useState<Resolution>("1080p");
+  const [episodePanelOpen, setEpisodePanelOpen] = useState(false);
   const playerRef = useRef<HTMLElement>(null);
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -89,7 +88,7 @@ export default function AnimeDetailPage() {
     };
   }, [isFullscreen]);
 
-  // Handle fullscreen toggle using browser Fullscreen API
+  // Handle fullscreen toggle
   const toggleFullscreen = async () => {
     if (!document.fullscreenElement) {
       if (playerRef.current) {
@@ -102,7 +101,6 @@ export default function AnimeDetailPage() {
     }
   };
 
-  // Listen for fullscreen changes (e.g., pressing Esc)
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -111,7 +109,6 @@ export default function AnimeDetailPage() {
     return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
 
-  // Handle bookmark toggle
   const handleBookmarkToggle = () => {
     if (!user) {
       toast({ title: t("comments.signInToComment"), variant: "destructive" });
@@ -131,17 +128,6 @@ export default function AnimeDetailPage() {
     }
   };
 
-  // Handle favorite toggle (local state for now)
-  const handleFavoriteToggle = () => {
-    if (!user) {
-      toast({ title: t("comments.signInToComment"), variant: "destructive" });
-      return;
-    }
-    setIsFavorite(!isFavorite);
-    toast({ title: isFavorite ? "Removed from favorites" : "Added to favorites!" });
-  };
-
-  // Handle minimize to mini-player
   const handleMinimize = () => {
     if (!anime) return;
     const episodes = generateEpisodes(anime.episodes || 12);
@@ -157,26 +143,22 @@ export default function AnimeDetailPage() {
     navigate("/anime");
   };
 
+  // Comments
   const { data: comments, isLoading: commentsLoading } = useQuery({
     queryKey: ["episode-comments", Number(id), selectedEpisode, sortBy],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("episode_comments")
-        .select(`
-          *,
-          profiles:user_id (username, avatar_url)
-        `)
+        .select(`*, profiles:user_id (username, avatar_url)`)
         .eq("anime_id", Number(id))
         .eq("episode_number", selectedEpisode)
         .order(sortBy === "likes" ? "likes" : "created_at", { ascending: false });
-      
       if (error) throw error;
       return data;
     },
     enabled: !!id,
   });
 
-  // Check if user has liked a comment
   const { data: userLikes } = useQuery({
     queryKey: ["user-likes", user?.id],
     queryFn: async () => {
@@ -194,16 +176,9 @@ export default function AnimeDetailPage() {
   const addCommentMutation = useMutation({
     mutationFn: async (content: string) => {
       if (!user) throw new Error("Please sign in to comment");
-
       const { error } = await supabase
         .from("episode_comments")
-        .insert({
-          user_id: user.id,
-          anime_id: Number(id),
-          episode_number: selectedEpisode,
-          content,
-        });
-      
+        .insert({ user_id: user.id, anime_id: Number(id), episode_number: selectedEpisode, content });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -219,20 +194,12 @@ export default function AnimeDetailPage() {
   const likeMutation = useMutation({
     mutationFn: async (commentId: string) => {
       if (!user) throw new Error("Please sign in to like");
-      
       const hasLiked = userLikes?.includes(commentId);
-      
       if (hasLiked) {
-        const { error } = await supabase
-          .from("comment_likes")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("comment_id", commentId);
+        const { error } = await supabase.from("comment_likes").delete().eq("user_id", user.id).eq("comment_id", commentId);
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from("comment_likes")
-          .insert({ user_id: user.id, comment_id: commentId });
+        const { error } = await supabase.from("comment_likes").insert({ user_id: user.id, comment_id: commentId });
         if (error) throw error;
       }
     },
@@ -256,45 +223,15 @@ export default function AnimeDetailPage() {
     addCommentMutation.mutate(trimmedComment);
   };
 
-  // Generate mock episode data with thumbnails
   const generateEpisodes = (count: number) => {
-    const aired = anime?.aired?.from ? new Date(anime.aired.from) : new Date();
-    return Array.from({ length: Math.min(count, 24) }, (_, i) => {
-      const episodeDate = new Date(aired);
-      episodeDate.setDate(episodeDate.getDate() + (i * 7));
-      return {
-        number: i + 1,
-        title: `Episode ${i + 1}`,
-        description: i === 0 ? anime?.synopsis?.slice(0, 100) + "..." : `The story continues in episode ${i + 1}...`,
-        aired: episodeDate.toISOString(),
-        thumbnail: anime?.images?.webp?.large_image_url,
-      };
-    });
+    return Array.from({ length: Math.min(count, 24) }, (_, i) => ({
+      number: i + 1,
+      title: `Episode ${i + 1}`,
+    }));
   };
 
   const episodes = anime ? generateEpisodes(anime.episodes || 12) : [];
   const totalEpisodes = episodes.length;
-
-  // Episode navigation functions for swipe
-  const goToPrevEpisode = () => {
-    if (selectedEpisode > 1) {
-      setSelectedEpisode(selectedEpisode - 1);
-    }
-  };
-
-  const goToNextEpisode = () => {
-    if (selectedEpisode < totalEpisodes) {
-      setSelectedEpisode(selectedEpisode + 1);
-    }
-  };
-
-  // Swipe gesture for episode navigation
-  const { containerRef: swipeRef, swipeState } = useSwipeGesture({
-    onSwipeLeft: goToNextEpisode,
-    onSwipeRight: goToPrevEpisode,
-    threshold: 120,
-    minSwipeDistance: 30,
-  });
 
   if (error) {
     return (
@@ -329,446 +266,357 @@ export default function AnimeDetailPage() {
           })}
         />
       )}
-      {/* ============ SECTION 1: FULLSCREEN VIDEO PLAYER ============ */}
+
+      {/* ============ CINEMA PLAYER ============ */}
       <section 
-        ref={(el) => {
-          // Combine refs for both fullscreen and swipe
-          (playerRef as React.MutableRefObject<HTMLElement | null>).current = el;
-          if (swipeRef) {
-            (swipeRef as React.MutableRefObject<HTMLDivElement | null>).current = el as HTMLDivElement;
-          }
-        }}
+        ref={playerRef as React.RefObject<HTMLElement>}
         className={cn(
-          "relative bg-black transition-all duration-300 flex flex-col",
-          isFullscreen ? "fixed inset-0 z-50" : "h-screen"
+          "relative bg-black",
+          isFullscreen ? "fixed inset-0 z-50" : "w-full aspect-video max-h-[70vh]"
         )}
       >
         {isLoading ? (
-          <div className="flex-1 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center">
             <Skeleton className="w-full h-full" />
           </div>
         ) : (
           <>
-            {/* Top Header Bar - Fixed, always accessible */}
-            <div className="absolute top-0 left-0 right-0 z-[100] flex items-center justify-between px-3 sm:px-4 md:px-6 py-2 sm:py-3 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
-              {/* Left - Bibue Logo */}
+            {/* Video Area */}
+            {anime?.trailer?.youtube_id ? (
+              <iframe
+                src={`https://www.youtube.com/embed/${anime.trailer.youtube_id}?autoplay=0&rel=0&modestbranding=1&iv_load_policy=3`}
+                title={`${anime.title} - Episode ${selectedEpisode}`}
+                className="absolute inset-0 w-full h-full"
+                allowFullScreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <img 
+                  src={anime?.images?.webp?.large_image_url} 
+                  alt={anime?.title} 
+                  className="absolute inset-0 w-full h-full object-cover opacity-20 blur-sm" 
+                />
+                <div className="relative text-center z-10">
+                  <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mb-3 mx-auto">
+                    <Play className="w-7 h-7 text-white" />
+                  </div>
+                  <p className="text-white/60 text-xs">{t("detail.videoComingSoon")}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Minimal top controls - fade on inactivity */}
+            <div className={cn(
+              "absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-3 sm:px-5 py-2.5 bg-gradient-to-b from-black/70 to-transparent transition-opacity duration-300",
+              showControls ? "opacity-100" : "opacity-0 pointer-events-none"
+            )}>
               <Link
                 to="/anime"
-                className="pointer-events-auto text-lg sm:text-xl md:text-2xl font-sacred font-semibold text-white hover:text-primary transition-colors"
+                className="text-white/80 hover:text-white text-sm font-sacred font-semibold transition-colors"
               >
-                Bibue
+                ← Back
               </Link>
-
-              {/* Right - Controls */}
-              <div className={cn(
-                "pointer-events-auto flex items-center gap-1 sm:gap-1.5 md:gap-2 transition-all duration-300",
-                showControls ? "opacity-100" : "opacity-0"
-              )}>
+              <div className="flex items-center gap-1">
                 <ResolutionSelector value={resolution} onChange={setResolution} />
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={handleBookmarkToggle}
-                  disabled={watchlistLoading}
-                  className={cn(
-                    "h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 hover:bg-white/10 rounded-full transition-all",
-                    isBookmarked ? "text-primary" : "text-white/70 hover:text-white"
-                  )}
-                >
-                  <Bookmark className={cn("w-3.5 h-3.5 sm:w-4 sm:h-4", isBookmarked && "fill-current")} />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={handleFavoriteToggle}
-                  className={cn(
-                    "h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 hover:bg-white/10 rounded-full transition-all",
-                    isFavorite ? "text-destructive" : "text-white/70 hover:text-white"
-                  )}
-                >
-                  <Heart className={cn("w-3.5 h-3.5 sm:w-4 sm:h-4", isFavorite && "fill-current")} />
-                </Button>
                 <button
                   onClick={handleMinimize}
-                  className="p-1.5 sm:p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white/70 hover:text-white"
+                  className="p-2 rounded-full hover:bg-white/10 transition-colors text-white/60 hover:text-white"
                   title="Mini player"
                 >
-                  <PictureInPicture2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <PictureInPicture2 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={toggleFullscreen}
-                  className="p-1.5 sm:p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white/70 hover:text-white"
+                  className="p-2 rounded-full hover:bg-white/10 transition-colors text-white/60 hover:text-white"
                 >
-                  {isFullscreen ? (
-                    <Minimize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  ) : (
-                    <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  )}
+                  {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
                 </button>
               </div>
-            </div>
-
-            {/* Video Player Area - Takes remaining space */}
-            <div className="flex-1 relative">
-              {anime?.trailer?.youtube_id ? (
-                <iframe
-                  src={`https://www.youtube.com/embed/${anime.trailer.youtube_id}?autoplay=0&rel=0&modestbranding=1&iv_load_policy=3`}
-                  title={`${anime.title} - Episode ${selectedEpisode}`}
-                  className="absolute inset-0 w-full h-full"
-                  allowFullScreen
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-background/80 to-background px-4">
-                  <div className="text-center">
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full bg-foreground/10 flex items-center justify-center mb-3 sm:mb-4 mx-auto">
-                      <Play className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-foreground" />
-                    </div>
-                    <h2 className="text-base sm:text-lg md:text-xl font-sacred font-bold mb-0.5 sm:mb-1 line-clamp-2">{anime?.title}</h2>
-                    <p className="text-muted-foreground text-xs sm:text-sm">Episode {selectedEpisode}</p>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-2">{t("detail.videoComingSoon")}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Swipe Indicators */}
-            {swipeState.isSwiping && (
-              <>
-                {/* Left indicator (next episode) */}
-                {swipeState.direction === "left" && selectedEpisode < totalEpisodes && (
-                  <div 
-                    className="absolute right-0 top-0 bottom-0 w-16 z-[95] flex items-center justify-center pointer-events-none"
-                    style={{
-                      background: `linear-gradient(to left, hsl(var(--primary) / ${swipeState.progress * 0.5}), transparent)`,
-                    }}
-                  >
-                    <div 
-                      className="flex flex-col items-center gap-1 text-white transition-transform"
-                      style={{ 
-                        opacity: swipeState.progress,
-                        transform: `translateX(${(1 - swipeState.progress) * 20}px)` 
-                      }}
-                    >
-                      <ChevronRight className="w-6 h-6" />
-                      <span className="text-xs font-medium">Ep {selectedEpisode + 1}</span>
-                    </div>
-                  </div>
-                )}
-                {/* Right indicator (previous episode) */}
-                {swipeState.direction === "right" && selectedEpisode > 1 && (
-                  <div 
-                    className="absolute left-0 top-0 bottom-0 w-16 z-[95] flex items-center justify-center pointer-events-none"
-                    style={{
-                      background: `linear-gradient(to right, hsl(var(--primary) / ${swipeState.progress * 0.5}), transparent)`,
-                    }}
-                  >
-                    <div 
-                      className="flex flex-col items-center gap-1 text-white transition-transform"
-                      style={{ 
-                        opacity: swipeState.progress,
-                        transform: `translateX(${(swipeState.progress - 1) * 20}px)` 
-                      }}
-                    >
-                      <ChevronLeft className="w-6 h-6" />
-                      <span className="text-xs font-medium">Ep {selectedEpisode - 1}</span>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* Bottom - Collapsible Episode List */}
-            <div className="relative z-[90]">
-              <CollapsibleEpisodeList
-                episodes={episodes}
-                selectedEpisode={selectedEpisode}
-                onSelectEpisode={setSelectedEpisode}
-                animeTitle={anime?.title}
-                totalEpisodes={anime?.episodes || episodes.length}
-              />
             </div>
           </>
         )}
       </section>
 
-      {/* ============ SECTION 2: SYNOPSIS, GENRES, STUDIO, INFO ============ */}
-      <section className="py-8 sm:py-12 md:py-16 border-b border-border/30">
+      {/* ============ TITLE BAR + EPISODE SELECTOR ============ */}
+      <div className="border-b border-border/20">
         <div className="container mx-auto px-3 sm:px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="liquid-glass rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-8">
-              {/* Header with poster */}
-              <div className="flex flex-col xs:flex-row gap-4 sm:gap-6 mb-4 sm:mb-6">
-                {/* Poster */}
-                <div className="flex-shrink-0 mx-auto xs:mx-0">
-                  <div className="w-24 sm:w-32 md:w-40 aspect-[2/3] rounded-lg sm:rounded-xl overflow-hidden">
-                    <img src={anime?.images.webp.large_image_url} alt={anime?.title} className="w-full h-full object-cover" />
-                  </div>
-                </div>
-                
-                {/* Title and quick stats */}
-                <div className="flex-1 text-center xs:text-left">
-                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-sacred mb-1 sm:mb-2 line-clamp-2">{anime?.title}</h2>
-                  <p className="font-jp text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 line-clamp-1">{anime?.title_japanese}</p>
-                  
-                  <div className="flex flex-wrap items-center justify-center xs:justify-start gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-                    {anime?.score && (
-                      <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-foreground/10 text-xs sm:text-sm">
-                        <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-foreground text-foreground" />
-                        <span className="font-bold">{formatScore(anime.score)}</span>
-                      </div>
-                    )}
-                    {anime?.episodes && (
-                      <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-foreground/10 text-xs sm:text-sm">
-                        <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span>{anime.episodes} <span className="hidden xs:inline">{t("common.episodes")}</span><span className="xs:hidden">Eps</span></span>
-                      </div>
-                    )}
-                    {anime?.rank && (
-                      <div className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-foreground/10 text-xs sm:text-sm font-bold">
-                        #{anime.rank}
-                      </div>
-                    )}
-                    {anime?.nextAiringEpisode && (
-                      <EpisodeCountdown airingAt={anime.nextAiringEpisode.airingAt} episode={anime.nextAiringEpisode.episode} />
-                    )}
-                  </div>
-
-                   {/* Share + Watchlist Status + Notification Toggle */}
-                   <div className="flex items-center justify-center xs:justify-start gap-2 flex-wrap">
-                     <ShareButton title={anime?.title || ""} url={`/anime/${id}`} />
-                     {anime && (
-                       <WatchlistStatus
-                         malId={Number(id)}
-                         mediaType="anime"
-                         title={anime.title}
-                         titleJapanese={anime.title_japanese}
-                         imageUrl={anime.images?.webp?.large_image_url}
-                         score={anime.score}
-                         totalEpisodes={anime.episodes}
-                       />
-                     )}
-                     {anime && (
-                       <NotificationToggle
-                         mediaId={Number(id)}
-                         mediaType="anime"
-                         title={anime.title}
-                       />
-                     )}
-                   </div>
+          <div className="max-w-5xl mx-auto py-4 sm:py-5">
+            {/* Title row */}
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold font-sacred line-clamp-1">
+                  {anime?.title}
+                </h1>
+                <div className="flex items-center gap-2 mt-1 text-xs sm:text-sm text-muted-foreground flex-wrap">
+                  {anime?.score && (
+                    <span className="flex items-center gap-1">
+                      <Star className="w-3.5 h-3.5 fill-foreground text-foreground" />
+                      <span className="font-medium text-foreground">{formatScore(anime.score)}</span>
+                    </span>
+                  )}
+                  {anime?.year && <span>· {anime.year}</span>}
+                  {anime?.episodes && <span>· {anime.episodes} eps</span>}
+                  {anime?.status && <span className="hidden sm:inline">· {anime.status}</span>}
+                  {anime?.nextAiringEpisode && (
+                    <EpisodeCountdown airingAt={anime.nextAiringEpisode.airingAt} episode={anime.nextAiringEpisode.episode} />
+                  )}
                 </div>
               </div>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleBookmarkToggle}
+                  disabled={watchlistLoading}
+                  className={cn(
+                    "h-8 w-8 rounded-full",
+                    isBookmarked ? "text-primary" : "text-muted-foreground"
+                  )}
+                >
+                  <Bookmark className={cn("w-4 h-4", isBookmarked && "fill-current")} />
+                </Button>
+                <ShareButton title={anime?.title || ""} url={`/anime/${id}`} />
+              </div>
+            </div>
 
+            {/* Episode selector strip */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setEpisodePanelOpen(!episodePanelOpen)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted text-sm font-medium hover:bg-muted/80 transition-colors"
+              >
+                <Play className="w-3.5 h-3.5 fill-current text-primary" />
+                <span>Episode {selectedEpisode}</span>
+                <span className="text-muted-foreground text-xs">/ {totalEpisodes}</span>
+                <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform", episodePanelOpen && "rotate-180")} />
+              </button>
+
+              {/* Quick prev/next */}
+              {selectedEpisode > 1 && (
+                <button
+                  onClick={() => setSelectedEpisode(selectedEpisode - 1)}
+                  className="px-2.5 py-1.5 rounded-full bg-muted/50 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  ← Prev
+                </button>
+              )}
+              {selectedEpisode < totalEpisodes && (
+                <button
+                  onClick={() => setSelectedEpisode(selectedEpisode + 1)}
+                  className="px-2.5 py-1.5 rounded-full bg-muted/50 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  Next →
+                </button>
+              )}
+            </div>
+
+            {/* Expandable episode grid */}
+            {episodePanelOpen && (
+              <div className="mt-3 p-3 rounded-xl bg-muted/30 border border-border/20">
+                <ScrollArea className="max-h-48">
+                  <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-1.5">
+                    {episodes.map((ep) => (
+                      <button
+                        key={ep.number}
+                        onClick={() => {
+                          setSelectedEpisode(ep.number);
+                          setEpisodePanelOpen(false);
+                        }}
+                        className={cn(
+                          "py-1.5 rounded-md text-xs font-medium transition-all",
+                          selectedEpisode === ep.number
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted hover:bg-accent text-muted-foreground hover:text-accent-foreground"
+                        )}
+                      >
+                        {ep.number}
+                      </button>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ============ CONTENT ============ */}
+      <div className="container mx-auto px-3 sm:px-4">
+        <div className="max-w-5xl mx-auto py-6 sm:py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            {/* Main content */}
+            <div className="lg:col-span-2 space-y-6">
               {/* Synopsis */}
-              <div className="mb-4 sm:mb-6">
-                <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">{t("detail.synopsis")}</h3>
-                <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed line-clamp-4 sm:line-clamp-none">
+              <div>
+                <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wide mb-2">{t("detail.synopsis")}</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   {translatedSynopsis || t("detail.noSynopsis")}
                 </p>
               </div>
 
               {/* Genres */}
               {anime?.genres && anime.genres.length > 0 && (
-                <div className="mb-4 sm:mb-6">
-                  <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">{t("detail.genres")}</h3>
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                    {anime.genres.map((genre) => (
-                      <Link key={genre.mal_id} to={`/genre/${genre.name.toLowerCase().replace(/ /g, "-")}`}
-                        className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-accent text-accent-foreground text-xs sm:text-sm font-medium hover:bg-accent/80 transition-colors">
-                        {genre.name}
-                      </Link>
+                <div className="flex flex-wrap gap-1.5">
+                  {anime.genres.map((genre) => (
+                    <Link key={genre.mal_id} to={`/genre/${genre.name.toLowerCase().replace(/ /g, "-")}`}
+                      className="px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs hover:bg-accent hover:text-accent-foreground transition-colors">
+                      {genre.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {/* Episode Progress Tracker */}
+              {anime && (
+                <EpisodeProgressTracker
+                  malId={Number(id)}
+                  totalEpisodes={anime.episodes || episodes.length}
+                  animeTitle={anime.title}
+                />
+              )}
+
+              {/* Comments */}
+              <div>
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-2">
+                    <MessageCircle className="w-4 h-4 text-muted-foreground" />
+                    <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">
+                      {t("detail.commentSection")}
+                    </h2>
+                    {comments && (
+                      <span className="text-xs text-muted-foreground">({comments.length})</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button variant={sortBy === "latest" ? "secondary" : "ghost"} size="sm" onClick={() => setSortBy("latest")} className="gap-1 text-xs h-7 px-2">
+                      <ArrowUpDown className="w-3 h-3" /> {t("comments.latest")}
+                    </Button>
+                    <Button variant={sortBy === "likes" ? "secondary" : "ghost"} size="sm" onClick={() => setSortBy("likes")} className="gap-1 text-xs h-7 px-2">
+                      <ThumbsUp className="w-3 h-3" /> {t("comments.top")}
+                    </Button>
+                  </div>
+                </div>
+
+                <form onSubmit={handleSubmit} className="mb-4">
+                  <Textarea
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder={user ? t("comments.shareThoughts") : t("comments.signInPlaceholder")}
+                    className="mb-2 resize-none border-border/30"
+                    rows={2}
+                    disabled={!user}
+                  />
+                  <Button type="submit" size="sm" disabled={!user || !newComment.trim() || addCommentMutation.isPending} className="gap-1.5">
+                    <Send className="w-3.5 h-3.5" />
+                    {user ? t("comments.postComment") : t("comments.signInToComment")}
+                  </Button>
+                </form>
+
+                <div className="space-y-3">
+                  {commentsLoading ? (
+                    <div className="text-center py-6 text-muted-foreground text-sm">{t("comments.loadingComments")}</div>
+                  ) : comments && comments.length > 0 ? (
+                    comments.map((comment) => {
+                      const hasLiked = userLikes?.includes(comment.id);
+                      return (
+                        <div key={comment.id} className="rounded-xl bg-muted/30 p-3 sm:p-4">
+                          <div className="flex items-start gap-3">
+                            <div className="w-7 h-7 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0">
+                              <User className="w-3.5 h-3.5 text-muted-foreground" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <span className="font-medium text-xs">{(comment.profiles as any)?.username || "Anonymous"}</span>
+                                <span className="text-[11px] text-muted-foreground">
+                                  {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                                </span>
+                              </div>
+                              <p className="text-sm text-muted-foreground mb-1.5">{comment.content}</p>
+                              <button
+                                onClick={() => likeMutation.mutate(comment.id)}
+                                disabled={!user || likeMutation.isPending}
+                                className={cn(
+                                  "flex items-center gap-1 text-xs transition-colors",
+                                  hasLiked ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                                )}
+                              >
+                                <ThumbsUp className={cn("w-3 h-3", hasLiked && "fill-current")} />
+                                <span>{comment.likes || 0}</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="text-center py-6 text-muted-foreground text-sm">{t("detail.noCommentsYet")}</div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-5">
+              {/* Watchlist + Notification */}
+              {anime && (
+                <div className="flex flex-col gap-2">
+                  <WatchlistStatus
+                    malId={Number(id)}
+                    mediaType="anime"
+                    title={anime.title}
+                    titleJapanese={anime.title_japanese}
+                    imageUrl={anime.images?.webp?.large_image_url}
+                    score={anime.score}
+                    totalEpisodes={anime.episodes}
+                  />
+                  <NotificationToggle
+                    mediaId={Number(id)}
+                    mediaType="anime"
+                    title={anime.title}
+                  />
+                </div>
+              )}
+
+              {/* Info */}
+              {anime && (
+                <div className="rounded-xl bg-muted/20 p-4">
+                  <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-3">{t("detail.information")}</h3>
+                  <div className="space-y-2 text-sm">
+                    {[
+                      { label: t("detail.source"), value: anime.source },
+                      { label: t("common.status"), value: anime.status },
+                      { label: t("detail.aired"), value: anime.aired?.string },
+                      { label: t("detail.rating"), value: anime.rating },
+                      { label: t("detail.duration"), value: anime.duration },
+                      { label: t("detail.rank"), value: anime.rank ? `#${anime.rank}` : undefined },
+                      { label: t("detail.studios"), value: anime.studios?.map(s => s.name).join(", ") },
+                    ].filter(item => item.value).map(({ label, value }) => (
+                      <div key={label} className="flex justify-between gap-2">
+                        <span className="text-muted-foreground text-xs">{label}</span>
+                        <span className="text-xs font-medium text-right">{value}</span>
+                      </div>
                     ))}
                   </div>
                 </div>
               )}
 
               {/* Where to Watch */}
+              {anime && <WhereToWatch title={anime.title} />}
+
+              {/* Related Media */}
               {anime && (
-                <div className="mb-4 sm:mb-6">
-                  <WhereToWatch title={anime.title} />
-                </div>
-              )}
-
-              {/* Studio */}
-              {anime?.studios && anime.studios.length > 0 && (
-                <div className="mb-4 sm:mb-6">
-                  <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">{t("detail.studios")}</h3>
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                    {anime.studios.map((studio) => (
-                      <span key={studio.mal_id} className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-muted text-muted-foreground text-xs sm:text-sm">
-                        {studio.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Information Grid */}
-              <div>
-                <h3 className="text-base sm:text-lg font-bold font-sacred mb-2 sm:mb-3">{t("detail.information")}</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
-                  {[
-                    { label: t("detail.source"), value: anime?.source },
-                    { label: t("common.episodes"), value: anime?.episodes },
-                    { label: t("common.status"), value: anime?.status },
-                    { label: t("detail.aired"), value: anime?.aired?.string },
-                    { label: t("detail.rating"), value: anime?.rating },
-                    { label: t("detail.rank"), value: anime?.rank ? `#${anime.rank}` : undefined },
-                    { label: t("detail.popularity"), value: anime?.popularity ? `#${anime.popularity}` : undefined },
-                    { label: t("detail.duration"), value: anime?.duration },
-                  ].filter(item => item.value).map(({ label, value }) => (
-                    <div key={label} className="flex flex-col">
-                      <span className="text-muted-foreground text-xs mb-0.5">{label}</span>
-                      <span className="font-medium">{value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Episode Progress Tracker */}
-              {anime && (
-                <div className="mt-6">
-                  <EpisodeProgressTracker
-                    malId={Number(id)}
-                    totalEpisodes={anime.episodes || episodes.length}
-                    animeTitle={anime.title}
-                  />
-                </div>
-              )}
-
-              {/* Related Media / Cross-Media Linking */}
-              {anime && (
-                <div className="mt-6">
-                  <RelatedMedia
-                    mediaId={Number(id)}
-                    mediaType="anime"
-                    currentTitle={anime.title}
-                    currentStatus={anime.status}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============ SECTION 3: COMMENTS ============ */}
-      <section className="py-12 sm:py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-between gap-3 mb-6">
-              <div className="flex items-center gap-3">
-                <MessageCircle className="w-5 h-5" />
-                <h2 className="text-xl sm:text-2xl font-bold font-sacred">{t("detail.commentSection")}</h2>
-                {comments && (
-                  <span className="text-sm text-muted-foreground">({comments.length})</span>
-                )}
-              </div>
-              
-              {/* Sort Buttons */}
-              <div className="flex items-center gap-1">
-                <Button
-                  variant={sortBy === "latest" ? "secondary" : "ghost"}
-                  size="sm"
-                  onClick={() => setSortBy("latest")}
-                  className="gap-1.5 text-xs"
-                >
-                  <ArrowUpDown className="w-3 h-3" />
-                  {t("comments.latest")}
-                </Button>
-                <Button
-                  variant={sortBy === "likes" ? "secondary" : "ghost"}
-                  size="sm"
-                  onClick={() => setSortBy("likes")}
-                  className="gap-1.5 text-xs"
-                >
-                  <ThumbsUp className="w-3 h-3" />
-                  {t("comments.top")}
-                </Button>
-              </div>
-            </div>
-            
-            <div className="liquid-glass rounded-2xl p-4 sm:p-6">
-              {/* Comment Form */}
-              <form onSubmit={handleSubmit} className="mb-6">
-                <Textarea
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder={user ? t("comments.shareThoughts") : t("comments.signInPlaceholder")}
-                  className="mb-3 liquid-glass-subtle border-foreground/10 resize-none"
-                  rows={3}
-                  disabled={!user}
+                <RelatedMedia
+                  mediaId={Number(id)}
+                  mediaType="anime"
+                  currentTitle={anime.title}
+                  currentStatus={anime.status}
                 />
-                <Button 
-                  type="submit" 
-                  disabled={!user || !newComment.trim() || addCommentMutation.isPending}
-                  className="gap-2"
-                >
-                  <Send className="w-4 h-4" />
-                  {user ? t("comments.postComment") : t("comments.signInToComment")}
-                </Button>
-              </form>
-
-              {/* Comments List */}
-              <div className="space-y-4">
-                {commentsLoading ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    {t("comments.loadingComments")}
-                  </div>
-                ) : comments && comments.length > 0 ? (
-                  comments.map((comment) => {
-                    const hasLiked = userLikes?.includes(comment.id);
-                    return (
-                      <div 
-                        key={comment.id} 
-                        className="liquid-glass-subtle rounded-xl p-4"
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0">
-                            <User className="w-4 h-4 text-muted-foreground" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-medium text-sm">
-                                {(comment.profiles as any)?.username || "Anonymous"}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
-                              </span>
-                            </div>
-                            <p className="text-sm text-muted-foreground mb-2">
-                              {comment.content}
-                            </p>
-                            
-                            {/* Like button */}
-                            <button
-                              onClick={() => likeMutation.mutate(comment.id)}
-                              disabled={!user || likeMutation.isPending}
-                              className={cn(
-                                "flex items-center gap-1.5 text-xs transition-colors",
-                                hasLiked 
-                                  ? "text-primary" 
-                                  : "text-muted-foreground hover:text-foreground"
-                              )}
-                            >
-                              <ThumbsUp className={cn("w-3.5 h-3.5", hasLiked && "fill-current")} />
-                              <span>{comment.likes || 0}</span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    {t("detail.noCommentsYet")}
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }
