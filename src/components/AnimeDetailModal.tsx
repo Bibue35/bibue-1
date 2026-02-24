@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useAnimeDetails, useAnimeRecommendations } from "@/hooks/useAnimeData";
+import { useJikanEpisodes } from "@/hooks/useJikanEpisodes";
 import { formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -42,7 +43,14 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Build episode data using streaming episodes from AniList when available
+  // Fetch Jikan episodes as fallback when AniList streaming data is sparse
+  const hasStreamingData = (anime?.streamingEpisodes?.length || 0) > 0;
+  const { data: jikanEpisodes } = useJikanEpisodes(
+    anime?.idMal,
+    open && !hasStreamingData && !!anime
+  );
+
+  // Build episode data using AniList streaming episodes, falling back to Jikan
   const buildEpisodes = () => {
     if (!anime) return [];
     const now = new Date();
@@ -50,21 +58,19 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
     const airingStart = anime.aired?.from ? new Date(anime.aired.from) : null;
     const streamingEps = anime.streamingEpisodes || [];
 
-    // Try to parse episode number from streaming episode title (e.g. "Episode 5 - Title")
+    // Parse AniList streaming episode titles
     const streamingByNumber = new Map<number, { title: string; thumbnail?: string }>();
     streamingEps.forEach(se => {
       if (!se.title) return;
       const match = se.title.match(/(?:Episode|Ep\.?)\s*(\d+)/i);
       if (match) {
         const num = parseInt(match[1]);
-        // Extract the actual title part after the episode number
         const titlePart = se.title.replace(/^.*?(?:Episode|Ep\.?)\s*\d+\s*[-–:.]?\s*/i, '').trim();
         streamingByNumber.set(num, {
           title: titlePart || se.title,
           thumbnail: se.thumbnail || undefined,
         });
       } else {
-        // If no episode number found, try to use index
         streamingByNumber.set(streamingByNumber.size + 1, {
           title: se.title,
           thumbnail: se.thumbnail || undefined,
@@ -72,25 +78,42 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
       }
     });
 
+    // Build Jikan lookup by episode number
+    const jikanByNumber = new Map<number, { title: string; synopsis?: string; aired?: string }>();
+    if (jikanEpisodes) {
+      jikanEpisodes.forEach(ep => {
+        jikanByNumber.set(ep.mal_id, {
+          title: ep.title || `Episode ${ep.mal_id}`,
+          synopsis: ep.synopsis || undefined,
+          aired: ep.aired || undefined,
+        });
+      });
+    }
+
     return Array.from({ length: totalEps }, (_, i) => {
       const epNum = i + 1;
       const streamingData = streamingByNumber.get(epNum);
+      const jikanData = jikanByNumber.get(epNum);
       const estimatedAirDate = airingStart
         ? new Date(airingStart.getTime() + (i * 7 * 24 * 60 * 60 * 1000))
         : null;
-      const isAired = estimatedAirDate ? estimatedAirDate <= now : true;
-      const isUpcoming = estimatedAirDate ? estimatedAirDate > now && estimatedAirDate <= new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000) : false;
+      const jikanAirDate = jikanData?.aired ? new Date(jikanData.aired) : null;
+      const actualAirDate = jikanAirDate || estimatedAirDate;
+      const isAired = actualAirDate ? actualAirDate <= now : true;
+      const isUpcoming = actualAirDate ? actualAirDate > now && actualAirDate <= new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000) : false;
 
-      // Use real title from streaming data, or fallback
-      const epTitle = streamingData?.title || (anime.nextAiringEpisode && epNum >= (anime.nextAiringEpisode.episode || 1) ? `Episode ${epNum}` : `Episode ${epNum}`);
+      // Priority: AniList streaming title > Jikan title > generic fallback
+      const epTitle = streamingData?.title || jikanData?.title || `Episode ${epNum}`;
+      const epSynopsis = jikanData?.synopsis || undefined;
 
       return {
         number: epNum,
         title: epTitle,
+        synopsis: epSynopsis,
         thumbnail: streamingData?.thumbnail || anime.images?.webp?.large_image_url,
         aired: isAired,
         upcoming: isUpcoming,
-        airDate: estimatedAirDate,
+        airDate: actualAirDate,
       };
     });
   };
@@ -375,9 +398,9 @@ export function AnimeDetailModal({ animeId, open, onOpenChange }: AnimeDetailMod
                           <span>{ep.airDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                         </div>
                       )}
-                      {anime?.synopsis && (
+                      {(ep.synopsis || anime?.synopsis) && (
                         <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed">
-                          {anime.synopsis.slice(0, 120)}...
+                          {ep.synopsis || (anime?.synopsis ? anime.synopsis.slice(0, 120) + '...' : '')}
                         </p>
                       )}
                     </div>
