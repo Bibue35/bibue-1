@@ -1,4 +1,5 @@
 /* Fonts loaded via index.html preload for performance */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -157,6 +158,77 @@
     --sidebar-accent-foreground: 220 15% 93%;
     --sidebar-border: 240 18% 16%;
     --sidebar-ring: 258 90% 66%;
+  }
+}
+
+@layer base {
+  /* ============================================
+   * INK & PAPER THEME
+   * Hand-drawn sketch aesthetic with ink-on-paper feel
+   * ============================================ */
+  html.ink {
+    --background: 38 20% 92%;
+    --foreground: 260 25% 12%;
+
+    --card: 38 22% 94%;
+    --card-foreground: 260 25% 12%;
+
+    --popover: 38 22% 94%;
+    --popover-foreground: 260 25% 12%;
+
+    --primary: 260 20% 15%;
+    --primary-foreground: 38 20% 92%;
+
+    --secondary: 38 15% 85%;
+    --secondary-foreground: 260 25% 15%;
+
+    --muted: 38 12% 88%;
+    --muted-foreground: 260 15% 35%;
+
+    --accent: 38 15% 85%;
+    --accent-foreground: 260 25% 12%;
+
+    --destructive: 0 60% 40%;
+    --destructive-foreground: 38 20% 92%;
+
+    --border: 260 10% 75%;
+    --input: 260 10% 80%;
+    --ring: 260 20% 30%;
+    --radius: 0.75rem;
+
+    /* Ink glass tokens — cross-hatched paper effect */
+    --glass-bg: 38 20% 92% / 0.7;
+    --glass-border: 260 10% 70% / 0.5;
+    --glass-highlight: 38 30% 96% / 0.6;
+    --glass-shadow: 260 20% 15% / 0.1;
+    --glass-blur: 12px;
+    --glass-refraction: 38 20% 90% / 0.3;
+
+    --specular-color: 38 20% 90% / 0.4;
+    --specular-inner: 38 25% 95% / 0.5;
+
+    --reflection-start: 38 30% 96% / 0.5;
+    --reflection-mid: 38 20% 92% / 0.25;
+    --reflection-end: 260 10% 85% / 0.05;
+
+    --divine-glow: 260 15% 40% / 0.12;
+    --divine-radiance: 260 12% 50% / 0.15;
+    --divine-halo: 260 10% 60% / 0.1;
+
+    --chart-1: 260 20% 25%;
+    --chart-2: 260 15% 35%;
+    --chart-3: 260 12% 45%;
+    --chart-4: 260 10% 55%;
+    --chart-5: 260 8% 65%;
+
+    --sidebar-background: 38 20% 90%;
+    --sidebar-foreground: 260 25% 12%;
+    --sidebar-primary: 260 20% 15%;
+    --sidebar-primary-foreground: 38 20% 92%;
+    --sidebar-accent: 38 15% 85%;
+    --sidebar-accent-foreground: 260 25% 12%;
+    --sidebar-border: 260 10% 75%;
+    --sidebar-ring: 260 20% 30%;
   }
 }
 
@@ -1493,4 +1565,50 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ============================================
+ * INK & PAPER THEME — Typography & Effects
+ * ============================================ */
+html.ink h1, html.ink h2, html.ink h3, html.ink h4,
+html.ink button, html.ink a, html.ink label,
+html.ink .font-sketch {
+  font-family: 'Caveat', cursive !important;
+  letter-spacing: 0.3px;
+}
+
+html.ink body {
+  font-family: 'Caveat', cursive;
+  font-size: 17px;
+}
+
+/* Ink theme disables liquid glass pseudo-elements for cleaner paper look */
+html.ink .liquid-glass::before,
+html.ink .liquid-glass::after,
+html.ink .liquid-glass-strong::before,
+html.ink .liquid-glass-strong::after {
+  display: none;
+}
+
+html.ink .liquid-glass,
+html.ink .liquid-glass-strong,
+html.ink .liquid-glass-subtle {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: hsl(38 22% 94% / 0.8);
+  border: 2px solid hsl(260 10% 70% / 0.4);
+  box-shadow: 2px 3px 0 hsl(260 10% 70% / 0.15);
+}
+
+/* Ink card hover — subtle sketch wobble */
+html.ink .divine-hover:hover,
+html.ink .hover-lift:hover {
+  transform: translateY(-2px) rotate(-0.5deg);
+  box-shadow: 3px 4px 0 hsl(260 10% 70% / 0.2);
+}
+
+/* Make all content sit above the ink background canvas */
+html.ink #root {
+  position: relative;
+  z-index: 1;
 }
