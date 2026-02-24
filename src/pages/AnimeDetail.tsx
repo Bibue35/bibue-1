@@ -3,6 +3,7 @@ import { SEO, creativeWorkJsonLd } from "@/components/SEO";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Play, Star, Clock, Bookmark, MessageCircle, Send, User, Maximize2, Minimize2, ThumbsUp, ArrowUpDown, ChevronDown, PictureInPicture2 } from "lucide-react";
+import bibueTower from "@/assets/bibue-tower.png";
 import { EpisodeCountdown } from "@/components/EpisodeCountdown";
 import { WhereToWatch } from "@/components/WhereToWatch";
 import { ShareButton } from "@/components/ShareButton";
@@ -281,30 +282,22 @@ export default function AnimeDetailPage() {
           </div>
         ) : (
           <>
-            {/* Video Area */}
-            {anime?.trailer?.youtube_id ? (
-              <iframe
-                src={`https://www.youtube.com/embed/${anime.trailer.youtube_id}?autoplay=0&rel=0&modestbranding=1&iv_load_policy=3`}
-                title={`${anime.title} - Episode ${selectedEpisode}`}
-                className="absolute inset-0 w-full h-full"
-                allowFullScreen
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            {/* Placeholder — no licensed content yet */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <img 
+                src={anime?.images?.webp?.large_image_url} 
+                alt="" 
+                className="absolute inset-0 w-full h-full object-cover opacity-10 blur-md" 
               />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
+              <div className="relative text-center z-10 flex flex-col items-center gap-3">
                 <img 
-                  src={anime?.images?.webp?.large_image_url} 
-                  alt={anime?.title} 
-                  className="absolute inset-0 w-full h-full object-cover opacity-20 blur-sm" 
+                  src={bibueTower} 
+                  alt="Bibue" 
+                  className="w-14 h-14 sm:w-20 sm:h-20 opacity-40 dark:invert" 
                 />
-                <div className="relative text-center z-10">
-                  <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mb-3 mx-auto">
-                    <Play className="w-7 h-7 text-white" />
-                  </div>
-                  <p className="text-white/60 text-xs">{t("detail.videoComingSoon")}</p>
-                </div>
+                <p className="text-white/50 text-xs">Content coming soon</p>
               </div>
-            )}
+            </div>
 
             {/* Minimal top controls - fade on inactivity */}
             <div className={cn(
