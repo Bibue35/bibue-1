@@ -186,12 +186,12 @@ function EarningsComparisonCalculator() {
           </div>
 
           {/* Extra Earnings Highlight */}
-          <div className="text-center p-4 rounded-xl bg-green-500/5 border border-green-500/20">
+          <div className="text-center p-4 rounded-xl bg-primary/5 border border-primary/20">
             <p className="text-sm text-muted-foreground mb-1">You earn extra on Bibue</p>
-            <p className="text-2xl sm:text-3xl font-bold text-green-400 tabular-nums transition-all duration-300">
+            <p className="text-2xl sm:text-3xl font-bold text-primary tabular-nums transition-all duration-300">
               +${extra.toFixed(extra < 10 ? 2 : 0)}/mo
             </p>
-            <p className="text-xs text-green-400/80 mt-1">
+            <p className="text-xs text-primary/80 mt-1">
               That's {webtoonEarnings > 0 ? `${(bibueEarnings / webtoonEarnings).toFixed(1)}×` : "∞"} more revenue
             </p>
           </div>
@@ -211,7 +211,7 @@ function EarningsComparisonCalculator() {
               <th className="text-left py-3 px-2 font-semibold text-muted-foreground text-xs sm:text-sm">Views</th>
               <th className="text-center py-3 px-2 font-semibold text-muted-foreground text-xs sm:text-sm">Webtoon</th>
               <th className="text-center py-3 px-2 font-bold text-primary text-xs sm:text-sm">Bibue ({share}%)</th>
-              <th className="text-center py-3 px-2 font-semibold text-green-400 text-xs sm:text-sm">Extra</th>
+              <th className="text-center py-3 px-2 font-semibold text-primary text-xs sm:text-sm">Extra</th>
             </tr>
           </thead>
           <tbody>
@@ -223,7 +223,7 @@ function EarningsComparisonCalculator() {
                   <td className="py-3 px-2 font-medium text-sm">{formatK(row.views)}</td>
                   <td className="py-3 px-2 text-center text-muted-foreground text-sm">~${row.webtoon.toFixed(row.webtoon < 10 ? 2 : 0)}</td>
                   <td className="py-3 px-2 text-center font-semibold text-primary text-sm">~${bEarnings.toFixed(bEarnings < 10 ? 2 : 0)}</td>
-                  <td className="py-3 px-2 text-center font-semibold text-green-400 text-sm">+${diff.toFixed(diff < 10 ? 2 : 0)}</td>
+                  <td className="py-3 px-2 text-center font-semibold text-primary text-sm">+${diff.toFixed(diff < 10 ? 2 : 0)}</td>
                 </tr>
               );
             })}
@@ -403,7 +403,7 @@ export default function ForCreatorsPage() {
                     <td className="py-3.5 px-3 font-medium">{row.feature}</td>
                     <td className="py-3.5 px-3 text-center">
                       <span className="inline-flex items-center gap-1.5 text-primary font-semibold">
-                        <Check className="w-4 h-4 text-green-400" />
+                        <Check className="w-4 h-4 text-primary" />
                         {row.bibue}
                       </span>
                     </td>
