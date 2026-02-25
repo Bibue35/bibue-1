@@ -122,38 +122,148 @@ const PERK_COLORS = {
   },
 };
 
-function EarningsCalculator() {
-  const [views, setViews] = useState([10000]);
+const SHARE_OPTIONS = [80, 85, 90] as const;
+const COMPARISON_TABLE = [
+  { views: 10000, webtoon: 2.5, bibue: 8.5 },
+  { views: 100000, webtoon: 25, bibue: 85 },
+  { views: 500000, webtoon: 125, bibue: 425 },
+  { views: 1000000, webtoon: 250, bibue: 850 },
+];
+
+function EarningsComparisonCalculator() {
+  const [views, setViews] = useState([100000]);
+  const [share, setShare] = useState(85);
   const viewCount = views[0];
-  const cpm = 4.5; // $4.50 CPM
-  const platformCut = 0.15;
-  const earnings = Math.round((viewCount / 1000) * cpm * (1 - platformCut));
+
+  const webtoonCpm = 0.25; // $0.25 per 1k views
+  const bibueCpm = (share / 100) * 1.0; // $1.00 CPM base × share %
+  const webtoonEarnings = (viewCount / 1000) * webtoonCpm;
+  const bibueEarnings = (viewCount / 1000) * bibueCpm;
+  const extra = bibueEarnings - webtoonEarnings;
+
+  const formatK = (n: number) => {
+    if (n >= 1000000) return `${(n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1)}M`;
+    if (n >= 1000) return `${(n / 1000).toFixed(0)}K`;
+    return n.toString();
+  };
 
   return (
-    <div className="max-w-xl mx-auto p-6 sm:p-8 rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-      <div className="flex items-center gap-2 mb-6">
-        <Eye className="w-5 h-5 text-neon-cyan" />
-        <h3 className="text-lg font-semibold">Earnings Calculator</h3>
-      </div>
-      <p className="text-sm text-muted-foreground mb-4">
-        If your series gets <strong className="text-neon-cyan">{viewCount.toLocaleString()}</strong> views/month:
-      </p>
-      <Slider
-        value={views}
-        onValueChange={setViews}
-        min={1000}
-        max={500000}
-        step={1000}
-        className="mb-6"
-      />
-      <div className="flex items-center justify-between text-xs text-muted-foreground mb-6">
-        <span>1K</span>
-        <span>500K</span>
-      </div>
-      <div className="text-center p-6 rounded-xl bg-background/50 border border-neon-cyan/20">
-        <p className="text-sm text-muted-foreground mb-1">Estimated monthly earnings</p>
-        <p className="text-4xl sm:text-5xl font-bold text-neon-cyan">${earnings}</p>
-        <p className="text-xs text-muted-foreground mt-2">Based on $4.50 CPM with 85% revenue share</p>
+    <div className="max-w-3xl mx-auto">
+      {/* Main Calculator Card */}
+      <Card className="border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
+        <CardContent className="p-6 sm:p-8">
+          {/* Views Slider */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-medium flex items-center gap-2">
+                <Eye className="w-4 h-4 text-neon-cyan" />
+                Monthly Page Views
+              </label>
+              <span className="text-lg font-bold text-neon-cyan">{viewCount.toLocaleString()}</span>
+            </div>
+            <Slider
+              value={views}
+              onValueChange={setViews}
+              min={10000}
+              max={1000000}
+              step={10000}
+              className="mb-2"
+            />
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>10K</span>
+              <span>1M</span>
+            </div>
+          </div>
+
+          {/* Revenue Share Toggle */}
+          <div className="flex items-center gap-3 mb-8">
+            <span className="text-sm text-muted-foreground">Revenue Share:</span>
+            <div className="flex gap-1.5">
+              {SHARE_OPTIONS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setShare(s)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200",
+                    share === s
+                      ? "bg-neon-cyan text-[hsl(0,0%,4%)] shadow-lg shadow-neon-cyan/25"
+                      : "bg-secondary text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {s}%
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Side-by-side Comparison */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            {/* Webtoon */}
+            <div className="p-5 rounded-xl border border-border/50 bg-background/50">
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-1">On Webtoon Canvas</p>
+              <p className="text-xs text-muted-foreground mb-3">~$0.25 per 1,000 views</p>
+              <p className="text-3xl sm:text-4xl font-bold text-muted-foreground/70 tabular-nums transition-all duration-300">
+                ${webtoonEarnings.toFixed(webtoonEarnings < 10 ? 2 : 0)}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">per month</p>
+            </div>
+
+            {/* Bibue */}
+            <div className="p-5 rounded-xl border-2 border-neon-cyan/30 bg-neon-cyan/5 shadow-[0_0_20px_hsl(183,100%,50%,0.06)]">
+              <p className="text-xs text-neon-cyan font-semibold uppercase tracking-wider mb-1">On bibue.net</p>
+              <p className="text-xs text-muted-foreground mb-3">{share}% revenue share</p>
+              <p className="text-3xl sm:text-4xl font-bold text-neon-cyan tabular-nums transition-all duration-300">
+                ${bibueEarnings.toFixed(bibueEarnings < 10 ? 2 : 0)}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">per month</p>
+            </div>
+          </div>
+
+          {/* Extra Earnings Highlight */}
+          <div className="text-center p-4 rounded-xl bg-green-500/5 border border-green-500/20">
+            <p className="text-sm text-muted-foreground mb-1">You earn extra on Bibue</p>
+            <p className="text-2xl sm:text-3xl font-bold text-green-400 tabular-nums transition-all duration-300">
+              +${extra.toFixed(extra < 10 ? 2 : 0)}/mo
+            </p>
+            <p className="text-xs text-green-400/80 mt-1">
+              That's {webtoonEarnings > 0 ? `${(bibueEarnings / webtoonEarnings).toFixed(1)}×` : "∞"} more revenue
+            </p>
+          </div>
+
+          {/* Footnote */}
+          <p className="text-xs text-muted-foreground mt-6 leading-relaxed">
+            Webtoon Canvas pays creators ~$0.20–$0.45 per 1,000 views (average $0.25).
+            bibue.net gives you {share}% of all ad + tip revenue — up to 3–4× more!
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Comparison Table */}
+      <div className="mt-8 overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border">
+              <th className="text-left py-3 px-3 font-semibold text-muted-foreground">Monthly Views</th>
+              <th className="text-center py-3 px-3 font-semibold text-muted-foreground">Webtoon Canvas</th>
+              <th className="text-center py-3 px-3 font-bold text-neon-cyan">bibue.net ({share}%)</th>
+              <th className="text-center py-3 px-3 font-semibold text-green-400">You Earn Extra</th>
+            </tr>
+          </thead>
+          <tbody>
+            {COMPARISON_TABLE.map((row) => {
+              const bEarnings = (row.views / 1000) * ((share / 100) * 1.0);
+              const diff = bEarnings - row.webtoon;
+              return (
+                <tr key={row.views} className="border-b border-border/30 hover:bg-muted/20 transition-colors">
+                  <td className="py-3 px-3 font-medium">{formatK(row.views)}</td>
+                  <td className="py-3 px-3 text-center text-muted-foreground">~${row.webtoon.toFixed(row.webtoon < 10 ? 2 : 0)}</td>
+                  <td className="py-3 px-3 text-center font-semibold text-neon-cyan">~${bEarnings.toFixed(bEarnings < 10 ? 2 : 0)}</td>
+                  <td className="py-3 px-3 text-center font-semibold text-green-400">+${diff.toFixed(diff < 10 ? 2 : 0)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );
@@ -257,16 +367,20 @@ export default function ForCreatorsPage() {
         </div>
       </section>
 
-      {/* ─── Earnings Calculator ─── */}
+      {/* ─── Earnings Comparison Calculator ─── */}
       <section className="py-16 sm:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
+            <Badge variant="secondary" className="mb-4 border-neon-gold/30">
+              <DollarSign className="w-3 h-3 mr-1 text-neon-gold" />
+              Earnings Comparison
+            </Badge>
             <h2 className="text-3xl sm:text-4xl font-bold font-sacred">
-              How Much Could You <span className="text-neon-gold">Earn</span>?
+              How Much Can You <span className="text-neon-gold">Earn</span>?
             </h2>
-            <p className="text-muted-foreground mt-3">Drag the slider to estimate your monthly earnings</p>
+            <p className="text-muted-foreground mt-3">Slide to compare your earnings on Webtoon Canvas vs bibue.net</p>
           </div>
-          <EarningsCalculator />
+          <EarningsComparisonCalculator />
         </div>
       </section>
 
