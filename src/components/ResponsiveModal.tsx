@@ -65,20 +65,18 @@ export function ResponsiveModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        hideCloseButton
-        className={cn(
-          "max-w-5xl w-[95vw] max-h-[90vh] p-0 gap-0 bg-background/95 backdrop-blur-xl border-border/50 overflow-hidden rounded-2xl",
-          className
-        )}
-      >
-        <VisuallyHidden>
-          <DialogTitle>{title}</DialogTitle>
-        </VisuallyHidden>
-        <ScrollArea className="max-h-[90vh]">
+        <DialogContent
+          hideCloseButton
+          className={cn(
+            "max-w-5xl w-[95vw] max-h-[90vh] p-0 gap-0 bg-background/95 backdrop-blur-xl border-border/50 overflow-y-auto rounded-2xl",
+            className
+          )}
+        >
+          <VisuallyHidden>
+            <DialogTitle>{title}</DialogTitle>
+          </VisuallyHidden>
           {children}
-        </ScrollArea>
-      </DialogContent>
+        </DialogContent>
     </Dialog>
   );
 }
