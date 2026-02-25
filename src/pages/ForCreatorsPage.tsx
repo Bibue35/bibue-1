@@ -183,7 +183,7 @@ function EarningsCalculator() {
             </div>
 
             {/* Bibue box */}
-            <div className="p-5 rounded-xl border-2 border-primary/30 bg-primary/5">
+            <div className="p-5 rounded-xl border border-border/50 bg-muted/30">
               <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">On bibue.net</p>
               <p className="text-xs text-muted-foreground mb-4">{share}% revenue share</p>
               <p className="text-sm text-muted-foreground mb-1">You would earn</p>
