@@ -85,78 +85,78 @@
   }
 
   .dark {
-    /* Dark Mode — Deep Immersive (AniList × Crunchyroll × Spotify) */
-    --background: 240 20% 4%;
-    --foreground: 220 15% 93%;
+    /* Dark Mode — 2026 Premium Anime Aesthetic */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 93%;
 
-    --card: 240 28% 10%;
-    --card-foreground: 220 15% 93%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 93%;
 
-    --popover: 240 28% 10%;
-    --popover-foreground: 220 15% 93%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 93%;
 
-    /* Electric purple accent */
-    --primary: 258 90% 66%;
-    --primary-foreground: 0 0% 100%;
+    /* Electric cyan accent */
+    --primary: 183 100% 50%;
+    --primary-foreground: 0 0% 4%;
 
-    --secondary: 240 22% 14%;
-    --secondary-foreground: 220 15% 93%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 93%;
 
-    --muted: 240 18% 13%;
-    --muted-foreground: 230 12% 50%;
+    --muted: 0 0% 11%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 240 24% 16%;
-    --accent-foreground: 220 15% 93%;
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 93%;
 
     --destructive: 0 72% 55%;
-    --destructive-foreground: 220 15% 93%;
+    --destructive-foreground: 0 0% 93%;
 
-    --border: 240 18% 16%;
-    --input: 240 18% 16%;
-    --ring: 258 90% 66%;
+    --border: 0 0% 14%;
+    --input: 0 0% 14%;
+    --ring: 183 100% 50%;
 
-    /* Dark Liquid Glass — deeper & more immersive */
-    --glass-bg: 240 30% 8% / 0.88;
-    --glass-border: 258 30% 30% / 0.3;
-    --glass-highlight: 258 45% 90% / 0.08;
-    --glass-shadow: 240 60% 2% / 0.7;
+    /* Dark Liquid Glass — deep black with cyan tint */
+    --glass-bg: 0 0% 6% / 0.88;
+    --glass-border: 183 40% 30% / 0.25;
+    --glass-highlight: 183 60% 90% / 0.06;
+    --glass-shadow: 0 0% 0% / 0.7;
     --glass-blur: 48px;
-    --glass-refraction: 258 40% 85% / 0.06;
+    --glass-refraction: 183 50% 85% / 0.04;
 
-    /* Dark specular — purple tinted */
-    --specular-color: 258 55% 70% / 0.15;
-    --specular-inner: 240 30% 55% / 0.1;
+    /* Dark specular — cyan tinted */
+    --specular-color: 183 55% 60% / 0.12;
+    --specular-inner: 183 30% 50% / 0.08;
 
     /* Dark shadow gradient */
-    --reflection-start: 258 40% 90% / 0.12;
-    --reflection-mid: 240 28% 50% / 0.05;
-    --reflection-end: 240 60% 3% / 0.5;
+    --reflection-start: 183 40% 90% / 0.08;
+    --reflection-mid: 0 0% 50% / 0.03;
+    --reflection-end: 0 0% 2% / 0.5;
 
-    /* Purple glow effects */
-    --divine-glow: 258 65% 55% / 0.25;
-    --divine-radiance: 258 60% 70% / 0.3;
-    --divine-halo: 258 55% 80% / 0.22;
+    /* Cyan glow effects */
+    --divine-glow: 183 80% 50% / 0.2;
+    --divine-radiance: 183 70% 60% / 0.25;
+    --divine-halo: 183 60% 70% / 0.18;
 
     /* Legacy compatibility */
-    --moonbeam-glow: 258 65% 55% / 0.25;
-    --moonbeam-highlight: 258 60% 70% / 0.3;
+    --moonbeam-glow: 183 80% 50% / 0.2;
+    --moonbeam-highlight: 183 70% 60% / 0.25;
 
-    /* Chart colors — purple spectrum */
-    --chart-1: 258 80% 65%;
-    --chart-2: 270 70% 55%;
-    --chart-3: 245 65% 60%;
-    --chart-4: 280 60% 50%;
-    --chart-5: 235 75% 55%;
+    /* Chart colors — cyan/magenta/gold spectrum */
+    --chart-1: 183 100% 50%;
+    --chart-2: 320 100% 50%;
+    --chart-3: 48 96% 53%;
+    --chart-4: 183 80% 40%;
+    --chart-5: 320 80% 40%;
 
     /* Sidebar */
-    --sidebar-background: 240 20% 4%;
-    --sidebar-foreground: 220 15% 93%;
-    --sidebar-primary: 258 90% 66%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 22% 14%;
-    --sidebar-accent-foreground: 220 15% 93%;
-    --sidebar-border: 240 18% 16%;
-    --sidebar-ring: 258 90% 66%;
+    --sidebar-background: 0 0% 4%;
+    --sidebar-foreground: 0 0% 93%;
+    --sidebar-primary: 183 100% 50%;
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 93%;
+    --sidebar-border: 0 0% 14%;
+    --sidebar-ring: 183 100% 50%;
   }
 }
 
@@ -1312,172 +1312,132 @@
  * Mocha | Latte | Frappé | Macchiato
  * ============================================ */
 
-/* Catppuccin Mocha (Dark) */
+/* Catppuccin Mocha (Dark) - updated to cyan palette */
 .theme-mocha {
   --background: 240 21% 12%;
   --foreground: 226 64% 88%;
-  
   --card: 240 21% 15%;
   --card-foreground: 226 64% 88%;
-  
   --popover: 240 21% 15%;
   --popover-foreground: 226 64% 88%;
-  
-  --primary: 267 84% 81%;
+  --primary: 183 100% 50%;
   --primary-foreground: 240 21% 12%;
-  
   --secondary: 240 21% 20%;
   --secondary-foreground: 226 64% 88%;
-  
   --muted: 240 21% 18%;
   --muted-foreground: 227 35% 65%;
-  
   --accent: 240 21% 22%;
   --accent-foreground: 226 64% 88%;
-  
   --destructive: 343 81% 75%;
   --destructive-foreground: 240 21% 12%;
-  
   --border: 240 21% 20%;
   --input: 240 21% 20%;
-  --ring: 267 84% 81%;
-  
+  --ring: 183 100% 50%;
   --glass-bg: 240 21% 12% / 0.85;
-  --glass-border: 240 21% 25% / 0.35;
-  --glass-highlight: 267 84% 81% / 0.1;
+  --glass-border: 183 40% 30% / 0.3;
+  --glass-highlight: 183 60% 80% / 0.08;
   --glass-shadow: 240 21% 5% / 0.6;
   --glass-blur: 48px;
-  --glass-refraction: 267 50% 70% / 0.08;
-  
-  --divine-glow: 267 65% 60% / 0.25;
-  --divine-radiance: 267 60% 75% / 0.3;
-  --divine-halo: 267 55% 85% / 0.22;
+  --glass-refraction: 183 50% 70% / 0.06;
+  --divine-glow: 183 65% 50% / 0.2;
+  --divine-radiance: 183 60% 60% / 0.25;
+  --divine-halo: 183 55% 70% / 0.18;
 }
 
-/* Catppuccin Latte (Light) */
+/* Catppuccin Latte (Light) - updated */
 .theme-latte {
   --background: 220 23% 95%;
   --foreground: 234 16% 35%;
-  
   --card: 220 23% 98%;
   --card-foreground: 234 16% 35%;
-  
   --popover: 220 23% 98%;
   --popover-foreground: 234 16% 35%;
-  
-  --primary: 266 85% 58%;
+  --primary: 183 100% 40%;
   --primary-foreground: 220 23% 98%;
-  
   --secondary: 220 22% 90%;
   --secondary-foreground: 234 16% 35%;
-  
   --muted: 220 22% 87%;
   --muted-foreground: 233 10% 47%;
-  
   --accent: 220 22% 92%;
   --accent-foreground: 234 16% 35%;
-  
   --destructive: 347 87% 44%;
   --destructive-foreground: 220 23% 98%;
-  
   --border: 220 22% 85%;
   --input: 220 22% 85%;
-  --ring: 266 85% 58%;
-  
+  --ring: 183 100% 40%;
   --glass-bg: 220 23% 98% / 0.82;
   --glass-border: 220 22% 85% / 0.75;
   --glass-highlight: 220 23% 100% / 0.95;
   --glass-shadow: 234 16% 35% / 0.08;
   --glass-blur: 40px;
-  --glass-refraction: 266 50% 90% / 0.5;
-  
-  --divine-glow: 266 60% 65% / 0.2;
-  --divine-radiance: 266 70% 75% / 0.35;
-  --divine-halo: 266 80% 85% / 0.25;
+  --glass-refraction: 183 50% 90% / 0.5;
+  --divine-glow: 183 60% 50% / 0.15;
+  --divine-radiance: 183 70% 60% / 0.3;
+  --divine-halo: 183 80% 70% / 0.2;
 }
 
-/* Catppuccin Frappé (Dark) */
+/* Catppuccin Frappé (Dark) - updated */
 .theme-frappe {
   --background: 229 19% 23%;
   --foreground: 227 70% 87%;
-  
   --card: 229 19% 26%;
   --card-foreground: 227 70% 87%;
-  
   --popover: 229 19% 26%;
   --popover-foreground: 227 70% 87%;
-  
-  --primary: 277 59% 76%;
+  --primary: 183 100% 50%;
   --primary-foreground: 229 19% 20%;
-  
   --secondary: 229 19% 30%;
   --secondary-foreground: 227 70% 87%;
-  
   --muted: 229 19% 28%;
   --muted-foreground: 227 44% 64%;
-  
   --accent: 229 19% 32%;
   --accent-foreground: 227 70% 87%;
-  
   --destructive: 351 74% 73%;
   --destructive-foreground: 229 19% 20%;
-  
   --border: 229 19% 28%;
   --input: 229 19% 28%;
-  --ring: 277 59% 76%;
-  
+  --ring: 183 100% 50%;
   --glass-bg: 229 19% 23% / 0.85;
-  --glass-border: 229 19% 32% / 0.35;
-  --glass-highlight: 277 59% 76% / 0.1;
+  --glass-border: 183 40% 30% / 0.3;
+  --glass-highlight: 183 60% 70% / 0.08;
   --glass-shadow: 229 19% 10% / 0.6;
   --glass-blur: 48px;
-  --glass-refraction: 277 45% 70% / 0.08;
-  
-  --divine-glow: 277 50% 60% / 0.25;
-  --divine-radiance: 277 55% 70% / 0.3;
-  --divine-halo: 277 50% 80% / 0.22;
+  --glass-refraction: 183 45% 70% / 0.06;
+  --divine-glow: 183 50% 50% / 0.2;
+  --divine-radiance: 183 55% 60% / 0.25;
+  --divine-halo: 183 50% 70% / 0.18;
 }
 
-/* Catppuccin Macchiato (Dark) */
+/* Catppuccin Macchiato (Dark) - updated */
 .theme-macchiato {
   --background: 232 23% 18%;
   --foreground: 227 68% 88%;
-  
   --card: 232 23% 21%;
   --card-foreground: 227 68% 88%;
-  
   --popover: 232 23% 21%;
   --popover-foreground: 227 68% 88%;
-  
-  --primary: 267 83% 80%;
+  --primary: 183 100% 50%;
   --primary-foreground: 232 23% 15%;
-  
   --secondary: 232 23% 25%;
   --secondary-foreground: 227 68% 88%;
-  
   --muted: 232 23% 23%;
   --muted-foreground: 227 39% 65%;
-  
   --accent: 232 23% 27%;
   --accent-foreground: 227 68% 88%;
-  
   --destructive: 351 74% 73%;
   --destructive-foreground: 232 23% 15%;
-  
   --border: 232 23% 25%;
   --input: 232 23% 25%;
-  --ring: 267 83% 80%;
-  
+  --ring: 183 100% 50%;
   --glass-bg: 232 23% 18% / 0.85;
-  --glass-border: 232 23% 28% / 0.35;
-  --glass-highlight: 267 83% 80% / 0.1;
+  --glass-border: 183 40% 30% / 0.3;
+  --glass-highlight: 183 60% 70% / 0.08;
   --glass-shadow: 232 23% 8% / 0.6;
   --glass-blur: 48px;
-  --glass-refraction: 267 55% 70% / 0.08;
-  
-  --divine-glow: 267 60% 60% / 0.25;
-  --divine-radiance: 267 65% 70% / 0.3;
-  --divine-halo: 267 60% 80% / 0.22;
+  --glass-refraction: 183 55% 70% / 0.06;
+  --divine-glow: 183 60% 50% / 0.2;
+  --divine-radiance: 183 65% 60% / 0.25;
+  --divine-halo: 183 60% 70% / 0.18;
 }
 
 /* ============================================
