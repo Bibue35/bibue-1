@@ -50,7 +50,7 @@ const GenreDetailPage = lazy(() => import("./pages/GenreDetailPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const AnimeMapPage = lazy(() => import("./pages/AnimeMapPage"));
+
 const VibeCheckPage = lazy(() => import("./pages/NotFound"));
 const RankingsPage = lazy(() => import("./pages/Rankings"));
 const WatchPartyPage = lazy(() => import("./pages/WatchPartyPage"));
@@ -141,8 +141,6 @@ const App = () => (
                             <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                             <Route path="/privacy" element={<PrivacyPage />} />
                             <Route path="/terms" element={<TermsPage />} />
-                            <Route path="/map" element={<ProtectedRoute><AnimeMapPage /></ProtectedRoute>} />
-                            <Route path="/galaxy" element={<ProtectedRoute><AnimeMapPage /></ProtectedRoute>} />
                             <Route path="/rankings" element={<RankingsPage />} />
                             <Route path="/party/:code" element={<WatchPartyPage />} />
                             <Route path="/compare" element={<ComparePage />} />

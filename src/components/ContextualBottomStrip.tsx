@@ -19,10 +19,10 @@ export function ContextualBottomStrip() {
   const isAnimePage = pathname === "/anime";
   const isMangaPage = pathname === "/manga";
   const isAllowedPage = isHome || isAnimePage || isMangaPage;
-  const isGalaxy = pathname === "/map" || pathname === "/galaxy";
+  
 
   useEffect(() => {
-    if (isGalaxy || !isAllowedPage) return;
+    if (!isAllowedPage) return;
     let ticking = false;
 
     const onScroll = () => {
@@ -47,9 +47,9 @@ export function ContextualBottomStrip() {
 
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [isGalaxy, isHome, isAllowedPage]);
+  }, [isHome, isAllowedPage]);
 
-  if (isGalaxy || !isAllowedPage) return null;
+  if (!isAllowedPage) return null;
 
   return (
     <div
