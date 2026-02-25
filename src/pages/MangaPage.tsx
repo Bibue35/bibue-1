@@ -355,9 +355,9 @@ export default function MangaPage() {
       {!isSearching && !genreId && typeFilter === "all" && <DeferredCompletedSection isMobile={isMobile} />}
 
       {/* Genre Sections - Deferred */}
-      {!isSearching && !genreId && <DeferredMangaGenreSection genre="Action" titleJp="アクション" icon={Swords} linkTo="/manga?genre=1" isMobile={isMobile} />}
-      {!isSearching && !genreId && <DeferredMangaGenreSection genre="Romance" titleJp="ロマンス" icon={Heart} linkTo="/manga?genre=22" isMobile={isMobile} />}
-      {!isSearching && !genreId && <DeferredMangaGenreSection genre="Fantasy" titleJp="ファンタジー" icon={Wand2} linkTo="/manga?genre=10" isMobile={isMobile} />}
+      {!isSearching && !genreId && <DeferredMangaGenreSection genre="Action" titleJp="アクション" icon={Swords} linkTo={`/manga?genre=1${typeFilter !== "all" ? `&filter=${typeFilter}` : ""}`} isMobile={isMobile} />}
+      {!isSearching && !genreId && <DeferredMangaGenreSection genre="Romance" titleJp="ロマンス" icon={Heart} linkTo={`/manga?genre=22${typeFilter !== "all" ? `&filter=${typeFilter}` : ""}`} isMobile={isMobile} />}
+      {!isSearching && !genreId && <DeferredMangaGenreSection genre="Fantasy" titleJp="ファンタジー" icon={Wand2} linkTo={`/manga?genre=10${typeFilter !== "all" ? `&filter=${typeFilter}` : ""}`} isMobile={isMobile} />}
 
       {/* Results anchor */}
       <div ref={resultsRef} />
