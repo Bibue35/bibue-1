@@ -12,6 +12,7 @@ import { MiniPlayerProvider } from "@/contexts/MiniPlayerContext";
 import { IncognitoOverlay } from "@/components/IncognitoOverlay";
 import { MiniPlayer } from "@/components/MiniPlayer";
 import { MessageNotificationProvider } from "@/components/MessageNotificationProvider";
+import { CreatorWelcomeModal } from "@/components/CreatorWelcomeModal";
 import { AnimatedRoutes } from "@/components/AnimatedRoutes";
 import { SwipeNavigationWrapper } from "@/components/SwipeNavigationWrapper";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -55,6 +56,7 @@ const WatchPartyPage = lazy(() => import("./pages/WatchPartyPage"));
 const ComparePage = lazy(() => import("./pages/ComparePage"));
 const SeekPage = lazy(() => import("./pages/SeekPage"));
 const ForCreatorsPage = lazy(() => import("./pages/ForCreatorsPage"));
+const CreatorDashboard = lazy(() => import("./pages/CreatorDashboard"));
 
 // Minimal loading fallback for route transitions
 const PageLoader = () => (
@@ -104,6 +106,7 @@ const App = () => (
                     <MiniPlayer />
                     <BackToTop />
                     <ContextualBottomStrip />
+                    <CreatorWelcomeModal />
                     <Suspense fallback={<PageLoader />}>
                       <SwipeNavigationWrapper>
                         <AnimatedRoutes>
@@ -141,6 +144,7 @@ const App = () => (
                             <Route path="/compare" element={<ComparePage />} />
                             <Route path="/seek" element={<SeekPage />} />
                             <Route path="/for-creators" element={<ForCreatorsPage />} />
+                            <Route path="/creator/dashboard" element={<ProtectedRoute><CreatorDashboard /></ProtectedRoute>} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </AnimatedRoutes>
