@@ -2,6 +2,7 @@ import { useState, memo, forwardRef, lazy, Suspense } from "react";
 import { Star, BookOpen, Calendar } from "lucide-react";
 import { Manga, formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { getContentType, getContentLabel, getContentTypeBadgeClass } from "@/lib/contentType";
 const MangaDetailModal = lazy(() => import("./MangaDetailModal").then(m => ({ default: m.MangaDetailModal })));
 import { WatchlistButton } from "./WatchlistButton";
 import { TitleTooltip } from "./TitleTooltip";
@@ -14,6 +15,8 @@ interface MangaCardProps {
 
 export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(function MangaCard({ manga, index = 0, variant = "default" }, ref) {
   const [modalOpen, setModalOpen] = useState(false);
+  const contentType = getContentType({ type: 'MANGA', countryOfOrigin: manga.countryOfOrigin });
+  const typeLabel = getContentLabel(contentType);
 
   // Format published date
   const getPublishedInfo = () => {
@@ -49,6 +52,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
               {manga.title}
             </h3>
             <p className="text-xs sm:text-sm text-muted-foreground truncate">
+              <span className={cn("font-medium mr-1", getContentTypeBadgeClass(contentType), "bg-transparent px-0 py-0")}>{typeLabel}</span>
               {manga.genres?.slice(0, 2).map(g => g.name).join(", ")}
             </p>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
@@ -111,6 +115,13 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
               C{chapterCount}
             </div>
           )}
+          {/* Content type badge */}
+          <div className={cn(
+            "absolute top-1.5 left-1.5 sm:top-2 sm:left-2 text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded",
+            getContentTypeBadgeClass(contentType)
+          )}>
+            {typeLabel}
+          </div>
           {/* Save button - appears on hover */}
           <div 
             className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 opacity-0 group-hover:opacity-100 transition-all"
@@ -152,7 +163,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
 
         {/* Metadata underneath - always visible */}
         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-[10px] sm:text-xs text-muted-foreground">
-          {manga.type && <span>{manga.type}</span>}
+          <span className={cn("font-medium", getContentTypeBadgeClass(contentType), "bg-transparent px-0 py-0")}>{typeLabel}</span>
           {publishedYear && (
             <>
               <span>•</span>

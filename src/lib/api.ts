@@ -86,6 +86,7 @@ export interface Manga {
   genres?: Array<{ mal_id: number; name: string }>;
   authors?: Array<{ mal_id: number; name: string }>;
   type?: string;
+  countryOfOrigin?: string;
 }
 
 export interface NewsItem {
@@ -246,6 +247,7 @@ function toManga(media: AniListMedia, language: SupportedLanguage = "en"): Manga
     genres: media.genres?.map((g, i) => ({ mal_id: i, name: g })) || [],
     authors: media.staff?.nodes?.filter(s => s.primaryOccupations?.includes("Mangaka"))?.map(s => ({ mal_id: s.id, name: s.name.full })) || [],
     type: media.format || undefined,
+    countryOfOrigin: media.countryOfOrigin || undefined,
   };
 }
 
@@ -270,6 +272,7 @@ interface AniListMedia {
   source?: string;
   duration?: number;
   genres?: string[];
+  countryOfOrigin?: string;
   trailer?: { id: string; site: string };
   startDate?: { year?: number; month?: number; day?: number };
   endDate?: { year?: number; month?: number; day?: number };
@@ -302,6 +305,7 @@ const MEDIA_FRAGMENT = `
   source
   duration
   genres
+  countryOfOrigin
   trailer { id site }
   startDate { year month day }
   endDate { year month day }

@@ -42,13 +42,17 @@ export default function WatchlistPage() {
   const [isBatchMode, setIsBatchMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   
-  const typeFromUrl = searchParams.get("type") as "anime" | "manga" | null;
-  const [filter, setFilter] = useState<"all" | "anime" | "manga">(typeFromUrl || "all");
+  const typeFromUrl = searchParams.get("type") as "anime" | "manga" | "manhwa" | "manhua" | null;
+  const [filter, setFilter] = useState<"all" | "anime" | "manga" | "manhwa" | "manhua">(typeFromUrl || "all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   const filteredWatchlist = watchlist?.filter((item) => {
-    const typeMatch = filter === "all" || item.media_type === filter;
+    // manhwa and manhua are stored as "manga" in the DB
+    const typeMatch = filter === "all" || 
+      item.media_type === filter ||
+      (filter === "manhwa" && item.media_type === "manga") ||
+      (filter === "manhua" && item.media_type === "manga");
     const statusMatch = statusFilter === "all" || item.status === statusFilter;
     const categoryMatch = categoryFilter === "all" || 
       (categoryFilter === "none" && !item.category) ||
@@ -137,7 +141,7 @@ export default function WatchlistPage() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-2 flex-wrap">
-              {(["all", "anime", "manga"] as const).map((f) => (
+              {(["all", "anime", "manga", "manhwa", "manhua"] as const).map((f) => (
                 <Button
                   key={f}
                   variant={filter === f ? "default" : "ghost"}
@@ -145,7 +149,7 @@ export default function WatchlistPage() {
                   onClick={() => setFilter(f)}
                   className={cn("rounded-full capitalize", filter !== f && "glass-button")}
                 >
-                  {f === "all" ? t("common.all") : f}
+                  {f === "all" ? t("common.all") : f.charAt(0).toUpperCase() + f.slice(1)}
                 </Button>
               ))}
               
