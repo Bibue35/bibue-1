@@ -1,17 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 const FUNCTION_NAME = "mangadex-proxy";
 
 async function callMangaDex(params: Record<string, string>) {
   const query = new URLSearchParams(params).toString();
-  const { data, error } = await supabase.functions.invoke(FUNCTION_NAME, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-    body: null,
-  });
-  
-  // supabase.functions.invoke doesn't support query params well, use fetch directly
   const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
   const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
   
