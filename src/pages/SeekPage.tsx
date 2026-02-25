@@ -409,7 +409,8 @@ export default function SeekPage() {
               {results.map((rec, i) => (
                 <div
                   key={`${rec.title}-${i}`}
-                  className="rounded-2xl bg-card/60 border border-border/20 overflow-hidden transition-all hover:border-border/40"
+                  className="rounded-2xl bg-card/60 border border-border/20 overflow-hidden transition-all hover:border-border/40 animate-fade-up opacity-0 motion-reduce:animate-none motion-reduce:opacity-100"
+                  style={{ animationDelay: `${i * 80}ms`, animationFillMode: 'forwards' }}
                 >
                   <div className="flex gap-3 sm:gap-4 p-3 sm:p-4">
                     {/* Cover image */}
