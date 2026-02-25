@@ -37,6 +37,7 @@ export function CollapsibleNavbar() {
     { href: "/news", label: t("nav.news") },
     { href: "/recommendations", label: t("nav.forYou") },
     { href: "/genres", label: "Genres" },
+    { href: "/for-creators", label: "For Creators" },
   ];
 
   useEffect(() => {
