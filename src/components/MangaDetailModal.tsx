@@ -367,10 +367,31 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                     <span className="text-sm">Finding chapters...</span>
                   </div>
                 ) : chapters.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <BookOpen className="w-10 h-10 mx-auto mb-2 opacity-40" />
-                    <p className="text-sm">No chapters available on MangaDex for this title.</p>
-                    <p className="text-xs mt-1">Try searching on <a href="https://mangadex.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">MangaDex</a> directly.</p>
+                  <div className="text-center py-8 px-4 text-muted-foreground">
+                    <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-40" />
+                    <p className="text-sm font-medium text-foreground/80">No readable chapters available</p>
+                    <p className="text-xs mt-1.5 max-w-sm mx-auto leading-relaxed">
+                      This title is likely <span className="text-primary font-medium">officially licensed</span>, so fan-translated chapters aren't hosted on MangaDex.
+                    </p>
+                    <div className="mt-4 space-y-2">
+                      <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/70">Read officially on</p>
+                      <div className="flex flex-wrap justify-center gap-2">
+                        {(manga?.type === 'Manhwa' || manga?.type === 'Manhua') ? (
+                          <>
+                            <a href="https://www.webtoons.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors">WEBTOON</a>
+                            <a href="https://www.tappytoon.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors">Tappytoon</a>
+                          </>
+                        ) : (
+                          <>
+                            <a href="https://mangaplus.shueisha.co.jp" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors">MANGA Plus</a>
+                            <a href="https://www.viz.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors">VIZ</a>
+                          </>
+                        )}
+                        {mangadexMatch && (
+                          <a href={`https://mangadex.org/title/${mangadexMatch.id}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted text-muted-foreground text-xs font-medium hover:bg-muted/80 transition-colors">MangaDex</a>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <>
