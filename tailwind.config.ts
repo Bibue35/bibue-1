@@ -69,7 +69,7 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
         neon: {
-          cyan: "hsl(183 100% 50%)",
+          amber: "hsl(32 85% 50%)",
           magenta: "hsl(320 100% 50%)",
           gold: "hsl(48 96% 53%)",
         },
