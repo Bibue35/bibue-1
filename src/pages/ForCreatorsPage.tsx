@@ -19,7 +19,7 @@ import {
   X,
   Sparkles,
   Upload,
-  Quote,
+  
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -56,23 +56,6 @@ const PERKS = [
   },
 ];
 
-const TESTIMONIALS = [
-  {
-    quote: "Finally a platform that actually pays indie creators! I made more in my first month here than six months elsewhere.",
-    author: "@MangaRise",
-    role: "Founding Creator",
-  },
-  {
-    quote: "The instant publishing changed everything. No more waiting weeks for approval — my readers get chapters the moment they're ready.",
-    author: "@InkStormArt",
-    role: "Manhwa Artist",
-  },
-  {
-    quote: "The stats dashboard is insane. I can see exactly what readers love and tailor my story accordingly.",
-    author: "@DrawDreamRepeat",
-    role: "Manga Creator",
-  },
-];
 
 const COMPARISON = [
   { feature: "Revenue Share", bibue: "80–90%", webtoon: "50%", tapas: "60%" },
@@ -170,33 +153,6 @@ export default function ForCreatorsPage() {
                   </div>
                   <h3 className="text-lg font-semibold">{perk.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{perk.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Testimonials ─── */}
-      <section className="py-20 sm:py-28 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
-            <Badge variant="secondary" className="mb-4">Creator Voices</Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold font-sacred">
-              Hear from Our <span className="text-primary">Creators</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {TESTIMONIALS.map((t, i) => (
-              <Card key={i} className="border-border/50 bg-card/80 backdrop-blur-sm">
-                <CardContent className="p-6 flex flex-col gap-4">
-                  <Quote className="w-8 h-8 text-primary/30" />
-                  <p className="text-sm leading-relaxed italic text-muted-foreground">"{t.quote}"</p>
-                  <div className="mt-auto pt-4 border-t border-border/50">
-                    <p className="font-semibold text-sm">{t.author}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
-                  </div>
                 </CardContent>
               </Card>
             ))}
