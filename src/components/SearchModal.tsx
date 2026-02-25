@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Search, X, Film, BookOpen, Loader2, Clock, Trash2, Sparkles, ArrowRight, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { getContentType, getContentLabel, getContentTypeBadgeClass } from "@/lib/contentType";
+import { cn } from "@/lib/utils";
 import Fuse from "fuse.js";
 import { useSearchAnime, useSearchManga } from "@/hooks/useAnimeData";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -395,11 +397,12 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                                       {item.chapters} ch
                                     </span>
                                   )}
-                                  {item.type && (
-                                    <span className="text-xs text-muted-foreground capitalize">
-                                      {item.type}
-                                    </span>
-                                  )}
+                                  <span className={cn(
+                                    "text-[10px] font-medium px-1.5 py-0.5 rounded-full",
+                                    getContentTypeBadgeClass(getContentType({ type: 'MANGA', countryOfOrigin: item.countryOfOrigin }))
+                                  )}>
+                                    {getContentLabel(getContentType({ type: 'MANGA', countryOfOrigin: item.countryOfOrigin }))}
+                                  </span>
                                 </div>
                               </div>
                             </button>

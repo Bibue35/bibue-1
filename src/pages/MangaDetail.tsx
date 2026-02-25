@@ -3,6 +3,7 @@ import { SEO, creativeWorkJsonLd } from "@/components/SEO";
 import { useParams, Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { BookOpen, Star, Heart, Bookmark, Eye, ChevronsLeft, ChevronsRight, MessageCircle, Send, User, History } from "lucide-react";
+import { getContentType, getContentLabel, getContentTypeBadgeClass } from "@/lib/contentType";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -311,7 +312,17 @@ export default function MangaDetailPage() {
                     </>
                   ) : (
                     <>
-                      <h1 className="text-3xl sm:text-4xl font-bold font-sacred mb-2">{manga?.title}</h1>
+                      <h1 className="text-3xl sm:text-4xl font-bold font-sacred mb-2">
+                        {manga?.title}
+                        {manga?.countryOfOrigin && (
+                          <span className={cn(
+                            "ml-3 text-sm font-medium px-2.5 py-1 rounded-full align-middle inline-block",
+                            getContentTypeBadgeClass(getContentType({ type: 'MANGA', countryOfOrigin: manga.countryOfOrigin }))
+                          )}>
+                            {getContentLabel(getContentType({ type: 'MANGA', countryOfOrigin: manga.countryOfOrigin }))}
+                          </span>
+                        )}
+                      </h1>
                       
                       {/* Genres inline */}
                       {manga?.genres && manga.genres.length > 0 && (
