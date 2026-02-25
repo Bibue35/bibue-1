@@ -219,7 +219,7 @@ export function BrowseFilterBar(props: BrowseFilterBarProps) {
                 return (
                   <Link
                     key={genre.id}
-                    to={`${basePath}?genre=${genre.id}`}
+                    to={`${basePath}?genre=${genre.id}${!isAnime && (props as MangaFilterConfig).typeFilter !== "all" ? `&filter=${(props as MangaFilterConfig).typeFilter}` : ""}`}
                     className={cn(
                       "px-2.5 py-2 rounded-lg text-xs text-center font-medium transition-all duration-200 active:scale-95",
                       active

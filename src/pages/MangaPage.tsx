@@ -16,7 +16,7 @@ import { CardSkeletonRow } from "@/components/skeletons";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTopManga, useSearchManga, useRecentlyUpdatedManga } from "@/hooks/useAnimeData";
+import { useTopManga, useSearchManga, useRecentlyUpdatedManga, useMangaByGenre } from "@/hooks/useAnimeData";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -25,6 +25,14 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
 type SortOption = "popularity" | "score" | "newest";
+
+const GENRE_ID_TO_NAME: Record<string, string> = {
+  "1": "Action", "2": "Adventure", "4": "Comedy", "7": "Mystery", "8": "Drama",
+  "10": "Fantasy", "13": "Historical", "14": "Horror", "22": "Romance",
+  "24": "Sci-Fi", "25": "Shoujo", "27": "Shounen", "28": "Seinen",
+  "30": "Sports", "36": "Slice of Life", "37": "Supernatural", "38": "Military",
+  "40": "Psychological", "41": "Isekai", "42": "Josei", "73": "School", "101": "Thriller",
+};
 
 export default function MangaPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -108,6 +116,8 @@ export default function MangaPage() {
   // Only eagerly load above-fold sections + search/filter data
   const { data: allManga, isLoading: allLoading } = useTopManga(1, undefined);
   const { data: mangaOnly, isLoading: mangaLoading, isError: mangaError, refetch: refetchManga } = useTopManga(1, 'manga');
+  const { data: manhwaOnly, isLoading: manhwaLoading } = useTopManga(1, 'manhwa', 'popularity', typeFilter === 'manhwa');
+  const { data: manhuaOnly, isLoading: manhuaLoading } = useTopManga(1, 'manhua', 'popularity', typeFilter === 'manhua');
   const { data: searchResults, isLoading: searchLoading } = useSearchManga(
     debouncedSearch,
     isSearching,
@@ -115,19 +125,33 @@ export default function MangaPage() {
   );
   const { data: recentlyUpdatedManga, isLoading: recentlyUpdatedMangaLoading, isError: recentlyUpdatedMangaError, refetch: refetchRecentlyUpdatedManga } = useRecentlyUpdatedManga(1);
 
+  // Genre-filtered data — map genre ID to name for AniList API
+  const genreName = genreId ? GENRE_ID_TO_NAME[genreId] || genreId : "";
+  const { data: genreFilteredManga, isLoading: genreLoading } = useMangaByGenre(
+    genreName,
+    1,
+    typeFilter === "all" ? undefined : typeFilter,
+  );
+
   // Select the correct data based on filter
   const getFilteredManga = () => {
     if (isSearching) return searchResults;
+    if (genreId) return genreFilteredManga;
     switch (typeFilter) {
       case "manga": return mangaOnly;
+      case "manhwa": return manhwaOnly;
+      case "manhua": return manhuaOnly;
       default: return allManga;
     }
   };
 
   const getFilterLoading = () => {
     if (isSearching) return searchLoading;
+    if (genreId) return genreLoading;
     switch (typeFilter) {
       case "manga": return mangaLoading;
+      case "manhwa": return manhwaLoading;
+      case "manhua": return manhuaLoading;
       default: return allLoading;
     }
   };
@@ -240,7 +264,7 @@ export default function MangaPage() {
         </section>
       )}
 
-      {/* Recently Updated */}
+      {/* Recently Updated — filter by typeFilter client-side */}
       {!isSearching && !genreId && (
         <ContentSection
           title={t("manga.recentlyUpdated")}
@@ -255,11 +279,20 @@ export default function MangaPage() {
               {recentlyUpdatedMangaLoading ? (
                 <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
               ) : (
-                recentlyUpdatedManga?.slice(0, 12).map((manga, index) => (
-                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    <MangaCard manga={manga} index={index} />
-                  </div>
-                ))
+                recentlyUpdatedManga
+                  ?.filter((m) => {
+                    if (typeFilter === "all") return true;
+                    if (typeFilter === "manhwa") return m.countryOfOrigin === "KR";
+                    if (typeFilter === "manhua") return m.countryOfOrigin === "CN";
+                    // "manga" = JP (or anything not KR/CN)
+                    return m.countryOfOrigin === "JP" || (!m.countryOfOrigin || (m.countryOfOrigin !== "KR" && m.countryOfOrigin !== "CN"));
+                  })
+                  .slice(0, 12)
+                  .map((manga, index) => (
+                    <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                      <MangaCard manga={manga} index={index} />
+                    </div>
+                  ))
               )}
             </HorizontalScroll>
           )}
@@ -330,11 +363,11 @@ export default function MangaPage() {
       {/* Top Manhua - Deferred */}
       {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhua") && <DeferredTopManhuaSection isMobile={isMobile} />}
 
-      {/* New This Week - Deferred */}
-      {!isSearching && !genreId && <DeferredNewThisWeekSection isMobile={isMobile} />}
+      {/* New This Week - Deferred (only show when no specific type filter since this section doesn't filter by type) */}
+      {!isSearching && !genreId && typeFilter === "all" && <DeferredNewThisWeekSection isMobile={isMobile} />}
 
-      {/* Completed Series - Deferred */}
-      {!isSearching && !genreId && <DeferredCompletedSection isMobile={isMobile} />}
+      {/* Completed Series - Deferred (same: only when typeFilter is "all") */}
+      {!isSearching && !genreId && typeFilter === "all" && <DeferredCompletedSection isMobile={isMobile} />}
 
       {/* Genre Sections - Deferred */}
       {!isSearching && !genreId && <DeferredMangaGenreSection genre="Action" titleJp="アクション" icon={Swords} linkTo="/manga?genre=1" isMobile={isMobile} />}
@@ -392,9 +425,11 @@ export default function MangaPage() {
           <h2 className="text-xl sm:text-2xl font-bold mb-6">
             {isSearching 
               ? `${t("common.searchResults")} "${debouncedSearch}"` 
-              : typeFilter !== "all" 
-                ? `Top ${typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}`
-                : t("manga.topManga")}
+              : genreId
+                ? `${typeFilter !== "all" ? typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1) + " — " : ""}${genreName}`
+                : typeFilter !== "all" 
+                  ? `Top ${typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}`
+                  : t("manga.topManga")}
           </h2>
           
           {isSearching && isLoading ? (
