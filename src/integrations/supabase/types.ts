@@ -421,9 +421,11 @@ export type Database = {
           guidelines_accepted_at: string | null
           id: string
           is_verified: boolean
+          payout_status: string
           social_links: Json | null
           status: string
           strike_count: number
+          total_earned: number
           updated_at: string
           user_id: string
         }
@@ -435,9 +437,11 @@ export type Database = {
           guidelines_accepted_at?: string | null
           id?: string
           is_verified?: boolean
+          payout_status?: string
           social_links?: Json | null
           status?: string
           strike_count?: number
+          total_earned?: number
           updated_at?: string
           user_id: string
         }
@@ -449,9 +453,11 @@ export type Database = {
           guidelines_accepted_at?: string | null
           id?: string
           is_verified?: boolean
+          payout_status?: string
           social_links?: Json | null
           status?: string
           strike_count?: number
+          total_earned?: number
           updated_at?: string
           user_id?: string
         }
@@ -948,6 +954,42 @@ export type Database = {
         }
         Relationships: []
       }
+      payouts: {
+        Row: {
+          amount: number
+          created_at: string
+          creator_id: string
+          id: string
+          method: string
+          notes: string | null
+          paid_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          creator_id: string
+          id?: string
+          method?: string
+          notes?: string | null
+          paid_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          creator_id?: string
+          id?: string
+          method?: string
+          notes?: string | null
+          paid_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       poll_votes: {
         Row: {
           created_at: string
@@ -1081,6 +1123,47 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "creator_profiles"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      series_analytics: {
+        Row: {
+          created_at: string
+          earnings: number
+          id: string
+          likes: number
+          month: string
+          series_id: string
+          updated_at: string
+          views: number
+        }
+        Insert: {
+          created_at?: string
+          earnings?: number
+          id?: string
+          likes?: number
+          month: string
+          series_id: string
+          updated_at?: string
+          views?: number
+        }
+        Update: {
+          created_at?: string
+          earnings?: number
+          id?: string
+          likes?: number
+          month?: string
+          series_id?: string
+          updated_at?: string
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "series_analytics_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "series"
+            referencedColumns: ["id"]
           },
         ]
       }
