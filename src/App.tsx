@@ -18,6 +18,7 @@ import { SwipeNavigationWrapper } from "@/components/SwipeNavigationWrapper";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { BackToTop } from "@/components/BackToTop";
+import { FloatingHelpButton } from "@/components/FloatingHelpButton";
 import { ContextualBottomStrip } from "@/components/ContextualBottomStrip";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -58,6 +59,7 @@ const SeekPage = lazy(() => import("./pages/SeekPage"));
 const ForCreatorsPage = lazy(() => import("./pages/ForCreatorsPage"));
 const CreatorDashboard = lazy(() => import("./pages/CreatorDashboard"));
 const OriginalsPage = lazy(() => import("./pages/OriginalsPage"));
+const SupportPage = lazy(() => import("./pages/SupportPage"));
 
 // Minimal loading fallback for route transitions
 const PageLoader = () => (
@@ -106,6 +108,7 @@ const App = () => (
                   <MessageNotificationProvider>
                     <MiniPlayer />
                     <BackToTop />
+                    <FloatingHelpButton />
                     <ContextualBottomStrip />
                     <CreatorWelcomeModal />
                     <Suspense fallback={<PageLoader />}>
@@ -147,6 +150,7 @@ const App = () => (
                             <Route path="/for-creators" element={<ForCreatorsPage />} />
                             <Route path="/originals" element={<OriginalsPage />} />
                             <Route path="/originals/:id" element={<OriginalsPage />} />
+                            <Route path="/support" element={<SupportPage />} />
                             <Route path="/creator/dashboard" element={<ProtectedRoute><CreatorDashboard /></ProtectedRoute>} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>

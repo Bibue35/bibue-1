@@ -24,7 +24,8 @@ export function Footer() {
               <li><Link to="/manga" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Manga</Link></li>
               <li><Link to="/rankings" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Rankings</Link></li>
               <li><Link to="/community" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Community</Link></li>
-              <li><Link to="/community" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Community</Link></li>
+              <li><Link to="/for-creators" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">For Creators</Link></li>
+              <li><Link to="/support" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Support</Link></li>
             </ul>
           </div>
 

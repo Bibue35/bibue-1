@@ -12,10 +12,11 @@ import { formatDistanceToNow, format } from "date-fns";
 import {
   Shield, LayoutDashboard, Users, BookOpen, AlertTriangle, BarChart3, DollarSign,
   Search, Loader2, CheckCircle, XCircle, Download, Eye, Heart, ChevronRight,
-  TrendingUp, FileText, Clock, CreditCard,
+  TrendingUp, FileText, Clock, CreditCard, Headphones,
 } from "lucide-react";
+import { SupportTicketsTab } from "@/components/admin/SupportTicketsTab";
 
-type Tab = "overview" | "creators" | "series" | "moderation" | "analytics" | "payouts";
+type Tab = "overview" | "creators" | "series" | "moderation" | "analytics" | "payouts" | "support";
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -24,6 +25,7 @@ const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "moderation", label: "Moderation", icon: AlertTriangle },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "payouts", label: "Payouts", icon: DollarSign },
+  { id: "support", label: "Support Tickets", icon: Headphones },
 ];
 
 function exportCSV(data: Record<string, any>[], filename: string) {
@@ -123,6 +125,7 @@ export default function AdminPage() {
           {activeTab === "moderation" && <ModerationTab />}
           {activeTab === "analytics" && <AnalyticsTab />}
           {activeTab === "payouts" && <PayoutsTab />}
+          {activeTab === "support" && <SupportTicketsTab />}
         </div>
       </main>
     </div>
