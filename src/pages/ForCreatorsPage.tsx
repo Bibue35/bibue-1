@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import bibueTower from "@/assets/bibue-tower.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -111,7 +112,15 @@ export default function ForCreatorsPage() {
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-sacred tracking-wide leading-tight mb-6">
             Turn Your Passion into{" "}
-            <span className="text-primary">Profit</span> on bibue.net
+            <span className="text-primary">Profit</span> on{" "}
+            <span className="inline-flex items-baseline gap-2">
+              <img
+                src={bibueTower}
+                alt=""
+                className="inline h-[0.75em] w-auto object-contain dark:brightness-0 dark:invert logo-stable"
+              />
+              <span>Bibue</span>
+            </span>
           </h1>
 
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
