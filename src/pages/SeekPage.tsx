@@ -16,7 +16,7 @@ import { SEO } from "@/components/SEO";
 // Types
 interface SeekResult {
   title: string;
-  type: "anime" | "manga";
+  type: "anime" | "manga" | "manhwa" | "manhua";
   year: number | null;
   genres: string[];
   episodes: number | null;
@@ -28,6 +28,11 @@ interface SeekResult {
   imageUrl?: string;
   convincePitch?: string;
   isLoadingConvince?: boolean;
+}
+
+// Map manhwa/manhua to "manga" for watchlist compatibility
+function toWatchlistType(type: SeekResult["type"]): "anime" | "manga" {
+  return type === "anime" ? "anime" : "manga";
 }
 
 interface RecentSearch {
@@ -191,9 +196,22 @@ export default function SeekPage() {
     }
   }, [input, isLoading, watchlist, contentType, conversationHistory, toast, saveRecentSearch, enrichResults]);
 
+  // Re-run search when content type changes (if already searched)
+  const prevContentType = useRef(contentType);
+  useEffect(() => {
+    if (prevContentType.current !== contentType && hasSearched && !isLoading) {
+      prevContentType.current = contentType;
+      const lastUserMsg = conversationHistory.filter(m => m.role === "user").pop();
+      if (lastUserMsg) {
+        handleSubmit(lastUserMsg.content);
+      } else if (input.trim()) {
+        handleSubmit(input.trim());
+      }
+    }
+  }, [contentType]);
+
   const handleChipClick = useCallback((text: string) => {
     setInput(text);
-    // Auto-submit after setting input
     setTimeout(() => {
       handleSubmit(text);
     }, 0);
@@ -229,13 +247,13 @@ export default function SeekPage() {
       toast({ title: "Sign in to save", description: "Create an account to build your watchlist.", variant: "destructive" });
       return;
     }
-    if (rec.anilistId && isInWatchlist(rec.anilistId, rec.type)) {
+    if (rec.anilistId && isInWatchlist(rec.anilistId, toWatchlistType(rec.type))) {
       toast({ title: "Already saved" });
       return;
     }
     addToWatchlist.mutate({
       mal_id: rec.anilistId || 0,
-      media_type: rec.type,
+      media_type: toWatchlistType(rec.type),
       title: rec.title,
       image_url: rec.imageUrl,
     });
@@ -415,7 +433,7 @@ export default function SeekPage() {
                   <div className="flex gap-3 sm:gap-4 p-3 sm:p-4">
                     {/* Cover image */}
                     <Link
-                      to={rec.anilistId ? `/${rec.type}/${rec.anilistId}` : "#"}
+                      to={rec.anilistId ? `/${rec.type === "anime" ? "anime" : "manga"}/${rec.anilistId}` : "#"}
                       className="shrink-0 w-[72px] sm:w-20 aspect-[2/3] rounded-xl overflow-hidden"
                     >
                       {rec.imageUrl ? (
@@ -507,10 +525,10 @@ export default function SeekPage() {
                           size="sm"
                           className="h-8 text-xs rounded-lg"
                           onClick={() => handleSave(rec)}
-                          disabled={!!(rec.anilistId && isInWatchlist(rec.anilistId, rec.type))}
+                          disabled={!!(rec.anilistId && isInWatchlist(rec.anilistId, toWatchlistType(rec.type)))}
                         >
                           <Plus className="w-3 h-3 mr-1" />
-                          {rec.anilistId && isInWatchlist(rec.anilistId, rec.type) ? "Saved" : "Save"}
+                          {rec.anilistId && isInWatchlist(rec.anilistId, toWatchlistType(rec.type)) ? "Saved" : "Save"}
                         </Button>
 
                         {rec.anilistId && (
@@ -520,7 +538,7 @@ export default function SeekPage() {
                             className="h-8 text-xs rounded-lg ml-auto"
                             asChild
                           >
-                            <Link to={`/${rec.type}/${rec.anilistId}`}>
+                            <Link to={`/${rec.type === "anime" ? "anime" : "manga"}/${rec.anilistId}`}>
                               Details <ChevronRight className="w-3 h-3 ml-0.5" />
                             </Link>
                           </Button>
