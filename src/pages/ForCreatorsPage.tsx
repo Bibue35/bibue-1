@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import bibueTower from "@/assets/bibue-tower.png";
 import creatorsHeroBg from "@/assets/creators-hero-bg.jpg";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,37 +30,31 @@ const PERKS = [
     icon: DollarSign,
     title: "Keep 80–90% of Revenue",
     description: "Earn from ads, tips, and subscriptions. We take a small platform cut — you keep the rest.",
-    color: "cyan" as const,
   },
   {
     icon: Award,
     title: "Founding Creator Badge",
     description: "First 50 creators get a permanent badge and featured placement on the homepage — forever.",
-    color: "gold" as const,
   },
   {
     icon: Zap,
     title: "Instant Publishing",
     description: "No long review queues for your first 100 uploads. Get your work in front of readers immediately.",
-    color: "magenta" as const,
   },
   {
     icon: BarChart3,
     title: "Full Stats Dashboard",
     description: "Track views, likes, earnings, and reader retention for every series in real time.",
-    color: "cyan" as const,
   },
   {
     icon: CreditCard,
     title: "Easy Monthly Payouts",
     description: "Get paid every month via Stripe or PayPal. No hidden fees, no hoops to jump through.",
-    color: "gold" as const,
   },
   {
     icon: Headphones,
     title: "Priority Support",
     description: "Direct access to the team. Your feature requests actually get built — fast.",
-    color: "magenta" as const,
   },
 ];
 
@@ -78,49 +71,25 @@ const TESTIMONIALS = [
   {
     name: "Yuki Tanaka",
     handle: "@yukidraws",
-    avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=Yuki&backgroundColor=00f5ff",
+    avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=Yuki&backgroundColor=b6e3f4",
     quote: "I uploaded my first chapter and had 2,000 reads in a week. The revenue share is insane compared to other platforms.",
     series: "Neon Ronin",
   },
   {
     name: "Carlos Mendez",
     handle: "@cmendezart",
-    avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=Carlos&backgroundColor=ff00aa",
+    avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=Carlos&backgroundColor=c0aede",
     quote: "The instant publishing changed everything. No more waiting weeks for approval — my readers get chapters the day I finish them.",
     series: "Abyssal Tide",
   },
   {
     name: "Mina Park",
     handle: "@minapark_ink",
-    avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=Mina&backgroundColor=facc15",
+    avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=Mina&backgroundColor=d1d4f9",
     quote: "Bibue treats creators like partners, not content farms. I earned more in my first month here than 6 months on other platforms.",
     series: "Dreamweaver",
   },
 ];
-
-const PERK_COLORS = {
-  cyan: {
-    icon: "text-neon-cyan",
-    bg: "bg-neon-cyan/10",
-    hoverBg: "group-hover:bg-neon-cyan/20",
-    border: "hover:border-neon-cyan/40",
-    glow: "hover:shadow-[0_0_30px_hsl(183,100%,50%,0.15)]",
-  },
-  magenta: {
-    icon: "text-neon-magenta",
-    bg: "bg-neon-magenta/10",
-    hoverBg: "group-hover:bg-neon-magenta/20",
-    border: "hover:border-neon-magenta/40",
-    glow: "hover:shadow-[0_0_30px_hsl(320,100%,50%,0.15)]",
-  },
-  gold: {
-    icon: "text-neon-gold",
-    bg: "bg-neon-gold/10",
-    hoverBg: "group-hover:bg-neon-gold/20",
-    border: "hover:border-neon-gold/40",
-    glow: "hover:shadow-[0_0_30px_hsl(48,96%,53%,0.15)]",
-  },
-};
 
 const SHARE_OPTIONS = [80, 85, 90] as const;
 const COMPARISON_TABLE = [
@@ -135,8 +104,8 @@ function EarningsComparisonCalculator() {
   const [share, setShare] = useState(85);
   const viewCount = views[0];
 
-  const webtoonCpm = 0.25; // $0.25 per 1k views
-  const bibueCpm = (share / 100) * 1.0; // $1.00 CPM base × share %
+  const webtoonCpm = 0.25;
+  const bibueCpm = (share / 100) * 1.0;
   const webtoonEarnings = (viewCount / 1000) * webtoonCpm;
   const bibueEarnings = (viewCount / 1000) * bibueCpm;
   const extra = bibueEarnings - webtoonEarnings;
@@ -149,17 +118,16 @@ function EarningsComparisonCalculator() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      {/* Main Calculator Card */}
-      <Card className="border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
+      <Card className="border-border/50 bg-card overflow-hidden">
         <CardContent className="p-6 sm:p-8">
           {/* Views Slider */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-3">
               <label className="text-sm font-medium flex items-center gap-2">
-                <Eye className="w-4 h-4 text-neon-cyan" />
+                <Eye className="w-4 h-4 text-primary" />
                 Monthly Page Views
               </label>
-              <span className="text-lg font-bold text-neon-cyan">{viewCount.toLocaleString()}</span>
+              <span className="text-lg font-bold text-primary tabular-nums">{viewCount.toLocaleString()}</span>
             </div>
             <Slider
               value={views}
@@ -186,7 +154,7 @@ function EarningsComparisonCalculator() {
                   className={cn(
                     "px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200",
                     share === s
-                      ? "bg-neon-cyan text-[hsl(0,0%,4%)] shadow-lg shadow-neon-cyan/25"
+                      ? "bg-primary text-primary-foreground"
                       : "bg-secondary text-muted-foreground hover:text-foreground"
                   )}
                 >
@@ -198,21 +166,19 @@ function EarningsComparisonCalculator() {
 
           {/* Side-by-side Comparison */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            {/* Webtoon */}
-            <div className="p-5 rounded-xl border border-border/50 bg-background/50">
+            <div className="p-5 rounded-xl border border-border/50 bg-muted/30">
               <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-1">On Webtoon Canvas</p>
               <p className="text-xs text-muted-foreground mb-3">~$0.25 per 1,000 views</p>
-              <p className="text-3xl sm:text-4xl font-bold text-muted-foreground/70 tabular-nums transition-all duration-300">
+              <p className="text-3xl sm:text-4xl font-bold text-muted-foreground/60 tabular-nums transition-all duration-300">
                 ${webtoonEarnings.toFixed(webtoonEarnings < 10 ? 2 : 0)}
               </p>
               <p className="text-xs text-muted-foreground mt-1">per month</p>
             </div>
 
-            {/* Bibue */}
-            <div className="p-5 rounded-xl border-2 border-neon-cyan/30 bg-neon-cyan/5 shadow-[0_0_20px_hsl(183,100%,50%,0.06)]">
-              <p className="text-xs text-neon-cyan font-semibold uppercase tracking-wider mb-1">On bibue.net</p>
+            <div className="p-5 rounded-xl border-2 border-primary/30 bg-primary/5">
+              <p className="text-xs text-primary font-semibold uppercase tracking-wider mb-1">On bibue.net</p>
               <p className="text-xs text-muted-foreground mb-3">{share}% revenue share</p>
-              <p className="text-3xl sm:text-4xl font-bold text-neon-cyan tabular-nums transition-all duration-300">
+              <p className="text-3xl sm:text-4xl font-bold text-primary tabular-nums transition-all duration-300">
                 ${bibueEarnings.toFixed(bibueEarnings < 10 ? 2 : 0)}
               </p>
               <p className="text-xs text-muted-foreground mt-1">per month</p>
@@ -230,7 +196,6 @@ function EarningsComparisonCalculator() {
             </p>
           </div>
 
-          {/* Footnote */}
           <p className="text-xs text-muted-foreground mt-6 leading-relaxed">
             Webtoon Canvas pays creators ~$0.20–$0.45 per 1,000 views (average $0.25).
             bibue.net gives you {share}% of all ad + tip revenue — up to 3–4× more!
@@ -245,7 +210,7 @@ function EarningsComparisonCalculator() {
             <tr className="border-b border-border">
               <th className="text-left py-3 px-2 font-semibold text-muted-foreground text-xs sm:text-sm">Views</th>
               <th className="text-center py-3 px-2 font-semibold text-muted-foreground text-xs sm:text-sm">Webtoon</th>
-              <th className="text-center py-3 px-2 font-bold text-neon-cyan text-xs sm:text-sm">Bibue ({share}%)</th>
+              <th className="text-center py-3 px-2 font-bold text-primary text-xs sm:text-sm">Bibue ({share}%)</th>
               <th className="text-center py-3 px-2 font-semibold text-green-400 text-xs sm:text-sm">Extra</th>
             </tr>
           </thead>
@@ -257,7 +222,7 @@ function EarningsComparisonCalculator() {
                 <tr key={row.views} className="border-b border-border/30 hover:bg-muted/20 transition-colors">
                   <td className="py-3 px-2 font-medium text-sm">{formatK(row.views)}</td>
                   <td className="py-3 px-2 text-center text-muted-foreground text-sm">~${row.webtoon.toFixed(row.webtoon < 10 ? 2 : 0)}</td>
-                  <td className="py-3 px-2 text-center font-semibold text-neon-cyan text-sm">~${bEarnings.toFixed(bEarnings < 10 ? 2 : 0)}</td>
+                  <td className="py-3 px-2 text-center font-semibold text-primary text-sm">~${bEarnings.toFixed(bEarnings < 10 ? 2 : 0)}</td>
                   <td className="py-3 px-2 text-center font-semibold text-green-400 text-sm">+${diff.toFixed(diff < 10 ? 2 : 0)}</td>
                 </tr>
               );
@@ -279,45 +244,39 @@ export default function ForCreatorsPage() {
       <CollapsibleNavbar />
 
       {/* ─── Hero ─── */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        {/* Background image */}
+      <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
         <img
           src={creatorsHeroBg}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-40"
+          className="absolute inset-0 w-full h-full object-cover opacity-30"
           loading="eager"
         />
-        {/* Gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/60 to-background" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(183,100%,50%,0.12),transparent_60%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,hsl(320,100%,50%,0.08),transparent_60%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/70 to-background" />
 
-        <div className="relative z-10 container mx-auto px-4 text-center max-w-4xl">
-          <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-sm gap-1.5 border-neon-gold/30">
-            <Star className="w-3.5 h-3.5 fill-neon-gold text-neon-gold" />
+        <div className="relative z-10 container mx-auto px-4 text-center max-w-3xl">
+          <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-sm gap-1.5">
+            <Star className="w-3.5 h-3.5 text-primary" />
             Limited — Only 50 Founding Creator spots
           </Badge>
 
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-sacred tracking-wide leading-tight mb-6">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight mb-6">
             Turn Your Manga Into{" "}
-            <span className="text-neon-cyan" style={{ textShadow: "0 0 40px hsl(183 100% 50% / 0.4)" }}>
-              Money
-            </span>
+            <span className="text-primary">Money</span>
           </h1>
 
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
             Join thousands of creators earning from their original manga, manhwa &amp; manhua.
-            Keep up to <strong className="text-neon-cyan">90% of revenue</strong> — the highest in the industry.
+            Keep up to <strong className="text-primary">90% of revenue</strong> — the highest in the industry.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button asChild size="lg" variant="cyan" className="gap-2 text-base px-8">
+            <Button asChild size="lg" className="gap-2 text-base px-8">
               <Link to="/creator/dashboard">
                 <Upload className="w-5 h-5" />
                 Start Uploading Now
               </Link>
             </Button>
-            <Button asChild size="lg" variant="magenta" className="gap-2 text-base px-8">
+            <Button asChild size="lg" variant="outline" className="gap-2 text-base px-8">
               <a href="#perks">
                 Learn More
                 <ArrowRight className="w-4 h-4" />
@@ -328,41 +287,35 @@ export default function ForCreatorsPage() {
       </section>
 
       {/* ─── Perks Grid ─── */}
-      <section id="perks" className="py-20 sm:py-28">
+      <section id="perks" className="py-16 sm:py-24">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
-            <Badge variant="secondary" className="mb-4 border-neon-cyan/30">
-              <Sparkles className="w-3 h-3 mr-1 text-neon-cyan" />
-              Why Bibue?
-            </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold font-sacred">
-              Everything You Need to{" "}
-              <span className="text-neon-cyan">Succeed</span>
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <div className="p-1.5 rounded-xl bg-primary/10">
+                <Sparkles className="w-4 h-4 text-primary" />
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">Why Bibue?</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              Everything You Need to Succeed
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {PERKS.map((perk, i) => {
-              const colors = PERK_COLORS[perk.color];
-              return (
-                <Card
-                  key={i}
-                  className={cn(
-                    "group border-border/50 bg-card/80 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1",
-                    colors.border,
-                    colors.glow
-                  )}
-                >
-                  <CardContent className="p-6 flex flex-col gap-4">
-                    <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center transition-colors", colors.bg, colors.hoverBg)}>
-                      <perk.icon className={cn("w-6 h-6", colors.icon)} />
-                    </div>
-                    <h3 className="text-lg font-semibold">{perk.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{perk.description}</p>
-                  </CardContent>
-                </Card>
-              );
-            })}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {PERKS.map((perk, i) => (
+              <Card
+                key={i}
+                className="group border-border/50 bg-card transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/20"
+              >
+                <CardContent className="p-5 flex flex-col gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <perk.icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold">{perk.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{perk.description}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -371,14 +324,16 @@ export default function ForCreatorsPage() {
       <section className="py-16 sm:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
-            <Badge variant="secondary" className="mb-4 border-neon-gold/30">
-              <DollarSign className="w-3 h-3 mr-1 text-neon-gold" />
-              Earnings Comparison
-            </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold font-sacred">
-              How Much Can You <span className="text-neon-gold">Earn</span>?
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <div className="p-1.5 rounded-xl bg-primary/10">
+                <DollarSign className="w-4 h-4 text-primary" />
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">Earnings Comparison</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              How Much Can You Earn?
             </h2>
-            <p className="text-muted-foreground mt-3">Slide to compare your earnings on Webtoon Canvas vs bibue.net</p>
+            <p className="text-muted-foreground mt-2 text-sm">Slide to compare your earnings on Webtoon Canvas vs bibue.net</p>
           </div>
           <EarningsComparisonCalculator />
         </div>
@@ -387,20 +342,22 @@ export default function ForCreatorsPage() {
       {/* ─── Testimonials ─── */}
       <section className="py-16 sm:py-24">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
-            <Badge variant="secondary" className="mb-4 border-neon-magenta/30">
-              <Quote className="w-3 h-3 mr-1 text-neon-magenta" />
-              Creator Voices
-            </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold font-sacred">
-              Hear From Our <span className="text-neon-magenta">Creators</span>
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <div className="p-1.5 rounded-xl bg-primary/10">
+                <Quote className="w-4 h-4 text-primary" />
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">Creator Voices</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              Hear From Our Creators
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
             {TESTIMONIALS.map((t, i) => (
-              <Card key={i} className="border-border/50 bg-card/80 backdrop-blur-sm">
-                <CardContent className="p-6 flex flex-col gap-4">
+              <Card key={i} className="border-border/50 bg-card">
+                <CardContent className="p-5 flex flex-col gap-4">
                   <div className="flex items-center gap-3">
                     <img
                       src={t.avatar}
@@ -413,7 +370,7 @@ export default function ForCreatorsPage() {
                     </div>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed italic">"{t.quote}"</p>
-                  <p className="text-xs text-neon-cyan font-medium">Series: {t.series}</p>
+                  <p className="text-xs text-primary font-medium">Series: {t.series}</p>
                 </CardContent>
               </Card>
             ))}
@@ -422,12 +379,11 @@ export default function ForCreatorsPage() {
       </section>
 
       {/* ─── Comparison Table ─── */}
-      <section className="py-20 sm:py-28">
+      <section className="py-16 sm:py-24">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
-            <Badge variant="secondary" className="mb-4 border-neon-cyan/30">Platform Comparison</Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold font-sacred">
-              See How We <span className="text-neon-cyan">Compare</span>
+          <div className="text-center mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              See How We Compare
             </h2>
           </div>
 
@@ -436,17 +392,17 @@ export default function ForCreatorsPage() {
               <thead>
                 <tr className="border-b border-border">
                   <th className="text-left py-4 px-3 font-semibold text-muted-foreground">Feature</th>
-                  <th className="text-center py-4 px-3 font-bold text-neon-cyan">Bibue</th>
+                  <th className="text-center py-4 px-3 font-bold text-primary">Bibue</th>
                   <th className="text-center py-4 px-3 font-semibold text-muted-foreground">Webtoon Canvas</th>
                   <th className="text-center py-4 px-3 font-semibold text-muted-foreground">Tapas</th>
                 </tr>
               </thead>
               <tbody>
                 {COMPARISON.map((row, i) => (
-                  <tr key={i} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                  <tr key={i} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                     <td className="py-3.5 px-3 font-medium">{row.feature}</td>
                     <td className="py-3.5 px-3 text-center">
-                      <span className="inline-flex items-center gap-1.5 text-neon-cyan font-semibold">
+                      <span className="inline-flex items-center gap-1.5 text-primary font-semibold">
                         <Check className="w-4 h-4 text-green-400" />
                         {row.bibue}
                       </span>
@@ -463,19 +419,17 @@ export default function ForCreatorsPage() {
       </section>
 
       {/* ─── Final CTA ─── */}
-      <section className="py-20 sm:py-28">
+      <section className="py-16 sm:py-24">
         <div className="container mx-auto px-4">
-          <Card className="max-w-3xl mx-auto border-neon-cyan/20 bg-gradient-to-br from-neon-cyan/5 via-card to-neon-magenta/5 overflow-hidden relative">
-            <Sparkles className="absolute top-6 right-6 w-8 h-8 text-neon-cyan/20 animate-pulse" />
+          <Card className="max-w-3xl mx-auto border-primary/10 bg-card overflow-hidden relative">
             <CardContent className="p-8 sm:p-12 text-center">
-              <h2 className="text-2xl sm:text-3xl font-bold font-sacred mb-4">
-                Ready to Become a{" "}
-                <span className="text-neon-gold">Founding Creator</span>?
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-4">
+                Ready to Become a Founding Creator?
               </h2>
               <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
                 Upload your first chapter in under 5 minutes. No complicated setup — just your art and your story.
               </p>
-              <Button asChild size="lg" variant="cyan" className="gap-2 text-base px-8">
+              <Button asChild size="lg" className="gap-2 text-base px-8">
                 <Link to="/creator/dashboard">
                   <Upload className="w-5 h-5" />
                   Start Creating Today
@@ -489,7 +443,7 @@ export default function ForCreatorsPage() {
       {/* ─── Floating Upload Button ─── */}
       <Link
         to="/creator/dashboard"
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-3 rounded-full bg-neon-cyan text-[hsl(0,0%,4%)] font-semibold shadow-lg shadow-neon-cyan/30 hover:shadow-neon-cyan/50 hover:scale-105 transition-all duration-200"
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold shadow-lg hover:scale-105 transition-all duration-200"
       >
         <Upload className="w-4 h-4" />
         Upload Now

@@ -126,18 +126,18 @@ const Index = () => {
       <section className="container mx-auto px-3 sm:px-4 py-4">
         <Link
           to="/for-creators"
-          className="group flex items-center justify-between gap-4 px-5 py-3.5 rounded-2xl border border-neon-cyan/20 bg-card/50 backdrop-blur-sm hover:bg-card/80 hover:border-neon-cyan/40 transition-all duration-200"
+          className="group flex items-center justify-between gap-4 px-5 py-3.5 rounded-2xl border border-border/50 bg-card/50 hover:bg-card/80 hover:border-primary/30 transition-all duration-200"
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-neon-cyan/10 flex items-center justify-center shrink-0">
-              <Upload className="w-4 h-4 text-neon-cyan" />
+            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <Upload className="w-4 h-4 text-primary" />
             </div>
             <div>
               <p className="text-sm font-medium">Are you a creator?</p>
               <p className="text-xs text-muted-foreground">Upload your manga & earn up to 90% revenue</p>
             </div>
           </div>
-          <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-neon-cyan transition-colors shrink-0" />
+          <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
         </Link>
       </section>
 
