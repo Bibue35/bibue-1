@@ -27,6 +27,7 @@ import { useWatchlist } from "@/hooks/useWatchlist";
 import { useTranslatedText } from "@/hooks/useTranslatedText";
 import { useViewingHistory } from "@/hooks/useViewingHistory";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { VideoPlayer } from "@/components/VideoPlayer";
 
 export default function AnimeDetailPage() {
   const { t } = useLanguage();
@@ -370,6 +371,19 @@ export default function AnimeDetailPage() {
                   )}
                 </div>
               </div>
+
+              {/* Video Player */}
+              {anime && (
+                <VideoPlayer
+                  animeId={Number(id)}
+                  animeTitle={anime.title}
+                  episodeNumber={selectedEpisode}
+                  totalEpisodes={totalEpisodes}
+                  thumbnail={anime.images?.webp?.large_image_url}
+                  onPrevEpisode={() => selectedEpisode > 1 && setSelectedEpisode(selectedEpisode - 1)}
+                  onNextEpisode={() => selectedEpisode < totalEpisodes && setSelectedEpisode(selectedEpisode + 1)}
+                />
+              )}
 
               {/* Episode selector */}
               <div>
