@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { SEO, creativeWorkJsonLd } from "@/components/SEO";
 import { useParams, Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { BookOpen, Star, Heart, Bookmark, Eye, ChevronsLeft, ChevronsRight, MessageCircle, Send, User, History } from "lucide-react";
+import { BookOpen, Star, Heart, Bookmark, Eye, ChevronsLeft, ChevronsRight, MessageCircle, Send, User, History, Loader2 } from "lucide-react";
 import { getContentType, getContentLabel, getContentTypeBadgeClass } from "@/lib/contentType";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,12 +24,13 @@ import { NotificationToggle } from "@/components/NotificationToggle";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
 import { useTranslatedText } from "@/hooks/useTranslatedText";
 import { useViewingHistory } from "@/hooks/useViewingHistory";
+import { useMangaDexSearch, useMangaDexChapters, findBestMatch } from "@/hooks/useMangaDex";
 
 export default function MangaDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { t } = useLanguage();
   const { data: manga, isLoading, error } = useMangaDetails(Number(id));
-  const [selectedChapter, setSelectedChapter] = useState(1);
+  const [readingChapterId, setReadingChapterId] = useState<string | null>(null);
   const [isReading, setIsReading] = useState(false);
   const [newComment, setNewComment] = useState("");
   const queryClient = useQueryClient();
@@ -39,29 +40,16 @@ export default function MangaDetailPage() {
   const translatedSynopsis = useTranslatedText(manga?.synopsis);
   const { logView } = useViewingHistory();
 
-  // Log viewing history when manga data loads
-  useEffect(() => {
-    if (manga && id) {
-      logView({
-        media_id: Number(id),
-        media_type: "manga",
-        title: manga.title,
-        title_japanese: manga.title_japanese,
-        image_url: manga.images?.webp?.large_image_url,
-        last_chapter: lastChapterRead || undefined,
-      });
-    }
-  }, [manga?.anilist_id]);
-
-  // Generate mock chapter data - show ALL chapters
-  const generateChapters = (count: number) => {
-    return Array.from({ length: count }, (_, i) => ({
-      number: count - i,
-      title: `Chapter ${count - i}`,
-      released: new Date(Date.now() - (i * 7 * 24 * 60 * 60 * 1000)).toISOString(),
-      pages: Math.floor(18 + Math.random() * 12),
-    }));
-  };
+  // MangaDex integration
+  const searchTitle = manga?.title_english || manga?.title_romaji || manga?.title;
+  const { data: searchResults } = useMangaDexSearch(searchTitle, !!manga);
+  const mangadexMatch = useMemo(() => {
+    if (!searchResults || !manga) return null;
+    return findBestMatch(searchResults, manga.title);
+  }, [searchResults, manga]);
+  const { data: mangadexData, isLoading: chaptersLoading } = useMangaDexChapters(mangadexMatch?.id, 0, 100, !!mangadexMatch);
+  const mdChapters = mangadexData?.chapters || [];
+  const totalMdChapters = mangadexData?.total || 0;
 
   // General comments query (for the manga detail page, not chapter-specific)
   const { data: comments, isLoading: commentsLoading } = useQuery({
@@ -137,24 +125,21 @@ export default function MangaDetailPage() {
     );
   }
 
-  const chapters = manga ? generateChapters(manga.chapters || 50) : [];
-  const totalChapters = chapters.length;
-  const firstChapter = chapters[chapters.length - 1]?.number || 1;
-  const lastChapter = chapters[0]?.number || totalChapters;
+  // Find the reading chapter from MangaDex data
+  const readingMdChapter = readingChapterId ? mdChapters.find(ch => ch.id === readingChapterId) : null;
 
-  // Reading Mode - Use the new MangaReader component
-  if (isReading) {
+  // Reading Mode
+  if (isReading && readingMdChapter) {
     return (
       <MangaReader
         mangaId={Number(id)}
         mangaTitle={manga?.title || ""}
         mangaImageUrl={manga?.images.webp.large_image_url}
-        selectedChapter={selectedChapter}
-        totalChapters={totalChapters}
-        firstChapter={firstChapter}
-        lastChapter={lastChapter}
-        onChapterChange={setSelectedChapter}
-        onClose={() => setIsReading(false)}
+        chapterId={readingMdChapter.id}
+        chapterNumber={readingMdChapter.chapter || '?'}
+        chapters={mdChapters}
+        onChapterChange={(chId) => setReadingChapterId(chId)}
+        onClose={() => { setIsReading(false); setReadingChapterId(null); }}
       />
     );
   }
@@ -212,23 +197,27 @@ export default function MangaDetailPage() {
 
                   {/* Action Buttons */}
                   <div className="space-y-2">
-                    <Button 
-                      variant="default" 
-                      className="w-full gap-2"
-                      onClick={() => {
-                        setSelectedChapter(firstChapter);
-                        setIsReading(true);
-                      }}
-                    >
-                      <BookOpen className="w-4 h-4" />
-                      {t("detail.readFirst")}
-                    </Button>
-                    {lastChapterRead && (
+                    {mdChapters.length > 0 && (
+                      <Button 
+                        variant="default" 
+                        className="w-full gap-2"
+                        onClick={() => {
+                          setReadingChapterId(mdChapters[mdChapters.length - 1].id);
+                          setIsReading(true);
+                        }}
+                      >
+                        <BookOpen className="w-4 h-4" />
+                        {t("detail.readFirst")}
+                      </Button>
+                    )}
+                    {lastChapterRead && mdChapters.length > 0 && (
                       <Button 
                         variant="secondary" 
                         className="w-full gap-2"
                         onClick={() => {
-                          setSelectedChapter(lastChapterRead);
+                          const match = mdChapters.find(ch => ch.chapter === String(lastChapterRead));
+                          if (match) setReadingChapterId(match.id);
+                          else setReadingChapterId(mdChapters[0].id);
                           setIsReading(true);
                         }}
                       >
@@ -236,32 +225,34 @@ export default function MangaDetailPage() {
                         {t("detail.continue")} {lastChapterRead}
                       </Button>
                     )}
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="gap-1 text-xs"
-                        onClick={() => {
-                          setSelectedChapter(firstChapter);
-                          setIsReading(true);
-                        }}
-                      >
-                        <ChevronsLeft className="w-3 h-3" />
-                        Ch. 1
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="gap-1 text-xs"
-                        onClick={() => {
-                          setSelectedChapter(lastChapter);
-                          setIsReading(true);
-                        }}
-                      >
-                        Ch. {lastChapter}
-                        <ChevronsRight className="w-3 h-3" />
-                      </Button>
-                    </div>
+                    {mdChapters.length > 0 && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="gap-1 text-xs"
+                          onClick={() => {
+                            setReadingChapterId(mdChapters[mdChapters.length - 1].id);
+                            setIsReading(true);
+                          }}
+                        >
+                          <ChevronsLeft className="w-3 h-3" />
+                          Ch. 1
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="gap-1 text-xs"
+                          onClick={() => {
+                            setReadingChapterId(mdChapters[0].id);
+                            setIsReading(true);
+                          }}
+                        >
+                          Latest Ch.
+                          <ChevronsRight className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    )}
                     <div className="flex gap-2">
                       <Button variant="outline" className="flex-1 gap-2">
                         <Bookmark className="w-4 h-4" />
@@ -363,7 +354,7 @@ export default function MangaDetailPage() {
                     { label: t("common.author"), value: manga?.authors?.map(a => a.name).join(", ") },
                     { label: t("detail.rating"), value: manga?.score ? `${manga.score}%` : undefined },
                     { label: t("common.status"), value: manga?.status },
-                    { label: t("detail.lastUpdate"), value: chapters[0]?.released ? new Date(chapters[0].released).toLocaleDateString() : undefined },
+                    { label: t("detail.lastUpdate"), value: mdChapters[0]?.readableAt ? new Date(mdChapters[0].readableAt).toLocaleDateString() : undefined },
                     { label: t("detail.alternatives"), value: manga?.title_japanese },
                   ].filter(item => item.value).map(({ label, value }) => (
                     <div key={label}>
@@ -377,7 +368,7 @@ export default function MangaDetailPage() {
                   <div className="mb-6">
                     <ChapterProgressTracker
                       malId={Number(id)}
-                      totalChapters={manga.chapters || totalChapters}
+                      totalChapters={manga.chapters || totalMdChapters}
                       mangaTitle={manga.title}
                     />
                   </div>
@@ -395,11 +386,11 @@ export default function MangaDetailPage() {
                   </div>
                 )}
 
-                {/* Chapters Section */}
+                {/* Chapters Section - MangaDex powered */}
                 <div className="rounded-xl border border-border/30 bg-muted/20 p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold font-sacred">
-                      {chapters.length} {t("detail.chaptersAvailable")}
+                      {chaptersLoading ? "Loading..." : `${totalMdChapters} ${t("detail.chaptersAvailable")}`}
                     </h2>
                     {lastChapterRead && (
                       <span className="text-sm text-muted-foreground">
@@ -408,23 +399,34 @@ export default function MangaDetailPage() {
                     )}
                   </div>
 
-                  {/* Chapter List - Full scrollable list */}
-                  <ScrollArea className="h-[500px] pr-4">
-                    <div className="space-y-1">
-                      {isLoading ? (
-                        Array.from({ length: 10 }).map((_, i) => (
-                          <Skeleton key={i} className="h-12 w-full" />
-                        ))
-                      ) : (
-                        chapters.map((chapter) => {
-                          const isLastRead = lastChapterRead === chapter.number;
-                          const releaseDate = new Date(chapter.released);
-                          
+                  {/* MangaDex Attribution */}
+                  <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg bg-muted/50 border border-border/30">
+                    <span className="text-[10px] sm:text-xs text-muted-foreground">
+                      Chapters provided by <a href="https://mangadex.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">MangaDex</a>
+                    </span>
+                  </div>
+
+                  {chaptersLoading ? (
+                    <div className="flex items-center justify-center py-12 gap-2 text-muted-foreground">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span className="text-sm">Finding chapters...</span>
+                    </div>
+                  ) : mdChapters.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <BookOpen className="w-10 h-10 mx-auto mb-2 opacity-40" />
+                      <p className="text-sm">No chapters available on MangaDex.</p>
+                    </div>
+                  ) : (
+                    <ScrollArea className="h-[500px] pr-4">
+                      <div className="space-y-1">
+                        {mdChapters.map((ch) => {
+                          const chNum = ch.chapter ? Math.floor(parseFloat(ch.chapter)) : 0;
+                          const isLastRead = lastChapterRead === chNum;
                           return (
                             <button
-                              key={chapter.number}
+                              key={ch.id}
                               onClick={() => {
-                                setSelectedChapter(chapter.number);
+                                setReadingChapterId(ch.id);
                                 setIsReading(true);
                               }}
                               className={cn(
@@ -433,32 +435,40 @@ export default function MangaDetailPage() {
                                 isLastRead && "bg-primary/20 border border-primary/30"
                               )}
                             >
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
                                 <span className={cn(
                                   "font-medium",
                                   isLastRead ? "text-primary" : "text-foreground"
                                 )}>
-                                  Chapter {chapter.number}
+                                  Ch. {ch.chapter}
                                 </span>
                                 {isLastRead && (
                                   <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
                                     {t("detail.lastRead")}
                                   </span>
                                 )}
+                                {ch.title && (
+                                  <span className="text-xs text-muted-foreground truncate max-w-[200px]">
+                                    — {ch.title}
+                                  </span>
+                                )}
                               </div>
-                              <span className="text-sm text-muted-foreground">
-                                {releaseDate.toLocaleDateString('en-US', { 
-                                  year: 'numeric', 
-                                  month: '2-digit', 
-                                  day: '2-digit' 
-                                })}
-                              </span>
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                {ch.scanlationGroup && (
+                                  <span className="text-[10px] text-muted-foreground/60 hidden sm:inline">{ch.scanlationGroup}</span>
+                                )}
+                                <span className="text-sm text-muted-foreground">
+                                  {new Date(ch.readableAt || ch.publishAt).toLocaleDateString('en-US', { 
+                                    month: 'short', day: 'numeric' 
+                                  })}
+                                </span>
+                              </div>
                             </button>
                           );
-                        })
-                      )}
-                    </div>
-                  </ScrollArea>
+                        })}
+                      </div>
+                    </ScrollArea>
+                  )}
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, X, Star, Copy, Share2, MessageCircle, Send, User, ArrowUpDown, ThumbsUp, History, ChevronDown } from "lucide-react";
+import { BookOpen, X, Star, Copy, Share2, MessageCircle, Send, User, ArrowUpDown, ThumbsUp, History, ChevronDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,6 +20,7 @@ import { MangaReader } from "./MangaReader";
 import { RelatedMedia } from "./RelatedMedia";
 import { cn } from "@/lib/utils";
 import { ResponsiveModal } from "./ResponsiveModal";
+import { useMangaDexSearch, useMangaDexChapters, findBestMatch, type MangaDexChapter } from "@/hooks/useMangaDex";
 
 interface MangaDetailModalProps {
   mangaId: number;
@@ -32,40 +33,46 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
   const [activeTab, setActiveTab] = useState("chapters");
   const [newComment, setNewComment] = useState("");
   const [sortBy, setSortBy] = useState<"latest" | "likes">("latest");
-  const [readingChapter, setReadingChapter] = useState<number | null>(null);
+  const [readingChapterId, setReadingChapterId] = useState<string | null>(null);
+  const [chapterOffset, setChapterOffset] = useState(0);
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { toast } = useToast();
   const { lastChapterRead } = useReadingProgress(mangaId, "manga");
 
-  // Generate ALL chapter data - no limits
-  const generateChapters = (count: number) => {
-    return Array.from({ length: count }, (_, i) => ({
-      number: count - i,
-      title: `Chapter ${count - i}`,
-      released: new Date(Date.now() - (i * 7 * 24 * 60 * 60 * 1000)).toISOString(),
-    }));
-  };
+  // MangaDex integration: search for matching manga
+  const searchTitle = manga?.title_english || manga?.title_romaji || manga?.title;
+  const { data: searchResults, isLoading: searchLoading } = useMangaDexSearch(searchTitle, open && !!manga);
+  
+  const mangadexMatch = useMemo(() => {
+    if (!searchResults || !manga) return null;
+    return findBestMatch(searchResults, manga.title);
+  }, [searchResults, manga]);
 
-  const chapters = manga ? generateChapters(manga.chapters || 50) : [];
-  const totalChapters = chapters.length;
-  const firstChapter = chapters[chapters.length - 1]?.number || 1;
-  const lastChapter = chapters[0]?.number || totalChapters;
+  // Fetch MangaDex chapters
+  const { data: mangadexData, isLoading: chaptersLoading } = useMangaDexChapters(
+    mangadexMatch?.id, chapterOffset, 100, !!mangadexMatch
+  );
 
-  // Comments query - general comments for the manga
+  const chapters = mangadexData?.chapters || [];
+  const totalChapters = mangadexData?.total || 0;
+
+  // Find chapter to read
+  const readingChapter = useMemo(() => {
+    if (!readingChapterId) return null;
+    return chapters.find(ch => ch.id === readingChapterId) || null;
+  }, [readingChapterId, chapters]);
+
+  // Comments query
   const { data: comments, isLoading: commentsLoading } = useQuery({
     queryKey: ["manga-comments", mangaId, sortBy],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("discussions")
-        .select(`
-          *,
-          profiles:user_id (username, avatar_url)
-        `)
+        .select(`*, profiles:user_id (username, avatar_url)`)
         .eq("manga_id", mangaId)
         .eq("category", "general")
         .order("created_at", { ascending: false });
-      
       if (error) throw error;
       return data;
     },
@@ -75,7 +82,6 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
   const addCommentMutation = useMutation({
     mutationFn: async (content: string) => {
       if (!user) throw new Error("Please sign in to comment");
-
       const { error } = await supabase
         .from("discussions")
         .insert({
@@ -85,7 +91,6 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
           title: `Comment on ${manga?.title}`,
           content,
         });
-      
       if (error) throw error;
     },
     onSuccess: () => {
@@ -109,31 +114,35 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
     addCommentMutation.mutate(trimmedComment);
   };
 
-  const handleRead = (chapterNumber: number) => {
-    setReadingChapter(chapterNumber);
+  const handleRead = (chapterId: string) => {
+    setReadingChapterId(chapterId);
   };
 
   const handleCloseReader = () => {
-    setReadingChapter(null);
+    setReadingChapterId(null);
   };
 
   const handleNavigateAway = () => {
-    setReadingChapter(null);
+    setReadingChapterId(null);
     onOpenChange(false);
   };
 
+  // Navigate chapters in reader
+  const handleChapterChange = (chapterId: string) => {
+    setReadingChapterId(chapterId);
+  };
+
   // If reading, show the reader
-  if (readingChapter !== null && manga) {
+  if (readingChapter && manga) {
     return (
       <MangaReader
         mangaId={mangaId}
         mangaTitle={manga.title}
         mangaImageUrl={manga.images?.webp?.large_image_url}
-        selectedChapter={readingChapter}
-        totalChapters={totalChapters}
-        firstChapter={firstChapter}
-        lastChapter={lastChapter}
-        onChapterChange={setReadingChapter}
+        chapterId={readingChapter.id}
+        chapterNumber={readingChapter.chapter || '?'}
+        chapters={chapters}
+        onChapterChange={handleChapterChange}
         onClose={handleCloseReader}
         onNavigate={handleNavigateAway}
       />
@@ -146,7 +155,7 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
       onOpenChange={onOpenChange}
       title={manga?.title || "Manga Details"}
     >
-          {/* Hero Image Section - taller on mobile for Netflix feel */}
+          {/* Hero Image Section */}
           <div className="relative h-[65vh] xs:h-[55vh] sm:h-80 overflow-hidden">
             {isLoading ? (
               <Skeleton className="w-full h-full" />
@@ -159,7 +168,6 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-background/20" />
                 
-                {/* Title overlay */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
                   <h1 className="text-2xl xs:text-2xl sm:text-3xl md:text-4xl font-bold font-sacred text-foreground mb-0.5 sm:mb-1 line-clamp-2">
                     {manga?.title}
@@ -187,7 +195,6 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
               </>
             )}
 
-            {/* Close / Back button - Netflix-style */}
             <button
               onClick={() => onOpenChange(false)}
               className="absolute top-3 left-3 sm:top-4 sm:left-4 p-2 rounded-full bg-background/60 backdrop-blur-sm hover:bg-background/80 transition-colors sm:left-auto sm:right-4"
@@ -197,25 +204,32 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
             </button>
           </div>
 
-          {/* Action buttons - Stacked on very small screens */}
+          {/* Action buttons */}
           <div className="px-4 sm:px-6 md:px-8 py-3 sm:py-4 flex flex-col xs:flex-row items-stretch xs:items-center justify-between border-b border-border/30 gap-2 sm:gap-3">
             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-              <Button 
-                variant="default" 
-                size="sm"
-                className="gap-1.5 sm:gap-2 h-8 sm:h-9 text-xs sm:text-sm px-2.5 sm:px-4 flex-1 xs:flex-none"
-                onClick={() => handleRead(firstChapter)}
-              >
-                <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden xs:inline">Read First</span>
-                <span className="xs:hidden">Start</span>
-              </Button>
-              {lastChapterRead && (
+              {chapters.length > 0 && (
+                <Button 
+                  variant="default" 
+                  size="sm"
+                  className="gap-1.5 sm:gap-2 h-8 sm:h-9 text-xs sm:text-sm px-2.5 sm:px-4 flex-1 xs:flex-none"
+                  onClick={() => handleRead(chapters[chapters.length - 1].id)}
+                >
+                  <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden xs:inline">Read First</span>
+                  <span className="xs:hidden">Start</span>
+                </Button>
+              )}
+              {lastChapterRead && chapters.length > 0 && (
                 <Button 
                   variant="secondary" 
                   size="sm"
                   className="gap-1.5 sm:gap-2 h-8 sm:h-9 text-xs sm:text-sm px-2.5 sm:px-4 flex-1 xs:flex-none"
-                  onClick={() => handleRead(lastChapterRead)}
+                  onClick={() => {
+                    // Find closest chapter to lastChapterRead
+                    const match = chapters.find(ch => ch.chapter === String(lastChapterRead));
+                    if (match) handleRead(match.id);
+                    else if (chapters[0]) handleRead(chapters[0].id);
+                  }}
                 >
                   <History className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span className="hidden sm:inline">Continue Ch. {lastChapterRead}</span>
@@ -243,21 +257,13 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                   const shareData = {
                     title: manga?.title || "Check out this manga",
                     text: manga?.synopsis?.slice(0, 100) + "..." || "Check out this manga on Bibue!",
-                    url: url,
+                    url,
                   };
-                  
                   if (navigator.share && navigator.canShare?.(shareData)) {
-                    try {
-                      await navigator.share(shareData);
-                    } catch (err) {
-                      if ((err as Error).name !== 'AbortError') {
-                        navigator.clipboard.writeText(url);
-                        toast({ title: "Link copied!", description: "Manga link copied to clipboard" });
-                      }
-                    }
+                    try { await navigator.share(shareData); } catch {}
                   } else {
                     navigator.clipboard.writeText(url);
-                    toast({ title: "Link copied!", description: "Manga link copied to clipboard" });
+                    toast({ title: "Link copied!" });
                   }
                 }}
               >
@@ -290,7 +296,6 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
               </p>
             )}
 
-            {/* Genres */}
             {manga?.genres && manga.genres.length > 0 && (
               <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-3 sm:mt-4">
                 {manga.genres.slice(0, 5).map((genre) => (
@@ -306,7 +311,6 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
               </div>
             )}
 
-            {/* Related Media - Watch the Anime */}
             <div className="mt-4 sm:mt-6">
               <RelatedMedia 
                 mediaId={mangaId} 
@@ -315,6 +319,7 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
               />
             </div>
           </div>
+
           <div className="px-4 sm:px-6 md:px-8 pb-6 sm:pb-8">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="mb-3 sm:mb-4">
@@ -330,11 +335,11 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                 </TabsTrigger>
               </TabsList>
 
-              {/* Chapters Tab */}
+              {/* Chapters Tab - MangaDex powered */}
               <TabsContent value="chapters">
                 <div className="flex items-center justify-between mb-3 sm:mb-4">
                   <h2 className="text-sm sm:text-lg font-bold font-sacred">
-                    {chapters.length} CHAPTERS
+                    {chaptersLoading ? "LOADING..." : `${totalChapters} CHAPTERS`}
                   </h2>
                   {lastChapterRead && (
                     <span className="text-xs sm:text-sm text-muted-foreground">
@@ -343,50 +348,100 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                   )}
                 </div>
 
-                {/* Chapter List - Full scrollable list */}
-                <ScrollArea className="h-[300px] sm:h-[400px]">
-                  <div className="space-y-0.5 sm:space-y-1 pr-4">
-                    {isLoading ? (
-                      Array.from({ length: 10 }).map((_, i) => (
-                        <Skeleton key={i} className="h-10 sm:h-12 w-full" />
-                      ))
-                    ) : (
-                      chapters.map((ch) => {
-                        const isLastRead = lastChapterRead === ch.number;
-                        return (
-                          <button
-                            key={ch.number}
-                            onClick={() => handleRead(ch.number)}
-                            className={cn(
-                              "w-full flex items-center justify-between py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg text-left transition-all hover:bg-primary/10",
-                              isLastRead && "bg-primary/20 border border-primary/30"
-                            )}
-                          >
-                            <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                              <span className={cn(
-                                "font-medium text-xs sm:text-sm",
-                                isLastRead ? "text-primary" : "text-foreground"
-                              )}>
-                                Ch. {ch.number}
-                              </span>
-                              {isLastRead && (
-                                <span className="text-[10px] sm:text-xs bg-primary/20 text-primary px-1.5 sm:px-2 py-0.5 rounded-full whitespace-nowrap">
-                                  Last
-                                </span>
-                              )}
-                            </div>
-                            <span className="text-[10px] sm:text-sm text-muted-foreground flex-shrink-0">
-                              {new Date(ch.released).toLocaleDateString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric' 
-                              })}
-                            </span>
-                          </button>
-                        );
-                      })
-                    )}
+                {/* MangaDex Attribution */}
+                <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg bg-muted/50 border border-border/30">
+                  <img 
+                    src="https://mangadex.org/img/brand/mangadex-logo.svg" 
+                    alt="MangaDex" 
+                    className="h-4 sm:h-5 opacity-80"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
+                  <span className="text-[10px] sm:text-xs text-muted-foreground">
+                    Chapters provided by <a href="https://mangadex.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">MangaDex</a>
+                  </span>
+                </div>
+
+                {(searchLoading || chaptersLoading) ? (
+                  <div className="flex items-center justify-center py-12 gap-2 text-muted-foreground">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span className="text-sm">Finding chapters...</span>
                   </div>
-                </ScrollArea>
+                ) : chapters.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <BookOpen className="w-10 h-10 mx-auto mb-2 opacity-40" />
+                    <p className="text-sm">No chapters available on MangaDex for this title.</p>
+                    <p className="text-xs mt-1">Try searching on <a href="https://mangadex.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">MangaDex</a> directly.</p>
+                  </div>
+                ) : (
+                  <>
+                    <ScrollArea className="h-[300px] sm:h-[400px]">
+                      <div className="space-y-0.5 sm:space-y-1 pr-4">
+                        {chapters.map((ch) => {
+                          const chNum = ch.chapter ? parseFloat(ch.chapter) : 0;
+                          const isLastRead = lastChapterRead === Math.floor(chNum);
+                          return (
+                            <button
+                              key={ch.id}
+                              onClick={() => handleRead(ch.id)}
+                              className={cn(
+                                "w-full flex items-center justify-between py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg text-left transition-all hover:bg-primary/10",
+                                isLastRead && "bg-primary/20 border border-primary/30"
+                              )}
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5 sm:gap-2">
+                                  <span className={cn(
+                                    "font-medium text-xs sm:text-sm",
+                                    isLastRead ? "text-primary" : "text-foreground"
+                                  )}>
+                                    Ch. {ch.chapter}
+                                  </span>
+                                  {isLastRead && (
+                                    <span className="text-[10px] sm:text-xs bg-primary/20 text-primary px-1.5 sm:px-2 py-0.5 rounded-full whitespace-nowrap">
+                                      Last
+                                    </span>
+                                  )}
+                                  {ch.title && (
+                                    <span className="text-[10px] sm:text-xs text-muted-foreground truncate max-w-[120px] sm:max-w-[200px]">
+                                      — {ch.title}
+                                    </span>
+                                  )}
+                                </div>
+                                {ch.scanlationGroup && (
+                                  <span className="text-[9px] sm:text-[10px] text-muted-foreground/60 block mt-0.5">
+                                    {ch.scanlationGroup}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                {ch.pages > 0 && (
+                                  <span className="text-[10px] sm:text-xs text-muted-foreground">{ch.pages}p</span>
+                                )}
+                                <span className="text-[10px] sm:text-sm text-muted-foreground">
+                                  {new Date(ch.readableAt || ch.publishAt).toLocaleDateString('en-US', { 
+                                    month: 'short', day: 'numeric' 
+                                  })}
+                                </span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </ScrollArea>
+
+                    {/* Load more */}
+                    {totalChapters > chapters.length && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full mt-2 text-xs"
+                        onClick={() => setChapterOffset(prev => prev + 100)}
+                      >
+                        Load more chapters...
+                      </Button>
+                    )}
+                  </>
+                )}
               </TabsContent>
 
               {/* Comments Tab */}
@@ -415,7 +470,6 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                   </div>
                 </div>
 
-                {/* Comment Form */}
                 <form onSubmit={handleSubmit} className="mb-4 sm:mb-6">
                   <Textarea
                     value={newComment}
@@ -436,7 +490,6 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                   </Button>
                 </form>
 
-                {/* Comments List */}
                 <div className="space-y-4">
                   {commentsLoading ? (
                     <div className="text-center py-8 text-muted-foreground">
@@ -444,10 +497,7 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                     </div>
                   ) : comments && comments.length > 0 ? (
                     comments.map((comment) => (
-                      <div 
-                        key={comment.id} 
-                        className="rounded-xl p-4 bg-muted/50"
-                      >
+                      <div key={comment.id} className="rounded-xl p-4 bg-muted/50">
                         <div className="flex items-start gap-3">
                           <div className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0">
                             <User className="w-4 h-4 text-muted-foreground" />
@@ -461,9 +511,7 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                                 {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
                               </span>
                             </div>
-                            <p className="text-sm text-muted-foreground">
-                              {comment.content}
-                            </p>
+                            <p className="text-sm text-muted-foreground">{comment.content}</p>
                           </div>
                         </div>
                       </div>
