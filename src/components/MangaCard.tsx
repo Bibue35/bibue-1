@@ -161,6 +161,13 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
           </div>
         )}
 
+        {/* Author */}
+        {manga.authors && manga.authors.length > 0 && (
+          <p className="text-[10px] sm:text-xs text-muted-foreground truncate mb-0.5">
+            {manga.authors[0].name}
+          </p>
+        )}
+
         {/* Metadata underneath - always visible */}
         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-[10px] sm:text-xs text-muted-foreground">
           <span className={cn("font-medium", getContentTypeBadgeClass(contentType), "bg-transparent px-0 py-0")}>{typeLabel}</span>

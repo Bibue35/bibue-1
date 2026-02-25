@@ -310,6 +310,7 @@ const MEDIA_FRAGMENT = `
   startDate { year month day }
   endDate { year month day }
   studios(isMain: true) { nodes { id name } }
+  staff(perPage: 3) { nodes { id name { full } primaryOccupations } }
   rankings { type rank allTime }
   nextAiringEpisode { airingAt episode }
   streamingEpisodes { title thumbnail url site }
