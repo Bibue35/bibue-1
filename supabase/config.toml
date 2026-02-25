@@ -17,3 +17,9 @@ verify_jwt = false
 
 [functions.ai-recommendations]
 verify_jwt = false
+
+[functions.seek]
+verify_jwt = false
+
+[functions.seek-convince]
+verify_jwt = false

@@ -53,6 +53,7 @@ const VibeCheckPage = lazy(() => import("./pages/NotFound"));
 const RankingsPage = lazy(() => import("./pages/Rankings"));
 const WatchPartyPage = lazy(() => import("./pages/WatchPartyPage"));
 const ComparePage = lazy(() => import("./pages/ComparePage"));
+const SeekPage = lazy(() => import("./pages/SeekPage"));
 
 // Minimal loading fallback for route transitions
 const PageLoader = () => (
@@ -137,6 +138,7 @@ const App = () => (
                             <Route path="/rankings" element={<RankingsPage />} />
                             <Route path="/party/:code" element={<WatchPartyPage />} />
                             <Route path="/compare" element={<ComparePage />} />
+                            <Route path="/seek" element={<SeekPage />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </AnimatedRoutes>

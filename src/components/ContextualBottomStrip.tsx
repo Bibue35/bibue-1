@@ -7,6 +7,7 @@ const stripLinks = [
   { href: "/schedule", label: "Schedule" },
   { href: "/news", label: "News" },
   { href: "/rankings", label: "Rankings" },
+  { href: "/seek", label: "Seek" },
 ];
 
 export function ContextualBottomStrip() {
