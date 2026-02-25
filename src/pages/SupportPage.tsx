@@ -33,7 +33,7 @@ const CATEGORIES = [
 ];
 
 const STATUS_COLORS: Record<string, string> = {
-  open: "bg-neon-cyan/20 text-neon-cyan border-neon-cyan/30",
+  open: "bg-primary/20 text-primary border-primary/30",
   "in-progress": "bg-neon-gold/20 text-neon-gold border-neon-gold/30",
   resolved: "bg-green-500/20 text-green-400 border-green-500/30",
   closed: "bg-muted text-muted-foreground border-border",
@@ -144,8 +144,8 @@ function TicketForm({ isCreator, onSuccess }: { isCreator: boolean; onSuccess: (
   if (showSuccess) {
     return (
       <div className="text-center py-12">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neon-cyan/10 mb-4 animate-bounce">
-          <CheckCircle className="w-8 h-8 text-neon-cyan" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4 animate-bounce">
+          <CheckCircle className="w-8 h-8 text-primary" />
         </div>
         <h3 className="text-xl font-bold mb-2">Ticket Submitted! 🎉</h3>
         <p className="text-muted-foreground">
@@ -198,7 +198,7 @@ function TicketForm({ isCreator, onSuccess }: { isCreator: boolean; onSuccess: (
 
       <Button
         type="submit"
-        variant={isCreator ? "cyan" : "magenta"}
+        variant={isCreator ? "amber" : "magenta"}
         className="w-full gap-2"
         disabled={submitting || !category || !subject.trim() || !message.trim()}
       >
@@ -266,7 +266,7 @@ function TicketDetail({ ticket, onBack }: { ticket: any; onBack: () => void }) {
           <p className="text-sm text-muted-foreground text-center py-4">No replies yet</p>
         ) : (
           replies.map((r: any) => (
-            <Card key={r.id} className={cn("border-border/50", r.user_id !== ticket.user_id && "border-neon-cyan/20 bg-neon-cyan/5")}>
+            <Card key={r.id} className={cn("border-border/50", r.user_id !== ticket.user_id && "border-primary/20 bg-primary/5")}>
               <CardContent className="p-4">
                 <p className="text-sm whitespace-pre-wrap">{r.message}</p>
                 <p className="text-xs text-muted-foreground mt-2">
@@ -290,7 +290,7 @@ function TicketDetail({ ticket, onBack }: { ticket: any; onBack: () => void }) {
             maxLength={5000}
           />
           <Button
-            variant="cyan"
+             variant="amber"
             size="icon"
             className="shrink-0 self-end"
             disabled={!replyMessage.trim() || sendReply.isPending}
@@ -322,14 +322,14 @@ export default function SupportPage() {
 
       {/* Hero */}
       <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-16 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(183,100%,50%,0.08),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.08),transparent_60%)]" />
         <div className="relative container mx-auto px-4 text-center max-w-3xl">
-          <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-sm gap-1.5 border-neon-cyan/30">
-            <Headphones className="w-3.5 h-3.5 text-neon-cyan" />
+          <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-sm gap-1.5 border-primary/30">
+            <Headphones className="w-3.5 h-3.5 text-primary" />
             Help Center
           </Badge>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-sacred tracking-wide leading-tight mb-4">
-            <span className="text-neon-cyan" style={{ textShadow: "0 0 30px hsl(183 100% 50% / 0.3)" }}>
+            <span className="text-primary">
               bibue.net Support
             </span>
           </h1>
@@ -370,7 +370,7 @@ export default function SupportPage() {
               </ul>
               {user ? (
                 <Button
-                  variant="cyan"
+                  variant="amber"
                   className="w-full gap-2"
                   onClick={() => setShowForm(true)}
                 >
@@ -489,12 +489,12 @@ export default function SupportPage() {
       <section className="container mx-auto px-4 pb-20">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-8">
-            <Badge variant="secondary" className="mb-3 border-neon-cyan/30">
-              <HelpCircle className="w-3 h-3 mr-1 text-neon-cyan" />
+            <Badge variant="secondary" className="mb-3 border-primary/30">
+              <HelpCircle className="w-3 h-3 mr-1 text-primary" />
               FAQ
             </Badge>
             <h2 className="text-2xl sm:text-3xl font-bold font-sacred">
-              Frequently Asked <span className="text-neon-cyan">Questions</span>
+              Frequently Asked <span className="text-primary">Questions</span>
             </h2>
           </div>
 

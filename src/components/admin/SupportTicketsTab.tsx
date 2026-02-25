@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 const STATUS_COLORS: Record<string, string> = {
-  open: "bg-neon-cyan/20 text-neon-cyan border-neon-cyan/30",
+  open: "bg-primary/20 text-primary border-primary/30",
   "in-progress": "bg-neon-gold/20 text-neon-gold border-neon-gold/30",
   resolved: "bg-green-500/20 text-green-400 border-green-500/30",
   closed: "bg-muted text-muted-foreground border-border",
@@ -150,7 +150,7 @@ export function SupportTicketsTab() {
             <p className="text-sm text-muted-foreground text-center py-4">No replies yet</p>
           ) : (
             replies.map((r: any) => (
-              <Card key={r.id} className={cn("border-border/50", r.user_id !== selectedTicket.user_id && "border-neon-cyan/20 bg-neon-cyan/5")}>
+              <Card key={r.id} className={cn("border-border/50", r.user_id !== selectedTicket.user_id && "border-primary/20 bg-primary/5")}>
                 <CardContent className="p-4">
                   <p className="text-sm whitespace-pre-wrap">{r.message}</p>
                   <p className="text-xs text-muted-foreground mt-2">
@@ -164,7 +164,7 @@ export function SupportTicketsTab() {
 
         <div className="flex gap-2">
           <Textarea value={replyMsg} onChange={(e) => setReplyMsg(e.target.value)} placeholder="Reply as admin..." rows={2} className="flex-1" maxLength={5000} />
-          <Button variant="cyan" size="icon" className="shrink-0 self-end" disabled={!replyMsg.trim() || sendReply.isPending} onClick={() => sendReply.mutate()}>
+          <Button variant="amber" size="icon" className="shrink-0 self-end" disabled={!replyMsg.trim() || sendReply.isPending} onClick={() => sendReply.mutate()}>
             <Send className="w-4 h-4" />
           </Button>
         </div>
@@ -175,13 +175,13 @@ export function SupportTicketsTab() {
   return (
     <div>
       <h1 className="text-2xl font-bold font-sacred mb-6 flex items-center gap-2">
-        <Headphones className="w-6 h-6 text-neon-cyan" />
+        <Headphones className="w-6 h-6 text-primary" />
         Support Tickets
       </h1>
 
       <div className="flex flex-wrap items-center gap-2 mb-4">
         {["all", "priority", "open"].map((f) => (
-          <Button key={f} variant={filter === f ? "cyan" : "ghost"} size="sm" onClick={() => setFilter(f)} className="capitalize text-xs">
+          <Button key={f} variant={filter === f ? "amber" : "ghost"} size="sm" onClick={() => setFilter(f)} className="capitalize text-xs">
             {f === "priority" && <Star className="w-3 h-3 mr-1" />}
             {f}
           </Button>
