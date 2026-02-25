@@ -16,7 +16,8 @@ import { CardSkeletonRow } from "@/components/skeletons";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTopManga, useSearchManga, useRecentlyUpdatedManga, useMangaByGenre } from "@/hooks/useAnimeData";
+import { useTopManga, useRecentlyUpdatedManga, useInfiniteTopManga, useInfiniteMangaByGenre, useInfiniteSearchManga } from "@/hooks/useAnimeData";
+import { useInView } from "@/hooks/useInView";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -105,6 +106,9 @@ export default function MangaPage() {
   // Pull-to-refresh handler
   const handleRefresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["topManga"] });
+    await queryClient.invalidateQueries({ queryKey: ["infiniteTopManga"] });
+    await queryClient.invalidateQueries({ queryKey: ["infiniteMangaByGenre"] });
+    await queryClient.invalidateQueries({ queryKey: ["infiniteSearchManga"] });
     await queryClient.invalidateQueries({ queryKey: ["trendingManhwa"] });
     await queryClient.invalidateQueries({ queryKey: ["trendingManhua"] });
     await queryClient.invalidateQueries({ queryKey: ["mangaByGenre"] });
@@ -113,68 +117,49 @@ export default function MangaPage() {
     await queryClient.invalidateQueries({ queryKey: ["recentlyUpdatedManga"] });
   }, [queryClient]);
 
-  // Only eagerly load above-fold sections + search/filter data
-  const { data: allManga, isLoading: allLoading } = useTopManga(1, undefined);
+  // Only eagerly load above-fold sections
   const { data: mangaOnly, isLoading: mangaLoading, isError: mangaError, refetch: refetchManga } = useTopManga(1, 'manga');
-  const { data: manhwaOnly, isLoading: manhwaLoading } = useTopManga(1, 'manhwa', 'popularity', typeFilter === 'manhwa');
-  const { data: manhuaOnly, isLoading: manhuaLoading } = useTopManga(1, 'manhua', 'popularity', typeFilter === 'manhua');
-  const { data: searchResults, isLoading: searchLoading } = useSearchManga(
-    debouncedSearch,
-    isSearching,
-    typeFilter === "all" ? undefined : typeFilter,
-  );
   const { data: recentlyUpdatedManga, isLoading: recentlyUpdatedMangaLoading, isError: recentlyUpdatedMangaError, refetch: refetchRecentlyUpdatedManga } = useRecentlyUpdatedManga(1);
 
-  // Genre-filtered data — map genre ID to name for AniList API
+  // Infinite scroll queries for bottom grid
+  const sortToAniList = (s: SortOption) => {
+    if (s === "score") return "SCORE_DESC" as const;
+    if (s === "newest") return "TRENDING_DESC" as const;
+    return "POPULARITY_DESC" as const;
+  };
+
   const genreName = genreId ? GENRE_ID_TO_NAME[genreId] || genreId : "";
-  const { data: genreFilteredManga, isLoading: genreLoading } = useMangaByGenre(
-    genreName,
-    1,
+
+  const infiniteTop = useInfiniteTopManga(
     typeFilter === "all" ? undefined : typeFilter,
+    sortBy
+  );
+  const infiniteGenre = useInfiniteMangaByGenre(
+    genreName,
+    typeFilter === "all" ? undefined : typeFilter,
+    sortToAniList(sortBy)
+  );
+  const infiniteSearch = useInfiniteSearchManga(
+    debouncedSearch,
+    isSearching,
+    typeFilter === "all" ? undefined : typeFilter
   );
 
-  // Select the correct data based on filter
-  const getFilteredManga = () => {
-    if (isSearching) return searchResults;
-    if (genreId) return genreFilteredManga;
-    switch (typeFilter) {
-      case "manga": return mangaOnly;
-      case "manhwa": return manhwaOnly;
-      case "manhua": return manhuaOnly;
-      default: return allManga;
-    }
-  };
+  // Pick the right infinite query
+  const activeInfinite = isSearching ? infiniteSearch : genreId ? infiniteGenre : infiniteTop;
+  const allItems = activeInfinite.data?.pages.flat() ?? [];
+  const gridLoading = activeInfinite.isLoading;
+  const isFetchingNext = activeInfinite.isFetchingNextPage;
+  const hasNextPage = activeInfinite.hasNextPage;
 
-  const getFilterLoading = () => {
-    if (isSearching) return searchLoading;
-    if (genreId) return genreLoading;
-    switch (typeFilter) {
-      case "manga": return mangaLoading;
-      case "manhwa": return manhwaLoading;
-      case "manhua": return manhuaLoading;
-      default: return allLoading;
-    }
-  };
+  // Intersection observer for infinite scroll
+  const { ref: loadMoreRef, isInView: loadMoreInView } = useInView({ threshold: 0, rootMargin: "400px 0px" });
 
-  const displayManga = getFilteredManga();
-  const isLoading = getFilterLoading();
-
-  const sortedManga = useMemo(() => {
-    const list = (displayManga || []).slice();
-    switch (sortBy) {
-      case "score":
-        return list.sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
-      case "newest":
-        return list.sort(
-          (a, b) =>
-            (b.published?.from ? Date.parse(b.published.from) : 0) -
-            (a.published?.from ? Date.parse(a.published.from) : 0),
-        );
-      case "popularity":
-      default:
-        return list.sort((a, b) => (b.popularity ?? -1) - (a.popularity ?? -1));
+  useEffect(() => {
+    if (loadMoreInView && hasNextPage && !isFetchingNext) {
+      activeInfinite.fetchNextPage();
     }
-  }, [displayManga, sortBy]);
+  }, [loadMoreInView, hasNextPage, isFetchingNext, activeInfinite]);
 
   // Get top rated manga (sorted by score)
   const topRatedManga = useMemo(() => {
@@ -432,7 +417,7 @@ export default function MangaPage() {
                   : t("manga.topManga")}
           </h2>
           
-          {isSearching && isLoading ? (
+          {isSearching && gridLoading ? (
             <div className={cn(
               "grid place-items-center rounded-2xl liquid-glass-subtle",
               viewMode === "grid" ? "min-h-[320px]" : "min-h-[220px]"
@@ -442,7 +427,7 @@ export default function MangaPage() {
                 <p className="text-sm text-muted-foreground">{t("common.searchingFor")} "{debouncedSearch}"</p>
               </div>
             </div>
-          ) : isSearching && !isLoading && (displayManga?.length ?? 0) === 0 ? (
+          ) : isSearching && !gridLoading && allItems.length === 0 ? (
             <div className="rounded-2xl liquid-glass-subtle py-12">
               <div className="flex flex-col items-center text-center gap-3 px-6">
                 <p className="text-base font-medium">{t("common.noResults")} "{debouncedSearch}"</p>
@@ -452,22 +437,34 @@ export default function MangaPage() {
                 </Button>
               </div>
             </div>
-          ) : isLoading ? (
+          ) : gridLoading ? (
             <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
               {Array.from({ length: 21 }).map((_, i) => (
                 <Skeleton key={i} className={viewMode === "grid" ? "aspect-[2/3] rounded-xl" : "h-20 rounded-xl"} />
               ))}
             </div>
           ) : (
-            <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
-              {sortedManga?.map((manga, index) => (
-                viewMode === "grid" ? (
-                  <MangaCard key={manga.anilist_id} manga={manga} index={index} />
-                ) : (
-                  <MangaCard key={manga.anilist_id} manga={manga} index={index} variant="compact" />
-                )
-              ))}
-            </div>
+            <>
+              <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+                {allItems.map((manga, index) => (
+                  viewMode === "grid" ? (
+                    <MangaCard key={`${manga.anilist_id}-${index}`} manga={manga} index={index} />
+                  ) : (
+                    <MangaCard key={`${manga.anilist_id}-${index}`} manga={manga} index={index} variant="compact" />
+                  )
+                ))}
+              </div>
+
+              {/* Infinite scroll trigger */}
+              <div ref={loadMoreRef} className="flex justify-center py-8">
+                {isFetchingNext && (
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                )}
+                {!hasNextPage && allItems.length > 0 && (
+                  <p className="text-sm text-muted-foreground">{t("common.noMoreResults") || "No more results"}</p>
+                )}
+              </div>
+            </>
           )}
         </div>
       </section>
