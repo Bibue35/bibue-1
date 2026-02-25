@@ -28,6 +28,7 @@ export function CollapsibleNavbar() {
     { href: "/manga", label: t("nav.manga") },
     { href: "/seek", label: "Seek" },
     { href: "/community", label: t("nav.community") },
+    { href: "/for-creators", label: "For Creators" },
   ];
 
   // Mobile menu only shows non-swipable pages
