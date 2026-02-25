@@ -1,6 +1,6 @@
 import { useState, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
-import { User, LogOut, Settings, EyeOff, Eye, Globe, Check, Bookmark, Heart, MessageCircle, Users, BarChart3, Sparkles, Orbit } from "lucide-react";
+import { User, LogOut, Settings, EyeOff, Eye, Globe, Check, Bookmark, Heart, MessageCircle, Users, BarChart3, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -168,12 +168,6 @@ export function UserMenu() {
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
-          <Link to="/map">
-            <Orbit className="w-4 h-4" />
-            <span>Galaxy</span>
-          </Link>
-        </DropdownMenuItem>
 
         
         <DropdownMenuSeparator />
