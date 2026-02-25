@@ -339,7 +339,7 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
               <TabsContent value="chapters">
                 <div className="flex items-center justify-between mb-3 sm:mb-4">
                   <h2 className="text-sm sm:text-lg font-bold font-sacred">
-                    {chaptersLoading ? "LOADING..." : `${totalChapters} CHAPTERS`}
+                    {chaptersLoading ? "LOADING..." : `${chapters.length} CHAPTERS`}
                   </h2>
                   {lastChapterRead && (
                     <span className="text-xs sm:text-sm text-muted-foreground">
