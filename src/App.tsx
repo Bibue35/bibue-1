@@ -54,6 +54,7 @@ const RankingsPage = lazy(() => import("./pages/Rankings"));
 const WatchPartyPage = lazy(() => import("./pages/WatchPartyPage"));
 const ComparePage = lazy(() => import("./pages/ComparePage"));
 const SeekPage = lazy(() => import("./pages/SeekPage"));
+const ForCreatorsPage = lazy(() => import("./pages/ForCreatorsPage"));
 
 // Minimal loading fallback for route transitions
 const PageLoader = () => (
@@ -139,6 +140,7 @@ const App = () => (
                             <Route path="/party/:code" element={<WatchPartyPage />} />
                             <Route path="/compare" element={<ComparePage />} />
                             <Route path="/seek" element={<SeekPage />} />
+                            <Route path="/for-creators" element={<ForCreatorsPage />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </AnimatedRoutes>
