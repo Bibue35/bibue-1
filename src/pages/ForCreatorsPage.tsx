@@ -243,10 +243,10 @@ function EarningsComparisonCalculator() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border">
-              <th className="text-left py-3 px-3 font-semibold text-muted-foreground">Monthly Views</th>
-              <th className="text-center py-3 px-3 font-semibold text-muted-foreground">Webtoon Canvas</th>
-              <th className="text-center py-3 px-3 font-bold text-neon-cyan">bibue.net ({share}%)</th>
-              <th className="text-center py-3 px-3 font-semibold text-green-400">You Earn Extra</th>
+              <th className="text-left py-3 px-2 font-semibold text-muted-foreground text-xs sm:text-sm">Views</th>
+              <th className="text-center py-3 px-2 font-semibold text-muted-foreground text-xs sm:text-sm">Webtoon</th>
+              <th className="text-center py-3 px-2 font-bold text-neon-cyan text-xs sm:text-sm">Bibue ({share}%)</th>
+              <th className="text-center py-3 px-2 font-semibold text-green-400 text-xs sm:text-sm">Extra</th>
             </tr>
           </thead>
           <tbody>
@@ -255,10 +255,10 @@ function EarningsComparisonCalculator() {
               const diff = bEarnings - row.webtoon;
               return (
                 <tr key={row.views} className="border-b border-border/30 hover:bg-muted/20 transition-colors">
-                  <td className="py-3 px-3 font-medium">{formatK(row.views)}</td>
-                  <td className="py-3 px-3 text-center text-muted-foreground">~${row.webtoon.toFixed(row.webtoon < 10 ? 2 : 0)}</td>
-                  <td className="py-3 px-3 text-center font-semibold text-neon-cyan">~${bEarnings.toFixed(bEarnings < 10 ? 2 : 0)}</td>
-                  <td className="py-3 px-3 text-center font-semibold text-green-400">+${diff.toFixed(diff < 10 ? 2 : 0)}</td>
+                  <td className="py-3 px-2 font-medium text-sm">{formatK(row.views)}</td>
+                  <td className="py-3 px-2 text-center text-muted-foreground text-sm">~${row.webtoon.toFixed(row.webtoon < 10 ? 2 : 0)}</td>
+                  <td className="py-3 px-2 text-center font-semibold text-neon-cyan text-sm">~${bEarnings.toFixed(bEarnings < 10 ? 2 : 0)}</td>
+                  <td className="py-3 px-2 text-center font-semibold text-green-400 text-sm">+${diff.toFixed(diff < 10 ? 2 : 0)}</td>
                 </tr>
               );
             })}
