@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   getTopAnime,
@@ -335,5 +335,60 @@ export function useRecentlyUpdatedManga(page = 1) {
     queryFn: () => getRecentlyUpdatedManga(page, 25, language as SupportedLanguage),
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 15,
+  });
+}
+
+// Infinite scroll hooks for the manga grid
+const PER_PAGE = 25;
+
+export function useInfiniteTopManga(
+  type?: 'manga' | 'novels' | 'lightnovels' | 'oneshots' | 'doujin' | 'manhwa' | 'manhua',
+  sort: 'popularity' | 'score' | 'trending' | 'newest' = 'popularity'
+) {
+  const { language } = useLanguage();
+  return useInfiniteQuery({
+    queryKey: ["infiniteTopManga", type, sort, language],
+    queryFn: ({ pageParam = 1 }) => getTopManga(pageParam, PER_PAGE, type, sort, language as SupportedLanguage),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length >= PER_PAGE ? allPages.length + 1 : undefined,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
+  });
+}
+
+export function useInfiniteMangaByGenre(
+  genre: string,
+  filter?: "manga" | "manhwa" | "manhua",
+  sort: "SCORE_DESC" | "POPULARITY_DESC" | "TRENDING_DESC" = "POPULARITY_DESC"
+) {
+  const { language } = useLanguage();
+  return useInfiniteQuery({
+    queryKey: ["infiniteMangaByGenre", genre, filter, sort, language],
+    queryFn: ({ pageParam = 1 }) => getMangaByGenre(genre, pageParam, PER_PAGE, filter, sort, language as SupportedLanguage),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length >= PER_PAGE ? allPages.length + 1 : undefined,
+    enabled: !!genre,
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 60,
+  });
+}
+
+export function useInfiniteSearchManga(
+  query: string,
+  enabled = true,
+  filter?: "manga" | "novels" | "lightnovels" | "oneshots" | "doujin" | "manhwa" | "manhua"
+) {
+  const { language } = useLanguage();
+  return useInfiniteQuery({
+    queryKey: ["infiniteSearchManga", query, filter, language],
+    queryFn: ({ pageParam = 1 }) => searchManga(query.trim(), pageParam, PER_PAGE, filter, language as SupportedLanguage),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length >= PER_PAGE ? allPages.length + 1 : undefined,
+    enabled: enabled && query.trim().length > 0,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
   });
 }
