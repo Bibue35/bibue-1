@@ -19,7 +19,7 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import { useTopAnime, useSeasonalAnime, useTopManga, useClassicAnime, useAllTimeTopAnime, useTrendingManhwa, useTrendingManhua } from "@/hooks/useAnimeData";
 import { CardSkeleton, CardSkeletonRow, HeroSkeleton } from "@/components/skeletons";
 import { Link } from "react-router-dom";
-import { ArrowRight, Rocket, TrendingUp, Sparkles, Clock, BookOpen, Flame, History, Trophy, Zap, Play } from "lucide-react";
+import { ArrowRight, Rocket, TrendingUp, Sparkles, Clock, BookOpen, Flame, History, Trophy, Zap, Play, Upload } from "lucide-react";
 import { ContinueWatchingRow, ContinueReadingRow } from "@/components/ContinueRow";
 import { useNotificationGenerator } from "@/hooks/useNotificationGenerator";
 import { Button } from "@/components/ui/button";
@@ -121,6 +121,25 @@ const Index = () => {
           isLoading={seasonalLoading} 
         />
       )}
+
+      {/* For Creators Banner */}
+      <section className="container mx-auto px-3 sm:px-4 py-4">
+        <Link
+          to="/for-creators"
+          className="group flex items-center justify-between gap-4 px-5 py-3.5 rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-200"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <Upload className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Are you a creator?</p>
+              <p className="text-xs text-muted-foreground">Upload your manga & earn up to 90% revenue</p>
+            </div>
+          </div>
+          <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
+        </Link>
+      </section>
 
       {/* Continue Watching/Reading - Top priority for logged-in users */}
       <ContinueWatchingRow />
