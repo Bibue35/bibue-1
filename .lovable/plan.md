@@ -1,80 +1,116 @@
 
 
-# Finish Localization and Clean Up Dead Code
+# "Seek" — AI-Powered Anime/Manga Discovery Tab
 
-Complete the remaining translation work and fix all outstanding issues identified in the audit.
+## Overview
 
----
-
-## Scope
-
-### Files requiring translation updates (8 files):
-
-1. **`src/contexts/LanguageContext.tsx`** -- Add ~150 new translation keys across all 8 languages for the items below.
-
-2. **`src/pages/AnimeDetail.tsx`** -- Replace ~20 hardcoded strings with `t()` calls: error states, section headers (Synopsis, Genres, Studios, Information), info grid labels (Source, Episodes, Status, Aired, Rating, Rank, Popularity, Duration), comment section text, toast messages, and player placeholder text.
-
-3. **`src/pages/MangaDetail.tsx`** -- Replace ~20 hardcoded strings with `t()` calls: error states, action buttons (Read First, Continue, Bookmark, Back to Manga), info grid labels (Author, Rating, Status, Last Update, Alternatives), chapter list header and labels, comment section text.
-
-4. **`src/pages/ClassicsPage.tsx`** -- Replace ~12 hardcoded strings with `t()` calls: hero section text, filter labels (Era, Browsing, All Classics), decade labels, empty state, and fix the always-visible Japanese subtitle to only show when `language === "ja"`.
-
-5. **`src/components/settings/AvatarPicker.tsx`** -- Replace ~10 hardcoded strings: "Upload" tab, search placeholder, empty states, upload area text, dialog buttons (Cancel, Use This Avatar, Choose File, Uploading...).
-
-6. **`src/components/CategoryBar.tsx`** -- Replace collection labels (Trending, This Season, New This Week, Completed, Coming Soon, Most Popular, Classics) with `t()` calls. Genre names stay in English as they are industry-standard terms.
-
-7. **`src/pages/AdminPage.tsx`** -- Replace ~6 hardcoded strings: dashboard title, description, access denied text.
-
-8. **`src/components/admin/ReportQueue.tsx`** and **`src/components/admin/UserManagement.tsx`** -- Replace all admin UI strings with `t()` calls (~30 strings total across both files).
-
-### Dead code and broken links (2 files):
-
-9. **`src/components/Navbar.tsx`** -- Delete this file entirely. It is unused (the app uses `CollapsibleNavbar` and `FloatingNav` instead) and contains a broken `/rankings` link.
-
-10. **Verify `DeferredAnimeSections.tsx`** -- Already fixed in previous pass; confirm the `/rankings` link was changed.
+Add a new **Seek** page (`/seek`) — a natural language discovery tool where users describe a vibe, mood, or trope and get 5-8 AI-powered recommendations with personalized, spoiler-free match reasons. Uses the existing Lovable AI gateway (no new API keys needed).
 
 ---
 
-## Implementation Order
+## Architecture
 
-### Step 1: Add all missing translation keys to LanguageContext
-Add keys grouped by feature area:
-- `detail.*` -- Source, Episodes, Status, Aired, Rating, Rank, Popularity, Duration, Author, Last Update, Alternatives, Synopsis, Genres, Studios, Information, Chapters Available, Read First, Continue Reading, Bookmark, Back to Manga, No Synopsis, Error Loading
-- `classics.*` -- Classic Collection, Anime Classics, explore description, For You, Saved, Era, Browsing, All Classics, No Anime Found, Sorted by Score
-- `avatar.*` -- Upload, Search Characters, No Characters Found, Try Different Term, Upload Your Own, Choose File, Uploading, Recommended Size, Cancel, Use This Avatar
-- `category.*` -- Trending, This Season, New This Week, Completed, Coming Soon, Most Popular, Classics
-- `comments.*` -- Comment Section, Share Thoughts, Sign In To Comment, Post Comment, Loading Comments, No Comments Yet, Latest, Top
-- `admin.*` -- Moderation Dashboard, Manage Reports, Access Denied, No Permission, Report Queue, Total Reports, Pending, Resolved, Dismissed, Resolve, Dismiss, No Reports, User Management, Search Users, Ban, Unban, Ban User, Ban Description, Reason, Duration, Confirm Ban, Loading
-- `common.*` -- Go Home, Return Home, Something Went Wrong, Cancel, Error, Sign In To (various)
+```text
+New files:
+  src/pages/SeekPage.tsx          — Main page component
+  supabase/functions/seek/index.ts — Edge function for AI calls
 
-### Step 2: Apply translations to AnimeDetail.tsx
-Import `useLanguage`, replace all hardcoded strings.
-
-### Step 3: Apply translations to MangaDetail.tsx
-Import `useLanguage`, replace all hardcoded strings.
-
-### Step 4: Apply translations to ClassicsPage.tsx
-Import `useLanguage`, replace strings, fix JP subtitle conditional.
-
-### Step 5: Apply translations to AvatarPicker.tsx
-Replace remaining hardcoded strings (some already use `t()`).
-
-### Step 6: Apply translations to CategoryBar.tsx
-Replace collection labels with `t()` calls for the 7 collection categories.
-
-### Step 7: Apply translations to AdminPage.tsx, ReportQueue.tsx, UserManagement.tsx
-Replace all admin panel strings.
-
-### Step 8: Delete Navbar.tsx
-Remove the unused component file.
+Modified files:
+  src/App.tsx                      — Add /seek route
+  src/components/CollapsibleNavbar.tsx — Add Seek to nav
+  src/components/FloatingNav.tsx       — Add Seek to nav
+  src/components/ContextualBottomStrip.tsx — Add Seek pill
+```
 
 ---
 
-## Technical Notes
+## Implementation Steps (First Prompt — Steps 1-8)
 
-- All translations follow the existing pattern: `const { t, language } = useLanguage()`
-- LanguageContext will grow by approximately 150-200 lines
-- No new dependencies, no database changes, no backend changes
-- Genre names in CategoryBar remain in English as they are internationally recognized terms
-- Admin pages are lower priority for translation since only moderators/admins see them, but included for completeness
-- The Japanese subtitle fix (only show when `language === "ja"`) applies to ClassicsPage the same way it was already fixed in StatsPage
+### 1. Edge Function: `supabase/functions/seek/index.ts`
+
+- Accepts `{ prompt, watchlist, contentType, conversationHistory }` via POST
+- Calls the Lovable AI gateway (`ai.gateway.lovable.dev`) using `LOVABLE_API_KEY` with `google/gemini-2.5-flash` (fast, good reasoning, cost-effective)
+- Uses the full system prompt from the spec (opinionated recommendations, no spoilers, real titles only, JSON array output)
+- Appends user's watchlist as exclusion context and content type filter
+- Supports follow-up refinement by accepting conversation history
+- Returns parsed JSON array of recommendations
+- Error handling: rate limiting (429), credit exhaustion (402), JSON parse retry
+
+### 2. Edge Function: `supabase/functions/seek-convince/index.ts`
+
+- Separate endpoint for "Convince me" calls (lighter, 300 max tokens)
+- Accepts `{ title, watchedContext }`
+- Returns a 3-4 sentence spoiler-free pitch
+
+### 3. Route + Navigation
+
+- Add `/seek` route in `App.tsx` with lazy-loaded `SeekPage`
+- Add "Seek" link to `CollapsibleNavbar` desktop nav links (between Community and existing links)
+- Add "Seek" to `FloatingNav` desktop nav links
+- Add "Seek" pill to `ContextualBottomStrip`
+
+### 4. `SeekPage.tsx` — Layout
+
+**Top section:**
+- Large full-width text input styled as a prompt input (rounded, prominent, send arrow button on right)
+- Placeholder: `"cold blooded mc, dark fantasy with great art..."`
+- Input expands slightly on focus, sticky on mobile when scrolling results
+- Minimum 44px send button for mobile tap targets
+
+**Suggestion chips (two rows, horizontally scrollable):**
+- Row 1: Mood chips with emoji (larger) — randomly show 6-8 from the full set
+- Row 2: Trope chips (text only, smaller) — randomly show 6-8
+- Tapping a chip fills input and auto-submits
+
+**Recent searches:**
+- Stored in `localStorage` (last 5 searches with result count)
+- Tapping re-runs the search
+
+**Content type filter:**
+- Toggle pills: `[All] [Anime] [Manga] [Manhwa] [Manhua]`
+- When active, appended to the AI prompt
+
+**Empty state:**
+- "Tell me what you're in the mood for. I'll find it."
+
+### 5. Result Cards
+
+Each card shows:
+- Cover image fetched from existing AniList API (`searchAnime`/`searchManga` by title)
+- Gradient placeholder if no image found
+- Title, rating (star), year, episode/chapter count
+- Genre tags
+- Match reason (1-2 sentences, italic) — the core differentiator
+- Three action buttons:
+  - **"Convince me"** — calls `seek-convince` edge function, expands inline
+  - **"+ Save"** — uses existing `useWatchlist` hook's `addToWatchlist` mutation
+  - **"Details"** — navigates to `/anime/:id` or `/manga/:id`
+
+### 6. Cover Image Fetching
+
+After AI returns results, batch-fetch cover images by searching each title via `searchAnime(title)` or `searchManga(title)` from `src/lib/api.ts`. Match on the first result. If no match, show a gradient placeholder with the title text overlaid.
+
+### 7. Loading State
+
+- Skeleton card placeholders that pulse
+- Small "Seeking..." text below the input
+- Disable send button during loading
+
+### 8. Follow-up Refinement
+
+After results are displayed:
+- Change input placeholder to `"More like #3 but darker..." or "None of these — try something weird"`
+- Send full conversation history (original prompt + previous results + follow-up) to maintain context
+
+---
+
+## Technical Details
+
+- **AI Model**: `google/gemini-2.5-flash` via Lovable AI gateway — fast (2-3s), good reasoning, handles the structured JSON output well, no API key needed
+- **No Anthropic API**: The spec mentions Anthropic directly, but we'll use the Lovable AI gateway which is already configured and doesn't require additional setup
+- **No web search**: The Lovable AI gateway doesn't support Anthropic's `web_search` tool, but the model's training data covers anime/manga community knowledge extensively
+- **Cover images**: Reuse existing `searchAnime`/`searchManga` from `src/lib/api.ts` — no new API integration needed
+- **Save functionality**: Reuse existing `useWatchlist` hook
+- **Theme support**: Standard dark/light theme support using existing Tailwind classes (ink theme deferred to second prompt per spec)
+- **Mobile**: Input sticky at top, chip rows with horizontal scroll + momentum, full-width stacked cards, large tap targets
 
