@@ -17,32 +17,6 @@ function json(data: unknown, status = 200) {
   });
 }
 
-function transformMangaList(data: any) {
-  return data.data?.map((manga: any) => {
-    const coverArt = manga.relationships?.find((r: any) => r.type === 'cover_art');
-    const coverFile = coverArt?.attributes?.fileName;
-    const coverUrl = coverFile
-      ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFile}.256.jpg`
-      : null;
-
-    const attrs = manga.attributes;
-    return {
-      id: manga.id,
-      title: attrs.title?.en || attrs.title?.ja || attrs.title?.['ja-ro'] || Object.values(attrs.title || {})[0] || 'Unknown',
-      altTitles: attrs.altTitles,
-      description: attrs.description?.en || '',
-      status: attrs.status,
-      year: attrs.year,
-      contentRating: attrs.contentRating,
-      tags: attrs.tags?.map((t: any) => t.attributes?.name?.en).filter(Boolean),
-      originalLanguage: attrs.originalLanguage,
-      coverUrl,
-      lastChapter: attrs.lastChapter,
-      lastVolume: attrs.lastVolume,
-    };
-  }) || [];
-}
-
 async function searchManga(title: string, limit = 10, offset = 0) {
   const params = new URLSearchParams({
     title,
@@ -59,32 +33,12 @@ async function searchManga(title: string, limit = 10, offset = 0) {
   return res.json();
 }
 
-async function browseManga(
-  order: Record<string, string>,
-  limit = 20,
-  offset = 0,
-  extras?: { status?: string; tags?: string[]; demographic?: string; lang?: string }
-) {
-  const params = new URLSearchParams({
-    limit: String(limit),
-    offset: String(offset),
-    'includes[]': 'cover_art',
-    hasAvailableChapters: 'true',
-  });
+async function getMangaById(mangadexId: string) {
+  const params = new URLSearchParams({ 'includes[]': 'cover_art' });
   SAFE_RATINGS.forEach(r => params.append('contentRating[]', r));
-  for (const [key, val] of Object.entries(order)) {
-    params.set(`order[${key}]`, val);
-  }
-  if (extras?.status) params.set('status[]', extras.status);
-  if (extras?.demographic) params.append('publicationDemographic[]', extras.demographic);
-  if (extras?.tags) {
-    extras.tags.forEach(t => params.append('includedTags[]', t));
-  }
-  if (extras?.lang === 'ko') params.set('originalLanguage[]', 'ko');
-  if (extras?.lang === 'zh') params.set('originalLanguage[]', 'zh');
-
-  const res = await fetch(`${MANGADEX_API}/manga?${params}`);
-  if (!res.ok) throw new Error(`MangaDex browse failed: ${res.status}`);
+  
+  const res = await fetch(`${MANGADEX_API}/manga/${mangadexId}?${params}`);
+  if (!res.ok) throw new Error(`MangaDex manga fetch failed: ${res.status}`);
   return res.json();
 }
 
@@ -129,31 +83,32 @@ Deno.serve(async (req) => {
         const limit = parseInt(url.searchParams.get('limit') || '10');
         const offset = parseInt(url.searchParams.get('offset') || '0');
         const data = await searchManga(title, limit, offset);
-        const results = transformMangaList(data);
-        return json({ results, total: data.total, limit: data.limit, offset: data.offset });
-      }
+        
+        // Transform to simpler format
+        const results = data.data?.map((manga: any) => {
+          const coverArt = manga.relationships?.find((r: any) => r.type === 'cover_art');
+          const coverFile = coverArt?.attributes?.fileName;
+          const coverUrl = coverFile 
+            ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFile}.256.jpg`
+            : null;
+          
+          const attrs = manga.attributes;
+          return {
+            id: manga.id,
+            title: attrs.title?.en || attrs.title?.ja || attrs.title?.['ja-ro'] || Object.values(attrs.title || {})[0] || 'Unknown',
+            altTitles: attrs.altTitles,
+            description: attrs.description?.en || '',
+            status: attrs.status,
+            year: attrs.year,
+            contentRating: attrs.contentRating,
+            tags: attrs.tags?.map((t: any) => t.attributes?.name?.en).filter(Boolean),
+            originalLanguage: attrs.originalLanguage,
+            coverUrl,
+            lastChapter: attrs.lastChapter,
+            lastVolume: attrs.lastVolume,
+          };
+        }) || [];
 
-      case 'browse': {
-        const sort = url.searchParams.get('sort') || 'popular';
-        const limit = parseInt(url.searchParams.get('limit') || '20');
-        const offset = parseInt(url.searchParams.get('offset') || '0');
-        const status = url.searchParams.get('status') || undefined;
-        const demographic = url.searchParams.get('demographic') || undefined;
-        const lang = url.searchParams.get('lang') || undefined;
-        const tagsParam = url.searchParams.get('tags');
-        const tags = tagsParam ? tagsParam.split(',') : undefined;
-
-        const orderMap: Record<string, Record<string, string>> = {
-          popular: { followedCount: 'desc' },
-          rating: { rating: 'desc' },
-          latest: { latestUploadedChapter: 'desc' },
-          newest: { createdAt: 'desc' },
-          relevance: { relevance: 'desc' },
-        };
-        const order = orderMap[sort] || orderMap.popular;
-
-        const data = await browseManga(order, limit, offset, { status, tags, demographic, lang });
-        const results = transformMangaList(data);
         return json({ results, total: data.total, limit: data.limit, offset: data.offset });
       }
 
