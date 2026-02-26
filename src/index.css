@@ -8,155 +8,155 @@
 
 @layer base {
   :root {
-    /* Sunlight Mode - Warm Golden */
-    --background: 45 40% 98%;
-    --foreground: 30 20% 12%;
+    /* ☀ Sunlight Mode — Rich Warm Gold */
+    --background: 40 30% 97%;
+    --foreground: 25 25% 10%;
 
-    --card: 47 50% 99%;
-    --card-foreground: 30 20% 12%;
+    --card: 42 35% 98%;
+    --card-foreground: 25 25% 10%;
 
-    --popover: 47 50% 99%;
-    --popover-foreground: 30 20% 12%;
+    --popover: 42 35% 98%;
+    --popover-foreground: 25 25% 10%;
 
-    /* Rich golden tones */
-    --primary: 45 90% 42%;
-    --primary-foreground: 45 50% 98%;
+    /* Deep burnished gold — richer than before */
+    --primary: 42 88% 38%;
+    --primary-foreground: 42 30% 98%;
 
-    --secondary: 44 35% 93%;
-    --secondary-foreground: 30 20% 12%;
+    --secondary: 38 30% 92%;
+    --secondary-foreground: 25 25% 10%;
 
-    --muted: 42 25% 90%;
-    --muted-foreground: 30 15% 40%;
+    --muted: 36 20% 89%;
+    --muted-foreground: 25 12% 38%;
 
-    --accent: 45 40% 92%;
-    --accent-foreground: 30 20% 12%;
+    --accent: 40 32% 91%;
+    --accent-foreground: 25 25% 10%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 78% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 44 30% 88%;
-    --input: 44 30% 88%;
-    --ring: 45 90% 42%;
+    --border: 38 25% 86%;
+    --input: 38 25% 86%;
+    --ring: 42 88% 38%;
 
     --radius: 1rem;
 
-    /* Sunlight Liquid Glass - Warm cream with golden shimmer */
-    --glass-bg: 45 55% 99% / 0.82;
-    --glass-border: 44 50% 90% / 0.75;
-    --glass-highlight: 47 100% 98% / 0.95;
-    --glass-shadow: 40 45% 20% / 0.08;
-    --glass-blur: 40px;
-    --glass-refraction: 48 80% 97% / 0.5;
+    /* Sunlight Liquid Glass — warm honey frosted glass */
+    --glass-bg: 40 40% 98% / 0.78;
+    --glass-border: 38 45% 88% / 0.65;
+    --glass-highlight: 44 100% 97% / 0.9;
+    --glass-shadow: 35 50% 18% / 0.1;
+    --glass-blur: 44px;
+    --glass-refraction: 46 70% 96% / 0.45;
 
-    /* Warm specular - golden honey glow */
-    --specular-color: 47 90% 85% / 0.65;
-    --specular-inner: 45 60% 95% / 0.9;
+    /* Warm specular — deeper golden honey */
+    --specular-color: 44 85% 82% / 0.55;
+    --specular-inner: 42 50% 94% / 0.85;
 
-    /* Sunlight reflection gradient - creamy warmth */
-    --reflection-start: 47 100% 99% / 0.88;
-    --reflection-mid: 44 70% 95% / 0.45;
-    --reflection-end: 40 30% 90% / 0.05;
+    /* Sunlight reflection — richer cream warmth */
+    --reflection-start: 44 80% 98% / 0.85;
+    --reflection-mid: 40 55% 93% / 0.4;
+    --reflection-end: 36 25% 88% / 0.05;
 
-    /* Divine radiance glow - golden */
-    --divine-glow: 45 90% 60% / 0.3;
-    --divine-radiance: 48 95% 70% / 0.5;
-    --divine-halo: 50 100% 85% / 0.35;
+    /* Divine radiance — deep golden sun */
+    --divine-glow: 42 90% 55% / 0.35;
+    --divine-radiance: 44 95% 65% / 0.55;
+    --divine-halo: 48 100% 80% / 0.4;
 
     /* Legacy sunbeam for compatibility */
-    --sunbeam-glow: 45 90% 60% / 0.3;
-    --sunbeam-highlight: 48 95% 70% / 0.55;
+    --sunbeam-glow: 42 90% 55% / 0.35;
+    --sunbeam-highlight: 44 95% 65% / 0.55;
 
-    /* Chart colors - warm earth tones */
-    --chart-1: 45 70% 35%;
-    --chart-2: 35 60% 45%;
-    --chart-3: 50 55% 50%;
-    --chart-4: 30 65% 55%;
-    --chart-5: 25 70% 45%;
+    /* Chart colors — warm earthy spectrum */
+    --chart-1: 42 75% 35%;
+    --chart-2: 28 65% 42%;
+    --chart-3: 52 60% 48%;
+    --chart-4: 18 70% 50%;
+    --chart-5: 8 72% 44%;
 
     /* Sidebar */
-    --sidebar-background: 45 40% 98%;
-    --sidebar-foreground: 30 20% 12%;
-    --sidebar-primary: 45 90% 42%;
-    --sidebar-primary-foreground: 45 50% 98%;
-    --sidebar-accent: 44 35% 93%;
-    --sidebar-accent-foreground: 30 20% 12%;
-    --sidebar-border: 44 30% 88%;
-    --sidebar-ring: 45 90% 42%;
+    --sidebar-background: 40 30% 97%;
+    --sidebar-foreground: 25 25% 10%;
+    --sidebar-primary: 42 88% 38%;
+    --sidebar-primary-foreground: 42 30% 98%;
+    --sidebar-accent: 38 30% 92%;
+    --sidebar-accent-foreground: 25 25% 10%;
+    --sidebar-border: 38 25% 86%;
+    --sidebar-ring: 42 88% 38%;
   }
 
   .dark {
-    /* Dark Mode — Cool Blue Accent */
-    --background: 0 0% 4%;
-    --foreground: 0 0% 93%;
+    /* 🌙 Midnight Mode — Deep Indigo-Blue */
+    --background: 225 20% 4%;
+    --foreground: 220 15% 92%;
 
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 93%;
+    --card: 225 18% 7%;
+    --card-foreground: 220 15% 92%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 93%;
+    --popover: 225 18% 7%;
+    --popover-foreground: 220 15% 92%;
 
-    /* Blue accent for dark mode */
-    --primary: 220 70% 55%;
-    --primary-foreground: 0 0% 98%;
+    /* Vivid sapphire blue accent */
+    --primary: 218 80% 56%;
+    --primary-foreground: 0 0% 99%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 93%;
+    --secondary: 222 15% 12%;
+    --secondary-foreground: 220 15% 92%;
 
-    --muted: 0 0% 11%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 222 12% 10%;
+    --muted-foreground: 220 8% 42%;
 
-    --accent: 0 0% 14%;
-    --accent-foreground: 0 0% 93%;
+    --accent: 222 18% 13%;
+    --accent-foreground: 220 15% 92%;
 
-    --destructive: 0 72% 55%;
-    --destructive-foreground: 0 0% 93%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 95%;
 
-    --border: 0 0% 14%;
-    --input: 0 0% 14%;
-    --ring: 220 70% 55%;
+    --border: 222 14% 14%;
+    --input: 222 14% 14%;
+    --ring: 218 80% 56%;
 
-    /* Dark Liquid Glass — deep black with blue tint */
-    --glass-bg: 0 0% 6% / 0.88;
-    --glass-border: 220 30% 30% / 0.25;
-    --glass-highlight: 220 50% 90% / 0.06;
-    --glass-shadow: 0 0% 0% / 0.7;
-    --glass-blur: 48px;
-    --glass-refraction: 220 40% 85% / 0.04;
+    /* Dark Liquid Glass — inky black with sapphire refraction */
+    --glass-bg: 225 20% 5% / 0.9;
+    --glass-border: 218 30% 25% / 0.3;
+    --glass-highlight: 218 55% 88% / 0.08;
+    --glass-shadow: 225 40% 2% / 0.75;
+    --glass-blur: 52px;
+    --glass-refraction: 218 40% 80% / 0.05;
 
-    /* Dark specular — blue tinted */
-    --specular-color: 220 45% 60% / 0.12;
-    --specular-inner: 220 25% 50% / 0.08;
+    /* Sapphire specular — cool blue edge light */
+    --specular-color: 218 50% 55% / 0.14;
+    --specular-inner: 218 30% 48% / 0.1;
 
-    /* Dark shadow gradient */
-    --reflection-start: 220 35% 90% / 0.08;
-    --reflection-mid: 0 0% 50% / 0.03;
-    --reflection-end: 0 0% 2% / 0.5;
+    /* Deep shadow gradient — inky with blue tint */
+    --reflection-start: 218 40% 88% / 0.1;
+    --reflection-mid: 225 20% 45% / 0.04;
+    --reflection-end: 225 15% 2% / 0.6;
 
-    /* Blue glow effects */
-    --divine-glow: 220 65% 50% / 0.2;
-    --divine-radiance: 220 60% 60% / 0.25;
-    --divine-halo: 220 50% 70% / 0.18;
+    /* Sapphire glow effects — vivid and luminous */
+    --divine-glow: 218 75% 52% / 0.25;
+    --divine-radiance: 218 70% 62% / 0.3;
+    --divine-halo: 215 55% 72% / 0.22;
 
     /* Legacy compatibility */
-    --moonbeam-glow: 220 65% 50% / 0.2;
-    --moonbeam-highlight: 220 60% 60% / 0.25;
+    --moonbeam-glow: 218 75% 52% / 0.25;
+    --moonbeam-highlight: 218 70% 62% / 0.3;
 
-    /* Chart colors — blue spectrum */
-    --chart-1: 220 70% 55%;
-    --chart-2: 200 60% 45%;
-    --chart-3: 48 96% 53%;
-    --chart-4: 240 50% 50%;
-    --chart-5: 210 55% 45%;
+    /* Chart colors — blue-indigo spectrum */
+    --chart-1: 218 78% 55%;
+    --chart-2: 200 65% 48%;
+    --chart-3: 45 90% 52%;
+    --chart-4: 258 55% 55%;
+    --chart-5: 190 60% 42%;
 
     /* Sidebar */
-    --sidebar-background: 0 0% 4%;
-    --sidebar-foreground: 0 0% 93%;
-    --sidebar-primary: 220 70% 55%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 93%;
-    --sidebar-border: 0 0% 14%;
-    --sidebar-ring: 220 70% 55%;
+    --sidebar-background: 225 20% 4%;
+    --sidebar-foreground: 220 15% 92%;
+    --sidebar-primary: 218 80% 56%;
+    --sidebar-primary-foreground: 0 0% 99%;
+    --sidebar-accent: 222 15% 12%;
+    --sidebar-accent-foreground: 220 15% 92%;
+    --sidebar-border: 222 14% 14%;
+    --sidebar-ring: 218 80% 56%;
   }
 }
 
@@ -206,21 +206,21 @@
   /* Apple Liquid Glass - Multi-layer refraction system */
   .liquid-glass {
     background: hsl(var(--glass-bg));
-    backdrop-filter: blur(var(--glass-blur)) saturate(180%) brightness(1.05);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%) brightness(1.05);
+    backdrop-filter: blur(var(--glass-blur)) saturate(190%) brightness(1.06);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(190%) brightness(1.06);
     border: 1px solid hsl(var(--glass-border));
     box-shadow: 
       /* Inner specular highlight */
       0 1px 0 0 inset hsl(var(--glass-highlight)),
       0 0 0 1px inset hsl(var(--glass-refraction)),
-      /* Outer shadow */
-      0 8px 32px hsl(var(--glass-shadow)),
-      0 2px 8px hsl(var(--glass-shadow));
+      /* Outer shadow — deeper, more layered */
+      0 12px 40px hsl(var(--glass-shadow)),
+      0 4px 12px hsl(var(--glass-shadow));
     position: relative;
     overflow: hidden;
   }
 
-  /* Reflection overlay */
+  /* Reflection overlay — smoother gradient */
   .liquid-glass::before {
     content: '';
     position: absolute;
@@ -229,16 +229,16 @@
     right: 0;
     height: 55%;
     background: linear-gradient(
-      to bottom,
+      175deg,
       hsl(var(--reflection-start)),
-      hsl(var(--reflection-mid)) 50%,
+      hsl(var(--reflection-mid)) 45%,
       hsl(var(--reflection-end))
     );
     pointer-events: none;
     border-radius: inherit;
   }
 
-  /* Specular edge shine */
+  /* Specular edge shine — crisper rim light */
   .liquid-glass::after {
     content: '';
     position: absolute;
@@ -500,15 +500,15 @@
   /* Dark mode 3D shadows */
   .dark .card-3d {
     box-shadow: 
-      0 2px 8px hsl(220 60% 5% / 0.4),
-      0 4px 16px hsl(220 50% 10% / 0.3);
+      0 2px 10px hsl(225 50% 5% / 0.5),
+      0 4px 20px hsl(218 45% 10% / 0.35);
   }
 
   .dark .card-3d:hover {
     box-shadow: 
-      0 20px 40px hsl(220 60% 10% / 0.6),
-      0 8px 16px hsl(220 70% 20% / 0.3),
-      -4px 4px 12px hsl(220 50% 30% / 0.2);
+      0 24px 48px hsl(225 55% 8% / 0.65),
+      0 10px 20px hsl(218 65% 18% / 0.35),
+      -4px 4px 16px hsl(218 50% 28% / 0.22);
   }
 
   /* Custom scrollbar */
@@ -702,12 +702,12 @@
     border-radius: inherit;
     background: radial-gradient(
       ellipse at 50% 20%,
-      hsl(220 70% 75% / 0.35) 0%,
-      hsl(215 60% 65% / 0.2) 40%,
+      hsl(218 80% 72% / 0.3) 0%,
+      hsl(218 65% 60% / 0.15) 40%,
       transparent 70%
     );
-    filter: blur(14px);
-    opacity: 0.4;
+    filter: blur(16px);
+    opacity: 0.5;
     transition: opacity 0.5s ease;
     z-index: -1;
     pointer-events: none;
@@ -717,17 +717,17 @@
     opacity: 1;
   }
 
-  /* Moon ambient glow for dark mode cards */
+  /* Moon ambient glow for dark mode cards — deeper sapphire */
   .dark .divine-card {
     box-shadow: 
-      0 4px 24px hsl(220 50% 20% / 0.4),
-      0 0 20px hsl(220 60% 50% / 0.1);
+      0 4px 28px hsl(225 50% 15% / 0.5),
+      0 0 24px hsl(218 65% 50% / 0.12);
   }
 
   .dark .divine-card:hover {
     box-shadow: 
-      0 8px 40px hsl(220 60% 30% / 0.5),
-      0 0 40px hsl(220 70% 60% / 0.2);
+      0 10px 48px hsl(225 55% 20% / 0.6),
+      0 0 48px hsl(218 75% 58% / 0.22);
   }
 
   .dark .moon-reflection {
@@ -745,10 +745,10 @@
     background: linear-gradient(
       90deg,
       transparent,
-      hsl(220 60% 85% / 0.2),
+      hsl(218 65% 82% / 0.18),
       transparent
     );
-    animation: moon-shimmer 3s ease-in-out infinite;
+    animation: moon-shimmer 3.5s ease-in-out infinite;
     pointer-events: none;
   }
 
@@ -772,11 +772,11 @@
     border-radius: 50%;
     background: radial-gradient(
       circle at 70% 30%,
-      hsl(220 70% 85% / 0.3) 0%,
-      hsl(215 60% 75% / 0.15) 40%,
+      hsl(218 75% 82% / 0.28) 0%,
+      hsl(218 60% 72% / 0.12) 40%,
       transparent 70%
     );
-    filter: blur(8px);
+    filter: blur(10px);
     opacity: 0;
     transition: opacity 0.5s ease;
     pointer-events: none;
@@ -790,21 +790,21 @@
   .dark .moonbeam-button {
     background: linear-gradient(
       135deg,
-      hsl(225 20% 12%) 0%,
-      hsl(220 18% 16%) 50%,
-      hsl(225 22% 14%) 100%
+      hsl(225 22% 10%) 0%,
+      hsl(222 20% 14%) 50%,
+      hsl(225 24% 12%) 100%
     );
     box-shadow: 
-      0 2px 8px hsl(220 50% 10% / 0.4),
-      0 0 0 1px hsl(220 30% 30% / 0.3) inset;
+      0 2px 10px hsl(225 50% 8% / 0.5),
+      0 0 0 1px hsl(218 35% 28% / 0.35) inset;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark .moonbeam-button:hover {
     box-shadow: 
-      0 4px 16px hsl(220 50% 20% / 0.5),
-      0 0 24px hsl(220 60% 50% / 0.15),
-      0 0 0 1px hsl(220 40% 40% / 0.4) inset;
+      0 6px 20px hsl(225 50% 15% / 0.6),
+      0 0 28px hsl(218 65% 50% / 0.18),
+      0 0 0 1px hsl(218 45% 38% / 0.45) inset;
     transform: translateY(-1px);
   }
 
@@ -817,7 +817,7 @@
     content: '';
     position: absolute;
     border-radius: 50%;
-    background: hsl(220 80% 90%);
+    background: hsl(218 80% 88%);
     animation: star-twinkle 2s ease-in-out infinite;
     pointer-events: none;
   }
