@@ -24,7 +24,6 @@ export function CollapsibleNavbar() {
   const { user } = useAuth();
 
   const navLinks = [
-    { href: "/anime", label: t("nav.anime") },
     { href: "/manga", label: t("nav.manga") },
     { href: "/originals", label: "Originals" },
     { href: "/seek", label: "Seek" },
@@ -33,11 +32,10 @@ export function CollapsibleNavbar() {
 
   // Mobile menu only shows non-swipable pages
   const mobileMenuLinks = [
-    { href: "/seasonal", label: "Seasonal" },
-    { href: "/schedule", label: "Schedule" },
     { href: "/news", label: t("nav.news") },
     { href: "/recommendations", label: t("nav.forYou") },
     { href: "/genres", label: "Genres" },
+    { href: "/rankings", label: "Rankings" },
     { href: "/for-creators", label: "For Creators" },
     { href: "/support", label: "Support" },
   ];
