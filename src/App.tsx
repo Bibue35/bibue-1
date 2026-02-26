@@ -116,8 +116,7 @@ const App = () => (
                         <AnimatedRoutes>
                           <Routes>
                             <Route path="/" element={<Index />} />
-                            <Route path="/anime" element={<AnimePage />} />
-                            <Route path="/anime/:id" element={<AnimeDetail />} />
+                            
                             <Route path="/manga" element={<MangaPage />} />
                             <Route path="/manga/:id" element={<MangaDetail />} />
                             <Route path="/news" element={<NewsPage />} />

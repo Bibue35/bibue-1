@@ -3,11 +3,10 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const stripLinks = [
-  { href: "/seasonal", label: "Seasonal" },
-  { href: "/schedule", label: "Schedule" },
   { href: "/news", label: "News" },
   { href: "/rankings", label: "Rankings" },
   { href: "/seek", label: "Seek" },
+  { href: "/originals", label: "Originals" },
 ];
 
 export function ContextualBottomStrip() {
@@ -16,9 +15,8 @@ export function ContextualBottomStrip() {
   const location = useLocation();
   const pathname = location.pathname;
   const isHome = pathname === "/";
-  const isAnimePage = pathname === "/anime";
   const isMangaPage = pathname === "/manga";
-  const isAllowedPage = isHome || isAnimePage || isMangaPage;
+  const isAllowedPage = isHome || isMangaPage;
   
 
   useEffect(() => {

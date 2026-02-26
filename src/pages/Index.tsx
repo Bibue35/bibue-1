@@ -1,129 +1,92 @@
 /**
- * Bibue - Anime & Manga Platform
- * Main landing page with modern mobile-first design
+ * Bibue - Manga Platform
+ * Main landing page with MangaDex-sourced content
  */
 import { SEO, websiteJsonLd } from "@/components/SEO";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { SectionError } from "@/components/SectionError";
-import { HeroSection } from "@/components/HeroSection";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
-import { AnimeCard } from "@/components/AnimeCard";
-import { MangaCard } from "@/components/MangaCard";
-import { MobileAnimeCard } from "@/components/MobileAnimeCard";
-import { FeaturedCarousel } from "@/components/FeaturedCarousel";
+import { MangaDexCard } from "@/components/MangaDexCard";
 import { ContentSection } from "@/components/ContentSection";
 import { Footer } from "@/components/Footer";
 import { AdUnit } from "@/components/AdUnit";
-import { ScheduleSection } from "@/components/ScheduleSection";
 import { PullToRefresh } from "@/components/PullToRefresh";
-import { useTopAnime, useSeasonalAnime, useTopManga, useClassicAnime, useAllTimeTopAnime, useTrendingManhwa, useTrendingManhua } from "@/hooks/useAnimeData";
-import { CardSkeleton, CardSkeletonRow, HeroSkeleton } from "@/components/skeletons";
+import { CardSkeleton, CardSkeletonRow } from "@/components/skeletons";
 import { Link } from "react-router-dom";
-import { ArrowRight, Rocket, TrendingUp, Sparkles, Clock, BookOpen, Flame, History, Trophy, Zap, Play, Upload } from "lucide-react";
-import { ContinueWatchingRow, ContinueReadingRow } from "@/components/ContinueRow";
+import { ArrowRight, BookOpen, Flame, TrendingUp, Clock, Star, Zap, CheckCircle, Upload, History, Play, Sparkles } from "lucide-react";
+import { ContinueReadingRow } from "@/components/ContinueRow";
 import { useNotificationGenerator } from "@/hooks/useNotificationGenerator";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useViewingHistory } from "@/hooks/useViewingHistory";
-import { useMemo, useCallback } from "react";
+import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDeferredSection } from "@/hooks/useDeferredSection";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  useMangaDexPopular,
+  useMangaDexLatest,
+  useMangaDexTopRated,
+  useMangaDexManhwa,
+  useMangaDexManhua,
+  useMangaDexCompleted,
+} from "@/hooks/useMangaDexBrowse";
 
 const Index = () => {
-  // Above-fold hooks — load immediately
-  const { data: airingAnime, isLoading: airingLoading, isError: airingError, refetch: refetchAiring } = useTopAnime(1, 'airing');
-  const { data: seasonalAnime, isLoading: seasonalLoading, isError: seasonalError, refetch: refetchSeasonal } = useSeasonalAnime();
+  // Above-fold hooks
+  const { data: popular, isLoading: popularLoading, isError: popularError, refetch: refetchPopular } = useMangaDexPopular();
+  const { data: latest, isLoading: latestLoading, isError: latestError, refetch: refetchLatest } = useMangaDexLatest();
 
-  // Below-fold deferred rendering — only mount components when scrolled near
-  const popularSection = useDeferredSection("400px");
-  const upcomingSection = useDeferredSection("400px");
-  const allTimeSection = useDeferredSection("400px");
-  const classicSection = useDeferredSection("400px");
-  const mangaSection = useDeferredSection("400px");
+  // Below-fold deferred sections
+  const topRatedSection = useDeferredSection("400px");
+  const manhwaSection = useDeferredSection("400px");
+  const manhuaSection = useDeferredSection("400px");
+  const completedSection = useDeferredSection("400px");
 
-  const { data: popularAnime, isLoading: popularLoading, isError: popularError, refetch: refetchPopular } = useTopAnime(1, 'bypopularity', popularSection.isVisible);
-  const { data: upcomingAnime, isLoading: upcomingLoading, isError: upcomingError, refetch: refetchUpcoming } = useTopAnime(1, 'upcoming', upcomingSection.isVisible);
-  const { data: allTimeTop, isLoading: allTimeLoading, isError: allTimeError, refetch: refetchAllTime } = useAllTimeTopAnime(1, allTimeSection.isVisible);
-  const { data: classicAnime, isLoading: classicLoading, isError: classicError, refetch: refetchClassic } = useClassicAnime(1, classicSection.isVisible);
-  const { data: topManga, isLoading: topMangaLoading, isError: topMangaError, refetch: refetchTopManga } = useTopManga(1, undefined, 'popularity', mangaSection.isVisible);
-  const { data: trendingManhwa, isLoading: trendingManhwaLoading, isError: trendingManhwaError, refetch: refetchTrendingManhwa } = useTrendingManhwa(1, mangaSection.isVisible);
-  const { data: trendingManhua, isLoading: trendingManhuaLoading, isError: trendingManhuaError, refetch: refetchTrendingManhua } = useTrendingManhua(1, mangaSection.isVisible);
+  const { data: topRated, isLoading: topRatedLoading, isError: topRatedError, refetch: refetchTopRated } = useMangaDexTopRated(1, topRatedSection.isVisible);
+  const { data: manhwa, isLoading: manhwaLoading, isError: manhwaError, refetch: refetchManhwa } = useMangaDexManhwa(1, manhwaSection.isVisible);
+  const { data: manhua, isLoading: manhuaLoading, isError: manhuaError, refetch: refetchManhua } = useMangaDexManhua(1, manhuaSection.isVisible);
+  const { data: completed, isLoading: completedLoading, isError: completedError, refetch: refetchCompleted } = useMangaDexCompleted(1, completedSection.isVisible);
+
   const { t, language } = useLanguage();
   const { user } = useAuth();
-  
-  // Generate notifications on site visit
   useNotificationGenerator();
   const { history: viewingHistory } = useViewingHistory(10);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
-  // Pull-to-refresh handler
   const handleRefresh = useCallback(async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ["topAnime"] }),
-      queryClient.invalidateQueries({ queryKey: ["seasonalAnime"] }),
-      queryClient.invalidateQueries({ queryKey: ["topManga"] }),
-      queryClient.invalidateQueries({ queryKey: ["classicAnime"] }),
-      queryClient.invalidateQueries({ queryKey: ["allTimeTopAnime"] }),
-      queryClient.invalidateQueries({ queryKey: ["trendingManhwa"] }),
-      queryClient.invalidateQueries({ queryKey: ["trendingManhua"] }),
-    ]);
+    await queryClient.invalidateQueries({ queryKey: ["mangadex-browse"] });
   }, [queryClient]);
-
-  // Get recommended anime for hero section
-  const heroAnime = useMemo(() => {
-    if (!seasonalAnime?.length) return [];
-    
-    const airingAnime = seasonalAnime
-      .filter(anime => anime.status === "RELEASING")
-      .sort((a, b) => {
-        const scoreA = a.score || 0;
-        const scoreB = b.score || 0;
-        const popA = a.popularity || 999999;
-        const popB = b.popularity || 999999;
-        
-        if (scoreB !== scoreA) return scoreB - scoreA;
-        return popA - popB;
-      });
-    
-    return airingAnime.slice(0, 5);
-  }, [seasonalAnime, user]);
 
   return (
     <>
       <SEO
         title={undefined}
-        description="Discover your next favorite anime and manga with Bibue. Track your watchlist, explore trending titles, and connect with the community."
+        description="Discover your next favorite manga, manhwa, and manhua on Bibue. Track your reading list, explore trending titles, and connect with the community."
         url="/"
         jsonLd={websiteJsonLd()}
       />
       <CollapsibleNavbar />
       <PullToRefresh onRefresh={handleRefresh}>
       <main id="main-content">
-      
-      {/* Hero Section - Use FeaturedCarousel on mobile for cleaner look */}
-      {isMobile ? (
-        <section className="pb-4">
-          <div className="container mx-auto px-3">
-            <FeaturedCarousel 
-              items={heroAnime.length > 0 ? heroAnime : (seasonalAnime?.slice(0, 5) || [])} 
-              isLoading={seasonalLoading}
-              autoPlayInterval={8000}
-            />
+
+      {/* Hero - Featured Popular Manga */}
+      <section className="pt-20 pb-6 sm:pb-8">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="flex items-center gap-2 mb-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">Discover Manga</h1>
+            <span className="font-jp text-sm text-muted-foreground">マンガ</span>
           </div>
-        </section>
-      ) : (
-        <HeroSection
-          featuredAnime={heroAnime.length > 0 ? heroAnime : seasonalAnime?.slice(0, 5)} 
-          isLoading={seasonalLoading} 
-        />
-      )}
+          <p className="text-sm sm:text-base text-muted-foreground max-w-xl mb-6">
+            Browse thousands of manga, manhwa, and manhua — all sourced from MangaDex.
+          </p>
+        </div>
+      </section>
 
       {/* For Creators Banner */}
-      <section className="container mx-auto px-3 sm:px-4 py-4">
+      <section className="container mx-auto px-3 sm:px-4 pb-4">
         <Link
           to="/for-creators"
           className="group flex items-center justify-between gap-4 px-5 py-3.5 rounded-2xl border border-border/50 bg-card/50 hover:bg-card/80 hover:border-primary/30 transition-all duration-200"
@@ -141,89 +104,52 @@ const Index = () => {
         </Link>
       </section>
 
-      {/* Continue Watching/Reading - Top priority for logged-in users */}
-      <ContinueWatchingRow />
+      {/* Continue Reading */}
       <ContinueReadingRow />
 
-      {/* Recently Viewed - Only for logged-in users with history */}
+      {/* Recently Viewed */}
       {user && viewingHistory.length > 0 && (
-        <ContentSection
-          title={t("history.recentlyViewed") || "Recently Viewed"}
-          icon={History}
-          linkTo="/history"
-          linkText={t("section.seeAll")}
-          compact
-        >
+        <ContentSection title="Recently Viewed" icon={History} linkTo="/history" linkText="See all" compact>
           <HorizontalScroll showArrows={false}>
             {viewingHistory.map((entry) => (
               <Link
                 key={entry.id}
                 to={`/${entry.media_type}/${entry.media_id}`}
                 className="flex-shrink-0 w-28 sm:w-36 md:w-44 group"
-                style={{ scrollSnapAlign: "start" }}
               >
                 <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted mb-1.5">
                   {entry.image_url ? (
-                    <img
-                      src={entry.image_url}
-                      alt={`${entry.title} cover art`}
-                      width={150}
-                      height={225}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
-                      decoding="async"
-                    />
+                    <img src={entry.image_url} alt={entry.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      {entry.media_type === "anime" ? (
-                        <Play className="w-8 h-8 text-muted-foreground" />
-                      ) : (
-                        <BookOpen className="w-8 h-8 text-muted-foreground" />
-                      )}
+                      <BookOpen className="w-8 h-8 text-muted-foreground" />
                     </div>
                   )}
-                  {/* Resume indicator */}
-                  {(entry.last_episode || entry.last_chapter) && (
+                  {(entry.last_chapter) && (
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 to-transparent px-2 py-1.5">
-                      <span className="text-[10px] font-medium">
-                        {entry.last_episode
-                          ? `EP ${entry.last_episode}`
-                          : `CH ${entry.last_chapter}`}
-                      </span>
+                      <span className="text-[10px] font-medium">CH {entry.last_chapter}</span>
                     </div>
                   )}
                 </div>
-                <p className="text-xs sm:text-sm font-medium truncate group-hover:text-primary transition-colors">
-                  {entry.title}
-                </p>
+                <p className="text-xs sm:text-sm font-medium truncate group-hover:text-primary transition-colors">{entry.title}</p>
               </Link>
             ))}
           </HorizontalScroll>
         </ContentSection>
       )}
 
-      {/* Trending Now - Mobile-optimized horizontal scroll with larger cards */}
-      <ContentSection
-        title={t("section.trending")}
-        titleJp={t("section.trendingJp")}
-        icon={Flame}
-        linkTo="/anime?filter=airing"
-        compact
-      >
-        {airingError ? (
-          <SectionError onRetry={() => refetchAiring()} />
+      {/* 🔥 Popular Manga */}
+      <ContentSection title="Popular" titleJp="人気" icon={Flame} linkTo="/manga" compact>
+        {popularError ? (
+          <SectionError onRetry={() => refetchPopular()} />
         ) : (
-          <HorizontalScroll showArrows={false}>
-            {airingLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-44" />
+          <HorizontalScroll showArrows={!isMobile}>
+            {popularLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
-              airingAnime?.slice(0, 10).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-44" style={{ scrollSnapAlign: "start" }}>
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} eager={index < 4} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} eager={index < 6} />
-                  )}
+              popular?.slice(0, 12).map((manga, index) => (
+                <div key={manga.id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaDexCard manga={manga} index={index} eager={index < 4} />
                 </div>
               ))
             )}
@@ -231,30 +157,18 @@ const Index = () => {
         )}
       </ContentSection>
 
-      {/* Schedule Section */}
-      <ScheduleSection />
-
-      {/* This Season's Hits */}
-      <ContentSection
-        title={t("section.thisSeason")}
-        titleJp={t("section.thisSeasonJp")}
-        icon={Sparkles}
-        linkTo="/anime?filter=seasonal"
-      >
-        {seasonalError ? (
-          <SectionError onRetry={() => refetchSeasonal()} />
+      {/* 🆕 Recently Updated */}
+      <ContentSection title="Recently Updated" titleJp="最新" icon={Clock} linkTo="/manga?sort=latest" compact>
+        {latestError ? (
+          <SectionError onRetry={() => refetchLatest()} />
         ) : (
           <HorizontalScroll showArrows={!isMobile}>
-            {seasonalLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            {latestLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
-              seasonalAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44" style={{ scrollSnapAlign: "start" }}>
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
+              latest?.slice(0, 12).map((manga, index) => (
+                <div key={manga.id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaDexCard manga={manga} index={index} />
                 </div>
               ))
             )}
@@ -267,30 +181,20 @@ const Index = () => {
         <AdUnit slot="1234567890" format="horizontal" className="my-4 sm:my-6 md:my-8" />
       </div>
 
-      {/* Most Popular */}
-      <div ref={popularSection.ref}>
-      {popularSection.isVisible ? (
-      <ContentSection
-        title={t("anime.mostPopular")}
-        titleJp={t("anime.mostPopularJp")}
-        icon={TrendingUp}
-        linkTo="/rankings?type=anime"
-        linkText={t("section.rankings")}
-      >
-        {popularError ? (
-          <SectionError onRetry={() => refetchPopular()} />
+      {/* ⭐ Top Rated */}
+      <div ref={topRatedSection.ref}>
+      {topRatedSection.isVisible ? (
+      <ContentSection title="Top Rated" titleJp="最高評価" icon={Star} linkTo="/manga?sort=rating">
+        {topRatedError ? (
+          <SectionError onRetry={() => refetchTopRated()} />
         ) : (
           <HorizontalScroll showArrows={!isMobile}>
-            {popularLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            {topRatedLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
-              popularAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44" style={{ scrollSnapAlign: "start" }}>
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
+              topRated?.slice(0, 12).map((manga, index) => (
+                <div key={manga.id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaDexCard manga={manga} index={index} />
                 </div>
               ))
             )}
@@ -300,29 +204,20 @@ const Index = () => {
       ) : <div className="py-6 sm:py-10" />}
       </div>
 
-      {/* Coming Soon */}
-      <div ref={upcomingSection.ref}>
-      {upcomingSection.isVisible ? (
-      <ContentSection
-        title={t("anime.comingSoon")}
-        titleJp={t("anime.comingSoonJp")}
-        icon={Clock}
-        linkTo="/anime?filter=upcoming"
-      >
-        {upcomingError ? (
-          <SectionError onRetry={() => refetchUpcoming()} />
+      {/* 🇰🇷 Manhwa */}
+      <div ref={manhwaSection.ref}>
+      {manhwaSection.isVisible ? (
+      <ContentSection title="Trending Manhwa" titleJp="マンファ" icon={Zap} linkTo="/manga?filter=manhwa">
+        {manhwaError ? (
+          <SectionError onRetry={() => refetchManhwa()} />
         ) : (
           <HorizontalScroll showArrows={!isMobile}>
-            {upcomingLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            {manhwaLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
-              upcomingAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44" style={{ scrollSnapAlign: "start" }}>
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
+              manhwa?.slice(0, 12).map((manga, index) => (
+                <div key={manga.id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaDexCard manga={manga} index={index} />
                 </div>
               ))
             )}
@@ -332,62 +227,20 @@ const Index = () => {
       ) : <div className="py-6 sm:py-10" />}
       </div>
 
-      {/* All-Time Top Rated */}
-      <div ref={allTimeSection.ref}>
-      {allTimeSection.isVisible ? (
-      <ContentSection
-        title={t("anime.allTimeTop")}
-        titleJp={t("anime.allTimeTopJp")}
-        icon={Trophy}
-        linkTo="/rankings?type=anime&sort=score"
-      >
-        {allTimeError ? (
-          <SectionError onRetry={() => refetchAllTime()} />
+      {/* 🇨🇳 Manhua */}
+      <div ref={manhuaSection.ref}>
+      {manhuaSection.isVisible ? (
+      <ContentSection title="Trending Manhua" titleJp="漫画" icon={Zap} linkTo="/manga?filter=manhua">
+        {manhuaError ? (
+          <SectionError onRetry={() => refetchManhua()} />
         ) : (
           <HorizontalScroll showArrows={!isMobile}>
-            {allTimeLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+            {manhuaLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
             ) : (
-              allTimeTop?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44" style={{ scrollSnapAlign: "start" }}>
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
-        )}
-      </ContentSection>
-      ) : <div className="py-6 sm:py-10" />}
-      </div>
-
-      {/* Classic Anime (Pre-2010) */}
-      <div ref={classicSection.ref}>
-      {classicSection.isVisible ? (
-      <ContentSection
-        title={t("anime.classicAnime")}
-        titleJp={t("anime.classicAnimeJp")}
-        icon={History}
-        linkTo="/classics"
-        linkText={t("section.browseByDecade")}
-      >
-        {classicError ? (
-          <SectionError onRetry={() => refetchClassic()} />
-        ) : (
-          <HorizontalScroll showArrows={!isMobile}>
-            {classicLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
-            ) : (
-              classicAnime?.slice(0, 12).map((anime, index) => (
-                <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44" style={{ scrollSnapAlign: "start" }}>
-                  {isMobile ? (
-                    <MobileAnimeCard anime={anime} index={index} />
-                  ) : (
-                    <AnimeCard anime={anime} index={index} />
-                  )}
+              manhua?.slice(0, 12).map((manga, index) => (
+                <div key={manga.id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaDexCard manga={manga} index={index} />
                 </div>
               ))
             )}
@@ -402,117 +255,31 @@ const Index = () => {
         <AdUnit slot="2345678901" format="horizontal" className="my-4 sm:my-6 md:my-8" />
       </div>
 
-      {/* ===== MANGA SECTION ===== */}
-      <div ref={mangaSection.ref}>
-      {mangaSection.isVisible ? (
-      <>
-      <section className="py-10 sm:py-16 md:py-20">
-        <div className="container mx-auto px-3 sm:px-4">
-          {/* Manga Section Header */}
-          <div className="flex items-center justify-between mb-6 sm:mb-8 md:mb-10">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-primary/10">
-                <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">{t("index.manga")}</h2>
-                {language === "ja" && <p className="font-jp text-xs sm:text-sm text-muted-foreground">{t("index.mangaJp")}</p>}
-              </div>
-            </div>
-            <Button variant="ghost" size="sm" className="gap-1 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3" asChild>
-              <Link to="/manga">
-                <span className="hidden xs:inline">{t("section.browseAll")}</span>
-                <span className="xs:hidden">{t("common.all")}</span>
-                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              </Link>
-            </Button>
-          </div>
-
-          {/* Manga Grid - responsive columns */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-            {/* Top Manga Column */}
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base sm:text-lg font-semibold">{t("section.topManga")}</h3>
-                <Link to="/manga" className="text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors">
-                  {t("section.seeAll")} →
-                </Link>
-              </div>
-              <div className="space-y-2 sm:space-y-3">
-                {topMangaError ? (
-                  <SectionError onRetry={() => refetchTopManga()} />
-                ) : topMangaLoading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <CardSkeleton key={i} variant="compact" />
-                  ))
-                ) : (
-                  topManga?.slice(0, 5).map((manga, index) => (
-                    <MangaCard key={manga.anilist_id} manga={manga} index={index} variant="compact" />
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* Manhwa Column - Trending */}
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base sm:text-lg font-semibold flex items-center gap-1.5">
-                  <Zap className="w-4 h-4 text-primary" />
-                  {t("section.trendingManhwa")}
-                </h3>
-                <Link to="/manga?filter=manhwa" className="text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors">
-                  {t("section.seeAll")} →
-                </Link>
-              </div>
-              <div className="space-y-2 sm:space-y-3">
-                {trendingManhwaError ? (
-                  <SectionError onRetry={() => refetchTrendingManhwa()} />
-                ) : trendingManhwaLoading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <CardSkeleton key={i} variant="compact" />
-                  ))
-                ) : (
-                  trendingManhwa?.slice(0, 5).map((manga, index) => (
-                    <MangaCard key={manga.anilist_id} manga={manga} index={index} variant="compact" />
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* Manhua Column - Trending */}
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base sm:text-lg font-semibold flex items-center gap-1.5">
-                  <Zap className="w-4 h-4 text-primary" />
-                  {t("section.trendingManhua")}
-                </h3>
-                <Link to="/manga?filter=manhua" className="text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors">
-                  {t("section.seeAll")} →
-                </Link>
-              </div>
-              <div className="space-y-2 sm:space-y-3">
-                {trendingManhuaError ? (
-                  <SectionError onRetry={() => refetchTrendingManhua()} />
-                ) : trendingManhuaLoading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <CardSkeleton key={i} variant="compact" />
-                  ))
-                ) : (
-                  trendingManhua?.slice(0, 5).map((manga, index) => (
-                    <MangaCard key={manga.anilist_id} manga={manga} index={index} variant="compact" />
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* ✓ Completed Series */}
+      <div ref={completedSection.ref}>
+      {completedSection.isVisible ? (
+      <ContentSection title="Completed Series" titleJp="完結" icon={CheckCircle} linkTo="/manga?status=completed">
+        {completedError ? (
+          <SectionError onRetry={() => refetchCompleted()} />
+        ) : (
+          <HorizontalScroll showArrows={!isMobile}>
+            {completedLoading ? (
+              <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+            ) : (
+              completed?.slice(0, 12).map((manga, index) => (
+                <div key={manga.id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <MangaDexCard manga={manga} index={index} />
+                </div>
+              ))
+            )}
+          </HorizontalScroll>
+        )}
+      </ContentSection>
+      ) : <div className="py-6 sm:py-10" />}
+      </div>
 
       <div className="container mx-auto px-3 sm:px-4">
         <AdUnit slot="3456789012" format="horizontal" className="my-4 sm:my-6 md:my-8" />
-      </div>
-      </>
-      ) : <div className="py-10 sm:py-16 md:py-20" />}
       </div>
 
       </main>
