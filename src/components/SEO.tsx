@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 const SITE_NAME = "Bibue";
 const SITE_URL = "https://bibue.net";
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
-const DEFAULT_DESCRIPTION = "Discover your next favorite anime and manga with Bibue. Track your watchlist, explore trending titles, get personalized recommendations, and connect with the community.";
+const DEFAULT_DESCRIPTION = "Discover your next favorite manga, manhwa & manhua with Bibue. Track your reading list, explore trending titles, get personalized recommendations, and connect with the community.";
 
 interface SEOProps {
   title?: string;
@@ -24,7 +24,7 @@ export function SEO({
   jsonLd,
   noIndex = false,
 }: SEOProps) {
-  const fullTitle = title ? `${title} - ${SITE_NAME}` : `${SITE_NAME} - Discover, Track & Share Your Favorite Anime & Manga`;
+  const fullTitle = title ? `${title} - ${SITE_NAME}` : `${SITE_NAME} - Discover, Track & Share Your Favorite Manga, Manhwa & Manhua`;
   const canonicalUrl = url ? `${SITE_URL}${url}` : undefined;
 
   return (
@@ -74,7 +74,7 @@ export function websiteJsonLd() {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: `${SITE_URL}/anime?q={search_term_string}`,
+        urlTemplate: `${SITE_URL}/manga?q={search_term_string}`,
       },
       "query-input": "required name=search_term_string",
     },

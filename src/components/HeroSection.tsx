@@ -79,7 +79,7 @@ export function HeroSection({ featuredAnime, isLoading }: HeroSectionProps) {
   }
 
   return (
-    <section aria-label="Featured anime" className="relative min-h-[65vh] sm:min-h-[75vh] md:min-h-[85vh] flex items-center overflow-hidden">
+    <section aria-label="Featured manga" className="relative min-h-[65vh] sm:min-h-[75vh] md:min-h-[85vh] flex items-center overflow-hidden">
       {/* Background Image with smooth transition */}
       <div className="absolute inset-0 z-0">
         <div className="relative w-full h-full transform-gpu">

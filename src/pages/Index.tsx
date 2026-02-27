@@ -1,5 +1,5 @@
 /**
- * Bibue - Anime & Manga Platform
+ * Bibue - Manga, Manhwa & Manhua Platform
  * Main landing page with modern mobile-first design
  */
 import { SEO, websiteJsonLd } from "@/components/SEO";
@@ -96,7 +96,7 @@ const Index = () => {
     <>
       <SEO
         title={undefined}
-        description="Discover your next favorite anime and manga with Bibue. Track your watchlist, explore trending titles, and connect with the community."
+        description="Discover your next favorite manga, manhwa & manhua with Bibue. Track your reading list, explore trending titles, and connect with the community."
         url="/"
         jsonLd={websiteJsonLd()}
       />

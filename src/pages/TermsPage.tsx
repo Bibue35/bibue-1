@@ -28,7 +28,7 @@ const TermsPage = () => (
 
         <section>
           <h2 className="text-lg font-semibold text-foreground mb-2">4. Content</h2>
-          <p>Anime and manga data is sourced from third-party APIs. We do not host or stream copyrighted content. User-generated content (reviews, comments, discussions) remains the property of the user but grants Bibue a license to display it on the platform.</p>
+          <p>Manga, manhwa, and manhua data is sourced from third-party APIs. We do not host or distribute copyrighted content. User-generated content (reviews, comments, discussions) remains the property of the user but grants Bibue a license to display it on the platform.</p>
         </section>
 
         <section>
@@ -38,7 +38,7 @@ const TermsPage = () => (
 
         <section>
           <h2 className="text-lg font-semibold text-foreground mb-2">6. Disclaimers</h2>
-          <p>Bibue is provided "as is" without warranties of any kind. We are not responsible for the accuracy of third-party anime/manga data or for any damages arising from use of the platform.</p>
+          <p>Bibue is provided "as is" without warranties of any kind. We are not responsible for the accuracy of third-party manga data or for any damages arising from use of the platform.</p>
         </section>
 
         <section>

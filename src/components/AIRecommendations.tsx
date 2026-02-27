@@ -70,7 +70,7 @@ export function AIRecommendations() {
 
       {!hasGenerated && !isLoading && (
         <p className="text-sm text-muted-foreground">
-          Based on your {ratedCount} rated anime, our AI will find personalized recommendations just for you.
+          Based on your {ratedCount} rated titles, our AI will find personalized recommendations just for you.
         </p>
       )}
 

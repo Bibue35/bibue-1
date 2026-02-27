@@ -38,7 +38,7 @@ const PrivacyPage = () => (
 
         <section>
           <h2 className="text-lg font-semibold text-foreground mb-2">6. Third-Party Services</h2>
-          <p>We integrate with third-party services such as AniList and MyAnimeList for syncing your anime and manga lists. These services have their own privacy policies.</p>
+          <p>We integrate with third-party services such as AniList and MyAnimeList for syncing your manga reading lists. These services have their own privacy policies.</p>
         </section>
 
         <section>
