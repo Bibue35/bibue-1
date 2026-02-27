@@ -8,9 +8,9 @@ const GenresPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <CollapsibleNavbar />
-      <SEO
-        title="Browse Anime by Genre"
-        description="Explore anime by genre. Find the best action, romance, comedy, thriller, horror, isekai, and more anime series."
+       <SEO
+        title="Browse Manga by Genre"
+        description="Explore manga, manhwa & manhua by genre. Find the best action, romance, comedy, thriller, horror, isekai, and more series."
         url="/genres"
       />
 
@@ -18,7 +18,7 @@ const GenresPage = () => {
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">Browse by Genre</h1>
           <p className="text-muted-foreground text-sm">
-            Discover the best anime across every genre — from heart-pounding action to heartwarming romance.
+            Discover the best manga, manhwa & manhua across every genre — from heart-pounding action to heartwarming romance.
           </p>
         </div>
 

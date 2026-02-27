@@ -11,7 +11,7 @@ export function Footer() {
               Bibue
             </Link>
             <p className="text-xs sm:text-sm text-muted-foreground mt-2 max-w-xs">
-              Discover, track, and share your favorite anime &amp; manga.
+              Discover, track, and share your favorite manga, manhwa &amp; manhua.
             </p>
           </div>
 

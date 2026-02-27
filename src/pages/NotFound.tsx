@@ -41,7 +41,7 @@ const NotFound = () => {
 
           <h1 className="text-2xl sm:text-3xl font-bold mb-3">{message}</h1>
           <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-            The page you're looking for has vanished into the void. But don't worry — there's plenty of anime and manga to explore!
+            The page you're looking for has vanished into the void. But don't worry — there's plenty of manga, manhwa & manhua to explore!
           </p>
 
           {/* Search bar */}
@@ -59,7 +59,7 @@ const NotFound = () => {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search for anime or manga..."
+              placeholder="Search for manga, manhwa or manhua..."
               className="w-full h-12 pl-11 pr-4 rounded-full bg-card border border-border/50 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
           </form>
@@ -73,7 +73,7 @@ const NotFound = () => {
               </Link>
             </Button>
             <Button variant="outline" asChild className="gap-2 rounded-full">
-              <Link to="/anime">
+              <Link to="/manga">
                 <TrendingUp className="w-4 h-4" />
                 Trending
               </Link>

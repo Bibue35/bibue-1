@@ -84,7 +84,7 @@ export function NotificationBell() {
                 <Bell className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">No notifications yet</p>
                 <p className="text-xs text-muted-foreground/60 mt-1">
-                  Enable notifications on anime you're watching
+                  Enable notifications on titles you're following
                 </p>
               </div>
             ) : (
