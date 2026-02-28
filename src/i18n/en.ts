@@ -11,6 +11,8 @@ const en: Record<string, string> = {
   "nav.search": "Search",
   "nav.settings": "Settings",
   "nav.saved": "Saved",
+  "hero.title": "Discover Manga, Manhwa & Manhua",
+  "hero.subtitle": "Track your reading list, explore trending titles, and connect with fellow readers.",
   "hero.watchNow": "Read Now",
   "hero.viewDetails": "View Details",
   "hero.rating": "Rating",

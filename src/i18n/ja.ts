@@ -10,6 +10,8 @@ const ja: Record<string, string> = {
   "nav.search": "検索",
   "nav.settings": "設定",
   "nav.saved": "保存済み",
+  "hero.title": "マンガ・マンファ・マンファを発見",
+  "hero.subtitle": "読書リストを管理し、トレンド作品を探索し、仲間の読者とつながりましょう。",
   "hero.watchNow": "今すぐ読む",
   "hero.viewDetails": "詳細を見る",
   "hero.rating": "評価",
