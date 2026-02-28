@@ -24,7 +24,6 @@ export function CollapsibleNavbar() {
   const { user } = useAuth();
 
   const navLinks = [
-    { href: "/anime", label: t("nav.anime") },
     { href: "/manga", label: t("nav.manga") },
     { href: "/originals", label: "Originals" },
     { href: "/seek", label: "Seek" },

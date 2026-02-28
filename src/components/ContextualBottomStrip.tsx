@@ -3,8 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const stripLinks = [
-  { href: "/seasonal", label: "Seasonal" },
-  { href: "/schedule", label: "Schedule" },
+  { href: "/manga", label: "Browse" },
   { href: "/news", label: "News" },
   { href: "/rankings", label: "Rankings" },
   { href: "/seek", label: "Seek" },
