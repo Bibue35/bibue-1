@@ -25,6 +25,7 @@ import { useMemo, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDeferredSection } from "@/hooks/useDeferredSection";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { CyclingText } from "@/components/CyclingText";
 
 const Index = () => {
   // Above-fold hooks
@@ -79,7 +80,12 @@ const Index = () => {
         <div className="container mx-auto px-3 sm:px-4">
           <div className="text-center space-y-3 sm:space-y-4 mb-8 sm:mb-12">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-              {t("hero.title") || "Discover Manga, Manhwa & Manhua"}
+              Discover{" "}
+              <CyclingText
+                words={["Manga", "Manhwa", "Manhua"]}
+                interval={2500}
+                className="text-primary"
+              />
             </h1>
             <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
               {t("hero.subtitle") || "Track your reading list, explore trending titles, and connect with fellow readers."}
