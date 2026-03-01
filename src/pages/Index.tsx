@@ -79,13 +79,14 @@ const Index = () => {
       <section className="pt-20 sm:pt-24 pb-6 sm:pb-10">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="text-center space-y-3 sm:space-y-4 mb-8 sm:mb-12">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-              Discover{" "}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+              Your Next{" "}
               <CyclingText
                 words={["Manga", "Manhwa", "Manhua"]}
                 interval={2500}
                 className="text-primary"
-              />
+              />{" "}
+              <span className="block sm:inline">Starts Here</span>
             </h1>
             <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
               {t("hero.subtitle") || "Track your reading list, explore trending titles, and connect with fellow readers."}
