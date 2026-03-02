@@ -22,6 +22,9 @@ import { FloatingHelpButton } from "@/components/FloatingHelpButton";
 import { ContextualBottomStrip } from "@/components/ContextualBottomStrip";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { FloatingUploadButton } from "@/components/FloatingUploadButton";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy load all page components for code splitting
@@ -113,6 +116,8 @@ const App = () => (
                     <FloatingHelpButton />
                     <ContextualBottomStrip />
                     <CreatorWelcomeModal />
+                    <PWAInstallPrompt />
+                    <FloatingUploadButton />
                     <Suspense fallback={<PageLoader />}>
                       <SwipeNavigationWrapper>
                         <AnimatedRoutes>
@@ -158,6 +163,7 @@ const App = () => (
                         </AnimatedRoutes>
                       </SwipeNavigationWrapper>
                     </Suspense>
+                    <MobileBottomNav />
                   </MessageNotificationProvider>
                 </BrowserRouter>
               </TooltipProvider>

@@ -1,17 +1,32 @@
 {
   "name": "Bibue",
   "short_name": "Bibue",
-  "description": "Discover, Track & Share Your Favorite Anime & Manga",
+  "description": "Discover, Track & Share Your Favorite Manga, Manhwa & Manhua",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "theme_color": "#0a0a0f",
   "background_color": "#0a0a0f",
+  "categories": ["entertainment", "books"],
   "icons": [
     {
       "src": "/favicon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Discover Manga",
+      "url": "/manga",
+      "icons": [{ "src": "/favicon.png", "sizes": "512x512" }]
+    },
+    {
+      "name": "Originals",
+      "url": "/originals",
+      "icons": [{ "src": "/favicon.png", "sizes": "512x512" }]
     }
   ]
 }
