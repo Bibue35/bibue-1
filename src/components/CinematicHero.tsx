@@ -214,7 +214,7 @@ export function CinematicHero() {
 
       {/* Right sidebar cards — absolute to section, right edge */}
       {!isMobile && (
-        <div className="hidden lg:flex flex-col gap-3 items-end absolute right-6 xl:right-10 top-1/2 -translate-y-1/2 z-20">
+        <div className="hidden lg:flex flex-col gap-3 items-end absolute right-6 xl:right-10 top-[40%] -translate-y-1/2 z-20">
           {sidebar.map((item, si) => {
             const ri = rotation.findIndex((r) => r.manga.anilist_id === item.manga.anilist_id);
             return (
