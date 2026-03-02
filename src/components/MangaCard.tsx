@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 import { getContentType, getContentLabel, getContentTypeBadgeClass } from "@/lib/contentType";
 const MangaDetailModal = lazy(() => import("./MangaDetailModal").then(m => ({ default: m.MangaDetailModal })));
 import { WatchlistButton } from "./WatchlistButton";
-import { TitleTooltip } from "./TitleTooltip";
 
 interface MangaCardProps {
   manga: Manga;
@@ -97,8 +96,8 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
         onClick={() => setModalOpen(true)}
         className="block group/card text-left w-full active:scale-[0.98] transition-transform duration-150 isolate"
       >
-        {/* Image with simple hover effect */}
-        <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted will-change-transform transform-gpu card-hover-glow">
+        {/* Image with hover lift + shadow */}
+        <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted will-change-transform transform-gpu transition-shadow duration-300 shadow-sm hover:shadow-xl hover:shadow-primary/10">
           <img
             src={manga.images.webp.image_url}
             alt={`${manga.title} cover art`}
@@ -107,18 +106,22 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
             loading="lazy"
             decoding="async"
             fetchPriority="auto"
-            sizes="(max-width: 480px) 33vw, (max-width: 768px) 25vw, (max-width: 1024px) 20vw, 176px"
+            sizes="(max-width: 480px) 30vw, (max-width: 768px) 22vw, (max-width: 1024px) 18vw, 176px"
             className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover/card:scale-105 will-change-transform transform-gpu"
           />
           {/* Chapter count badge */}
           {chapterCount && (
-            <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 bg-background/80 text-foreground text-[10px] sm:text-xs font-bold px-1 py-0.5 sm:px-1.5 rounded">
-              C{chapterCount}
+            <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 bg-background/80 backdrop-blur-sm text-foreground text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-md">
+              {chapterCount} ch
             </div>
           )}
+          {/* Start Reading overlay on hover */}
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 flex items-end justify-center pb-2">
+            <span className="text-[11px] sm:text-xs font-semibold text-foreground">Start Reading →</span>
+          </div>
           {/* Save button - appears on hover */}
           <div 
-            className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 opacity-0 group-hover/card:opacity-100 transition-all"
+            className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 opacity-0 group-hover/card:opacity-100 transition-all"
             onClick={(e) => e.stopPropagation()}
           >
             <WatchlistButton
@@ -129,46 +132,28 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
               image_url={manga.images.webp.image_url}
               score={manga.score}
               variant="icon"
-              className="bg-background/80 hover:bg-background h-7 w-7 sm:h-8 sm:w-8"
+              className="bg-background/80 backdrop-blur-sm hover:bg-background h-7 w-7 sm:h-8 sm:w-8"
             />
           </div>
         </div>
 
-        {/* Title with verification tooltip */}
-        <div className="flex items-start gap-1">
-          <h3 className="font-medium text-[11px] sm:text-xs md:text-sm line-clamp-2 mb-0.5 sm:mb-1 group-hover/card:text-foreground/80 transition-colors leading-tight flex-1">
-            {manga.title}
-          </h3>
-          <TitleTooltip 
-            romaji={manga.title_romaji}
-            english={manga.title_english}
-            native={manga.title_japanese}
-            className="mt-0.5 shrink-0"
-          />
-        </div>
+        {/* Title — single line on mobile, 2 lines on desktop */}
+        <h3 className="font-medium text-[11px] sm:text-xs md:text-sm line-clamp-1 sm:line-clamp-2 mb-0.5 sm:mb-1 group-hover/card:text-foreground/80 transition-colors leading-tight">
+          {manga.title}
+        </h3>
 
-        {/* Score */}
-        {manga.score && (
-          <div className="flex items-center gap-0.5 sm:gap-1 mb-0.5 sm:mb-1">
-            <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary fill-primary" />
-            <span className="text-[10px] sm:text-xs md:text-sm font-medium">{formatScore(manga.score)}</span>
-          </div>
-        )}
-
-        {/* Author */}
-        {manga.authors && manga.authors.length > 0 && (
-          <p className="text-[10px] sm:text-xs text-muted-foreground truncate mb-0.5">
-            {manga.authors[0].name}
-          </p>
-        )}
-
-        {/* Metadata underneath - always visible */}
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-[10px] sm:text-xs text-muted-foreground">
-          <span className={cn("font-medium", getContentTypeBadgeClass(contentType), "bg-transparent px-0 py-0")}>{typeLabel}</span>
-          {publishedYear && (
+        {/* Score + Author row */}
+        <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground">
+          {manga.score && (
+            <span className="inline-flex items-center gap-0.5 font-medium text-foreground">
+              <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary fill-primary" />
+              {formatScore(manga.score)}
+            </span>
+          )}
+          {manga.authors && manga.authors.length > 0 && (
             <>
-              <span>•</span>
-              <span>{publishedYear}</span>
+              {manga.score && <span>·</span>}
+              <span className="truncate">{manga.authors[0].name}</span>
             </>
           )}
         </div>

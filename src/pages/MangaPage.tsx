@@ -110,11 +110,11 @@ function GenreSwipeBar({ onSelect, activeGenre }: { onSelect: (id: string | null
 
   return (
     <div className="relative -mx-4 px-4 overflow-x-auto hide-scrollbar">
-      <div className="flex items-center gap-2 py-1 w-max">
+      <div className="flex items-center gap-1.5 sm:gap-2 py-1 w-max">
         {activeGenre && (
           <button
             onClick={() => handleSelect(null)}
-            className="flex-shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors active:scale-95"
+            className="flex-shrink-0 inline-flex items-center gap-1 px-3 py-2.5 min-h-[36px] rounded-full text-xs font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors active:scale-95"
           >
             <X className="w-3 h-3" /> Clear
           </button>
@@ -124,13 +124,13 @@ function GenreSwipeBar({ onSelect, activeGenre }: { onSelect: (id: string | null
             key={g.id}
             onClick={() => handleSelect(activeGenre === g.id ? null : g.id)}
             className={cn(
-              "flex-shrink-0 px-3.5 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap active:scale-95",
+              "flex-shrink-0 px-3 sm:px-3.5 py-2 sm:py-2 min-h-[36px] rounded-full text-[11px] sm:text-sm font-medium transition-all duration-200 whitespace-nowrap active:scale-95",
               activeGenre === g.id
                 ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
             )}
           >
-            {g.name}
+            {g.emoji} {g.name}
           </button>
         ))}
       </div>
@@ -252,20 +252,20 @@ export default function MangaPage() {
       {/* ── Search & Filters ── */}
       <section className="pt-24 sm:pt-28 pb-4">
         <div className="container mx-auto px-4">
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-6 sm:mb-8">
             <SearchDropdown
               type="manga"
               value={localSearch}
               onChange={setLocalSearch}
-              placeholder="Search any manga… (One Piece, Jujutsu Kaisen, genre, author...)"
+              placeholder="Search any manga…"
               size="large"
             />
           </div>
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-1">
-            {genreId ? `${genreName}` : isSearching ? `Results for "${debouncedSearch}"` : "Browse Manga"}
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-1 line-clamp-1">
+            {genreId ? `${genreName}` : isSearching ? `"${debouncedSearch}"` : "Browse Manga"}
           </h1>
-          <p className="text-sm text-muted-foreground mb-5">
+          <p className="text-xs sm:text-sm text-muted-foreground mb-5 sm:mb-6">
             {genreId
               ? `Top ${typeFilter !== "all" ? typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1) + " " : ""}${genreName} series`
               : "Your discovery hub for manga, manhwa & manhua."
@@ -337,14 +337,14 @@ export default function MangaPage() {
       {/* ── Carousel Sections (hidden when searching or genre-filtered) ── */}
       {showCarousels && (
         <>
-          {/* Recently Updated */}
+          {/* Recently Updated — carousel on mobile, grid on desktop */}
           <ContentSection title={t("manga.recentlyUpdated")} titleJp={t("manga.recentlyUpdatedJp")} icon={RefreshCw} linkTo="/manga">
             {recentlyUpdatedMangaError ? (
               <SectionError onRetry={() => refetchRecentlyUpdatedManga()} />
-            ) : (
-              <HorizontalScroll showArrows={!isMobile}>
+            ) : isMobile ? (
+              <HorizontalScroll showArrows={false}>
                 {recentlyUpdatedMangaLoading ? (
-                  <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+                  <CardSkeletonRow count={6} itemClassName="w-28" />
                 ) : (
                   recentlyUpdatedManga
                     ?.filter((m) => {
@@ -355,12 +355,35 @@ export default function MangaPage() {
                     })
                     .slice(0, 12)
                     .map((manga, index) => (
-                      <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                      <div key={manga.anilist_id} className="flex-shrink-0 w-28">
                         <MangaCard manga={manga} index={index} />
                       </div>
                     ))
                 )}
               </HorizontalScroll>
+            ) : (
+              recentlyUpdatedMangaLoading ? (
+                <div className="grid gap-4 grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <Skeleton key={i} className="aspect-[2/3] rounded-xl" />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid gap-4 grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+                  {recentlyUpdatedManga
+                    ?.filter((m) => {
+                      if (typeFilter === "all") return true;
+                      if (typeFilter === "manhwa") return m.countryOfOrigin === "KR";
+                      if (typeFilter === "manhua") return m.countryOfOrigin === "CN";
+                      return m.countryOfOrigin === "JP" || (!m.countryOfOrigin || (m.countryOfOrigin !== "KR" && m.countryOfOrigin !== "CN"));
+                    })
+                    .slice(0, 14)
+                    .map((manga, index) => (
+                      <MangaCard key={manga.anilist_id} manga={manga} index={index} />
+                    ))
+                  }
+                </div>
+              )
             )}
           </ContentSection>
 
@@ -473,14 +496,14 @@ export default function MangaPage() {
               </div>
             </div>
           ) : gridLoading ? (
-            <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
-              {Array.from({ length: 21 }).map((_, i) => (
+            <div className="grid gap-2.5 sm:gap-4 grid-cols-3 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8">
+              {Array.from({ length: 24 }).map((_, i) => (
                 <Skeleton key={i} className="aspect-[2/3] rounded-xl" />
               ))}
             </div>
           ) : (
             <>
-              <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+              <div className="grid gap-2.5 sm:gap-4 grid-cols-3 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8">
                 {allItems.map((manga, index) => (
                   <MangaCard key={`${manga.anilist_id}-${index}`} manga={manga} index={index} />
                 ))}
