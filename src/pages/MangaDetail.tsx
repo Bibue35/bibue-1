@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { SEO, creativeWorkJsonLd } from "@/components/SEO";
 import { useParams, Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Star, Heart, Bookmark, Eye, MessageCircle, Send, User, Loader2, Trophy, Users, Calendar, BookOpen, ExternalLink, Globe } from "lucide-react";
+import { Star, Heart, Bookmark, Eye, MessageCircle, Send, User, Loader2, Trophy, Users, Calendar, BookOpen, ExternalLink, Globe, ChevronDown } from "lucide-react";
 import { getContentType, getContentLabel, getContentTypeBadgeClass } from "@/lib/contentType";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -231,27 +232,35 @@ export default function MangaDetailPage() {
 
             {/* Genre Pills */}
             {manga?.genres && manga.genres.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {manga.genres.map((genre) => (
-                  <Link
-                    key={genre.mal_id}
-                    to={`/manga?genre=${genre.mal_id}`}
-                    className="px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium hover:bg-primary/20 transition-colors border border-primary/20"
-                  >
-                    {genre.name}
-                  </Link>
-                ))}
-                {manga?.themes?.map(theme => (
-                  <span key={theme.mal_id} className="px-3 py-1.5 rounded-full bg-muted text-muted-foreground text-xs border border-border/30">
-                    {theme.name}
-                  </span>
-                ))}
-                {(manga as any)?.demographics?.map((d: any) => (
-                  <span key={d.mal_id} className="px-3 py-1.5 rounded-full bg-muted text-foreground text-xs font-medium border border-border/30">
-                    {d.name}
-                  </span>
-                ))}
-              </div>
+              <Collapsible>
+                <CollapsibleTrigger className="flex items-center gap-2 group cursor-pointer w-full">
+                  <h2 className="uppercase text-[10px] sm:text-xs tracking-widest text-muted-foreground font-semibold">Genres & Themes</h2>
+                  <ChevronDown className="w-3.5 h-3.5 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-2">
+                  <div className="flex flex-wrap gap-2">
+                    {manga.genres.map((genre) => (
+                      <Link
+                        key={genre.mal_id}
+                        to={`/manga?genre=${genre.mal_id}`}
+                        className="px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium hover:bg-primary/20 transition-colors border border-primary/20"
+                      >
+                        {genre.name}
+                      </Link>
+                    ))}
+                    {manga?.themes?.map(theme => (
+                      <span key={theme.mal_id} className="px-3 py-1.5 rounded-full bg-muted text-muted-foreground text-xs border border-border/30">
+                        {theme.name}
+                      </span>
+                    ))}
+                    {(manga as any)?.demographics?.map((d: any) => (
+                      <span key={d.mal_id} className="px-3 py-1.5 rounded-full bg-muted text-foreground text-xs font-medium border border-border/30">
+                        {d.name}
+                      </span>
+                    ))}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             )}
 
             {/* ═══ PREMIUM STATISTICS PANEL ═══ */}
