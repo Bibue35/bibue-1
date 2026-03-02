@@ -257,36 +257,6 @@ export type Database = {
           },
         ]
       }
-      chapter_translations: {
-        Row: {
-          chapter_id: string
-          created_at: string
-          expires_at: string
-          id: string
-          page_index: number
-          source_language: string
-          translated_text: Json
-        }
-        Insert: {
-          chapter_id: string
-          created_at?: string
-          expires_at?: string
-          id?: string
-          page_index: number
-          source_language?: string
-          translated_text?: Json
-        }
-        Update: {
-          chapter_id?: string
-          created_at?: string
-          expires_at?: string
-          id?: string
-          page_index?: number
-          source_language?: string
-          translated_text?: Json
-        }
-        Relationships: []
-      }
       chapter_votes: {
         Row: {
           chapter_number: number
@@ -1569,30 +1539,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      translation_usage: {
-        Row: {
-          chapter_id: string
-          id: string
-          pages_count: number
-          used_at: string
-          user_id: string
-        }
-        Insert: {
-          chapter_id: string
-          id?: string
-          pages_count?: number
-          used_at?: string
-          user_id: string
-        }
-        Update: {
-          chapter_id?: string
-          id?: string
-          pages_count?: number
-          used_at?: string
-          user_id?: string
-        }
-        Relationships: []
       }
       user_badges: {
         Row: {
