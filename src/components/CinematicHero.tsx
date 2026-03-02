@@ -209,9 +209,9 @@ export function CinematicHero() {
               </Link>
             </div>
 
-            {/* Right sidebar */}
+            {/* Right sidebar — pinned to right edge */}
             {!isMobile && (
-              <div className="hidden lg:flex flex-col gap-3 w-28 xl:w-32 items-end">
+              <div className="hidden lg:flex flex-col gap-3 w-28 xl:w-32 items-end fixed right-6 xl:right-10 top-1/2 -translate-y-1/2 z-20">
                 {sidebar.map((item, si) => {
                   const ri = rotation.findIndex((r) => r.manga.anilist_id === item.manga.anilist_id);
                   return (
