@@ -18,7 +18,7 @@ import { SwipeNavigationWrapper } from "@/components/SwipeNavigationWrapper";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { BackToTop } from "@/components/BackToTop";
-import { FloatingHelpButton } from "@/components/FloatingHelpButton";
+
 import { ContextualBottomStrip } from "@/components/ContextualBottomStrip";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -114,7 +114,7 @@ const App = () => (
                   <MessageNotificationProvider>
                     <MiniPlayer />
                     <BackToTop />
-                    <FloatingHelpButton />
+                    
                     <ContextualBottomStrip />
                     <CreatorWelcomeModal />
                     <PWAInstallPrompt />
@@ -157,7 +157,7 @@ const App = () => (
                             <Route path="/originals" element={<OriginalsPage />} />
                             <Route path="/originals/:id" element={<OriginalSeriesDetail />} />
                             <Route path="/studio" element={<StudioPage />} />
-                            <Route path="/support" element={<SupportPage />} />
+                            <Route path="/support" element={<ProtectedRoute><SupportPage /></ProtectedRoute>} />
                             <Route path="/creator/dashboard" element={<ProtectedRoute><CreatorDashboard /></ProtectedRoute>} />
                             <Route path="/creator/:identifier" element={<CreatorProfile />} />
                             <Route path="*" element={<NotFound />} />
