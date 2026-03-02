@@ -176,7 +176,7 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
 
           {/* Genres */}
           {manga?.genres && manga.genres.length > 0 && (
-            <Collapsible defaultOpen>
+            <Collapsible>
               <CollapsibleTrigger className="flex items-center gap-2 group cursor-pointer w-full">
                 <h2 className="uppercase text-[10px] sm:text-xs tracking-widest text-muted-foreground font-semibold">Genres & Themes</h2>
                 <ChevronDown className="w-3.5 h-3.5 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
