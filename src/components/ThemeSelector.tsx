@@ -22,16 +22,11 @@ export function ThemeSelector({ variant = "icon" }: ThemeSelectorProps) {
       <button
         onClick={toggleTheme}
         className={cn(
-          "px-4 py-3 rounded-xl text-sm font-medium transition-colors w-full text-left flex items-center gap-3",
+          "px-4 py-3 rounded-xl text-sm font-medium transition-colors w-full text-left",
           "hover:bg-foreground/5 text-muted-foreground"
         )}
       >
-        {resolvedMode === "dark" ? (
-          <Moon className="h-4 w-4 text-primary" />
-        ) : (
-          <Sun className="h-4 w-4 text-primary" />
-        )}
-        {resolvedMode === "dark" ? "Moonlight Mode" : "Sunlight Mode"}
+        {resolvedMode === "dark" ? "Moonlight" : "Sunlight"}
       </button>
     );
   }

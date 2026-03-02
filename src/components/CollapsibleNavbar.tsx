@@ -35,12 +35,11 @@ export function CollapsibleNavbar() {
 
   // Mobile menu only shows non-swipable pages
   const mobileMenuLinks = [
-    { href: "/seasonal", label: "Seasonal" },
-    { href: "/schedule", label: "Schedule" },
     { href: "/news", label: t("nav.news") },
     { href: "/recommendations", label: t("nav.forYou") },
     { href: "/manga", label: "Browse by Genre" },
-    { href: "/refer", label: "🪙 Refer & Earn" },
+    { href: "/rankings", label: "Rankings" },
+    { href: "/refer", label: "Refer & Earn" },
     { href: "/for-creators", label: "For Creators" },
     ...(user ? [{ href: "/support", label: "Support" }] : []),
   ];
