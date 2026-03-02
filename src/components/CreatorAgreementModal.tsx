@@ -27,7 +27,7 @@ export function CreatorAgreementModal({ children }: { children: ReactNode }) {
 
             <Section title="1. Revenue Share & Earnings">
               <p>Creators receive <strong className="text-foreground">75% of net revenue</strong> generated from their content on Bibue. Net revenue is calculated after deducting hosting, infrastructure, maintenance, and payment processing fees.</p>
-              <p><strong className="text-foreground">Founder Bonus:</strong> Qualifying early creators receive an additional <strong className="text-[#FACC15]">5% bonus</strong> (total 80%) for the first 6 months following their first approved publication. The Founder Bonus is applied automatically and may be extended at Bibue's discretion.</p>
+              <p><strong className="text-foreground">Founder Bonus:</strong> Qualifying early creators receive an additional <strong className="text-primary">5% bonus</strong> (total 80%) for the first 6 months following their first approved publication. The Founder Bonus is applied automatically and may be extended at Bibue's discretion.</p>
               <p>Revenue is generated through Bibue's coin-based monetization system, where readers purchase coins to unlock chapters.</p>
             </Section>
 
@@ -94,7 +94,7 @@ export function CreatorAgreementModal({ children }: { children: ReactNode }) {
             </Section>
 
             <Section title="12. Privacy & Data">
-              <p>Your personal information (legal name, email, payment details) is collected solely for account management, payouts, and legal compliance. We do not sell your personal data to third parties. Your public display name and creator profile are visible to readers. For full details, see our <a href="/privacy" className="text-[#7C3AED] underline hover:text-[#7C3AED]/80">Privacy Policy</a>.</p>
+              <p>Your personal information (legal name, email, payment details) is collected solely for account management, payouts, and legal compliance. We do not sell your personal data to third parties. Your public display name and creator profile are visible to readers. For full details, see our <a href="/privacy" className="text-primary underline hover:text-primary/80">Privacy Policy</a>.</p>
             </Section>
 
             <Section title="13. Governing Law & Dispute Resolution">
@@ -110,7 +110,7 @@ export function CreatorAgreementModal({ children }: { children: ReactNode }) {
             </Section>
 
             <p className="pt-4 text-xs text-muted-foreground/70">
-              © 2026 Bibue. All rights reserved. Questions? Contact us at <a href="/support" className="text-[#7C3AED] underline">Support</a>.
+              © 2026 Bibue. All rights reserved. Questions? Contact us at <a href="/support" className="text-primary underline">Support</a>.
             </p>
           </div>
         </ScrollArea>
