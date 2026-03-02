@@ -83,7 +83,7 @@ const comparisonRows = [
     promotion: "Good",
     promotionSub: "",
     payout: "Monthly",
-    fee: "20–30%",
+    fee: "30%",
     highlighted: false,
   },
   {
