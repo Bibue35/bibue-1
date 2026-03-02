@@ -63,7 +63,20 @@ export default function OriginalsPage() {
       {/* Series Grid */}
       <section className="py-12 sm:py-20">
         <div className="container mx-auto px-4">
-          {series.length > 0 ? (
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Card key={i} className="overflow-hidden border-border/50 bg-card">
+                  <div className="aspect-[3/4] bg-muted skeleton-shimmer" />
+                  <CardContent className="p-5 space-y-3">
+                    <div className="h-5 w-3/4 bg-muted skeleton-shimmer rounded" />
+                    <div className="h-4 w-1/2 bg-muted skeleton-shimmer rounded" />
+                    <div className="h-3 w-2/3 bg-muted skeleton-shimmer rounded" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : series.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {series.map((s) => (
                 <Link key={s.id} to={`/originals/${s.id}`} className="group block">
