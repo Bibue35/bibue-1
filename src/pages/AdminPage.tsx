@@ -24,11 +24,13 @@ import {
 } from "lucide-react";
 import { SupportTicketsTab } from "@/components/admin/SupportTicketsTab";
 import { AdminChapterComments } from "@/components/admin/AdminChapterComments";
+import { StudioSubmissionsTab } from "@/components/admin/StudioSubmissionsTab";
 
-type Tab = "overview" | "creators" | "series" | "moderation" | "comments" | "analytics" | "payouts" | "support";
+type Tab = "overview" | "creators" | "series" | "moderation" | "comments" | "analytics" | "payouts" | "support" | "studio";
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "studio", label: "Studio Submissions", icon: FileText },
   { id: "creators", label: "Creators", icon: Users },
   { id: "series", label: "All Series", icon: BookOpen },
   { id: "moderation", label: "Moderation", icon: AlertTriangle },
@@ -130,6 +132,7 @@ export default function AdminPage() {
       <main className={cn("flex-1 min-h-screen", sidebarOpen ? "md:ml-0 ml-16" : "ml-16")}>
         <div className="p-4 sm:p-6 lg:p-8 max-w-7xl">
           {activeTab === "overview" && <OverviewTab />}
+          {activeTab === "studio" && <StudioSubmissionsTab />}
           {activeTab === "creators" && <CreatorsTab />}
           {activeTab === "series" && <SeriesTab />}
           {activeTab === "moderation" && <ModerationTab />}
