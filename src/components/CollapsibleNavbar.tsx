@@ -36,7 +36,7 @@ export function CollapsibleNavbar() {
     { href: "/schedule", label: "Schedule" },
     { href: "/news", label: t("nav.news") },
     { href: "/recommendations", label: t("nav.forYou") },
-    { href: "/genres", label: "Genres" },
+    { href: "/manga", label: "Browse by Genre" },
     { href: "/for-creators", label: "For Creators" },
     { href: "/support", label: "Support" },
   ];
