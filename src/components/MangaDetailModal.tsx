@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Link } from "react-router-dom";
-import { BookOpen, X, Star, Copy, Share2, MessageCircle, Send, User, ArrowUpDown, ThumbsUp, History, ChevronDown, Loader2, ExternalLink } from "lucide-react";
+import { BookOpen, X, Star, Copy, Share2, MessageCircle, Send, User, ArrowUpDown, ThumbsUp, History, ChevronDown, Loader2, ExternalLink, Heart, Trophy, Users, Calendar, Globe, BookMarked } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -503,43 +503,187 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
               />
             )}
 
+            {/* Score Card */}
+            {manga?.score && (
+              <div className="rounded-2xl sm:rounded-3xl bg-muted/30 border border-border/30 p-5 sm:p-6 text-center">
+                <div className="text-3xl sm:text-4xl font-bold text-foreground">{formatScore(manga.score)}</div>
+                <div className="flex items-center justify-center gap-1 mt-1">
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <Star key={i} className={cn("w-3.5 h-3.5", i <= Math.round(manga.score! / 2) ? "fill-foreground text-foreground" : "text-muted-foreground/30")} />
+                  ))}
+                </div>
+                {manga.scored_by && (
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-1.5">{manga.scored_by.toLocaleString()} users scored</p>
+                )}
+              </div>
+            )}
+
+            {/* Statistics */}
+            <div className="rounded-2xl sm:rounded-3xl bg-muted/30 border border-border/30 p-5 sm:p-6">
+              <h3 className="uppercase text-[10px] sm:text-xs tracking-widest text-muted-foreground mb-3 font-semibold">Statistics</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {manga?.rank && (
+                  <div className="flex items-center gap-2">
+                    <Trophy className="w-4 h-4 text-primary flex-shrink-0" />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground">Ranked</p>
+                      <p className="text-sm font-semibold">#{manga.rank}</p>
+                    </div>
+                  </div>
+                )}
+                {manga?.popularity && (
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-primary flex-shrink-0" />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground">Popularity</p>
+                      <p className="text-sm font-semibold">#{manga.popularity.toLocaleString()}</p>
+                    </div>
+                  </div>
+                )}
+                {manga?.members && (
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground">Members</p>
+                      <p className="text-sm font-semibold">{manga.members.toLocaleString()}</p>
+                    </div>
+                  </div>
+                )}
+                {manga?.favorites && (
+                  <div className="flex items-center gap-2">
+                    <Heart className="w-4 h-4 text-destructive flex-shrink-0" />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground">Favorites</p>
+                      <p className="text-sm font-semibold">{manga.favorites.toLocaleString()}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Info Card */}
             <div className="rounded-2xl sm:rounded-3xl bg-muted/30 border border-border/30 p-5 sm:p-6 text-sm space-y-0">
-              {manga?.authors && manga.authors.length > 0 && (
-                <div className="py-3 border-b border-border/20">
-                  <p className="text-muted-foreground text-xs">Author</p>
-                  <p className="font-medium mt-0.5">{manga.authors.map(a => a.name).join(", ")}</p>
-                </div>
-              )}
-              {(manga as any)?.serializations && (manga as any).serializations.length > 0 && (
-                <div className="py-3 border-b border-border/20">
-                  <p className="text-muted-foreground text-xs">Serialization</p>
-                  <p className="font-medium mt-0.5">{(manga as any).serializations.map((s: any) => s.name).join(", ")}</p>
-                </div>
-              )}
+              <h3 className="uppercase text-[10px] sm:text-xs tracking-widest text-muted-foreground mb-2 font-semibold">Information</h3>
               {manga?.type && (
-                <div className="py-3 border-b border-border/20">
+                <div className="py-2.5 border-b border-border/20">
                   <p className="text-muted-foreground text-xs">Type</p>
                   <p className="font-medium mt-0.5">{manga.type}</p>
                 </div>
               )}
+              {manga?.status && (
+                <div className="py-2.5 border-b border-border/20">
+                  <p className="text-muted-foreground text-xs">Status</p>
+                  <p className="font-medium mt-0.5">{manga.status === "RELEASING" ? "Publishing" : manga.status === "FINISHED" ? "Finished" : manga.status === "NOT_YET_RELEASED" ? "Not yet published" : manga.status === "HIATUS" ? "On Hiatus" : manga.status}</p>
+                </div>
+              )}
+              {manga?.published && (
+                <div className="py-2.5 border-b border-border/20">
+                  <p className="text-muted-foreground text-xs">Published</p>
+                  <p className="font-medium mt-0.5">
+                    {new Date(manga.published.from).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {manga.published.to ? ` to ${new Date(manga.published.to).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : manga.status === "RELEASING" ? " to ?" : ""}
+                  </p>
+                </div>
+              )}
               {manga?.chapters && (
-                <div className="py-3 border-b border-border/20">
-                  <p className="text-muted-foreground text-xs">Total Chapters</p>
+                <div className="py-2.5 border-b border-border/20">
+                  <p className="text-muted-foreground text-xs">Chapters</p>
                   <p className="font-medium mt-0.5">{manga.chapters}</p>
                 </div>
               )}
               {manga?.volumes && (
-                <div className="py-3 border-b border-border/20">
+                <div className="py-2.5 border-b border-border/20">
                   <p className="text-muted-foreground text-xs">Volumes</p>
                   <p className="font-medium mt-0.5">{manga.volumes}</p>
                 </div>
               )}
-              {manga?.members && (
-                <div className="py-3">
-                  <p className="text-muted-foreground text-xs">Members</p>
-                  <p className="font-medium mt-0.5">{manga.members.toLocaleString()}</p>
+              {manga?.source && (
+                <div className="py-2.5 border-b border-border/20">
+                  <p className="text-muted-foreground text-xs">Source</p>
+                  <p className="font-medium mt-0.5">{manga.source.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
                 </div>
+              )}
+              {manga?.countryOfOrigin && (
+                <div className="py-2.5 border-b border-border/20">
+                  <p className="text-muted-foreground text-xs">Origin</p>
+                  <p className="font-medium mt-0.5">{manga.countryOfOrigin === 'JP' ? '🇯🇵 Japan' : manga.countryOfOrigin === 'KR' ? '🇰🇷 South Korea' : manga.countryOfOrigin === 'CN' ? '🇨🇳 China' : manga.countryOfOrigin}</p>
+                </div>
+              )}
+              {manga?.authors && manga.authors.length > 0 && (
+                <div className="py-2.5 border-b border-border/20">
+                  <p className="text-muted-foreground text-xs">Author{manga.authors.length > 1 ? 's' : ''}</p>
+                  <p className="font-medium mt-0.5">{manga.authors.map(a => a.name).join(", ")}</p>
+                </div>
+              )}
+              {(manga as any)?.serializations && (manga as any).serializations.length > 0 && (
+                <div className="py-2.5 border-b border-border/20">
+                  <p className="text-muted-foreground text-xs">Serialization</p>
+                  <p className="font-medium mt-0.5">{(manga as any).serializations.map((s: any) => s.name).join(", ")}</p>
+                </div>
+              )}
+              {manga?.themes && manga.themes.length > 0 && (
+                <div className="py-2.5">
+                  <p className="text-muted-foreground text-xs">Themes</p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {manga.themes.map(t => (
+                      <span key={t.mal_id} className="px-2 py-0.5 rounded-full bg-muted text-[10px] text-muted-foreground">{t.name}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Alternative Titles */}
+            {(manga?.title_romaji || manga?.title_english || manga?.title_japanese) && (
+              <Collapsible>
+                <CollapsibleTrigger className="w-full flex items-center justify-between px-5 py-3 rounded-2xl bg-muted/30 border border-border/30 text-xs sm:text-sm hover:bg-muted/50 transition-colors cursor-pointer">
+                  <span className="font-medium text-muted-foreground">Alternative Titles</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-2 rounded-2xl bg-muted/30 border border-border/30 p-4 sm:p-5 text-sm space-y-0">
+                  {manga.title_english && manga.title_english !== manga.title && (
+                    <div className="py-2 border-b border-border/20">
+                      <p className="text-muted-foreground text-[10px]">English</p>
+                      <p className="font-medium mt-0.5 text-xs">{manga.title_english}</p>
+                    </div>
+                  )}
+                  {manga.title_romaji && manga.title_romaji !== manga.title && (
+                    <div className="py-2 border-b border-border/20">
+                      <p className="text-muted-foreground text-[10px]">Romaji</p>
+                      <p className="font-medium mt-0.5 text-xs">{manga.title_romaji}</p>
+                    </div>
+                  )}
+                  {manga.title_japanese && (
+                    <div className="py-2">
+                      <p className="text-muted-foreground text-[10px]">Japanese</p>
+                      <p className="font-medium mt-0.5 text-xs font-jp">{manga.title_japanese}</p>
+                    </div>
+                  )}
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+
+            {/* External Links */}
+            <div className="flex flex-col gap-2">
+              <a
+                href={`https://anilist.co/manga/${manga?.anilist_id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-muted/30 border border-border/30 text-xs sm:text-sm hover:bg-muted/50 transition-colors"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-primary" />
+                <span className="font-medium">View on AniList</span>
+              </a>
+              {manga?.idMal && (
+                <a
+                  href={`https://myanimelist.net/manga/${manga.idMal}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-muted/30 border border-border/30 text-xs sm:text-sm hover:bg-muted/50 transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-primary" />
+                  <span className="font-medium">View on MyAnimeList</span>
+                </a>
               )}
             </div>
 

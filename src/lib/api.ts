@@ -64,6 +64,7 @@ export interface Manga {
   anilist_id: number;
   /** @deprecated Use anilist_id instead. Kept for backward compatibility with existing code. */
   mal_id: number;
+  idMal?: number;
   title: string;
   title_romaji?: string;
   title_english?: string;
@@ -72,6 +73,7 @@ export interface Manga {
     jpg: { large_image_url: string; image_url: string };
     webp: { large_image_url: string; image_url: string };
   };
+  bannerImage?: string;
   synopsis?: string;
   score?: number;
   scored_by?: number;
@@ -84,8 +86,10 @@ export interface Manga {
   status?: string;
   published?: { from: string; to: string; string: string };
   genres?: Array<{ mal_id: number; name: string }>;
+  themes?: Array<{ mal_id: number; name: string }>;
   authors?: Array<{ mal_id: number; name: string }>;
   type?: string;
+  source?: string;
   countryOfOrigin?: string;
 }
 
@@ -216,11 +220,14 @@ function toManga(media: AniListMedia, language: SupportedLanguage = "en"): Manga
   const largeImageUrl = media.coverImage.extraLarge || media.coverImage.large || media.coverImage.medium || "";
   const cardImageUrl = media.coverImage.large || media.coverImage.extraLarge || media.coverImage.medium || largeImageUrl;
   
-  // IMPORTANT: Always use AniList ID for consistency across the app
-  // This ensures the ID passed to cards matches the ID used for detail fetches
+  // Separate genres from tags (tags with high rank act as themes/demographics)
+  const coreGenres = media.genres?.map((g, i) => ({ mal_id: i, name: g })) || [];
+  const tagThemes = media.tags?.filter(t => t.rank && t.rank >= 60).map((t, i) => ({ mal_id: 1000 + i, name: t.name })) || [];
+  
   return {
-    anilist_id: media.id, // Primary AniList ID for all API calls
-    mal_id: media.id, // Keep for backward compatibility (also AniList ID)
+    anilist_id: media.id,
+    mal_id: media.id,
+    idMal: media.idMal || undefined,
     title: getTitleForLanguage(media.title, language),
     title_romaji: media.title.romaji || undefined,
     title_english: media.title.english || undefined,
@@ -229,6 +236,7 @@ function toManga(media: AniListMedia, language: SupportedLanguage = "en"): Manga
       jpg: { large_image_url: largeImageUrl, image_url: cardImageUrl },
       webp: { large_image_url: largeImageUrl, image_url: cardImageUrl },
     },
+    bannerImage: media.bannerImage || undefined,
     synopsis: media.description?.replace(/<[^>]*>/g, "") || undefined,
     score: media.averageScore ? media.averageScore / 10 : undefined,
     scored_by: media.stats?.scoreDistribution?.reduce((sum, s) => sum + s.amount, 0) || undefined,
@@ -244,12 +252,11 @@ function toManga(media: AniListMedia, language: SupportedLanguage = "en"): Manga
       to: media.endDate?.year ? `${media.endDate.year}-${String(media.endDate.month || 1).padStart(2, "0")}-${String(media.endDate.day || 1).padStart(2, "0")}` : "",
       string: media.startDate.year ? `${media.startDate.year}` : "",
     } : undefined,
-    genres: [
-      ...(media.genres?.map((g, i) => ({ mal_id: i, name: g })) || []),
-      ...(media.tags?.filter(t => t.rank && t.rank >= 60).map((t, i) => ({ mal_id: 1000 + i, name: t.name })) || []),
-    ],
+    genres: [...coreGenres, ...tagThemes],
+    themes: tagThemes,
     authors: media.staff?.nodes?.filter(s => s.primaryOccupations?.includes("Mangaka"))?.map(s => ({ mal_id: s.id, name: s.name.full })) || [],
     type: media.format || undefined,
+    source: media.source || undefined,
     countryOfOrigin: media.countryOfOrigin || undefined,
   };
 }
