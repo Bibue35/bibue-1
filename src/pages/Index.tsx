@@ -99,8 +99,6 @@ const Index = () => {
       </section>
       )}
 
-      {/* Bibue Originals */}
-      <BibuOriginalsSection />
 
       {/* Continue Reading */}
       <ContinueReadingRow />
