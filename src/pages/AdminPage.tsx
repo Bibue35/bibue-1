@@ -2,10 +2,18 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { useAuth } from "@/contexts/AuthContext";
-import { useIsOwnerOrAdmin, useAdminOverview, useAdminCreators, useAdminSeries, useAdminModeration, useApproveModerationItem, useRejectModerationItem, useAdminPayouts, useMarkPaid, useCreatePayout } from "@/hooks/useAdminData";
+import { useIsOwnerOrAdmin, useAdminOverview, useAdminCreators, useAdminSeries, useAdminModeration, useAdminModerationCounts, useApproveModerationItem, useRejectModerationItem, useBulkModerationAction, useAdminPayouts, useMarkPaid, useCreatePayout } from "@/hooks/useAdminData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow, format } from "date-fns";
@@ -324,19 +332,122 @@ function SeriesTab() {
 
 // ─── Moderation Tab ───
 function ModerationTab() {
-  const { data: queue, isLoading } = useAdminModeration();
+  const [statusFilter, setStatusFilter] = useState("pending");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const { data: queue, isLoading } = useAdminModeration(statusFilter);
+  const { data: counts } = useAdminModerationCounts();
   const approve = useApproveModerationItem();
   const reject = useRejectModerationItem();
+  const bulkAction = useBulkModerationAction();
+
+  const toggleSelect = (id: string) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (!queue) return;
+    if (selected.size === queue.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(queue.map((i: any) => i.id)));
+    }
+  };
+
+  const handleBulk = (action: "approved" | "rejected") => {
+    if (selected.size === 0) return;
+    const items = queue?.filter((i: any) => selected.has(i.id)) || [];
+    bulkAction.mutate({
+      itemIds: Array.from(selected),
+      action,
+      chapterIds: items.map((i: any) => i.chapter_id),
+    });
+    setSelected(new Set());
+  };
+
+  const getContentType = (item: any) => {
+    const dir = item.series?.reading_direction;
+    const lang = item.series?.language;
+    if (dir === "ltr" && lang === "ko") return "Manhwa";
+    if (dir === "ltr" && lang === "zh") return "Manhua";
+    return "Manga";
+  };
+
+  const STATUS_FILTERS = [
+    { value: "pending", label: "Pending", count: counts?.pending },
+    { value: "approved", label: "Approved", count: counts?.approved },
+    { value: "rejected", label: "Rejected", count: counts?.rejected },
+    { value: "all", label: "All", count: counts?.total },
+  ];
 
   return (
     <div>
-      <h1 className="text-2xl font-bold font-sacred mb-6 flex items-center gap-2">
-        <AlertTriangle className="w-6 h-6 text-yellow-500" />
-        Moderation Queue
-        {queue && queue.length > 0 && (
-          <Badge variant="destructive" className="ml-2">{queue.length}</Badge>
-        )}
-      </h1>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-bold font-sacred flex items-center gap-2">
+          <AlertTriangle className="w-6 h-6 text-yellow-500" />
+          Moderation Queue
+        </h1>
+        <div className="flex items-center gap-2">
+          {/* Status filter pills */}
+          <div className="flex gap-1 p-1 rounded-xl bg-muted/30">
+            {STATUS_FILTERS.map((f) => (
+              <button
+                key={f.value}
+                onClick={() => { setStatusFilter(f.value); setSelected(new Set()); }}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
+                  statusFilter === f.value
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {f.label}
+                {f.count != null && f.count > 0 && (
+                  <span className="ml-1.5 text-[10px] opacity-70">({f.count})</span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Bulk actions bar */}
+      {selected.size > 0 && (
+        <div className="flex items-center gap-3 p-3 mb-4 rounded-xl bg-primary/5 border border-primary/20">
+          <span className="text-sm font-medium">{selected.size} selected</span>
+          <div className="flex gap-2 ml-auto">
+            <Button
+              size="sm"
+              variant="primary"
+              className="gap-1 text-xs"
+              disabled={bulkAction.isPending}
+              onClick={() => handleBulk("approved")}
+            >
+              <CheckCircle className="w-3.5 h-3.5" /> Approve All
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1 text-xs"
+              disabled={bulkAction.isPending}
+              onClick={() => handleBulk("rejected")}
+            >
+              <XCircle className="w-3.5 h-3.5" /> Reject All
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-xs"
+              onClick={() => setSelected(new Set())}
+            >
+              Clear
+            </Button>
+          </div>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
@@ -344,56 +455,142 @@ function ModerationTab() {
         <Card className="border-border/50">
           <CardContent className="p-8 text-center">
             <CheckCircle className="w-12 h-12 text-green-500/50 mx-auto mb-4" />
-            <p className="text-muted-foreground">All clear! No pending items.</p>
+            <p className="text-muted-foreground">No {statusFilter === "all" ? "" : statusFilter} items found.</p>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
-          {queue.map((item: any) => (
-            <Card key={item.id} className="border-border/50">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <Badge variant="secondary" className="text-xs">{item.content_type}</Badge>
-                      {item.flagged_reason && (
-                        <Badge variant="destructive" className="text-xs">{item.flagged_reason}</Badge>
+        <Card className="border-border/50 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/30">
+                  <th className="py-3 px-3 text-left w-10">
+                    <Checkbox
+                      checked={selected.size === queue.length && queue.length > 0}
+                      onCheckedChange={toggleAll}
+                    />
+                  </th>
+                  <th className="py-3 px-3 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider">Title</th>
+                  <th className="py-3 px-3 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider">Creator</th>
+                  <th className="py-3 px-3 text-center font-medium text-muted-foreground text-xs uppercase tracking-wider">Type</th>
+                  <th className="py-3 px-3 text-center font-medium text-muted-foreground text-xs uppercase tracking-wider">Content</th>
+                  <th className="py-3 px-3 text-center font-medium text-muted-foreground text-xs uppercase tracking-wider">Rating</th>
+                  <th className="py-3 px-3 text-center font-medium text-muted-foreground text-xs uppercase tracking-wider">Uploaded</th>
+                  <th className="py-3 px-3 text-center font-medium text-muted-foreground text-xs uppercase tracking-wider">Status</th>
+                  <th className="py-3 px-3 text-right font-medium text-muted-foreground text-xs uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {queue.map((item: any) => {
+                  const isSelected = selected.has(item.id);
+                  const title = item.content_type === "series"
+                    ? item.series?.title
+                    : `Ch. ${item.chapters?.chapter_number}${item.chapters?.title ? ` — ${item.chapters.title}` : ""}`;
+                  const seriesTitle = item.content_type === "chapter" ? item.series?.title : null;
+                  const contentType = getContentType(item);
+
+                  return (
+                    <tr
+                      key={item.id}
+                      className={cn(
+                        "border-b border-border/20 transition-colors",
+                        isSelected ? "bg-primary/5" : "hover:bg-muted/20"
                       )}
-                    </div>
-                    <p className="font-medium text-sm">
-                      {item.content_type === "series" ? item.series?.title : `Chapter ${item.chapters?.chapter_number}${item.chapters?.title ? ` — ${item.chapters.title}` : ""}`}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {item.series?.title} · {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
-                    </p>
-                  </div>
-                  <div className="flex gap-2 shrink-0">
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      className="gap-1"
-                      disabled={approve.isPending}
-                      onClick={() => approve.mutate({ itemId: item.id, chapterId: item.chapter_id })}
                     >
-                      <CheckCircle className="w-3.5 h-3.5" />
-                      Approve
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-1"
-                      disabled={reject.isPending}
-                      onClick={() => reject.mutate({ itemId: item.id, reason: "Rejected by admin" })}
-                    >
-                      <XCircle className="w-3.5 h-3.5" />
-                      Reject
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                      <td className="py-3 px-3">
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => toggleSelect(item.id)}
+                        />
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="flex items-center gap-3">
+                          {item.series?.cover_image_url && (
+                            <img
+                              src={item.series.cover_image_url}
+                              alt=""
+                              className="w-9 h-12 rounded object-cover shrink-0 bg-muted"
+                            />
+                          )}
+                          <div className="min-w-0">
+                            <p className="font-medium text-sm truncate max-w-[200px]">{title}</p>
+                            {seriesTitle && (
+                              <p className="text-xs text-muted-foreground truncate max-w-[200px]">{seriesTitle}</p>
+                            )}
+                            {item.flagged_reason && (
+                              <p className="text-[10px] text-destructive mt-0.5">{item.flagged_reason}</p>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3 px-3 text-sm text-muted-foreground">{item.creatorName}</td>
+                      <td className="py-3 px-3 text-center">
+                        <Badge variant="outline" className="text-[10px]">{contentType}</Badge>
+                      </td>
+                      <td className="py-3 px-3 text-center">
+                        <Badge variant="secondary" className="text-[10px]">{item.content_type}</Badge>
+                      </td>
+                      <td className="py-3 px-3 text-center">
+                        <Badge variant="secondary" className="text-[10px]">{item.series?.content_rating || "—"}</Badge>
+                      </td>
+                      <td className="py-3 px-3 text-center text-xs text-muted-foreground whitespace-nowrap">
+                        {format(new Date(item.created_at), "MMM d, yyyy")}
+                      </td>
+                      <td className="py-3 px-3 text-center">
+                        <Badge
+                          variant={item.status === "approved" ? "default" : item.status === "rejected" ? "destructive" : "secondary"}
+                          className="text-[10px]"
+                        >
+                          {item.status}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="flex items-center gap-1.5 justify-end">
+                          {item.series?.title && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              title="Preview"
+                              onClick={() => window.open(`/originals/${item.series_id}`, "_blank")}
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </Button>
+                          )}
+                          {item.status === "pending" && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="primary"
+                                className="h-7 px-2.5 text-xs gap-1"
+                                disabled={approve.isPending}
+                                onClick={() => approve.mutate({ itemId: item.id, chapterId: item.chapter_id })}
+                              >
+                                <CheckCircle className="w-3 h-3" /> Approve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 px-2.5 text-xs gap-1"
+                                disabled={reject.isPending}
+                                onClick={() => reject.mutate({ itemId: item.id, reason: "Rejected by admin" })}
+                              >
+                                <XCircle className="w-3 h-3" /> Reject
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="px-4 py-3 border-t border-border/20 text-xs text-muted-foreground">
+            Showing {queue.length} item{queue.length !== 1 ? "s" : ""}
+          </div>
+        </Card>
       )}
     </div>
   );

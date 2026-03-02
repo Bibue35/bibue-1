@@ -121,19 +121,86 @@ export function useAdminSeries(search?: string) {
 }
 
 // ─── Content moderation queue ───
-export function useAdminModeration() {
+export function useAdminModeration(statusFilter: string = "pending") {
   return useQuery({
-    queryKey: ["admin-moderation"],
+    queryKey: ["admin-moderation", statusFilter],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("content_moderation_queue")
-        .select("*, series(title, content_rating), chapters(chapter_number, title)")
-        .eq("status", "pending")
-        .order("created_at", { ascending: false });
+        .select("*, series(title, content_rating, language, reading_direction, cover_image_url), chapters(chapter_number, title)")
+        .order("created_at", { ascending: false })
+        .limit(200);
 
+      if (statusFilter !== "all") {
+        query = query.eq("status", statusFilter);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+
+      // Get creator names
+      const creatorIds = [...new Set((data || []).map(d => d.creator_id))];
+      const { data: profiles } = await supabase
+        .from("creator_profiles")
+        .select("user_id, display_name")
+        .in("user_id", creatorIds);
+
+      const nameMap = new Map(profiles?.map(p => [p.user_id, p.display_name]) || []);
+
+      return (data || []).map(item => ({
+        ...item,
+        creatorName: nameMap.get(item.creator_id) || "Unknown",
+      }));
     },
+  });
+}
+
+export function useAdminModerationCounts() {
+  return useQuery({
+    queryKey: ["admin-moderation-counts"],
+    queryFn: async () => {
+      const [pending, approved, rejected] = await Promise.all([
+        supabase.from("content_moderation_queue").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("content_moderation_queue").select("id", { count: "exact", head: true }).eq("status", "approved"),
+        supabase.from("content_moderation_queue").select("id", { count: "exact", head: true }).eq("status", "rejected"),
+      ]);
+      return {
+        pending: pending.count || 0,
+        approved: approved.count || 0,
+        rejected: rejected.count || 0,
+        total: (pending.count || 0) + (approved.count || 0) + (rejected.count || 0),
+      };
+    },
+  });
+}
+
+export function useBulkModerationAction() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ itemIds, action, chapterIds }: { itemIds: string[]; action: "approved" | "rejected"; chapterIds?: (string | null)[] }) => {
+      const { error } = await supabase
+        .from("content_moderation_queue")
+        .update({ status: action, reviewed_at: new Date().toISOString() })
+        .in("id", itemIds);
+      if (error) throw error;
+
+      if (action === "approved" && chapterIds) {
+        const validIds = chapterIds.filter(Boolean) as string[];
+        if (validIds.length > 0) {
+          await supabase
+            .from("chapters")
+            .update({ status: "published", published_at: new Date().toISOString() })
+            .in("id", validIds);
+        }
+      }
+    },
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-moderation"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-moderation-counts"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-overview"] });
+      toast.success(`${vars.itemIds.length} item(s) ${vars.action}`);
+    },
+    onError: (e) => toast.error(e.message),
   });
 }
 
