@@ -82,31 +82,54 @@ const FORMAT_TABS = [
   { value: "manhua" as const, label: "Manhua" },
 ];
 
+/* ── Genre usage tracking ── */
+const GENRE_USAGE_KEY = "bibue_genre_usage";
+function getGenreUsage(): Record<string, number> {
+  try { return JSON.parse(localStorage.getItem(GENRE_USAGE_KEY) || "{}"); } catch { return {}; }
+}
+function trackGenreUsage(id: string) {
+  const usage = getGenreUsage();
+  usage[id] = (usage[id] || 0) + 1;
+  localStorage.setItem(GENRE_USAGE_KEY, JSON.stringify(usage));
+}
+
 /* ── Genre Swipe Bar ── */
 function GenreSwipeBar({ onSelect, activeGenre }: { onSelect: (id: string | null) => void; activeGenre: string | null }) {
+  const [sortedGenres, setSortedGenres] = useState(BROWSE_GENRES);
+
+  useEffect(() => {
+    const usage = getGenreUsage();
+    const sorted = [...BROWSE_GENRES].sort((a, b) => (usage[b.id] || 0) - (usage[a.id] || 0));
+    setSortedGenres(sorted);
+  }, [activeGenre]);
+
+  const handleSelect = (id: string | null) => {
+    if (id) trackGenreUsage(id);
+    onSelect(id);
+  };
+
   return (
     <div className="relative -mx-4 px-4 overflow-x-auto hide-scrollbar" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch", touchAction: "pan-x" }}>
       <div className="flex items-center gap-2 py-1 w-max">
         {activeGenre && (
           <button
-            onClick={() => onSelect(null)}
+            onClick={() => handleSelect(null)}
             className="flex-shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors active:scale-95"
           >
             <X className="w-3 h-3" /> Clear
           </button>
         )}
-        {BROWSE_GENRES.map((g) => (
+        {sortedGenres.map((g) => (
           <button
             key={g.id}
-            onClick={() => onSelect(activeGenre === g.id ? null : g.id)}
+            onClick={() => handleSelect(activeGenre === g.id ? null : g.id)}
             className={cn(
-              "flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap active:scale-95",
+              "flex-shrink-0 px-3.5 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap active:scale-95",
               activeGenre === g.id
                 ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
                 : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
             )}
           >
-            <span>{g.emoji}</span>
             {g.name}
           </button>
         ))}
