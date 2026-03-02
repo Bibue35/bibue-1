@@ -59,6 +59,7 @@ const SeekPage = lazy(() => import("./pages/SeekPage"));
 const ForCreatorsPage = lazy(() => import("./pages/ForCreatorsPage"));
 const CreatorDashboard = lazy(() => import("./pages/CreatorDashboard"));
 const OriginalsPage = lazy(() => import("./pages/OriginalsPage"));
+const OriginalSeriesDetail = lazy(() => import("./pages/OriginalSeriesDetail"));
 const SupportPage = lazy(() => import("./pages/SupportPage"));
 
 // Minimal loading fallback for route transitions
@@ -147,7 +148,7 @@ const App = () => (
                             <Route path="/seek" element={<SeekPage />} />
                             <Route path="/for-creators" element={<ForCreatorsPage />} />
                             <Route path="/originals" element={<OriginalsPage />} />
-                            <Route path="/originals/:id" element={<OriginalsPage />} />
+                            <Route path="/originals/:id" element={<OriginalSeriesDetail />} />
                             <Route path="/support" element={<SupportPage />} />
                             <Route path="/creator/dashboard" element={<ProtectedRoute><CreatorDashboard /></ProtectedRoute>} />
                             <Route path="*" element={<NotFound />} />
