@@ -297,7 +297,8 @@ export default function StudioPage() {
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground">
-                  By submitting, you confirm this is your original work and agree to our terms.
+                  By submitting, you confirm this is your original work and agree to our{" "}
+                  <a href="/terms" className="text-primary underline hover:text-primary/80 transition-colors">terms</a>.
                 </p>
               </form>
             </div>
