@@ -93,34 +93,33 @@ const Index = () => {
       <section className="pt-24 sm:pt-28 pb-8 sm:pb-12">
         <div className="container mx-auto px-4">
           {/* Title + CTAs */}
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-            <div>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight">
-                Discover Peak{" "}
-                <CyclingText
-                  words={["Manga", "Manhwa", "Manhua"]}
-                  interval={2500}
-                  className="text-primary"
-                />
-              </h1>
-              <div className="flex items-center gap-2 mt-3">
-                <Button asChild size="sm">
-                  <Link to="/manga">Browse All</Link>
-                </Button>
-                <HeroGenrePanel />
-              </div>
-            </div>
-          </div>
+          <div className="flex flex-col gap-4 mb-8">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight">
+              Discover Peak{" "}
+              <CyclingText
+                words={["Manga", "Manhwa", "Manhua"]}
+                interval={2500}
+                className="text-primary"
+              />
+            </h1>
 
-          {/* Search below hero text */}
-          <div className="flex justify-center mb-10 sm:mb-14">
-            <SearchDropdown
-              type="manga"
-              value={heroSearch}
-              onChange={handleSearchChange}
-              placeholder="Search any manga, manhwa, manhua…"
-              size="large"
-            />
+            {/* Search */}
+            <div className="flex justify-center sm:justify-start max-w-xl">
+              <SearchDropdown
+                type="manga"
+                value={heroSearch}
+                onChange={handleSearchChange}
+                placeholder="Search any manga, manhwa, manhua…"
+                size="large"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button asChild size="sm">
+                <Link to="/manga">Browse All</Link>
+              </Button>
+              <HeroGenrePanel />
+            </div>
           </div>
 
           {/* Featured Manga Row */}
