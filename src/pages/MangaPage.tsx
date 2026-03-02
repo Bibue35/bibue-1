@@ -176,58 +176,54 @@ export default function MangaPage() {
       />
       <CollapsibleNavbar />
 
-      {/* Hero with Search */}
-      <section className="pt-28 sm:pt-32 pb-6 sm:pb-8">
+      {/* Apple-style Search Hero */}
+      <section className="pt-24 sm:pt-28 pb-8 sm:pb-12">
         <div className="container mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
-              {t("manga.discover")}
-            </h1>
-            {language === "ja" && <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-6">{t("manga.discoverJp")}</p>}
-            
-            {/* Search Input */}
+          {/* Large Search Bar */}
+          <div className="flex justify-center mb-10 sm:mb-14">
             <SearchDropdown
               type="manga"
               value={localSearch}
               onChange={setLocalSearch}
-              placeholder={t("manga.searchPlaceholder")}
+              placeholder={t("manga.searchPlaceholder") || "Search any manga, manhwa, manhua…"}
+              size="large"
             />
+          </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap justify-center gap-2 mt-6">
-              {user ? (
-                <>
-                  <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
-                    <Link to="/recommendations">
-                      <Sparkles className="w-4 h-4" />
-                      {t("nav.forYou")}
-                    </Link>
-                  </Button>
-                </>
-              ) : null}
+          {/* Page Title */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6">
+            {t("manga.discover")}
+          </h1>
+          {language === "ja" && <p className="font-jp text-lg text-muted-foreground mb-6">{t("manga.discoverJp")}</p>}
+
+          {/* Type Filter Pills + Action Buttons */}
+          <div className="flex flex-wrap items-center gap-2">
+            {(["all", "manga", "manhwa", "manhua"] as const).map((type) => (
+              <Button
+                key={type}
+                variant={typeFilter === type ? "default" : "outline"}
+                size="sm"
+                className="rounded-full capitalize"
+                onClick={() => handleTypeFilter(type)}
+              >
+                {type === "all" ? t("common.all") : type.charAt(0).toUpperCase() + type.slice(1)}
+              </Button>
+            ))}
+            <div className="flex-1" />
+            {user && (
               <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
-                <Link to="/watchlist?type=manga">
-                  <Bookmark className="w-4 h-4" />
-                  {t("nav.saved")}
+                <Link to="/recommendations">
+                  <Sparkles className="w-4 h-4" />
+                  {t("nav.forYou")}
                 </Link>
               </Button>
-            </div>
-
-            {/* Type Filter Pills */}
-            <div className="flex flex-wrap justify-center gap-2 mt-4">
-              {(["all", "manga", "manhwa", "manhua"] as const).map((type) => (
-                <Button
-                  key={type}
-                  variant={typeFilter === type ? "primary" : "outline"}
-                  size="sm"
-                  className="rounded-full capitalize"
-                  onClick={() => handleTypeFilter(type)}
-                >
-                  {type === "all" ? t("common.all") : type.charAt(0).toUpperCase() + type.slice(1)}
-                </Button>
-              ))}
-            </div>
-
+            )}
+            <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
+              <Link to="/watchlist?type=manga">
+                <Bookmark className="w-4 h-4" />
+                {t("nav.saved")}
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
