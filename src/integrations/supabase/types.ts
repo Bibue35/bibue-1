@@ -431,6 +431,7 @@ export type Database = {
           id: string
           is_verified: boolean
           payout_status: string
+          referral_code: string | null
           social_links: Json | null
           status: string
           strike_count: number
@@ -447,6 +448,7 @@ export type Database = {
           id?: string
           is_verified?: boolean
           payout_status?: string
+          referral_code?: string | null
           social_links?: Json | null
           status?: string
           strike_count?: number
@@ -463,12 +465,49 @@ export type Database = {
           id?: string
           is_verified?: boolean
           payout_status?: string
+          referral_code?: string | null
           social_links?: Json | null
           status?: string
           strike_count?: number
           total_earned?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      creator_referrals: {
+        Row: {
+          bonus_activated_at: string | null
+          bonus_expires_at: string | null
+          created_at: string
+          has_uploaded: boolean
+          id: string
+          referral_code: string
+          referred_user_id: string
+          referrer_id: string
+          updated_at: string
+        }
+        Insert: {
+          bonus_activated_at?: string | null
+          bonus_expires_at?: string | null
+          created_at?: string
+          has_uploaded?: boolean
+          id?: string
+          referral_code: string
+          referred_user_id: string
+          referrer_id: string
+          updated_at?: string
+        }
+        Update: {
+          bonus_activated_at?: string | null
+          bonus_expires_at?: string | null
+          created_at?: string
+          has_uploaded?: boolean
+          id?: string
+          referral_code?: string
+          referred_user_id?: string
+          referrer_id?: string
+          updated_at?: string
         }
         Relationships: []
       }
