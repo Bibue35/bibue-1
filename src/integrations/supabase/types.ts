@@ -86,6 +86,76 @@ export type Database = {
         }
         Relationships: []
       }
+      chapter_comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapter_comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "chapter_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chapter_comments: {
+        Row: {
+          chapter_id: string
+          content: string
+          created_at: string
+          id: string
+          is_hidden: boolean
+          likes: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          chapter_id: string
+          content: string
+          created_at?: string
+          id?: string
+          is_hidden?: boolean
+          likes?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          chapter_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_hidden?: boolean
+          likes?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapter_comments_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chapter_pages: {
         Row: {
           chapter_id: string
