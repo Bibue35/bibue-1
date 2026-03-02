@@ -1499,145 +1499,208 @@
 
 /* ============================================
  * CELESTIAL THEME — Sunlight & Moonlight
- * Day: warm beige/orange/gold
- * Night: deep navy/purple with silver & crimson
+ * Day: Divine golden radiance on ancient scrolls
+ * Night: Mysterious navy-purple with silver & crimson
  * ============================================ */
 
-/* Sunlight (light mode) */
+/* ☀️ Sunlight — Divine / Heavenly / Golden */
 .light.theme-celestial,
 :root.theme-celestial:not(.dark) {
-  --background: 33 100% 96%;
-  --foreground: 20 30% 8%;
+  --background: 43 100% 96%;
+  --foreground: 24 80% 8%;
 
-  --card: 36 80% 97%;
-  --card-foreground: 20 30% 8%;
+  --card: 45 70% 97%;
+  --card-foreground: 24 80% 8%;
 
-  --popover: 36 80% 97%;
-  --popover-foreground: 20 30% 8%;
+  --popover: 45 70% 97%;
+  --popover-foreground: 24 80% 8%;
 
-  --primary: 24 95% 53%;
-  --primary-foreground: 0 0% 100%;
+  --primary: 45 93% 47%;
+  --primary-foreground: 24 80% 8%;
 
-  --secondary: 45 93% 58%;
-  --secondary-foreground: 20 30% 8%;
+  --secondary: 30 90% 82%;
+  --secondary-foreground: 24 80% 8%;
 
-  --muted: 33 40% 92%;
-  --muted-foreground: 20 15% 40%;
+  --muted: 40 45% 92%;
+  --muted-foreground: 24 30% 38%;
 
-  --accent: 36 60% 93%;
-  --accent-foreground: 20 30% 8%;
+  --accent: 38 55% 93%;
+  --accent-foreground: 24 80% 8%;
 
   --destructive: 0 78% 55%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 33 35% 87%;
-  --input: 33 35% 87%;
-  --ring: 24 95% 53%;
+  --border: 40 40% 85%;
+  --input: 40 40% 85%;
+  --ring: 36 93% 50%;
 
   --radius: 1rem;
 
-  --glass-bg: 33 70% 98% / 0.82;
-  --glass-border: 33 50% 88% / 0.6;
-  --glass-highlight: 40 100% 97% / 0.9;
-  --glass-shadow: 25 40% 15% / 0.08;
+  --glass-bg: 43 70% 98% / 0.8;
+  --glass-border: 40 55% 82% / 0.55;
+  --glass-highlight: 45 100% 97% / 0.9;
+  --glass-shadow: 30 50% 20% / 0.06;
   --glass-blur: 44px;
-  --glass-refraction: 40 70% 96% / 0.4;
+  --glass-refraction: 45 70% 96% / 0.4;
 
-  --specular-color: 40 85% 80% / 0.5;
-  --specular-inner: 36 50% 94% / 0.8;
+  --specular-color: 45 85% 78% / 0.5;
+  --specular-inner: 40 50% 94% / 0.8;
 
-  --reflection-start: 40 80% 98% / 0.8;
-  --reflection-mid: 33 55% 93% / 0.35;
-  --reflection-end: 30 25% 88% / 0.05;
+  --reflection-start: 45 80% 98% / 0.8;
+  --reflection-mid: 40 55% 93% / 0.3;
+  --reflection-end: 35 25% 88% / 0.05;
 
-  --divine-glow: 24 90% 55% / 0.3;
-  --divine-radiance: 40 95% 60% / 0.45;
-  --divine-halo: 45 100% 75% / 0.35;
+  --divine-glow: 36 93% 50% / 0.35;
+  --divine-radiance: 40 95% 60% / 0.5;
+  --divine-halo: 45 100% 75% / 0.4;
 
-  --sunbeam-glow: 24 90% 55% / 0.3;
-  --sunbeam-highlight: 40 95% 60% / 0.45;
+  --sunbeam-glow: 36 93% 50% / 0.35;
+  --sunbeam-highlight: 40 95% 60% / 0.5;
 
-  --chart-1: 24 95% 53%;
-  --chart-2: 45 93% 47%;
+  --chart-1: 36 93% 50%;
+  --chart-2: 24 90% 55%;
   --chart-3: 15 80% 50%;
   --chart-4: 340 65% 47%;
-  --chart-5: 30 70% 48%;
+  --chart-5: 45 70% 48%;
 
-  --sidebar-background: 33 100% 96%;
-  --sidebar-foreground: 20 30% 8%;
-  --sidebar-primary: 24 95% 53%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 36 60% 93%;
-  --sidebar-accent-foreground: 20 30% 8%;
-  --sidebar-border: 33 35% 87%;
-  --sidebar-ring: 24 95% 53%;
+  --sidebar-background: 43 100% 96%;
+  --sidebar-foreground: 24 80% 8%;
+  --sidebar-primary: 45 93% 47%;
+  --sidebar-primary-foreground: 24 80% 8%;
+  --sidebar-accent: 38 55% 93%;
+  --sidebar-accent-foreground: 24 80% 8%;
+  --sidebar-border: 40 40% 85%;
+  --sidebar-ring: 36 93% 50%;
 }
 
-/* Moonlight (dark mode) */
+/* 🌙 Moonlight — Mysterious / Elegant / Deep */
 .dark.theme-celestial {
-  --background: 230 40% 8%;
-  --foreground: 214 32% 91%;
+  --background: 228 33% 10%;
+  --foreground: 210 20% 95%;
 
-  --card: 240 30% 11%;
-  --card-foreground: 214 32% 91%;
+  --card: 235 28% 13%;
+  --card-foreground: 210 20% 95%;
 
-  --popover: 240 30% 11%;
-  --popover-foreground: 214 32% 91%;
+  --popover: 235 28% 13%;
+  --popover-foreground: 210 20% 95%;
 
   --primary: 214 32% 91%;
-  --primary-foreground: 230 40% 8%;
+  --primary-foreground: 228 33% 10%;
 
-  --secondary: 280 30% 14%;
-  --secondary-foreground: 214 32% 91%;
+  --secondary: 268 25% 16%;
+  --secondary-foreground: 210 20% 95%;
 
-  --muted: 240 20% 12%;
-  --muted-foreground: 230 15% 45%;
+  --muted: 235 22% 14%;
+  --muted-foreground: 225 15% 50%;
 
-  --accent: 270 25% 15%;
-  --accent-foreground: 214 32% 91%;
+  --accent: 258 22% 17%;
+  --accent-foreground: 210 20% 95%;
 
   --destructive: 340 82% 38%;
-  --destructive-foreground: 214 32% 91%;
+  --destructive-foreground: 210 20% 95%;
 
-  --border: 260 18% 16%;
-  --input: 260 18% 16%;
+  --border: 255 15% 18%;
+  --input: 255 15% 18%;
   --ring: 340 82% 38%;
 
-  --glass-bg: 230 35% 6% / 0.92;
-  --glass-border: 260 25% 28% / 0.22;
-  --glass-highlight: 214 40% 85% / 0.06;
-  --glass-shadow: 240 40% 2% / 0.75;
+  --glass-bg: 228 30% 8% / 0.92;
+  --glass-border: 255 22% 25% / 0.25;
+  --glass-highlight: 214 35% 85% / 0.06;
+  --glass-shadow: 235 40% 3% / 0.7;
   --glass-blur: 52px;
-  --glass-refraction: 270 30% 50% / 0.04;
+  --glass-refraction: 260 25% 50% / 0.04;
 
-  --specular-color: 214 35% 60% / 0.1;
-  --specular-inner: 260 25% 45% / 0.08;
+  --specular-color: 214 30% 60% / 0.1;
+  --specular-inner: 255 22% 45% / 0.08;
 
-  --reflection-start: 214 30% 75% / 0.08;
-  --reflection-mid: 240 20% 35% / 0.03;
-  --reflection-end: 240 30% 2% / 0.6;
+  --reflection-start: 214 25% 75% / 0.07;
+  --reflection-mid: 235 18% 35% / 0.03;
+  --reflection-end: 235 28% 3% / 0.55;
 
-  --divine-glow: 340 70% 42% / 0.2;
-  --divine-radiance: 260 50% 55% / 0.2;
-  --divine-halo: 214 40% 65% / 0.15;
+  --divine-glow: 340 65% 42% / 0.18;
+  --divine-radiance: 258 45% 55% / 0.18;
+  --divine-halo: 214 35% 65% / 0.12;
 
-  --moonbeam-glow: 214 50% 65% / 0.2;
-  --moonbeam-highlight: 260 40% 55% / 0.25;
+  --moonbeam-glow: 214 45% 65% / 0.2;
+  --moonbeam-highlight: 258 35% 55% / 0.22;
 
   --chart-1: 340 82% 38%;
   --chart-2: 214 32% 75%;
-  --chart-3: 270 45% 50%;
+  --chart-3: 258 45% 50%;
   --chart-4: 200 55% 48%;
   --chart-5: 45 70% 50%;
 
-  --sidebar-background: 230 40% 8%;
-  --sidebar-foreground: 214 32% 91%;
+  --sidebar-background: 228 33% 10%;
+  --sidebar-foreground: 210 20% 95%;
   --sidebar-primary: 214 32% 91%;
-  --sidebar-primary-foreground: 230 40% 8%;
-  --sidebar-accent: 270 25% 15%;
-  --sidebar-accent-foreground: 214 32% 91%;
-  --sidebar-border: 260 18% 16%;
+  --sidebar-primary-foreground: 228 33% 10%;
+  --sidebar-accent: 258 22% 17%;
+  --sidebar-accent-foreground: 210 20% 95%;
+  --sidebar-border: 255 15% 18%;
   --sidebar-ring: 340 82% 38%;
+}
+
+/* ============================================
+ * MICRO-ANIMATIONS & INTERACTION POLISH
+ * ============================================ */
+
+/* Card hover glow effect */
+.card-hover-glow {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover-glow:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 32px hsl(var(--divine-glow)),
+              0 4px 12px hsl(var(--glass-shadow));
+}
+
+/* Button press animation */
+.btn-press {
+  transition: transform 0.1s ease;
+}
+.btn-press:active {
+  transform: scale(0.95) !important;
+}
+
+/* Floating animation for FAB */
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-float {
+  animation: float-gentle 3s ease-in-out infinite;
+}
+
+/* Shimmer skeleton effect */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(var(--muted-foreground) / 0.08) 50%,
+    hsl(var(--muted)) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* Page enter animation */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-page-enter {
+  animation: page-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 /* ============================================
