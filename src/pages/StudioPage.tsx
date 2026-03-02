@@ -41,7 +41,7 @@ import { CreatorAgreementModal } from "@/components/CreatorAgreementModal";
 import {
   Loader2, Upload, CheckCircle, Sparkles, PenTool, DollarSign, Eye,
   Clock, Shield, BarChart3, Wallet, Star, ArrowRight, Zap,
-  BookOpen, TrendingUp, Users, MessageSquare, Award, Info, X, ChevronDown,
+  BookOpen, TrendingUp, Users, MessageSquare, Award, Info, X, ChevronDown, Lock,
 } from "lucide-react";
 
 const GENRES = [
@@ -513,12 +513,13 @@ export default function StudioPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5 mb-1.5">
+                      <Lock className="w-3.5 h-3.5 text-muted-foreground" />
                       <label className="text-sm font-medium">Legal Author Name *</label>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent><p>Your real name for legal/tax purposes — kept private</p></TooltipContent>
+                        <TooltipContent><p>Your real name for legal/tax purposes — kept private, never shown publicly</p></TooltipContent>
                       </Tooltip>
                     </div>
                     <Input
