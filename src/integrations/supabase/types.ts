@@ -1195,7 +1195,9 @@ export type Database = {
           bio: string | null
           created_at: string
           display_name: string | null
+          founder_tier: string | null
           id: string
+          is_founder: boolean
           is_public: boolean
           location: string | null
           referral_code: string | null
@@ -1211,7 +1213,9 @@ export type Database = {
           bio?: string | null
           created_at?: string
           display_name?: string | null
+          founder_tier?: string | null
           id?: string
+          is_founder?: boolean
           is_public?: boolean
           location?: string | null
           referral_code?: string | null
@@ -1227,7 +1231,9 @@ export type Database = {
           bio?: string | null
           created_at?: string
           display_name?: string | null
+          founder_tier?: string | null
           id?: string
+          is_founder?: boolean
           is_public?: boolean
           location?: string | null
           referral_code?: string | null
@@ -1766,8 +1772,10 @@ export type Database = {
           coins_earned: number
           created_at: string
           id: string
+          is_launch_phase: boolean
           referred_id: string
           referrer_id: string
+          reward_tier: string | null
           status: string
           updated_at: string
         }
@@ -1775,8 +1783,10 @@ export type Database = {
           coins_earned?: number
           created_at?: string
           id?: string
+          is_launch_phase?: boolean
           referred_id: string
           referrer_id: string
+          reward_tier?: string | null
           status?: string
           updated_at?: string
         }
@@ -1784,8 +1794,10 @@ export type Database = {
           coins_earned?: number
           created_at?: string
           id?: string
+          is_launch_phase?: boolean
           referred_id?: string
           referrer_id?: string
+          reward_tier?: string | null
           status?: string
           updated_at?: string
         }
@@ -2067,6 +2079,10 @@ export type Database = {
       }
     }
     Functions: {
+      distribute_referral_coins: {
+        Args: { p_amount: number; p_description?: string; p_user_id: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -216,17 +216,19 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
           {!isLogin && (
             <div className="space-y-2">
-              <Label htmlFor="referral" className="text-xs text-muted-foreground flex items-center gap-1">
-                <Gift className="w-3 h-3" /> Referral Code (optional)
+              <Label htmlFor="referral" className="text-xs flex items-center gap-1.5">
+                <Gift className="w-3 h-3 text-[hsl(45,90%,55%)]" />
+                <span className="text-[hsl(45,90%,60%)] font-medium">Founder Code</span>
+                <span className="text-muted-foreground">(optional — both get 1,000 coins!)</span>
               </Label>
               <Input
                 id="referral"
                 type="text"
-                placeholder="e.g. BIBUE-A1B2C3"
+                placeholder="e.g. BIBUE-FOUNDER-A1B2C3"
                 value={referralCode}
                 onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                className="font-mono text-sm tracking-wider"
-                maxLength={12}
+                className="font-mono text-sm tracking-wider border-[hsl(45,90%,55%)]/20 focus:border-[hsl(45,90%,55%)]/50"
+                maxLength={20}
               />
             </div>
           )}
