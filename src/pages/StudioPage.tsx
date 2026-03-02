@@ -41,7 +41,7 @@ import { CreatorAgreementModal } from "@/components/CreatorAgreementModal";
 import {
   Loader2, Upload, CheckCircle, Sparkles, PenTool, DollarSign, Eye,
   Clock, Shield, BarChart3, Wallet, Star, ArrowRight, Zap,
-  BookOpen, TrendingUp, Users, MessageSquare, Award, Info, X, ChevronDown, Lock,
+  BookOpen, TrendingUp, Users, MessageSquare, Award, Info, X, ChevronDown, Lock, Trophy,
 } from "lucide-react";
 
 const GENRES = [
@@ -68,13 +68,13 @@ const comparisonRows = [
     platform: "Bibue Studio",
     keep: "Up to 80%",
     keepSub: "75% + 5% Founder Bonus",
-    approval: "Quick approval",
+    approval: "2–5 days (Quick)",
     promotion: "Excellent",
-    promotionSub: "Featured on Originals + homepage",
+    promotionSub: "Homepage + Originals + Social",
     payout: "Monthly",
     fee: "20%",
-    ownership: "100% yours",
-    support: "Personal support",
+    ownership: "100% Yours",
+    support: "Personal + Manager",
     highlighted: true,
   },
   {
@@ -86,8 +86,8 @@ const comparisonRows = [
     promotionSub: "",
     payout: "Monthly",
     fee: "30%",
-    ownership: "Shared rights",
-    support: "Community forums",
+    ownership: "Shared Rights",
+    support: "Community Forums",
     highlighted: false,
   },
   {
@@ -99,8 +99,8 @@ const comparisonRows = [
     promotionSub: "",
     payout: "Monthly",
     fee: "50%",
-    ownership: "Shared rights",
-    support: "Ticket system",
+    ownership: "Shared Rights",
+    support: "Ticket System",
     highlighted: false,
   },
   {
@@ -113,7 +113,7 @@ const comparisonRows = [
     payout: "Monthly",
     fee: "30%",
     ownership: "Varies",
-    support: "Email only",
+    support: "Email Only",
     highlighted: false,
   },
 ];
@@ -372,24 +372,89 @@ export default function StudioPage() {
         </section>
 
         {/* ══════════════════════════════════════════════
-            4. COMPARISON TABLE
+            4. COMPARISON — CINEMATIC WINNER SECTION
         ══════════════════════════════════════════════ */}
-        <section className="py-16 sm:py-20 bg-card/30">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl sm:text-4xl font-bold mb-3">How Bibue Compares</h2>
-              <p className="text-muted-foreground text-lg">See why more creators are switching to Bibue Studio.</p>
+        <section className="py-20 sm:py-28 relative overflow-hidden">
+          {/* Subtle radial glow background */}
+          <div className="absolute inset-0 pointer-events-none" aria-hidden>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-[120px]" />
+          </div>
+
+          <div className="container mx-auto px-4 relative z-10">
+            {/* Headline */}
+            <div className="text-center mb-14 max-w-3xl mx-auto">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight">
+                The Clear Winner for{" "}
+                <span className="text-primary">Serious Creators</span> in 2026
+              </h2>
+              <p className="text-muted-foreground text-lg sm:text-xl leading-relaxed">
+                Higher payouts. Faster approval. Better promotion. Full ownership.
+                <br className="hidden sm:block" />
+                Built by creators, for creators.
+              </p>
             </div>
-            <div className="max-w-6xl mx-auto overflow-x-auto rounded-2xl border border-border/50">
+
+            {/* ── Hero Winner Card ── */}
+            <div className="max-w-3xl mx-auto mb-16 relative group">
+              {/* Glow ring */}
+              <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-primary/40 via-primary/20 to-primary/40 blur-lg opacity-60 group-hover:opacity-80 transition-opacity" />
+
+              <div className="relative rounded-3xl border-2 border-primary/40 bg-card p-8 sm:p-10 md:p-12 overflow-hidden">
+                {/* Corner glow */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
+
+                {/* Badge */}
+                <div className="flex justify-center mb-6">
+                  <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary/15 border border-primary/30">
+                    <Trophy className="w-4 h-4 text-primary" />
+                    <span className="text-xs sm:text-sm font-bold tracking-wider uppercase text-primary">
+                      Best Creator Platform 2026
+                    </span>
+                  </div>
+                </div>
+
+                {/* Big number */}
+                <div className="text-center mb-8">
+                  <p className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-primary leading-none mb-2">
+                    80%
+                  </p>
+                  <p className="text-base sm:text-lg text-primary/80 font-medium">
+                    75% standard + 5% Founder Bonus
+                  </p>
+                </div>
+
+                {/* Bullet grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 max-w-2xl mx-auto">
+                  {[
+                    { icon: Clock, text: "Quick Approval (usually 2–5 days)" },
+                    { icon: Eye, text: "Excellent Promotion — Homepage + Social" },
+                    { icon: Shield, text: "100% IP Ownership — Yours forever" },
+                    { icon: Users, text: "Personal Support + Success Manager" },
+                    { icon: Wallet, text: "Reliable Monthly Payouts via Stripe" },
+                    { icon: Zap, text: "Only 20% Fee — Lowest in the industry" },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <div className="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center">
+                        <item.icon className="w-3.5 h-3.5 text-primary" />
+                      </div>
+                      <span className="text-sm sm:text-base text-foreground font-medium leading-snug">{item.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* ── Comparison Table ── */}
+            <div className="max-w-6xl mx-auto overflow-x-auto rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-border/30">
+                  <TableRow className="border-border/30 bg-muted/30">
                     <TableHead className="font-semibold text-foreground min-w-[140px]">Platform</TableHead>
                     <TableHead className="font-semibold text-foreground min-w-[160px]">Creator Keep</TableHead>
-                    <TableHead className="font-semibold text-foreground">Approval</TableHead>
-                    <TableHead className="font-semibold text-foreground min-w-[140px]">Promotion</TableHead>
+                    <TableHead className="font-semibold text-foreground">Approval Speed</TableHead>
+                    <TableHead className="font-semibold text-foreground min-w-[140px]">Promotion Power</TableHead>
                     <TableHead className="font-semibold text-foreground">IP Ownership</TableHead>
-                    <TableHead className="font-semibold text-foreground">Support</TableHead>
+                    <TableHead className="font-semibold text-foreground">Creator Support</TableHead>
                     <TableHead className="font-semibold text-foreground">Platform Fee</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -398,14 +463,17 @@ export default function StudioPage() {
                     <TableRow
                       key={row.platform}
                       className={row.highlighted
-                        ? "bg-primary/15 border-l-4 border-l-primary border-primary/30 hover:bg-primary/20"
-                        : "border-border/20 hover:bg-muted/30 opacity-70"
+                        ? "bg-primary/10 border-l-4 border-l-primary hover:bg-primary/15 transition-colors"
+                        : "border-border/20 hover:bg-muted/20 opacity-60"
                       }
                     >
                       <TableCell className="font-semibold">
                         <div className="flex items-center gap-2">
-                          {row.highlighted && <Zap className="w-5 h-5 text-primary" />}
+                          {row.highlighted && <Trophy className="w-5 h-5 text-primary" />}
                           <span className={row.highlighted ? "text-primary text-base font-bold" : "text-sm"}>{row.platform}</span>
+                          {row.highlighted && (
+                            <Badge variant="outline" className="text-[10px] border-primary/40 text-primary px-1.5 py-0">Winner</Badge>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -439,6 +507,11 @@ export default function StudioPage() {
                 </TableBody>
               </Table>
             </div>
+
+            {/* Closing statement */}
+            <p className="text-center text-base sm:text-lg font-semibold text-primary mt-12 max-w-2xl mx-auto leading-relaxed">
+              Bibue Studio was built to give creators the best possible deal — the highest earnings, fastest path to readers, and the respect you deserve.
+            </p>
           </div>
         </section>
 
