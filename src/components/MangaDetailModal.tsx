@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Link } from "react-router-dom";
-import { X, Star, Copy, Share2, MessageCircle, Send, User, ArrowUpDown, ThumbsUp, ChevronDown, ExternalLink, Heart, Trophy, Users, Globe, BookOpen, Calendar, BookMarked } from "lucide-react";
+import { X, Star, Copy, Share2, MessageCircle, Send, User, ArrowUpDown, ThumbsUp, ChevronDown, ExternalLink, Heart, Trophy, Users, Globe, BookOpen, Calendar, BookMarked, Plus, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,7 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { validateComment } from "@/lib/validation";
-import { WatchlistButton } from "./WatchlistButton";
+import { useWatchlist } from "@/hooks/useWatchlist";
 import { RelatedMedia } from "./RelatedMedia";
 import { cn } from "@/lib/utils";
 import { ResponsiveModal } from "./ResponsiveModal";
@@ -32,6 +32,49 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isInWatchlist, addToWatchlist, removeFromWatchlist, updateStatus, getWatchlistItem } = useWatchlist();
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
+
+  const inList = manga ? isInWatchlist(mangaId, "manga") : false;
+  const watchlistItem = manga ? getWatchlistItem(mangaId, "manga") : undefined;
+  const listLoading = addToWatchlist.isPending || removeFromWatchlist.isPending || updateStatus.isPending;
+
+  const statusOptions = [
+    { value: "plan_to_watch", label: "Plan to Read" },
+    { value: "watching", label: "Reading" },
+    { value: "completed", label: "Completed" },
+    { value: "on_hold", label: "On Hold" },
+    { value: "dropped", label: "Dropped" },
+  ];
+
+  const handleAddToList = () => {
+    if (!user) {
+      toast({ title: "Sign in to add to your list", variant: "destructive" });
+      return;
+    }
+    if (inList) {
+      setShowStatusMenu(!showStatusMenu);
+    } else {
+      addToWatchlist.mutate({
+        mal_id: mangaId,
+        media_type: "manga",
+        title: manga?.title || "",
+        title_japanese: manga?.title_japanese,
+        image_url: manga?.images?.webp?.large_image_url,
+        score: manga?.score,
+      });
+    }
+  };
+
+  const handleStatusChange = (status: string) => {
+    updateStatus.mutate({ mal_id: mangaId, media_type: "manga", status });
+    setShowStatusMenu(false);
+  };
+
+  const handleRemove = () => {
+    removeFromWatchlist.mutate({ mal_id: mangaId, media_type: "manga" });
+    setShowStatusMenu(false);
+  };
 
   // Comments
   const { data: comments, isLoading: commentsLoading } = useQuery({
@@ -151,6 +194,27 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                   <span className={cn("px-2.5 py-0.5 text-[10px] sm:text-xs font-medium rounded-full", statusColor)}>
                     {statusLabel}
                   </span>
+                )}
+                {user && (
+                  <button
+                    onClick={handleAddToList}
+                    disabled={listLoading}
+                    className={cn(
+                      "flex items-center gap-1 px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium transition-colors border",
+                      inList
+                        ? "bg-primary/20 text-primary border-primary/30"
+                        : "bg-foreground/10 text-foreground border-foreground/20 hover:bg-foreground/20"
+                    )}
+                  >
+                    {listLoading ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : inList ? (
+                      <Check className="w-3 h-3" />
+                    ) : (
+                      <Plus className="w-3 h-3" />
+                    )}
+                    {inList ? "In List" : "Add to List"}
+                  </button>
                 )}
               </div>
             </div>
@@ -352,16 +416,57 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
         <div className="lg:col-span-4">
           <div className="lg:sticky lg:top-8 space-y-6">
 
-            {/* Watchlist CTA */}
-            <WatchlistButton
-              mal_id={mangaId}
-              media_type="manga"
-              title={manga?.title || ""}
-              title_japanese={manga?.title_japanese}
-              image_url={manga?.images?.webp?.large_image_url}
-              score={manga?.score}
-              variant="full"
-            />
+            {/* Add to List */}
+            <div className="relative">
+              <Button
+                onClick={handleAddToList}
+                disabled={listLoading}
+                className={cn(
+                  "w-full gap-2 text-sm font-semibold rounded-2xl h-12",
+                  inList
+                    ? "bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20"
+                    : "bg-primary text-primary-foreground hover:bg-primary/90"
+                )}
+                variant={inList ? "outline" : "default"}
+              >
+                {listLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : inList ? (
+                  <Check className="w-4 h-4" />
+                ) : (
+                  <Plus className="w-4 h-4" />
+                )}
+                {inList
+                  ? statusOptions.find(s => s.value === watchlistItem?.status)?.label || "In Your List"
+                  : "Add to List"}
+                {inList && <ChevronDown className="w-3.5 h-3.5 ml-auto" />}
+              </Button>
+              {showStatusMenu && inList && (
+                <div className="absolute top-full left-0 right-0 mt-2 rounded-xl bg-card border border-border shadow-xl z-50 overflow-hidden">
+                  {statusOptions.map(opt => (
+                    <button
+                      key={opt.value}
+                      onClick={() => handleStatusChange(opt.value)}
+                      className={cn(
+                        "w-full text-left px-4 py-2.5 text-sm hover:bg-muted transition-colors flex items-center justify-between",
+                        watchlistItem?.status === opt.value && "text-primary font-medium"
+                      )}
+                    >
+                      {opt.label}
+                      {watchlistItem?.status === opt.value && <Check className="w-3.5 h-3.5" />}
+                    </button>
+                  ))}
+                  <div className="border-t border-border">
+                    <button
+                      onClick={handleRemove}
+                      className="w-full text-left px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                    >
+                      Remove from List
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Score Card */}
             {manga?.score && (
