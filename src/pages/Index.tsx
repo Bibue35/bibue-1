@@ -78,8 +78,9 @@ const Index = () => {
       {/* Cinematic Hero */}
       <CinematicHero />
 
-      {/* For Creators Banner */}
-      <section className="container mx-auto px-3 sm:px-4 py-4">
+      {/* For Creators Banner — only for logged-in users */}
+      {user && (
+      <section className="container mx-auto px-3 sm:px-4 pt-8 sm:pt-10">
         <Link
           to="/studio"
           className="group flex items-center justify-between gap-4 px-5 py-3.5 rounded-2xl border border-border/50 bg-card/50 hover:bg-card/80 hover:border-primary/30 transition-all duration-200"
@@ -96,6 +97,7 @@ const Index = () => {
           <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
         </Link>
       </section>
+      )}
 
       {/* Bibue Originals */}
       <BibuOriginalsSection />
@@ -110,7 +112,6 @@ const Index = () => {
           icon={History}
           linkTo="/history"
           linkText={t("section.seeAll")}
-          compact
         >
           <HorizontalScroll showArrows={false}>
             {viewingHistory.map((entry) => (
@@ -152,7 +153,7 @@ const Index = () => {
       )}
 
       {/* Top Manga */}
-      <ContentSection title={t("section.topManga") || "Top Manga"} icon={Flame} linkTo="/manga" compact>
+      <ContentSection title={t("section.topManga") || "Top Manga"} icon={Flame} linkTo="/manga">
         {topMangaError ? (
           <SectionError onRetry={() => refetchTopManga()} />
         ) : (
@@ -171,7 +172,7 @@ const Index = () => {
       </ContentSection>
 
       {/* Trending Manhwa */}
-      <ContentSection title={t("section.trendingManhwa") || "Trending Manhwa"} icon={Zap} linkTo="/manga?filter=manhwa" compact>
+      <ContentSection title={t("section.trendingManhwa") || "Trending Manhwa"} icon={Zap} linkTo="/manga?filter=manhwa">
         {trendingManhwaError ? (
           <SectionError onRetry={() => refetchTrendingManhwa()} />
         ) : (
@@ -194,7 +195,7 @@ const Index = () => {
       </div>
 
       {/* Trending Manhua */}
-      <ContentSection title={t("section.trendingManhua") || "Trending Manhua"} icon={Zap} linkTo="/manga?filter=manhua" compact>
+      <ContentSection title={t("section.trendingManhua") || "Trending Manhua"} icon={Zap} linkTo="/manga?filter=manhua">
         {trendingManhuaError ? (
           <SectionError onRetry={() => refetchTrendingManhua()} />
         ) : (
@@ -215,7 +216,7 @@ const Index = () => {
       {/* Recently Updated */}
       <div ref={recentSection.ref}>
       {recentSection.isVisible ? (
-      <ContentSection title="Recently Updated" icon={Sparkles} linkTo="/manga" compact>
+      <ContentSection title="Recently Updated" icon={Sparkles} linkTo="/manga">
         {recentError ? (
           <SectionError onRetry={() => refetchRecent()} />
         ) : (
@@ -238,7 +239,7 @@ const Index = () => {
       {/* All-Time Top Manga */}
       <div ref={allTimeSection.ref}>
       {allTimeSection.isVisible ? (
-      <ContentSection title="All-Time Top Rated" icon={Trophy} linkTo="/rankings?type=manga" compact>
+      <ContentSection title="All-Time Top Rated" icon={Trophy} linkTo="/rankings?type=manga">
         {allTimeError ? (
           <SectionError onRetry={() => refetchAllTime()} />
         ) : (
