@@ -299,6 +299,8 @@ export function MangaReader({
                   alt={`Page ${idx + 1}`}
                   className="w-full h-auto"
                   loading={idx < 3 ? "eager" : "lazy"}
+                  decoding={idx < 3 ? "sync" : "async"}
+                  fetchPriority={idx === 0 ? "high" : "low"}
                   referrerPolicy="no-referrer"
                 />
               </div>

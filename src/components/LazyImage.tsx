@@ -9,6 +9,8 @@ interface LazyImageProps {
   sizes?: string;
   className?: string;
   fallback?: string;
+  /** Mark as high-priority LCP image (eager load, high fetchpriority) */
+  priority?: boolean;
 }
 
 export const LazyImage = memo(function LazyImage({
@@ -19,13 +21,15 @@ export const LazyImage = memo(function LazyImage({
   sizes,
   className,
   fallback = "/placeholder.svg",
+  priority = false,
 }: LazyImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isInView, setIsInView] = useState(false);
+  const [isInView, setIsInView] = useState(priority); // priority images are always "in view"
   const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (priority) return; // skip observer for priority images
     const el = imgRef.current;
     if (!el) return;
 
@@ -36,12 +40,12 @@ export const LazyImage = memo(function LazyImage({
           observer.unobserve(el);
         }
       },
-      { rootMargin: "200px 0px" }
+      { rootMargin: "300px 0px" }
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [priority]);
 
   const imgSrc = hasError ? fallback : src;
 
@@ -54,7 +58,9 @@ export const LazyImage = memo(function LazyImage({
           width={width}
           height={height}
           sizes={sizes}
-          decoding="async"
+          loading={priority ? "eager" : "lazy"}
+          decoding={priority ? "sync" : "async"}
+          fetchPriority={priority ? "high" : "low"}
           onLoad={() => setIsLoaded(true)}
           onError={() => setHasError(true)}
           className={cn(
@@ -63,9 +69,9 @@ export const LazyImage = memo(function LazyImage({
           )}
         />
       )}
-      {/* Blur placeholder until loaded */}
+      {/* Shimmer placeholder until loaded */}
       {!isLoaded && (
-        <div className="absolute inset-0 bg-muted animate-pulse" />
+        <div className="absolute inset-0 bg-muted skeleton-shimmer" />
       )}
     </div>
   );
