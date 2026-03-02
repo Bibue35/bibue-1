@@ -13,6 +13,13 @@ interface LazyImageProps {
   priority?: boolean;
 }
 
+/**
+ * Generate a tiny 1x1 SVG data URI as LQIP placeholder
+ * Uses the muted color from the theme for a subtle look
+ */
+const LQIP_PLACEHOLDER =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23222' width='1' height='1'/%3E%3C/svg%3E";
+
 export const LazyImage = memo(function LazyImage({
   src,
   alt,
@@ -24,12 +31,12 @@ export const LazyImage = memo(function LazyImage({
   priority = false,
 }: LazyImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isInView, setIsInView] = useState(priority); // priority images are always "in view"
+  const [isInView, setIsInView] = useState(priority);
   const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (priority) return; // skip observer for priority images
+    if (priority) return;
     const el = imgRef.current;
     if (!el) return;
 
@@ -40,7 +47,7 @@ export const LazyImage = memo(function LazyImage({
           observer.unobserve(el);
         }
       },
-      { rootMargin: "300px 0px" }
+      { rootMargin: "200px 0px" }
     );
 
     observer.observe(el);
@@ -60,18 +67,23 @@ export const LazyImage = memo(function LazyImage({
           sizes={sizes}
           loading={priority ? "eager" : "lazy"}
           decoding={priority ? "sync" : "async"}
-          fetchPriority={priority ? "high" : "low"}
+          fetchPriority={priority ? "high" : "auto"}
           onLoad={() => setIsLoaded(true)}
           onError={() => setHasError(true)}
           className={cn(
-            "w-full h-full object-cover transition-opacity duration-300",
+            "w-full h-full object-cover transition-opacity duration-200",
             isLoaded ? "opacity-100" : "opacity-0"
           )}
         />
       )}
-      {/* Shimmer placeholder until loaded */}
+      {/* LQIP blur placeholder */}
       {!isLoaded && (
-        <div className="absolute inset-0 bg-muted skeleton-shimmer" />
+        <img
+          src={LQIP_PLACEHOLDER}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
       )}
     </div>
   );

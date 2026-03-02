@@ -21,7 +21,16 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: "es2020",
-    cssMinify: true,
+    cssMinify: "lightningcss",
+    minify: "terser",
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        pure_funcs: ["console.log", "console.debug", "console.info"],
+        passes: 2,
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: {
@@ -29,13 +38,22 @@ export default defineConfig(({ mode }) => ({
           "vendor-router": ["react-router-dom"],
           "vendor-query": ["@tanstack/react-query"],
           "vendor-supabase": ["@supabase/supabase-js"],
-          "vendor-ui": [
+          "vendor-ui-core": [
             "@radix-ui/react-dialog",
             "@radix-ui/react-popover",
             "@radix-ui/react-dropdown-menu",
             "@radix-ui/react-tabs",
             "@radix-ui/react-tooltip",
           ],
+          "vendor-ui-extra": [
+            "@radix-ui/react-accordion",
+            "@radix-ui/react-collapsible",
+            "@radix-ui/react-select",
+            "@radix-ui/react-switch",
+            "@radix-ui/react-checkbox",
+          ],
+          "vendor-charts": ["recharts"],
+          "vendor-helmet": ["react-helmet-async"],
         },
       },
     },
