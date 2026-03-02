@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,7 @@ import {
   Skull,
   Paintbrush,
   AlertTriangle,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -184,6 +185,16 @@ const PERKS = [
 /* ─── Page ─── */
 
 export default function ForCreatorsPage() {
+  const [searchParams] = useSearchParams();
+
+  // Store referral code in localStorage when arriving via ?ref=
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) {
+      localStorage.setItem("bibue_referral_code", ref);
+    }
+  }, [searchParams]);
+
   return (
     <div className="min-h-screen bg-background">
       <SEO
@@ -286,6 +297,31 @@ export default function ForCreatorsPage() {
                   <p className="text-sm leading-relaxed">{g.text}</p>
                 </div>
               ))}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* ─── Referral Section ─── */}
+      <section className="py-16 sm:py-24">
+        <div className="container mx-auto px-4 max-w-2xl">
+          <Card className="border-border/50 bg-card">
+            <CardContent className="p-6 sm:p-8 text-center space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
+                <Users className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold">Bring Your Friends</h3>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+                Both of you earn extra. When a referred creator uploads their first series, you both get <strong className="text-foreground">+5% revenue share for 30 days</strong>.
+              </p>
+              <div className="p-4 rounded-xl bg-muted/30 text-sm text-muted-foreground">
+                Invite 3 friends who upload = up to <strong className="text-foreground">15% extra revenue</strong> for a month
+              </div>
+              <Button asChild variant="outline" className="gap-2">
+                <Link to="/creator/dashboard">
+                  Get Your Referral Link <ArrowRight className="w-4 h-4" />
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         </div>

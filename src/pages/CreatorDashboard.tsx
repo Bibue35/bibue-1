@@ -43,9 +43,13 @@ import {
   RefreshCw,
   Columns2,
   GripVertical,
+  Users,
+  Copy,
+  ExternalLink,
+  Share2,
 } from "lucide-react";
 
-type DashboardTab = "overview" | "series" | "upload" | "analytics" | "payouts" | "guidelines";
+type DashboardTab = "overview" | "series" | "upload" | "analytics" | "payouts" | "guidelines" | "referrals";
 type UploadStep = "select-series" | "guidelines" | "chapter-info" | "upload-pages" | "standardize" | "preview" | "done";
 
 interface PageFile {
@@ -87,6 +91,40 @@ export default function CreatorDashboard() {
     },
     enabled: !!user,
   });
+
+  // Referrals data
+  const { data: referrals = [] } = useQuery({
+    queryKey: ["creator-referrals", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data } = await supabase
+        .from("creator_referrals")
+        .select("*")
+        .eq("referrer_id", user.id)
+        .order("created_at", { ascending: false });
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const referralCode = creatorProfile?.referral_code || "";
+  const referralLink = referralCode ? `https://bibue.net/for-creators?ref=${referralCode}` : "";
+
+  const copyReferralLink = async () => {
+    if (!referralLink) return;
+    await navigator.clipboard.writeText(referralLink);
+    setLinkCopied(true);
+    toast.success("Referral link copied!");
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
+
+  const referralStats = {
+    total: referrals.length,
+    uploaded: referrals.filter((r: any) => r.has_uploaded).length,
+    activeBonuses: referrals.filter((r: any) => r.bonus_expires_at && new Date(r.bonus_expires_at) > new Date()).length,
+  };
 
   // Series list
   const { data: series = [] } = useQuery({
@@ -176,6 +214,24 @@ export default function CreatorDashboard() {
           user_id: user.id,
           display_name: newSeriesTitle.slice(0, 20) + "'s Creator",
         });
+
+        // Check for stored referral code and register referral
+        const storedRef = localStorage.getItem("bibue_referral_code");
+        if (storedRef) {
+          const { data: referrer } = await supabase
+            .from("creator_profiles")
+            .select("user_id")
+            .eq("referral_code", storedRef)
+            .maybeSingle();
+
+          if (referrer && referrer.user_id !== user.id) {
+            await supabase.from("creator_referrals").insert({
+              referrer_id: referrer.user_id,
+              referred_user_id: user.id,
+              referral_code: storedRef,
+            }).then(() => localStorage.removeItem("bibue_referral_code"));
+          }
+        }
       }
       const { data, error } = await supabase
         .from("series")
@@ -375,6 +431,7 @@ export default function CreatorDashboard() {
     { id: "analytics", label: "Analytics", icon: TrendingUp },
     { id: "payouts", label: "Payouts", icon: CreditCard },
     { id: "guidelines", label: "Guidelines", icon: ShieldCheck },
+    { id: "referrals", label: "Referrals", icon: Users },
   ];
 
   const stepIndex = UPLOAD_STEPS.indexOf(step);
@@ -1000,6 +1057,126 @@ export default function CreatorDashboard() {
                     </div>
                   </CardContent>
                 </Card>
+              )}
+
+              {/* ─── Referrals ─── */}
+              {activeTab === "referrals" && (
+                <div className="space-y-6">
+                  {/* Header */}
+                  <div className="text-center py-4">
+                    <h2 className="text-xl font-bold mb-2">Invite Creators & Earn Together</h2>
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                      When someone signs up using your link and uploads their first series (3+ chapters), both of you get a reward.
+                    </p>
+                  </div>
+
+                  {/* Referral link box */}
+                  {referralLink && (
+                    <Card className="border-primary/20 bg-primary/5">
+                      <CardContent className="p-6">
+                        <p className="text-xs font-medium text-muted-foreground mb-3">Your personal referral link</p>
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 bg-background rounded-xl px-4 py-3 text-sm font-mono truncate border border-border/50">
+                            {referralLink}
+                          </div>
+                          <Button
+                            onClick={copyReferralLink}
+                            className={cn("gap-2 shrink-0 transition-all", linkCopied && "bg-primary/80")}
+                          >
+                            {linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                            {linkCopied ? "Copied!" : "Copy"}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Share buttons */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { label: "Twitter/X", action: () => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`I'm publishing my manga on @bibue_net — creators keep 75-80% of revenue. Join with my link: ${referralLink}`)}`, "_blank") },
+                      { label: "Reddit", action: () => window.open(`https://www.reddit.com/submit?url=${encodeURIComponent(referralLink)}&title=${encodeURIComponent("Publish your manga on Bibue — creators keep 75-80% of revenue")}`, "_blank") },
+                      { label: "Discord", action: () => { navigator.clipboard.writeText(`Hey! I'm publishing my manga on bibue.net — creators keep 75-80% of revenue. Join with my link: ${referralLink}`); toast.success("Message copied for Discord!"); } },
+                      { label: "Instagram", action: () => { navigator.clipboard.writeText(referralLink); toast.success("Link copied — paste in your bio!"); } },
+                    ].map((btn) => (
+                      <Button key={btn.label} variant="outline" size="sm" className="gap-2" onClick={btn.action}>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        {btn.label}
+                      </Button>
+                    ))}
+                  </div>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-3 gap-4">
+                    {[
+                      { label: "Total Referrals", value: referralStats.total },
+                      { label: "Have Uploaded", value: referralStats.uploaded },
+                      { label: "Active Bonuses", value: referralStats.activeBonuses },
+                    ].map((stat) => (
+                      <Card key={stat.label} className="border-border/50">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold">{stat.value}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+
+                  {/* Reward explanation */}
+                  <Card className="border-border/50">
+                    <CardContent className="p-5 space-y-3">
+                      <h3 className="font-semibold text-sm">How rewards work</h3>
+                      <div className="grid gap-2 text-sm text-muted-foreground">
+                        <div className="flex items-start gap-2">
+                          <Sparkles className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                          <p><strong className="text-foreground">You get:</strong> +5% extra revenue share for 30 days</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <Sparkles className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                          <p><strong className="text-foreground">They get:</strong> +5% extra revenue share for their first 30 days (80% total)</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <Award className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                          <p>Triggered when the referred creator uploads their first series with at least 3 chapters</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Referrals table */}
+                  {referrals.length > 0 ? (
+                    <Card className="border-border/50">
+                      <CardContent className="p-5">
+                        <h3 className="font-semibold text-sm mb-4">Your Referrals</h3>
+                        <div className="space-y-3">
+                          {referrals.map((ref: any) => (
+                            <div key={ref.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/20">
+                              <div>
+                                <p className="text-sm font-medium">Creator</p>
+                                <p className="text-xs text-muted-foreground">
+                                  Joined {new Date(ref.created_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <Badge variant={ref.has_uploaded ? "default" : "secondary"} className="text-xs">
+                                  {ref.has_uploaded ? "Uploaded ✓" : "Pending"}
+                                </Badge>
+                                {ref.bonus_expires_at && new Date(ref.bonus_expires_at) > new Date() && (
+                                  <Badge className="text-xs bg-primary/10 text-primary border-0">+5% Active</Badge>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Users className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                      <p className="text-sm text-muted-foreground">No referrals yet — share your link to get started!</p>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>
