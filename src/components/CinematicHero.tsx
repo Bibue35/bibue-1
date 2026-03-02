@@ -123,7 +123,7 @@ export function CinematicHero() {
   })();
 
   return (
-    <section aria-label="Featured manga" className="relative min-h-[80vh] sm:min-h-[85vh] md:min-h-[90vh] flex flex-col overflow-hidden">
+    <section aria-label="Featured manga" className="relative min-h-[80vh] sm:min-h-[85vh] md:min-h-[90vh] flex flex-col overflow-x-hidden">
       {/* Background crossfade */}
       <div className="absolute inset-0 z-0">
         {rotation.map((item, i) => (
@@ -208,49 +208,49 @@ export function CinematicHero() {
                 </Button>
               </Link>
             </div>
-
-            {/* Right sidebar — pinned to right edge */}
-            {!isMobile && (
-              <div className="hidden lg:flex flex-col gap-3 w-28 xl:w-32 items-end fixed right-6 xl:right-10 top-1/2 -translate-y-1/2 z-20">
-                {sidebar.map((item, si) => {
-                  const ri = rotation.findIndex((r) => r.manga.anilist_id === item.manga.anilist_id);
-                  return (
-                    <button
-                      key={item.manga.anilist_id}
-                      onClick={() => setIdx(ri)}
-                      className={cn(
-                        "w-full aspect-[2/3] rounded-xl overflow-hidden border transition-all duration-200 group relative",
-                        "hover:scale-105 hover:border-primary/50 border-border/30",
-                        "focus:outline-none focus:ring-2 focus:ring-primary/50",
-                        si === 0 || si === 2 ? "w-24 xl:w-28" : "w-28 xl:w-32"
-                      )}
-                      style={{
-                        transform: si === 0 || si === 2 ? "translateX(-1.5rem)" : undefined,
-                      }}
-                    >
-                      <img
-                        src={item.manga.images.webp.image_url}
-                        alt={item.manga.title}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-1.5">
-                        <span className="text-[9px] font-medium truncate w-full">{item.manga.title}</span>
-                      </div>
-                      <div className="absolute top-1 left-1">
-                        <span className={cn("px-1 py-0.5 rounded text-[8px] font-bold text-white", TYPE_STYLES[item.type].bg)}>
-                          {TYPE_STYLES[item.type].label}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
           </div>
         </div>
       </div>
+
+      {/* Right sidebar cards — absolute to section, right edge */}
+      {!isMobile && (
+        <div className="hidden lg:flex flex-col gap-3 items-end absolute right-6 xl:right-10 top-1/2 -translate-y-1/2 z-20">
+          {sidebar.map((item, si) => {
+            const ri = rotation.findIndex((r) => r.manga.anilist_id === item.manga.anilist_id);
+            return (
+              <button
+                key={item.manga.anilist_id}
+                onClick={() => setIdx(ri)}
+                className={cn(
+                  "aspect-[2/3] rounded-xl overflow-hidden border transition-all duration-200 group relative",
+                  "hover:scale-105 hover:border-primary/50 border-border/30",
+                  "focus:outline-none focus:ring-2 focus:ring-primary/50",
+                  si === 0 || si === 2 ? "w-24 xl:w-28" : "w-28 xl:w-32"
+                )}
+                style={{
+                  transform: si === 0 || si === 2 ? "translateX(-1.5rem)" : undefined,
+                }}
+              >
+                <img
+                  src={item.manga.images.webp.image_url}
+                  alt={item.manga.title}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-1.5">
+                  <span className="text-[9px] font-medium truncate w-full">{item.manga.title}</span>
+                </div>
+                <div className="absolute top-1 left-1">
+                  <span className={cn("px-1 py-0.5 rounded text-[8px] font-bold text-white", TYPE_STYLES[item.type].bg)}>
+                    {TYPE_STYLES[item.type].label}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Bottom section: progress + trending */}
       <div className="relative z-10 pb-4 sm:pb-6 mt-auto">
