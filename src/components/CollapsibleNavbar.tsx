@@ -25,9 +25,11 @@ export function CollapsibleNavbar() {
 
   const navLinks = [
     { href: "/manga", label: "Browse Manga" },
-    { href: "/originals", label: "Originals" },
-    { href: "/studio", label: "Studio" },
-    { href: "/refer", label: "Refer & Earn" },
+    ...(user ? [
+      { href: "/originals", label: "Originals" },
+      { href: "/studio", label: "Studio" },
+      { href: "/refer", label: "Refer & Earn" },
+    ] : []),
     { href: "/community", label: t("nav.community") },
   ];
 
