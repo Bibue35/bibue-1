@@ -6,7 +6,7 @@ import App from "./App.tsx";
 import "./index.css";
 
 // Prevent flash by setting flavor immediately before React hydration
-const storedFlavor = localStorage.getItem("theme-flavor");
+const storedFlavor = localStorage.getItem("theme-flavor") || "crimson-scroll";
 
 if (storedFlavor && storedFlavor !== "default") {
   document.documentElement.classList.add(`theme-${storedFlavor}`);
