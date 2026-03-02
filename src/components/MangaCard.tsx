@@ -17,25 +17,23 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
   const contentType = getContentType({ type: 'MANGA', countryOfOrigin: manga.countryOfOrigin });
   const typeLabel = getContentLabel(contentType);
 
-  // Format published date
   const getPublishedInfo = () => {
     if (manga.published?.from) {
-      const date = new Date(manga.published.from);
-      return date.getFullYear().toString();
+      return new Date(manga.published.from).getFullYear().toString();
     }
     return null;
   };
 
   const publishedYear = getPublishedInfo();
   const chapterCount = manga.chapters;
-  const volumeCount = manga.volumes;
+  const statusLabel = manga.status === "Finished" ? "Completed" : manga.status === "Publishing" ? "Ongoing" : manga.status || null;
 
   if (variant === "compact") {
     return (
       <>
         <button
           onClick={() => setModalOpen(true)}
-          className="flex items-center gap-3 sm:gap-4 p-3 rounded-xl transition-all duration-150 group text-left w-full hover:bg-foreground/5 active:scale-[0.98]"
+          className="flex items-center gap-3 sm:gap-4 p-3 rounded-xl transition-all duration-150 group text-left w-full hover:bg-accent/50 active:scale-[0.98]"
         >
           <img
             src={manga.images.webp.image_url}
@@ -47,31 +45,24 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
             className="w-14 sm:w-16 h-18 sm:h-20 object-cover rounded-lg bg-muted"
           />
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-sm sm:text-base truncate group-hover:text-foreground/80 transition-colors">
+            <h3 className="font-medium text-sm sm:text-base truncate group-hover:text-primary transition-colors">
               {manga.title}
             </h3>
             <p className="text-xs sm:text-sm text-muted-foreground truncate">
-              <span className={cn("font-medium mr-1", getContentTypeBadgeClass(contentType), "bg-transparent px-0 py-0")}>{typeLabel}</span>
-              {manga.genres?.slice(0, 2).map(g => g.name).join(", ")}
+              {typeLabel} {manga.genres?.slice(0, 2).map(g => g.name).join(", ")}
             </p>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
               {manga.score && (
                 <div className="flex items-center gap-1">
-                  <Star className="w-3 h-3 text-foreground fill-foreground" />
+                  <Star className="w-3 h-3 fill-primary text-primary" />
                   <span className="text-xs sm:text-sm font-medium">{formatScore(manga.score)}</span>
                 </div>
               )}
               {publishedYear && (
-                <div className="flex items-center gap-1 text-muted-foreground">
-                  <Calendar className="w-3 h-3" />
-                  <span className="text-xs">{publishedYear}</span>
-                </div>
+                <span className="text-xs text-muted-foreground">{publishedYear}</span>
               )}
               {chapterCount && (
-                <div className="flex items-center gap-1 text-muted-foreground">
-                  <BookOpen className="w-3 h-3" />
-                  <span className="text-xs">{chapterCount} ch</span>
-                </div>
+                <span className="text-xs text-muted-foreground">{chapterCount} ch</span>
               )}
             </div>
           </div>
@@ -90,16 +81,13 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
     );
   }
 
-  const statusLabel = manga.status === "Finished" ? "Completed" : manga.status === "Publishing" ? "Ongoing" : manga.status || null;
-
   return (
     <>
       <button
         onClick={() => setModalOpen(true)}
         className="block group/card text-left w-full active:scale-[0.98] transition-transform duration-150 isolate"
       >
-        {/* Card container with border hover */}
-        <div className="bg-card border border-border rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 hover:border-primary/60 group-hover/card:-translate-y-2 group-hover/card:shadow-2xl group-hover/card:shadow-primary/15 will-change-transform transform-gpu">
+        <div className="bg-card border border-border/60 rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 group-hover/card:border-primary/50 group-hover/card:-translate-y-3 group-hover/card:shadow-2xl group-hover/card:shadow-primary/20 will-change-transform transform-gpu">
           {/* Image */}
           <div className="relative aspect-[3/4] overflow-hidden">
             <img
@@ -110,7 +98,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
               loading="lazy"
               decoding="async"
               fetchPriority="auto"
-              sizes="(max-width: 480px) 30vw, (max-width: 768px) 22vw, (max-width: 1024px) 18vw, 176px"
+              sizes="(max-width: 480px) 30vw, (max-width: 768px) 22vw, (max-width: 1024px) 18vw, 200px"
               className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover/card:scale-105 will-change-transform transform-gpu"
             />
 
@@ -150,8 +138,8 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
             </div>
           </div>
 
-          {/* Content section */}
-          <div className="p-2.5 sm:p-4">
+          {/* Content */}
+          <div className="p-2.5 sm:p-4 md:p-5">
             <h3 className="font-semibold text-[11px] sm:text-sm md:text-base leading-tight line-clamp-1 sm:line-clamp-2 text-card-foreground group-hover/card:text-primary transition-colors">
               {manga.title}
             </h3>
@@ -161,7 +149,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
               {publishedYear && <> • {publishedYear}</>}
             </p>
 
-            <div className="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-3 text-[9px] sm:text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 sm:gap-3 mt-1.5 sm:mt-3 text-[9px] sm:text-xs text-muted-foreground">
               {chapterCount && <span>Chapter {chapterCount}</span>}
               {chapterCount && statusLabel && <span className="w-1 h-1 bg-muted-foreground/40 rounded-full" />}
               {statusLabel && <span>{statusLabel}</span>}
