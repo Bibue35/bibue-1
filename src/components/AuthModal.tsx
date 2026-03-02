@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Loader2, Mail, Lock, User, Link2 } from "lucide-react";
+import { Loader2, Mail, Lock, User, Link2, Gift } from "lucide-react";
 import { lovable } from "@/integrations/lovable";
 import { validateEmail, validateUsername } from "@/lib/validation";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -20,6 +20,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
   const { t } = useLanguage();
@@ -81,6 +82,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     setEmail("");
     setPassword("");
     setUsername("");
+    setReferralCode("");
   };
 
   const toggleMode = () => {
@@ -211,6 +213,23 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               />
             </div>
           </div>
+
+          {!isLogin && (
+            <div className="space-y-2">
+              <Label htmlFor="referral" className="text-xs text-muted-foreground flex items-center gap-1">
+                <Gift className="w-3 h-3" /> Referral Code (optional)
+              </Label>
+              <Input
+                id="referral"
+                type="text"
+                placeholder="e.g. BIBUE-A1B2C3"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                className="font-mono text-sm tracking-wider"
+                maxLength={12}
+              />
+            </div>
+          )}
 
           <Button type="submit" className="w-full" disabled={loading}>
             {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
