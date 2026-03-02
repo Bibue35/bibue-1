@@ -24,7 +24,7 @@ export function CyclingText({ words, interval = 2500, className }: CyclingTextPr
   }, [words.length, interval]);
 
   return (
-    <span className={cn("inline-block relative overflow-hidden", className)}>
+    <span className={cn("inline-block relative overflow-hidden pb-1", className)}>
       <span
         className={cn(
           "inline-block transition-all duration-400 ease-in-out",
