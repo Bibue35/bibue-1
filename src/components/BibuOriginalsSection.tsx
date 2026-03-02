@@ -19,9 +19,6 @@ export function BibuOriginalsSection() {
 
       <div className="relative rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-8 sm:p-12 text-center">
         <div className="flex flex-col items-center gap-4 max-w-md mx-auto">
-          <div className="p-3 rounded-xl bg-primary/10">
-            <Sparkles className="w-8 h-8 text-primary" />
-          </div>
           <h3 className="text-xl sm:text-2xl font-bold">Coming Soon</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Original manga, manhwa & manhua by independent creators — launching soon on Bibue.
