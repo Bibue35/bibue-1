@@ -360,9 +360,6 @@ export default function SupportPage() {
                     <p className="text-xs text-muted-foreground">Direct access to the team — you're a verified creator</p>
                   </div>
                 </div>
-                <Badge className="bg-neon-gold/20 text-neon-gold border-neon-gold/30 text-xs gap-1 mb-4">
-                  <Clock className="w-3 h-3" /> We reply within 24 hours
-                </Badge>
                 <ul className="text-sm text-muted-foreground space-y-1.5 mb-5">
                   <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-neon-gold" /> Upload Issues</li>
                   <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-neon-gold" /> Revenue & Payouts</li>
