@@ -173,7 +173,7 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
           <div className="flex items-end gap-4 sm:gap-6">
             <div className="w-28 h-40 sm:w-44 sm:h-64 rounded-2xl overflow-hidden border-2 border-border/30 shadow-2xl flex-shrink-0 -mb-10 sm:-mb-12 bg-muted">
               {manga?.images?.webp?.large_image_url && (
-                <img src={manga.images.webp.large_image_url} alt={manga.title} className="w-full h-full object-cover object-top" />
+                <img src={manga.images.webp.large_image_url} alt={manga.title} className="w-full h-full object-contain object-top" />
               )}
             </div>
             <div className="pb-2 sm:pb-4 min-w-0 flex-1">
