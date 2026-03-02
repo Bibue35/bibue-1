@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
+import { FollowersTab } from "@/components/creator/FollowersTab";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -49,7 +50,7 @@ import {
   Share2,
 } from "lucide-react";
 
-type DashboardTab = "overview" | "series" | "upload" | "analytics" | "payouts" | "guidelines" | "referrals";
+type DashboardTab = "overview" | "series" | "upload" | "followers" | "analytics" | "payouts" | "guidelines" | "referrals";
 type UploadStep = "select-series" | "guidelines" | "chapter-info" | "upload-pages" | "standardize" | "preview" | "done";
 
 interface PageFile {
@@ -428,6 +429,7 @@ export default function CreatorDashboard() {
     { id: "overview", label: "Overview", icon: BarChart3 },
     { id: "series", label: "My Series", icon: BookOpen },
     { id: "upload", label: "Upload", icon: Upload },
+    { id: "followers", label: "Followers", icon: Users },
     { id: "analytics", label: "Analytics", icon: TrendingUp },
     { id: "payouts", label: "Payouts", icon: CreditCard },
     { id: "guidelines", label: "Guidelines", icon: ShieldCheck },
@@ -1057,6 +1059,11 @@ export default function CreatorDashboard() {
                     </div>
                   </CardContent>
                 </Card>
+              )}
+
+              {/* ─── Followers ─── */}
+              {activeTab === "followers" && (
+                <FollowersTab userId={user.id} />
               )}
 
               {/* ─── Referrals ─── */}

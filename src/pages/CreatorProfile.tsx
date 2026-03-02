@@ -9,6 +9,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FollowButton } from "@/components/community/FollowButton";
+import { useFollow } from "@/hooks/useFollow";
 import {
   BookOpen,
   Eye,
@@ -88,6 +90,7 @@ export default function CreatorProfile() {
   const { data: creator, isLoading } = useCreatorByIdentifier(identifier);
   const { data: series = [] } = useCreatorSeries(creator?.user_id);
   const { data: chapterCount = 0 } = useCreatorChapterCount(creator?.user_id);
+  const { followersCount } = useFollow(creator?.user_id);
 
   const isOwnProfile = user?.id === creator?.user_id;
 
@@ -187,11 +190,9 @@ export default function CreatorProfile() {
                   <Settings className="w-4 h-4" /> Edit Profile
                 </Link>
               </Button>
-            ) : (
-              <Button className="gap-2">
-                <Users className="w-4 h-4" /> Follow Creator
-              </Button>
-            )}
+            ) : creator?.user_id ? (
+              <FollowButton userId={creator.user_id} size="lg" />
+            ) : null}
           </div>
         </div>
       </section>
@@ -199,8 +200,9 @@ export default function CreatorProfile() {
       {/* ─── Stats ─── */}
       <section className="border-y border-border/50 bg-muted/20">
         <div className="container mx-auto px-4 max-w-3xl">
-          <div className="grid grid-cols-3 divide-x divide-border/50">
+          <div className="grid grid-cols-4 divide-x divide-border/50">
             {[
+              { icon: Users, label: "Followers", value: followersCount },
               { icon: Layers, label: "Series", value: series.length },
               { icon: BookOpen, label: "Chapters", value: chapterCount },
               { icon: Eye, label: "Total Views", value: "—" },

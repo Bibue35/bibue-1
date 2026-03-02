@@ -24,6 +24,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { OriginalChapterComments } from "@/components/OriginalChapterComments";
+import { useSeriesFollow } from "@/hooks/useSeriesFollow";
+import { useAuth } from "@/contexts/AuthContext";
+import { UserPlus, UserMinus, Loader2 } from "lucide-react";
 
 function useSeriesDetail(id: string | undefined) {
   return useQuery({
@@ -83,6 +86,8 @@ export default function OriginalSeriesDetail() {
   const { data: chapters = [] } = useSeriesChapters(id);
   const { data: related = [] } = useRelatedSeries(id, series?.genre_tags);
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
+  const { followersCount, isFollowing, toggleFollow, isToggling } = useSeriesFollow(id);
+  const { user } = useAuth();
 
   const creator = series ? (series as any).creator_profiles : null;
 
@@ -196,13 +201,33 @@ export default function OriginalSeriesDetail() {
               )}
 
               {/* CTA */}
-              {chapters.length > 0 && (
-                <Button size="lg" className="gap-2 shadow-lg shadow-primary/20">
-                  <BookOpen className="w-5 h-5" />
-                  Read First Chapter
-                  <ArrowRight className="w-4 h-4" />
+              <div className="flex flex-wrap items-center gap-3 justify-center sm:justify-start">
+                {chapters.length > 0 && (
+                  <Button size="lg" className="gap-2 shadow-lg shadow-primary/20">
+                    <BookOpen className="w-5 h-5" />
+                    Read First Chapter
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                )}
+                <Button
+                  variant={isFollowing ? "outline" : "secondary"}
+                  size="lg"
+                  onClick={toggleFollow}
+                  disabled={isToggling || !user}
+                  className={cn(
+                    "gap-2",
+                    isFollowing && "hover:bg-destructive/10 hover:text-destructive hover:border-destructive"
+                  )}
+                >
+                  {isToggling ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : isFollowing ? (
+                    <><UserMinus className="w-4 h-4" /> Following</>
+                  ) : (
+                    <><UserPlus className="w-4 h-4" /> Follow Series</>
+                  )}
                 </Button>
-              )}
+              </div>
             </div>
           </div>
         </div>
@@ -214,7 +239,7 @@ export default function OriginalSeriesDetail() {
           <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-border/50">
             {[
               { icon: Eye, label: "Total Views", value: "—" },
-              { icon: Users, label: "Followers", value: "—" },
+              { icon: Users, label: "Followers", value: followersCount.toString() },
               { icon: BookOpen, label: "Chapters", value: chapters.length.toString() },
               { icon: Clock, label: "Last Updated", value: lastUpdated },
             ].map((stat) => (
