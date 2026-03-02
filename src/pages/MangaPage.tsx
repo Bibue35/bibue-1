@@ -1,19 +1,25 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { SEO, itemListJsonLd } from "@/components/SEO";
 import { useSearchParams, Link } from "react-router-dom";
-import { Grid, List, Bookmark, Sparkles, Loader2, Flame, TrendingUp, Trophy, Star, Zap, Users, Swords, Heart, Wand2, BookOpen, CheckCircle, RefreshCw, SlidersHorizontal, ChevronDown, X } from "lucide-react";
-import { DeferredTrendingManhwaSection, DeferredTopManhwaSection, DeferredTrendingManhuaSection, DeferredTopManhuaSection, DeferredNewThisWeekSection, DeferredCompletedSection, DeferredMangaGenreSection } from "@/components/DeferredMangaSections";
+import {
+  Loader2, TrendingUp, Trophy, Star, Zap, Swords, Heart, Wand2,
+  BookOpen, RefreshCw, SlidersHorizontal, ChevronDown, X, Bookmark, Sparkles,
+  ArrowRight, Search,
+} from "lucide-react";
+import {
+  DeferredTrendingManhwaSection, DeferredTopManhwaSection,
+  DeferredTrendingManhuaSection, DeferredTopManhuaSection,
+  DeferredNewThisWeekSection, DeferredCompletedSection,
+} from "@/components/DeferredMangaSections";
 import { SectionError } from "@/components/SectionError";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { MangaCard } from "@/components/MangaCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
-
 import { ContentSection } from "@/components/ContentSection";
 import { SearchDropdown } from "@/components/SearchDropdown";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { CardSkeletonRow } from "@/components/skeletons";
-
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -28,95 +34,133 @@ import { cn } from "@/lib/utils";
 
 type SortOption = "popularity" | "score" | "newest";
 
-const GENRE_ID_TO_NAME: Record<string, string> = {
-  "1": "Action", "2": "Adventure", "4": "Comedy", "7": "Mystery", "8": "Drama",
-  "10": "Fantasy", "13": "Historical", "14": "Horror", "22": "Romance",
-  "24": "Sci-Fi", "25": "Shoujo", "27": "Shounen", "28": "Seinen",
-  "30": "Sports", "36": "Slice of Life", "37": "Supernatural", "38": "Military",
-  "40": "Psychological", "41": "Isekai", "42": "Josei", "73": "School", "101": "Thriller",
-};
-
-const QUICK_GENRES = [
-  { id: "1", label: "Action" },
-  { id: "22", label: "Romance" },
-  { id: "10", label: "Fantasy" },
-  { id: "41", label: "Isekai" },
-  { id: "8", label: "Drama" },
-  { id: "4", label: "Comedy" },
-  { id: "14", label: "Horror" },
-  { id: "37", label: "Supernatural" },
-  { id: "7", label: "Mystery" },
-  { id: "40", label: "Psychological" },
-  { id: "36", label: "Slice of Life" },
-  { id: "27", label: "Shounen" },
-  { id: "25", label: "Shoujo" },
-  { id: "28", label: "Seinen" },
-  { id: "42", label: "Josei" },
-  { id: "13", label: "Historical" },
-  { id: "101", label: "Thriller" },
-  { id: "30", label: "Sports" },
+/* ── Genre Grid Data ─────────────────────────────── */
+const BROWSE_GENRES = [
+  { id: "1", name: "Action", emoji: "⚔️" },
+  { id: "22", name: "Romance", emoji: "💕" },
+  { id: "10", name: "Fantasy", emoji: "🧙" },
+  { id: "8", name: "Drama", emoji: "🎭" },
+  { id: "4", name: "Comedy", emoji: "😂" },
+  { id: "14", name: "Horror", emoji: "👻" },
+  { id: "101", name: "Thriller", emoji: "🔪" },
+  { id: "7", name: "Mystery", emoji: "🔍" },
+  { id: "36", name: "Slice of Life", emoji: "☕" },
+  { id: "41", name: "Isekai", emoji: "🌀" },
+  { id: "27", name: "Shounen", emoji: "💪" },
+  { id: "25", name: "Shoujo", emoji: "🌸" },
+  { id: "28", name: "Seinen", emoji: "📖" },
+  { id: "42", name: "Josei", emoji: "💎" },
+  { id: "13", name: "Historical", emoji: "🏯" },
+  { id: "40", name: "Psychological", emoji: "🧠" },
+  { id: "37", name: "Supernatural", emoji: "✨" },
+  { id: "30", name: "Sports", emoji: "🏆" },
+  { id: "38", name: "Military", emoji: "🎖️" },
+  { id: "24", name: "Sci-Fi", emoji: "🚀" },
+  { id: "73", name: "School", emoji: "🏫" },
+  { id: "2", name: "Adventure", emoji: "🗺️" },
 ];
+
+const GENRE_ID_TO_NAME: Record<string, string> = {};
+BROWSE_GENRES.forEach((g) => { GENRE_ID_TO_NAME[g.id] = g.name; });
+
+const FORMAT_TABS = [
+  { value: "all" as const, label: "All" },
+  { value: "manga" as const, label: "Manga" },
+  { value: "manhwa" as const, label: "Manhwa" },
+  { value: "manhua" as const, label: "Manhua" },
+];
+
+/* ── Genre Grid Section (collapsed by default, expands) ── */
+function GenreGrid({ onSelect, activeGenre }: { onSelect: (id: string | null) => void; activeGenre: string | null }) {
+  const [expanded, setExpanded] = useState(false);
+  const visible = expanded ? BROWSE_GENRES : BROWSE_GENRES.slice(0, 12);
+
+  return (
+    <section className="py-8 sm:py-12">
+      <div className="container mx-auto px-3 sm:px-4">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xl sm:text-2xl font-bold">Browse by Genre</h2>
+          {activeGenre && (
+            <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => onSelect(null)}>
+              <X className="w-3.5 h-3.5" /> Clear
+            </Button>
+          )}
+        </div>
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5 sm:gap-3">
+          {visible.map((g) => (
+            <button
+              key={g.id}
+              onClick={() => onSelect(activeGenre === g.id ? null : g.id)}
+              className={cn(
+                "group relative rounded-xl border p-3 sm:p-4 text-left transition-all duration-200 hover:shadow-lg active:scale-[0.97]",
+                activeGenre === g.id
+                  ? "border-primary bg-primary/10 shadow-md shadow-primary/10"
+                  : "border-border/50 bg-card hover:border-primary/30"
+              )}
+            >
+              <span className="text-xl sm:text-2xl block mb-1.5">{g.emoji}</span>
+              <span className={cn(
+                "text-xs sm:text-sm font-semibold transition-colors",
+                activeGenre === g.id ? "text-primary" : "text-foreground group-hover:text-primary"
+              )}>
+                {g.name}
+              </span>
+              <ArrowRight className={cn(
+                "absolute top-3 right-3 w-3.5 h-3.5 opacity-0 group-hover:opacity-60 transition-opacity text-muted-foreground",
+                activeGenre === g.id && "opacity-60 text-primary"
+              )} />
+            </button>
+          ))}
+        </div>
+        {BROWSE_GENRES.length > 12 && (
+          <div className="flex justify-center mt-4">
+            <Button variant="ghost" size="sm" className="text-xs gap-1.5" onClick={() => setExpanded(!expanded)}>
+              {expanded ? "Show Less" : `Show All ${BROWSE_GENRES.length} Genres`}
+              <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", expanded && "rotate-180")} />
+            </Button>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
 
 export default function MangaPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const genreId = searchParams.get("genre");
   const filterParam = searchParams.get("filter") as "manga" | "manhwa" | "manhua" | null;
   const sortParam = searchParams.get("sort") as SortOption | null;
-  const collectionParam = searchParams.get("collection") as "new" | "completed" | null;
-  
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
   const [localSearch, setLocalSearch] = useState(searchParams.get("q") || "");
   const [typeFilter, setTypeFilter] = useState<"all" | "manga" | "manhwa" | "manhua">(filterParam || "all");
   const [sortBy, setSortBy] = useState<SortOption>(sortParam || "popularity");
-  const [collection, setCollection] = useState<"new" | "completed" | null>(collectionParam);
-  const [isFiltersOpen, setIsFiltersOpen] = useState(true);
   const resultsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
+  const isUserAction = useRef(false);
 
-  // Debounce search input (150ms default for faster response)
   const debouncedSearch = useDebounce(localSearch.trim());
+  const isSearching = debouncedSearch.length > 0;
 
-  // Sync state FROM URL when params change (e.g. "See All" link clicked)
+  // Sync state from URL
   useEffect(() => {
-    const urlFilter = searchParams.get("filter") as "manga" | "manhwa" | "manhua" | null;
+    const urlFilter = searchParams.get("filter") as typeof typeFilter | null;
     const urlSort = searchParams.get("sort") as SortOption | null;
     const urlQ = searchParams.get("q") || "";
-    const urlCollection = searchParams.get("collection") as "new" | "completed" | null;
-
     setTypeFilter(urlFilter || "all");
     setSortBy(urlSort || "popularity");
     setLocalSearch(urlQ);
-    setCollection(urlCollection);
-
-    // Auto-scroll to results grid when navigated via "See All" or collection
-    if ((urlFilter || urlSort || urlCollection) && !urlQ) {
-      setTimeout(() => {
-        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
+    if ((urlFilter || urlSort || searchParams.get("genre")) && !urlQ) {
+      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     }
   }, [searchParams]);
 
-  const isSearching = debouncedSearch.length > 0;
-
-  const clearSearch = () => {
-    setLocalSearch("");
-  };
-
-  const handleTypeFilter = (filter: "all" | "manga" | "manhwa" | "manhua") => {
-    isUserAction.current = true;
-    setTypeFilter(filter);
-  };
-
-  // Sync URL when state changes from user interaction
-  const isUserAction = useRef(false);
-
+  // Sync URL from state
   useEffect(() => {
     if (!isUserAction.current && !localSearch) return;
     isUserAction.current = false;
-
     const params = new URLSearchParams();
     if (debouncedSearch) params.set("q", debouncedSearch);
     if (typeFilter !== "all") params.set("filter", typeFilter);
@@ -125,7 +169,14 @@ export default function MangaPage() {
     setSearchParams(params, { replace: true });
   }, [debouncedSearch, typeFilter, sortBy, genreId, setSearchParams]);
 
-  // Pull-to-refresh handler
+  const handleTypeFilter = (f: typeof typeFilter) => { isUserAction.current = true; setTypeFilter(f); };
+  const handleGenreSelect = (id: string | null) => {
+    const params = new URLSearchParams(searchParams);
+    if (id) { params.set("genre", id); } else { params.delete("genre"); }
+    if (typeFilter !== "all") params.set("filter", typeFilter);
+    setSearchParams(params, { replace: true });
+  };
+
   const handleRefresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["topManga"] });
     await queryClient.invalidateQueries({ queryKey: ["infiniteTopManga"] });
@@ -139,54 +190,38 @@ export default function MangaPage() {
     await queryClient.invalidateQueries({ queryKey: ["recentlyUpdatedManga"] });
   }, [queryClient]);
 
-  // Only eagerly load above-fold sections
+  // Data
   const { data: mangaOnly, isLoading: mangaLoading, isError: mangaError, refetch: refetchManga } = useTopManga(1, 'manga');
   const { data: recentlyUpdatedManga, isLoading: recentlyUpdatedMangaLoading, isError: recentlyUpdatedMangaError, refetch: refetchRecentlyUpdatedManga } = useRecentlyUpdatedManga(1);
 
-  // Infinite scroll queries for bottom grid
   const sortToAniList = (s: SortOption) => {
     if (s === "score") return "SCORE_DESC" as const;
     if (s === "newest") return "TRENDING_DESC" as const;
     return "POPULARITY_DESC" as const;
   };
-
   const genreName = genreId ? GENRE_ID_TO_NAME[genreId] || genreId : "";
 
-  const infiniteTop = useInfiniteTopManga(
-    typeFilter === "all" ? undefined : typeFilter,
-    sortBy
-  );
-  const infiniteGenre = useInfiniteMangaByGenre(
-    genreName,
-    typeFilter === "all" ? undefined : typeFilter,
-    sortToAniList(sortBy)
-  );
-  const infiniteSearch = useInfiniteSearchManga(
-    debouncedSearch,
-    isSearching,
-    typeFilter === "all" ? undefined : typeFilter
-  );
+  const infiniteTop = useInfiniteTopManga(typeFilter === "all" ? undefined : typeFilter, sortBy);
+  const infiniteGenre = useInfiniteMangaByGenre(genreName, typeFilter === "all" ? undefined : typeFilter, sortToAniList(sortBy));
+  const infiniteSearch = useInfiniteSearchManga(debouncedSearch, isSearching, typeFilter === "all" ? undefined : typeFilter);
 
-  // Pick the right infinite query
   const activeInfinite = isSearching ? infiniteSearch : genreId ? infiniteGenre : infiniteTop;
   const allItems = activeInfinite.data?.pages.flat() ?? [];
   const gridLoading = activeInfinite.isLoading;
   const isFetchingNext = activeInfinite.isFetchingNextPage;
   const hasNextPage = activeInfinite.hasNextPage;
 
-  // Intersection observer for infinite scroll
   const { ref: loadMoreRef, isInView: loadMoreInView } = useInView({ threshold: 0, rootMargin: "400px 0px" });
-
   useEffect(() => {
-    if (loadMoreInView && hasNextPage && !isFetchingNext) {
-      activeInfinite.fetchNextPage();
-    }
+    if (loadMoreInView && hasNextPage && !isFetchingNext) activeInfinite.fetchNextPage();
   }, [loadMoreInView, hasNextPage, isFetchingNext, activeInfinite]);
 
-  // Get top rated manga (sorted by score)
-  const topRatedManga = useMemo(() => {
-    return [...(mangaOnly || [])].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 12);
-  }, [mangaOnly]);
+  const topRatedManga = useMemo(() =>
+    [...(mangaOnly || [])].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 12),
+    [mangaOnly]
+  );
+
+  const showCarousels = !isSearching && !genreId;
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
@@ -198,244 +233,164 @@ export default function MangaPage() {
       />
       <CollapsibleNavbar />
 
-      {/* Apple-style Search Hero */}
-      <section className="pt-24 sm:pt-28 pb-4 sm:pb-6">
+      {/* ── Sticky Format Selector ── */}
+      <div className="sticky top-[56px] z-30 bg-background/80 backdrop-blur-md border-b border-border/30">
+        <div className="container mx-auto px-3 sm:px-4 py-2.5 flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+          {FORMAT_TABS.map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => handleTypeFilter(tab.value)}
+              className={cn(
+                "flex-shrink-0 px-4 sm:px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 active:scale-95",
+                typeFilter === tab.value
+                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                  : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
+
+          <div className="w-px h-6 bg-border/40 mx-1 flex-shrink-0 hidden sm:block" />
+
+          {/* Sort */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium bg-muted/50 text-muted-foreground hover:bg-muted transition-colors">
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                {sortBy === "popularity" ? "Trending" : sortBy === "score" ? "Top Rated" : "Newest"}
+                <ChevronDown className="w-3 h-3 opacity-50" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-44 p-2" align="start">
+              {(["popularity", "score", "newest"] as const).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => { isUserAction.current = true; setSortBy(s); }}
+                  className={cn(
+                    "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
+                    sortBy === s ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
+                  )}
+                >
+                  {s === "popularity" ? "Trending" : s === "score" ? "Top Rated" : "Newest"}
+                </button>
+              ))}
+            </PopoverContent>
+          </Popover>
+
+          <div className="flex-1" />
+
+          {user && (
+            <Button variant="ghost" size="sm" className="rounded-full gap-1.5 text-xs flex-shrink-0" asChild>
+              <Link to="/recommendations"><Sparkles className="w-3.5 h-3.5" /> For You</Link>
+            </Button>
+          )}
+          <Button variant="ghost" size="sm" className="rounded-full gap-1.5 text-xs flex-shrink-0" asChild>
+            <Link to="/watchlist?type=manga"><Bookmark className="w-3.5 h-3.5" /> Saved</Link>
+          </Button>
+        </div>
+      </div>
+
+      {/* ── Search Bar ── */}
+      <section className="pt-6 sm:pt-8 pb-2">
         <div className="container mx-auto px-4">
-          {/* Large Search Bar */}
-          <div className="flex justify-center mb-6 sm:mb-8">
+          <div className="flex justify-center mb-4">
             <SearchDropdown
               type="manga"
               value={localSearch}
               onChange={setLocalSearch}
-              placeholder="Search any manga… (One Piece, Jujutsu Kaisen, genre, author, year...)"
+              placeholder="Search any manga… (One Piece, Jujutsu Kaisen, genre, author...)"
               size="large"
             />
           </div>
-
-          {/* Advanced Filters Row */}
-          <div className="flex flex-wrap items-center gap-2 mb-6">
-            {/* Type Filter */}
-            {(["all", "manga", "manhwa", "manhua"] as const).map((type) => (
-              <Button
-                key={type}
-                variant={typeFilter === type ? "default" : "outline"}
-                size="sm"
-                className="rounded-full capitalize"
-                onClick={() => handleTypeFilter(type)}
-              >
-                {type === "all" ? t("common.all") : type.charAt(0).toUpperCase() + type.slice(1)}
-              </Button>
-            ))}
-
-            <div className="w-px h-6 bg-border/40 mx-1 hidden sm:block" />
-
-            {/* Sort */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="rounded-full gap-1.5">
-                  <SlidersHorizontal className="w-3.5 h-3.5" />
-                  Sort: {sortBy === "popularity" ? "Trending" : sortBy === "score" ? "Top Rated" : "Newest"}
-                  <ChevronDown className="w-3 h-3 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-44 p-2" align="start">
-                {([
-                  { value: "popularity" as const, label: "Trending" },
-                  { value: "score" as const, label: "Top Rated" },
-                  { value: "newest" as const, label: "Newest" },
-                ] as const).map((s) => (
-                  <button
-                    key={s.value}
-                    onClick={() => { isUserAction.current = true; setSortBy(s.value); }}
-                    className={cn(
-                      "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
-                      sortBy === s.value ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
-                    )}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </PopoverContent>
-            </Popover>
-
-            {/* Genre Picker */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant={genreId ? "default" : "outline"} size="sm" className="rounded-full gap-1.5">
-                  {genreId ? GENRE_ID_TO_NAME[genreId] || "Genre" : "Genre"}
-                  <ChevronDown className="w-3 h-3 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 p-3" align="start">
-                <div className="grid grid-cols-2 gap-1.5 max-h-64 overflow-y-auto">
-                  {genreId && (
-                    <button
-                      onClick={() => {
-                        const params = new URLSearchParams(searchParams);
-                        params.delete("genre");
-                        setSearchParams(params, { replace: true });
-                      }}
-                      className="col-span-2 px-3 py-2 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors text-left"
-                    >
-                      ✕ Clear Genre
-                    </button>
-                  )}
-                  {QUICK_GENRES.map((g) => (
-                    <button
-                      key={g.id}
-                      onClick={() => {
-                        const params = new URLSearchParams(searchParams);
-                        params.set("genre", g.id);
-                        if (typeFilter !== "all") params.set("filter", typeFilter);
-                        setSearchParams(params, { replace: true });
-                      }}
-                      className={cn(
-                        "px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left",
-                        genreId === g.id ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      {g.label}
-                    </button>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
-
-            <div className="flex-1" />
-            
-            {user && (
-              <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
-                <Link to="/recommendations">
-                  <Sparkles className="w-4 h-4" />
-                  {t("nav.forYou")}
-                </Link>
-              </Button>
-            )}
-            <Button variant="outline" size="sm" className="rounded-full gap-2" asChild>
-              <Link to="/watchlist?type=manga">
-                <Bookmark className="w-4 h-4" />
-                {t("nav.saved")}
-              </Link>
-            </Button>
-          </div>
-
-          {/* Page Title */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-2">
-            Browse Manga
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-1">
+            {genreId ? `${genreName}` : isSearching ? `Results for "${debouncedSearch}"` : "Browse Manga"}
           </h1>
-          <p className="text-sm text-muted-foreground mb-4">Your discovery hub for manga, manhwa & manhua — search, filter, explore.</p>
+          <p className="text-sm text-muted-foreground mb-2">
+            {genreId
+              ? `Top ${typeFilter !== "all" ? typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1) + " " : ""}${genreName} series`
+              : "Your discovery hub for manga, manhwa & manhua."
+            }
+          </p>
         </div>
       </section>
 
-      {/* Recently Updated — filter by typeFilter client-side */}
-      {!isSearching && !genreId && (
-        <ContentSection
-          title={t("manga.recentlyUpdated")}
-          titleJp={t("manga.recentlyUpdatedJp")}
-          icon={RefreshCw}
-          linkTo="/manga"
-        >
-          {recentlyUpdatedMangaError ? (
-            <SectionError onRetry={() => refetchRecentlyUpdatedManga()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {recentlyUpdatedMangaLoading ? (
-                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                recentlyUpdatedManga
-                  ?.filter((m) => {
-                    if (typeFilter === "all") return true;
-                    if (typeFilter === "manhwa") return m.countryOfOrigin === "KR";
-                    if (typeFilter === "manhua") return m.countryOfOrigin === "CN";
-                    // "manga" = JP (or anything not KR/CN)
-                    return m.countryOfOrigin === "JP" || (!m.countryOfOrigin || (m.countryOfOrigin !== "KR" && m.countryOfOrigin !== "CN"));
-                  })
-                  .slice(0, 12)
-                  .map((manga, index) => (
-                    <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                      <MangaCard manga={manga} index={index} />
-                    </div>
-                  ))
+      {/* ── Carousel Sections (hidden when searching or genre-filtered) ── */}
+      {showCarousels && (
+        <>
+          {/* Recently Updated */}
+          <ContentSection title={t("manga.recentlyUpdated")} titleJp={t("manga.recentlyUpdatedJp")} icon={RefreshCw} linkTo="/manga">
+            {recentlyUpdatedMangaError ? (
+              <SectionError onRetry={() => refetchRecentlyUpdatedManga()} />
+            ) : (
+              <HorizontalScroll showArrows={!isMobile}>
+                {recentlyUpdatedMangaLoading ? (
+                  <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+                ) : (
+                  recentlyUpdatedManga
+                    ?.filter((m) => {
+                      if (typeFilter === "all") return true;
+                      if (typeFilter === "manhwa") return m.countryOfOrigin === "KR";
+                      if (typeFilter === "manhua") return m.countryOfOrigin === "CN";
+                      return m.countryOfOrigin === "JP" || (!m.countryOfOrigin || (m.countryOfOrigin !== "KR" && m.countryOfOrigin !== "CN"));
+                    })
+                    .slice(0, 12)
+                    .map((manga, index) => (
+                      <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                        <MangaCard manga={manga} index={index} />
+                      </div>
+                    ))
+                )}
+              </HorizontalScroll>
+            )}
+          </ContentSection>
+
+          {/* Most Popular Manga */}
+          {(typeFilter === "all" || typeFilter === "manga") && (
+            <ContentSection title={t("manga.mostPopular")} titleJp={t("manga.mostPopularJp")} icon={TrendingUp} linkTo="/manga?filter=manga">
+              {mangaError ? <SectionError onRetry={() => refetchManga()} /> : (
+                <HorizontalScroll showArrows={!isMobile}>
+                  {mangaLoading ? <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" /> : (
+                    mangaOnly?.slice(0, 12).map((manga, index) => (
+                      <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                        <MangaCard manga={manga} index={index} />
+                      </div>
+                    ))
+                  )}
+                </HorizontalScroll>
               )}
-            </HorizontalScroll>
+            </ContentSection>
           )}
-        </ContentSection>
+
+          {/* Top Rated */}
+          {(typeFilter === "all" || typeFilter === "manga") && (
+            <ContentSection title={t("manga.topRated")} titleJp={t("manga.topRatedJp")} icon={Trophy} linkTo="/manga?filter=manga&sort=score">
+              {mangaError ? <SectionError onRetry={() => refetchManga()} /> : (
+                <HorizontalScroll showArrows={!isMobile}>
+                  {mangaLoading ? <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" /> : (
+                    topRatedManga?.map((manga, index) => (
+                      <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                        <MangaCard manga={manga} index={index} />
+                      </div>
+                    ))
+                  )}
+                </HorizontalScroll>
+              )}
+            </ContentSection>
+          )}
+
+          {/* Deferred sections */}
+          {(typeFilter === "all" || typeFilter === "manhwa") && <DeferredTrendingManhwaSection isMobile={isMobile} />}
+          {(typeFilter === "all" || typeFilter === "manhwa") && <DeferredTopManhwaSection isMobile={isMobile} />}
+          {(typeFilter === "all" || typeFilter === "manhua") && <DeferredTrendingManhuaSection isMobile={isMobile} />}
+          {(typeFilter === "all" || typeFilter === "manhua") && <DeferredTopManhuaSection isMobile={isMobile} />}
+          {typeFilter === "all" && <DeferredNewThisWeekSection isMobile={isMobile} />}
+          {typeFilter === "all" && <DeferredCompletedSection isMobile={isMobile} />}
+        </>
       )}
 
-      {/* Most Popular Manga */}
-      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manga") && (
-        <ContentSection
-          title={t("manga.mostPopular")}
-          titleJp={t("manga.mostPopularJp")}
-          icon={TrendingUp}
-          linkTo="/manga?filter=manga"
-        >
-          {mangaError ? (
-            <SectionError onRetry={() => refetchManga()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {mangaLoading ? (
-                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                mangaOnly?.slice(0, 12).map((manga, index) => (
-                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    <MangaCard manga={manga} index={index} />
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
-
-      {/* Top Rated Manga */}
-      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manga") && (
-        <ContentSection
-          title={t("manga.topRated")}
-          titleJp={t("manga.topRatedJp")}
-          icon={Trophy}
-          linkTo="/manga?filter=manga&sort=score"
-        >
-          {mangaError ? (
-            <SectionError onRetry={() => refetchManga()} />
-          ) : (
-            <HorizontalScroll showArrows={!isMobile}>
-              {mangaLoading ? (
-                <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
-              ) : (
-                topRatedManga?.map((manga, index) => (
-                  <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
-                    <MangaCard manga={manga} index={index} />
-                  </div>
-                ))
-              )}
-            </HorizontalScroll>
-          )}
-        </ContentSection>
-      )}
-
-      {/* Trending Manhwa - Deferred */}
-      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhwa") && <DeferredTrendingManhwaSection isMobile={isMobile} />}
-
-      {/* Top Manhwa - Deferred */}
-      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhwa") && <DeferredTopManhwaSection isMobile={isMobile} />}
-
-      {/* Trending Manhua - Deferred */}
-      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhua") && <DeferredTrendingManhuaSection isMobile={isMobile} />}
-
-      {/* Top Manhua - Deferred */}
-      {!isSearching && !genreId && (typeFilter === "all" || typeFilter === "manhua") && <DeferredTopManhuaSection isMobile={isMobile} />}
-
-      {/* New This Week - Deferred (only show when no specific type filter since this section doesn't filter by type) */}
-      {!isSearching && !genreId && typeFilter === "all" && <DeferredNewThisWeekSection isMobile={isMobile} />}
-
-      {/* Completed Series - Deferred (same: only when typeFilter is "all") */}
-      {!isSearching && !genreId && typeFilter === "all" && <DeferredCompletedSection isMobile={isMobile} />}
-
-      {/* Genre Sections - Deferred */}
-      {!isSearching && !genreId && <DeferredMangaGenreSection genre="Action" titleJp="アクション" icon={Swords} linkTo={`/manga?genre=1${typeFilter !== "all" ? `&filter=${typeFilter}` : ""}`} isMobile={isMobile} />}
-      {!isSearching && !genreId && <DeferredMangaGenreSection genre="Romance" titleJp="ロマンス" icon={Heart} linkTo={`/manga?genre=22${typeFilter !== "all" ? `&filter=${typeFilter}` : ""}`} isMobile={isMobile} />}
-      {!isSearching && !genreId && <DeferredMangaGenreSection genre="Fantasy" titleJp="ファンタジー" icon={Wand2} linkTo={`/manga?genre=10${typeFilter !== "all" ? `&filter=${typeFilter}` : ""}`} isMobile={isMobile} />}
+      {/* ── Browse by Genre Grid ── */}
+      {!isSearching && <GenreGrid onSelect={handleGenreSelect} activeGenre={genreId} />}
 
       {/* Results anchor */}
       <div ref={resultsRef} />
@@ -447,34 +402,21 @@ export default function MangaPage() {
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs text-muted-foreground">{t("browse.activeFilters")}:</span>
               {typeFilter !== "all" && (
-                <button
-                  onClick={() => { isUserAction.current = true; setTypeFilter("all"); }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95 min-h-[36px] sm:min-h-0"
-                >
-                  {t("browse.type")}: {typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}
-                  <span className="text-primary/60 text-sm">×</span>
+                <button onClick={() => { isUserAction.current = true; setTypeFilter("all"); }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95">
+                  Type: {typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)} <span className="text-primary/60">×</span>
                 </button>
               )}
               {sortBy !== "popularity" && (
-                <button
-                  onClick={() => { isUserAction.current = true; setSortBy("popularity"); }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95 min-h-[36px] sm:min-h-0"
-                >
-                  {t("browse.sortBy")}: {sortBy === "score" ? t("browse.topRated") : t("browse.newest")}
-                  <span className="text-primary/60 text-sm">×</span>
+                <button onClick={() => { isUserAction.current = true; setSortBy("popularity"); }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95">
+                  Sort: {sortBy === "score" ? "Top Rated" : "Newest"} <span className="text-primary/60">×</span>
                 </button>
               )}
               {genreId && (
-                <button
-                  onClick={() => {
-                    const params = new URLSearchParams(searchParams);
-                    params.delete("genre");
-                    setSearchParams(params, { replace: true });
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95 min-h-[36px] sm:min-h-0"
-                >
-                  Genre: {genreId}
-                  <span className="text-primary/60 text-sm">×</span>
+                <button onClick={() => handleGenreSelect(null)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95">
+                  Genre: {genreName} <span className="text-primary/60">×</span>
                 </button>
               )}
             </div>
@@ -482,62 +424,52 @@ export default function MangaPage() {
         </section>
       )}
 
-      {/* All Manga Grid */}
+      {/* ── Main Grid ── */}
       <section className="py-4 pb-24">
         <div className="container mx-auto px-3 sm:px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">
-            {isSearching 
-              ? `${t("common.searchResults")} "${debouncedSearch}"` 
+            {isSearching
+              ? `Results for "${debouncedSearch}"`
               : genreId
-                ? `${typeFilter !== "all" ? typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1) + " — " : ""}${genreName}`
-                : typeFilter !== "all" 
+                ? `Top ${typeFilter !== "all" ? typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1) + " " : ""}${genreName}`
+                : typeFilter !== "all"
                   ? `Top ${typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}`
                   : t("manga.topManga")}
           </h2>
-          
+
           {isSearching && gridLoading ? (
-            <div className={cn(
-              "grid place-items-center rounded-2xl liquid-glass-subtle",
-              viewMode === "grid" ? "min-h-[320px]" : "min-h-[220px]"
-            )}>
+            <div className="grid place-items-center rounded-2xl min-h-[320px]">
               <div className="flex flex-col items-center text-center gap-3 p-8">
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">{t("common.searchingFor")} "{debouncedSearch}"</p>
+                <p className="text-sm text-muted-foreground">Searching for "{debouncedSearch}"</p>
               </div>
             </div>
           ) : isSearching && !gridLoading && allItems.length === 0 ? (
-            <div className="rounded-2xl liquid-glass-subtle py-12">
+            <div className="rounded-2xl border border-border/50 bg-card/50 py-16">
               <div className="flex flex-col items-center text-center gap-3 px-6">
-                <p className="text-base font-medium">{t("common.noResults")} "{debouncedSearch}"</p>
-                <p className="text-sm text-muted-foreground">{t("common.checkSpelling")}</p>
-                <Button variant="outline" onClick={clearSearch} className="rounded-full mt-2">
-                  {t("common.clearSearch")}
+                <Search className="w-10 h-10 text-muted-foreground/40" />
+                <p className="text-base font-medium">No matches for "{debouncedSearch}"</p>
+                <p className="text-sm text-muted-foreground">Try broadening your search or adjusting filters.</p>
+                <Button variant="outline" onClick={() => setLocalSearch("")} className="rounded-full mt-2">
+                  Clear Search
                 </Button>
               </div>
             </div>
           ) : gridLoading ? (
             <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
               {Array.from({ length: 21 }).map((_, i) => (
-                <Skeleton key={i} className={viewMode === "grid" ? "aspect-[2/3] rounded-xl" : "h-20 rounded-xl"} />
+                <Skeleton key={i} className="aspect-[2/3] rounded-xl" />
               ))}
             </div>
           ) : (
             <>
               <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
                 {allItems.map((manga, index) => (
-                  viewMode === "grid" ? (
-                    <MangaCard key={`${manga.anilist_id}-${index}`} manga={manga} index={index} />
-                  ) : (
-                    <MangaCard key={`${manga.anilist_id}-${index}`} manga={manga} index={index} variant="compact" />
-                  )
+                  <MangaCard key={`${manga.anilist_id}-${index}`} manga={manga} index={index} />
                 ))}
               </div>
-
-              {/* Infinite scroll trigger */}
               <div ref={loadMoreRef} className="flex justify-center py-8">
-                {isFetchingNext && (
-                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                )}
+                {isFetchingNext && <Loader2 className="w-6 h-6 animate-spin text-primary" />}
                 {!hasNextPage && allItems.length > 0 && (
                   <p className="text-sm text-muted-foreground">{t("common.noMoreResults") || "No more results"}</p>
                 )}
