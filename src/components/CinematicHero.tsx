@@ -107,7 +107,20 @@ export function CinematicHero() {
 
   const current = rotation[idx];
   const ts = TYPE_STYLES[current.type];
-  const sidebar = rotation.filter((_, i) => i !== idx).slice(0, 5);
+  // Pick one of each type for sidebar (different from current)
+  const sidebar = (() => {
+    const remaining = rotation.filter((_, i) => i !== idx);
+    const picks: HeroItem[] = [];
+    const usedTypes = new Set<ContentType>();
+    for (const item of remaining) {
+      if (!usedTypes.has(item.type)) {
+        picks.push(item);
+        usedTypes.add(item.type);
+      }
+      if (picks.length === 3) break;
+    }
+    return picks;
+  })();
 
   return (
     <section aria-label="Featured manga" className="relative min-h-[80vh] sm:min-h-[85vh] md:min-h-[90vh] flex flex-col overflow-hidden">
@@ -198,8 +211,8 @@ export function CinematicHero() {
 
             {/* Right sidebar */}
             {!isMobile && (
-              <div className="hidden lg:flex flex-col gap-2.5 w-28 xl:w-32">
-                {sidebar.map((item) => {
+              <div className="hidden lg:flex flex-col gap-3 w-28 xl:w-32 items-end">
+                {sidebar.map((item, si) => {
                   const ri = rotation.findIndex((r) => r.manga.anilist_id === item.manga.anilist_id);
                   return (
                     <button
@@ -208,8 +221,12 @@ export function CinematicHero() {
                       className={cn(
                         "w-full aspect-[2/3] rounded-xl overflow-hidden border transition-all duration-200 group relative",
                         "hover:scale-105 hover:border-primary/50 border-border/30",
-                        "focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        "focus:outline-none focus:ring-2 focus:ring-primary/50",
+                        si === 0 || si === 2 ? "w-24 xl:w-28" : "w-28 xl:w-32"
                       )}
+                      style={{
+                        transform: si === 0 || si === 2 ? "translateX(-1.5rem)" : undefined,
+                      }}
                     >
                       <img
                         src={item.manga.images.webp.image_url}
