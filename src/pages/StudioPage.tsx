@@ -120,11 +120,11 @@ const comparisonRows = [
 
 /* ── Benefits ────────────────────────────────────── */
 const benefits = [
-  { icon: Clock, title: "Quick Approval", desc: "Get reviewed and live in days, not weeks." },
+  { icon: Shield, title: "Full Creative Freedom", desc: "No restrictive guidelines, you own your IP 100%." },
   { icon: DollarSign, title: "Up to 80% Earnings", desc: "Best creator split in the industry + Founder Bonus." },
   { icon: Wallet, title: "Monthly Payouts", desc: "Get paid reliably every month via Stripe." },
   { icon: Eye, title: "Powerful Promotion", desc: "Automatic feature on Originals homepage + social push." },
-  { icon: Shield, title: "Full Creative Freedom", desc: "No restrictive guidelines, you own your IP 100%." },
+  { icon: Clock, title: "Quick Approval", desc: "Get reviewed and live in days, not weeks." },
   { icon: BarChart3, title: "Real-Time Analytics + Personal Support", desc: "Beautiful dashboard + direct help from the Bibue team." },
 ];
 
