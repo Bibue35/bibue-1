@@ -253,10 +253,10 @@ export function CinematicHero() {
       )}
 
       {/* Bottom section: progress + trending */}
-      <div className="relative z-10 pb-4 sm:pb-6 mt-auto">
+      <div className="relative z-10 pb-6 sm:pb-10 mt-auto">
         <div className="container mx-auto px-4 sm:px-6">
           {/* Progress dots */}
-          <div className="flex items-center gap-1 mb-3 sm:mb-4">
+          <div className="flex items-center gap-1 mb-4 sm:mb-6">
             {rotation.map((_, i) => (
               <button
                 key={i}
@@ -273,19 +273,19 @@ export function CinematicHero() {
           {/* Trending Now */}
           {trending.length > 0 && (
             <>
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="w-4 h-4 text-primary" />
-                <span className="text-xs sm:text-sm font-semibold">Trending Now</span>
+              <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                <span className="text-sm sm:text-base font-semibold">Trending Now</span>
               </div>
               <HorizontalScroll showArrows={false}>
                 {trending.slice(0, 12).map((item) => (
                   <Link
                     key={item.manga.anilist_id}
                     to={`/manga/${item.manga.anilist_id}`}
-                    className="flex-shrink-0 w-24 sm:w-28 group"
+                    className="flex-shrink-0 w-32 sm:w-36 md:w-40 group"
                     style={{ scrollSnapAlign: "start" }}
                   >
-                    <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted mb-1">
+                    <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted mb-1.5">
                       <img
                         src={item.manga.images.webp.image_url}
                         alt={`${item.manga.title} cover`}
@@ -293,19 +293,19 @@ export function CinematicHero() {
                         loading="lazy"
                         decoding="async"
                       />
-                      <div className="absolute top-1 right-1">
-                        <span className={cn("px-1 py-0.5 rounded text-[8px] font-bold text-white", TYPE_STYLES[item.type].bg)}>
+                      <div className="absolute top-1.5 right-1.5">
+                        <span className={cn("px-1.5 py-0.5 rounded text-[9px] font-bold text-white", TYPE_STYLES[item.type].bg)}>
                           {TYPE_STYLES[item.type].label}
                         </span>
                       </div>
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 to-transparent px-1.5 py-1">
-                        <span className="text-[9px] flex items-center gap-0.5 text-muted-foreground">
-                          <Eye className="w-2.5 h-2.5" />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 to-transparent px-2 py-1.5">
+                        <span className="text-[10px] sm:text-xs flex items-center gap-0.5 text-muted-foreground">
+                          <Eye className="w-3 h-3" />
                           {formatViews(item.viewsToday)}
                         </span>
                       </div>
                     </div>
-                    <p className="text-[10px] sm:text-xs font-medium truncate group-hover:text-primary transition-colors">
+                    <p className="text-xs sm:text-sm font-medium truncate group-hover:text-primary transition-colors">
                       {item.manga.title}
                     </p>
                   </Link>
