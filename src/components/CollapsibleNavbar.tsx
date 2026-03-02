@@ -27,6 +27,7 @@ export function CollapsibleNavbar() {
     { href: "/manga", label: "Browse Manga" },
     { href: "/originals", label: "Originals" },
     { href: "/studio", label: "Studio" },
+    { href: "/refer", label: "Refer & Earn" },
     { href: "/community", label: t("nav.community") },
   ];
 
@@ -37,6 +38,7 @@ export function CollapsibleNavbar() {
     { href: "/news", label: t("nav.news") },
     { href: "/recommendations", label: t("nav.forYou") },
     { href: "/manga", label: "Browse by Genre" },
+    { href: "/refer", label: "🪙 Refer & Earn" },
     { href: "/for-creators", label: "For Creators" },
     ...(user ? [{ href: "/support", label: "Support" }] : []),
   ];

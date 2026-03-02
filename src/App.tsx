@@ -25,6 +25,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { FloatingUploadButton } from "@/components/FloatingUploadButton";
+import { FloatingReferralButton } from "@/components/FloatingReferralButton";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy load all page components for code splitting
@@ -66,6 +67,7 @@ const OriginalSeriesDetail = lazy(() => import("./pages/OriginalSeriesDetail"));
 const CreatorProfile = lazy(() => import("./pages/CreatorProfile"));
 const SupportPage = lazy(() => import("./pages/SupportPage"));
 const StudioPage = lazy(() => import("./pages/StudioPage"));
+const ReferAndEarnPage = lazy(() => import("./pages/ReferAndEarnPage"));
 
 // Minimal loading fallback for route transitions
 const PageLoader = () => (
@@ -119,6 +121,7 @@ const App = () => (
                     <CreatorWelcomeModal />
                     <PWAInstallPrompt />
                     <FloatingUploadButton />
+                    <FloatingReferralButton />
                     <Suspense fallback={<PageLoader />}>
                       <SwipeNavigationWrapper>
                         <AnimatedRoutes>
@@ -157,6 +160,7 @@ const App = () => (
                             <Route path="/originals" element={<OriginalsPage />} />
                             <Route path="/originals/:id" element={<OriginalSeriesDetail />} />
                             <Route path="/studio" element={<StudioPage />} />
+                            <Route path="/refer" element={<ReferAndEarnPage />} />
                             <Route path="/support" element={<ProtectedRoute><SupportPage /></ProtectedRoute>} />
                             <Route path="/creator/dashboard" element={<ProtectedRoute><CreatorDashboard /></ProtectedRoute>} />
                             <Route path="/creator/:identifier" element={<CreatorProfile />} />
