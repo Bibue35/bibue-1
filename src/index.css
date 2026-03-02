@@ -1506,68 +1506,68 @@
 /* ☀️ Sunlight — Divine / Heavenly / Golden */
 .light.theme-celestial,
 :root.theme-celestial:not(.dark) {
-  --background: 43 100% 96%;
-  --foreground: 24 80% 8%;
+  --background: 0 0% 98%;
+  --foreground: 220 15% 15%;
 
-  --card: 45 70% 97%;
-  --card-foreground: 24 80% 8%;
+  --card: 0 0% 100%;
+  --card-foreground: 220 15% 15%;
 
-  --popover: 45 70% 97%;
-  --popover-foreground: 24 80% 8%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 15% 15%;
 
-  --primary: 45 93% 47%;
-  --primary-foreground: 24 80% 8%;
+  --primary: 24 80% 50%;
+  --primary-foreground: 0 0% 100%;
 
-  --secondary: 30 90% 82%;
-  --secondary-foreground: 24 80% 8%;
+  --secondary: 220 14% 94%;
+  --secondary-foreground: 220 15% 20%;
 
-  --muted: 40 45% 92%;
-  --muted-foreground: 24 30% 38%;
+  --muted: 220 14% 95%;
+  --muted-foreground: 220 10% 42%;
 
-  --accent: 38 55% 93%;
-  --accent-foreground: 24 80% 8%;
+  --accent: 220 14% 94%;
+  --accent-foreground: 220 15% 15%;
 
   --destructive: 0 78% 55%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 40 40% 85%;
-  --input: 40 40% 85%;
-  --ring: 36 93% 50%;
+  --border: 220 13% 88%;
+  --input: 220 13% 88%;
+  --ring: 24 80% 50%;
 
   --radius: 1rem;
 
-  --glass-bg: 43 70% 98% / 0.8;
-  --glass-border: 40 55% 82% / 0.55;
-  --glass-highlight: 45 100% 97% / 0.9;
-  --glass-shadow: 30 50% 20% / 0.06;
+  --glass-bg: 0 0% 100% / 0.85;
+  --glass-border: 220 13% 85% / 0.5;
+  --glass-highlight: 0 0% 100% / 0.9;
+  --glass-shadow: 220 15% 20% / 0.06;
   --glass-blur: 44px;
-  --glass-refraction: 45 70% 96% / 0.4;
+  --glass-refraction: 0 0% 98% / 0.4;
 
-  --specular-color: 45 85% 78% / 0.5;
-  --specular-inner: 40 50% 94% / 0.8;
+  --specular-color: 24 60% 80% / 0.4;
+  --specular-inner: 0 0% 97% / 0.8;
 
-  --reflection-start: 45 80% 98% / 0.8;
-  --reflection-mid: 40 55% 93% / 0.3;
-  --reflection-end: 35 25% 88% / 0.05;
+  --reflection-start: 0 0% 100% / 0.8;
+  --reflection-mid: 220 10% 95% / 0.3;
+  --reflection-end: 220 8% 90% / 0.05;
 
-  --divine-glow: 36 93% 50% / 0.35;
-  --divine-radiance: 40 95% 60% / 0.5;
-  --divine-halo: 45 100% 75% / 0.4;
+  --divine-glow: 24 80% 50% / 0.2;
+  --divine-radiance: 24 70% 60% / 0.3;
+  --divine-halo: 24 60% 75% / 0.25;
 
-  --sunbeam-glow: 36 93% 50% / 0.35;
-  --sunbeam-highlight: 40 95% 60% / 0.5;
+  --sunbeam-glow: 24 80% 50% / 0.2;
+  --sunbeam-highlight: 24 70% 60% / 0.3;
 
-  --chart-1: 36 93% 50%;
-  --chart-2: 24 90% 55%;
-  --chart-3: 15 80% 50%;
+  --chart-1: 24 80% 50%;
+  --chart-2: 220 60% 50%;
+  --chart-3: 160 50% 45%;
   --chart-4: 340 65% 47%;
-  --chart-5: 45 70% 48%;
+  --chart-5: 280 50% 50%;
 
-  --sidebar-background: 43 100% 96%;
-  --sidebar-foreground: 24 80% 8%;
-  --sidebar-primary: 45 93% 47%;
-  --sidebar-primary-foreground: 24 80% 8%;
-  --sidebar-accent: 38 55% 93%;
+  --sidebar-background: 0 0% 98%;
+  --sidebar-foreground: 220 15% 15%;
+  --sidebar-primary: 24 80% 50%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 220 14% 94%;
   --sidebar-accent-foreground: 24 80% 8%;
   --sidebar-border: 40 40% 85%;
   --sidebar-ring: 36 93% 50%;
