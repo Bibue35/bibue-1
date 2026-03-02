@@ -10,11 +10,11 @@ export function FloatingReferralButton() {
   return (
     <Link
       to="/refer"
-      className="fixed bottom-20 right-4 z-40 flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-[hsl(270,70%,50%)] to-[hsl(45,90%,50%)] text-white text-xs font-bold shadow-lg shadow-[hsl(270,70%,50%)]/30 hover:shadow-xl hover:shadow-[hsl(270,70%,50%)]/40 transition-all hover:scale-105 active:scale-95"
+      className="fixed bottom-20 right-3 z-40 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-foreground/10 backdrop-blur-sm border border-border/30 text-muted-foreground text-[10px] font-medium shadow-sm hover:bg-foreground/15 hover:text-foreground transition-all hover:scale-105 active:scale-95"
     >
-      <Crown className="w-4 h-4" />
-      <span className="hidden sm:inline">Join the Crew → Earn Launch Rewards</span>
-      <span className="sm:hidden">Founder Crew 🔥</span>
+      <Crown className="w-3 h-3" />
+      <span className="hidden sm:inline">Founder Crew</span>
+      <span className="sm:hidden">Crew</span>
     </Link>
   );
 }
