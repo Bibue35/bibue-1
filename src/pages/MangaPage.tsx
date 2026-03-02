@@ -4,7 +4,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import {
   Loader2, TrendingUp, Trophy, Star, Zap, Swords, Heart, Wand2,
   BookOpen, RefreshCw, SlidersHorizontal, ChevronDown, X, Bookmark, Sparkles,
-  ArrowRight, Search,
+  ArrowRight, Search, Tag,
 } from "lucide-react";
 import {
   DeferredTrendingManhwaSection, DeferredTopManhwaSection,
@@ -312,6 +312,10 @@ export default function MangaPage() {
                 ))}
               </PopoverContent>
             </Popover>
+
+            <Button variant="ghost" size="sm" className="rounded-full gap-1.5 text-xs" asChild>
+              <Link to="/genres"><Tag className="w-3.5 h-3.5" /> Genres</Link>
+            </Button>
 
             <div className="flex-1" />
 
