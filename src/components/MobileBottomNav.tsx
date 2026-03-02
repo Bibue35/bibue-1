@@ -7,9 +7,9 @@ import { lazy, Suspense, useState } from "react";
 const AuthModal = lazy(() => import("./AuthModal").then(m => ({ default: m.AuthModal })));
 
 const NAV_ITEMS = [
-  { href: "/manga", label: "Discover", icon: Compass },
+  { href: "/manga", label: "Browse", icon: Compass },
   { href: "/originals", label: "Originals", icon: BookOpen },
-  { href: "/for-creators", label: "Creators", icon: Palette },
+  { href: "/studio", label: "Studio", icon: Palette },
 ];
 
 export function MobileBottomNav() {

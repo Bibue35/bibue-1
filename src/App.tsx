@@ -58,7 +58,7 @@ const VibeCheckPage = lazy(() => import("./pages/NotFound"));
 const RankingsPage = lazy(() => import("./pages/Rankings"));
 const WatchPartyPage = lazy(() => import("./pages/WatchPartyPage"));
 const ComparePage = lazy(() => import("./pages/ComparePage"));
-const SeekPage = lazy(() => import("./pages/SeekPage"));
+
 const ForCreatorsPage = lazy(() => import("./pages/ForCreatorsPage"));
 const CreatorDashboard = lazy(() => import("./pages/CreatorDashboard"));
 const OriginalsPage = lazy(() => import("./pages/OriginalsPage"));
@@ -152,7 +152,7 @@ const App = () => (
                             <Route path="/rankings" element={<RankingsPage />} />
                             <Route path="/party/:code" element={<WatchPartyPage />} />
                             <Route path="/compare" element={<ComparePage />} />
-                            <Route path="/seek" element={<SeekPage />} />
+                            <Route path="/seek" element={<Navigate to="/manga" replace />} />
                             <Route path="/for-creators" element={<ForCreatorsPage />} />
                             <Route path="/originals" element={<OriginalsPage />} />
                             <Route path="/originals/:id" element={<OriginalSeriesDetail />} />
