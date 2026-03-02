@@ -1449,68 +1449,44 @@
   /* Deep charcoal black background */
   --background: 0 0% 4%;
   --foreground: 40 9% 96%;
-
   --card: 0 0% 7%;
   --card-foreground: 40 9% 96%;
-
   --popover: 0 0% 7%;
   --popover-foreground: 40 9% 96%;
-
-  /* Rich crimson red accent */
   --primary: 0 73% 42%;
   --primary-foreground: 40 9% 96%;
-
   --secondary: 0 0% 11%;
   --secondary-foreground: 40 9% 96%;
-
   --muted: 0 0% 9%;
   --muted-foreground: 0 0% 45%;
-
   --accent: 0 0% 12%;
   --accent-foreground: 40 9% 96%;
-
   --destructive: 0 72% 50%;
   --destructive-foreground: 40 9% 96%;
-
-  /* Subtle warm borders */
   --border: 45 10% 14%;
   --input: 45 10% 14%;
   --ring: 0 73% 42%;
-
-  /* Crimson Liquid Glass */
   --glass-bg: 0 0% 5% / 0.92;
   --glass-border: 45 30% 30% / 0.18;
   --glass-highlight: 45 50% 80% / 0.06;
   --glass-shadow: 0 0% 2% / 0.7;
   --glass-blur: 48px;
   --glass-refraction: 0 40% 50% / 0.04;
-
-  /* Crimson specular */
   --specular-color: 0 50% 45% / 0.12;
   --specular-inner: 45 30% 50% / 0.08;
-
-  /* Deep shadow gradient */
   --reflection-start: 0 30% 70% / 0.06;
   --reflection-mid: 0 15% 30% / 0.03;
   --reflection-end: 0 0% 2% / 0.5;
-
-  /* Crimson glow effects */
   --divine-glow: 0 70% 42% / 0.2;
   --divine-radiance: 0 65% 52% / 0.25;
   --divine-halo: 45 60% 56% / 0.15;
-
-  /* Legacy compatibility */
   --moonbeam-glow: 0 70% 42% / 0.2;
   --moonbeam-highlight: 0 65% 52% / 0.25;
-
-  /* Chart colors — crimson & gold spectrum */
   --chart-1: 0 73% 42%;
   --chart-2: 45 97% 56%;
   --chart-3: 15 80% 50%;
   --chart-4: 350 65% 45%;
   --chart-5: 30 70% 48%;
-
-  /* Sidebar */
   --sidebar-background: 0 0% 4%;
   --sidebar-foreground: 40 9% 96%;
   --sidebar-primary: 0 73% 42%;
@@ -1519,6 +1495,149 @@
   --sidebar-accent-foreground: 40 9% 96%;
   --sidebar-border: 45 10% 14%;
   --sidebar-ring: 0 73% 42%;
+}
+
+/* ============================================
+ * CELESTIAL THEME — Sunlight & Moonlight
+ * Day: warm beige/orange/gold
+ * Night: deep navy/purple with silver & crimson
+ * ============================================ */
+
+/* Sunlight (light mode) */
+.light.theme-celestial,
+:root.theme-celestial:not(.dark) {
+  --background: 33 100% 96%;
+  --foreground: 20 30% 8%;
+
+  --card: 36 80% 97%;
+  --card-foreground: 20 30% 8%;
+
+  --popover: 36 80% 97%;
+  --popover-foreground: 20 30% 8%;
+
+  --primary: 24 95% 53%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 45 93% 58%;
+  --secondary-foreground: 20 30% 8%;
+
+  --muted: 33 40% 92%;
+  --muted-foreground: 20 15% 40%;
+
+  --accent: 36 60% 93%;
+  --accent-foreground: 20 30% 8%;
+
+  --destructive: 0 78% 55%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 33 35% 87%;
+  --input: 33 35% 87%;
+  --ring: 24 95% 53%;
+
+  --radius: 1rem;
+
+  --glass-bg: 33 70% 98% / 0.82;
+  --glass-border: 33 50% 88% / 0.6;
+  --glass-highlight: 40 100% 97% / 0.9;
+  --glass-shadow: 25 40% 15% / 0.08;
+  --glass-blur: 44px;
+  --glass-refraction: 40 70% 96% / 0.4;
+
+  --specular-color: 40 85% 80% / 0.5;
+  --specular-inner: 36 50% 94% / 0.8;
+
+  --reflection-start: 40 80% 98% / 0.8;
+  --reflection-mid: 33 55% 93% / 0.35;
+  --reflection-end: 30 25% 88% / 0.05;
+
+  --divine-glow: 24 90% 55% / 0.3;
+  --divine-radiance: 40 95% 60% / 0.45;
+  --divine-halo: 45 100% 75% / 0.35;
+
+  --sunbeam-glow: 24 90% 55% / 0.3;
+  --sunbeam-highlight: 40 95% 60% / 0.45;
+
+  --chart-1: 24 95% 53%;
+  --chart-2: 45 93% 47%;
+  --chart-3: 15 80% 50%;
+  --chart-4: 340 65% 47%;
+  --chart-5: 30 70% 48%;
+
+  --sidebar-background: 33 100% 96%;
+  --sidebar-foreground: 20 30% 8%;
+  --sidebar-primary: 24 95% 53%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 36 60% 93%;
+  --sidebar-accent-foreground: 20 30% 8%;
+  --sidebar-border: 33 35% 87%;
+  --sidebar-ring: 24 95% 53%;
+}
+
+/* Moonlight (dark mode) */
+.dark.theme-celestial {
+  --background: 230 40% 8%;
+  --foreground: 214 32% 91%;
+
+  --card: 240 30% 11%;
+  --card-foreground: 214 32% 91%;
+
+  --popover: 240 30% 11%;
+  --popover-foreground: 214 32% 91%;
+
+  --primary: 214 32% 91%;
+  --primary-foreground: 230 40% 8%;
+
+  --secondary: 280 30% 14%;
+  --secondary-foreground: 214 32% 91%;
+
+  --muted: 240 20% 12%;
+  --muted-foreground: 230 15% 45%;
+
+  --accent: 270 25% 15%;
+  --accent-foreground: 214 32% 91%;
+
+  --destructive: 340 82% 38%;
+  --destructive-foreground: 214 32% 91%;
+
+  --border: 260 18% 16%;
+  --input: 260 18% 16%;
+  --ring: 340 82% 38%;
+
+  --glass-bg: 230 35% 6% / 0.92;
+  --glass-border: 260 25% 28% / 0.22;
+  --glass-highlight: 214 40% 85% / 0.06;
+  --glass-shadow: 240 40% 2% / 0.75;
+  --glass-blur: 52px;
+  --glass-refraction: 270 30% 50% / 0.04;
+
+  --specular-color: 214 35% 60% / 0.1;
+  --specular-inner: 260 25% 45% / 0.08;
+
+  --reflection-start: 214 30% 75% / 0.08;
+  --reflection-mid: 240 20% 35% / 0.03;
+  --reflection-end: 240 30% 2% / 0.6;
+
+  --divine-glow: 340 70% 42% / 0.2;
+  --divine-radiance: 260 50% 55% / 0.2;
+  --divine-halo: 214 40% 65% / 0.15;
+
+  --moonbeam-glow: 214 50% 65% / 0.2;
+  --moonbeam-highlight: 260 40% 55% / 0.25;
+
+  --chart-1: 340 82% 38%;
+  --chart-2: 214 32% 75%;
+  --chart-3: 270 45% 50%;
+  --chart-4: 200 55% 48%;
+  --chart-5: 45 70% 50%;
+
+  --sidebar-background: 230 40% 8%;
+  --sidebar-foreground: 214 32% 91%;
+  --sidebar-primary: 214 32% 91%;
+  --sidebar-primary-foreground: 230 40% 8%;
+  --sidebar-accent: 270 25% 15%;
+  --sidebar-accent-foreground: 214 32% 91%;
+  --sidebar-border: 260 18% 16%;
+  --sidebar-ring: 340 82% 38%;
 }
 
 /* ============================================
