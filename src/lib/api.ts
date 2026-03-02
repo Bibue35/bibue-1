@@ -786,7 +786,6 @@ export async function getMangaById(id: number, language: SupportedLanguage = "en
       Media(id: $id, type: MANGA) {
         ${MEDIA_FRAGMENT}
         stats { scoreDistribution { score amount } }
-        staff { nodes { id name { full } primaryOccupations } }
       }
     }
   `;
