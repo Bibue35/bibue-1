@@ -179,7 +179,7 @@ export default function StudioPage() {
           : prev.genres,
     }));
   };
-  
+
   const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -248,8 +248,8 @@ export default function StudioPage() {
         <CollapsibleNavbar />
         <main className="min-h-screen pt-24 pb-20 flex items-center justify-center">
           <div className="text-center max-w-md px-4">
-            <div className="w-20 h-20 rounded-full bg-[#7C3AED]/10 flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="w-10 h-10 text-[#7C3AED]" />
+            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-10 h-10 text-primary" />
             </div>
             <h1 className="text-3xl font-bold mb-3">Thank you!</h1>
             <p className="text-muted-foreground text-lg">
@@ -258,7 +258,7 @@ export default function StudioPage() {
             <p className="text-sm text-muted-foreground mt-4">
               We'll reach out to <strong className="text-foreground">{form.email}</strong> with next steps.
             </p>
-            <Button asChild className="mt-8 bg-[#7C3AED] hover:bg-[#6D28D9]">
+            <Button asChild variant="primary" className="mt-8">
               <Link to="/originals">Browse Originals</Link>
             </Button>
           </div>
@@ -272,7 +272,7 @@ export default function StudioPage() {
     <>
       <SEO
         title="Bibue Studio — Keep Up to 80% | Publish Your Manga"
-        description="The creator-first manga platform. Keep up to 80% revenue. 48-hour approval. Weekly payouts. Submit your series today."
+        description="The creator-first manga platform. Keep up to 80% revenue. Quick approval. Monthly payouts. Submit your series today."
       />
       <CollapsibleNavbar />
       <main id="main-content" className="min-h-screen bg-background">
@@ -281,30 +281,30 @@ export default function StudioPage() {
             1. HERO SECTION
         ══════════════════════════════════════════════ */}
         <section className="relative pt-28 sm:pt-36 pb-20 sm:pb-28 overflow-hidden">
-          {/* Background effects */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#7C3AED]/8 via-transparent to-transparent" />
-          <div className="absolute top-20 left-1/4 w-96 h-96 bg-[#7C3AED]/5 rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-[#FACC15]/5 rounded-full blur-[100px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-transparent to-transparent" />
+          <div className="absolute top-20 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-primary/5 rounded-full blur-[100px]" />
 
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#7C3AED]/10 text-[#7C3AED] text-sm font-semibold mb-6 border border-[#7C3AED]/20">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6 border border-primary/20">
                 <Sparkles className="w-4 h-4" />
                 Now accepting creators
               </div>
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-5">
                 Bibue Studio — Keep up to{" "}
-                <span className="text-[#FACC15] drop-shadow-[0_0_20px_rgba(250,204,21,0.3)]">80%</span>.
+                <span className="text-primary">80%</span>.
                 <br className="hidden sm:block" />
-                <span className="text-[#7C3AED]">Get discovered fast.</span>
+                <span className="text-primary">Get discovered fast.</span>
               </h1>
               <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
                 The only platform that actually puts creators first with the highest payouts and quickest path to readers.
               </p>
               <Button
                 size="lg"
+                variant="primary"
                 onClick={scrollToForm}
-                className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-8 py-6 text-lg rounded-2xl gap-2 shadow-[0_0_30px_rgba(124,58,237,0.3)] hover:shadow-[0_0_40px_rgba(124,58,237,0.5)] transition-all duration-300"
+                className="px-8 py-6 text-lg rounded-2xl gap-2"
               >
                 Become a Creator — Submit Your Series
                 <ArrowRight className="w-5 h-5" />
@@ -317,24 +317,24 @@ export default function StudioPage() {
             2. REVENUE HIGHLIGHT
         ══════════════════════════════════════════════ */}
         <section className="py-16 sm:py-24 relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#7C3AED]/3 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/3 to-transparent" />
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
-              <p className="text-sm font-semibold text-[#FACC15] uppercase tracking-widest mb-4">Creator Earnings</p>
+              <p className="text-sm font-semibold text-primary uppercase tracking-widest mb-4">Creator Earnings</p>
               <div className="text-7xl sm:text-8xl md:text-9xl font-black tracking-tight mb-4">
-                <span className="text-[#FACC15] drop-shadow-[0_0_30px_rgba(250,204,21,0.3)]">80</span>
-                <span className="text-[#FACC15]/70 text-6xl sm:text-7xl">%</span>
+                <span className="text-primary">80</span>
+                <span className="text-primary/70 text-6xl sm:text-7xl">%</span>
               </div>
               <p className="text-xl sm:text-2xl font-semibold text-foreground mb-3">You keep up to 80%</p>
               <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-                <span className="text-foreground font-medium">75% base revenue share</span> + <span className="text-[#FACC15] font-semibold">5% Founder Bonus</span> for early &amp; qualifying creators.
+                <span className="text-foreground font-medium">75% base revenue share</span> + <span className="text-primary font-semibold">5% Founder Bonus</span> for early &amp; qualifying creators.
               </p>
-              <div className="flex items-center justify-center gap-3 mt-6">
-                <Badge className="bg-[#7C3AED]/10 text-[#7C3AED] border-[#7C3AED]/20 px-4 py-1.5 text-sm">75% Base</Badge>
+              <div className="flex items-center justify-center gap-3 mt-6 flex-wrap">
+                <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-1.5 text-sm">75% Base</Badge>
                 <span className="text-muted-foreground">+</span>
-                <Badge className="bg-[#FACC15]/10 text-[#FACC15] border-[#FACC15]/20 px-4 py-1.5 text-sm font-semibold">+5% Founder Bonus</Badge>
+                <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-1.5 text-sm font-semibold">+5% Founder Bonus</Badge>
                 <span className="text-muted-foreground">=</span>
-                <Badge className="bg-[#FACC15]/15 text-[#FACC15] border-[#FACC15]/30 px-4 py-1.5 text-sm font-bold">80% to You</Badge>
+                <Badge className="bg-primary/15 text-primary border-primary/30 px-4 py-1.5 text-sm font-bold">80% to You</Badge>
               </div>
             </div>
           </div>
@@ -353,10 +353,10 @@ export default function StudioPage() {
               {benefits.map((b) => (
                 <div
                   key={b.title}
-                  className="group p-6 rounded-2xl bg-card/50 border border-border/40 hover:border-[#7C3AED]/30 hover:shadow-[0_8px_30px_rgba(124,58,237,0.08)] transition-all duration-300 hover:-translate-y-0.5"
+                  className="group p-6 rounded-2xl bg-card/50 border border-border/40 hover:border-primary/30 transition-all duration-300 hover:-translate-y-0.5"
                 >
-                  <div className="w-11 h-11 rounded-xl bg-[#7C3AED]/10 flex items-center justify-center mb-4 group-hover:bg-[#7C3AED]/15 transition-colors">
-                    <b.icon className="w-5 h-5 text-[#7C3AED]" />
+                  <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors">
+                    <b.icon className="w-5 h-5 text-primary" />
                   </div>
                   <h3 className="font-semibold text-lg mb-1.5">{b.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{b.desc}</p>
@@ -392,19 +392,19 @@ export default function StudioPage() {
                     <TableRow
                       key={row.platform}
                       className={row.highlighted
-                        ? "bg-[#7C3AED]/8 border-[#7C3AED]/20 hover:bg-[#7C3AED]/12"
+                        ? "bg-primary/8 border-primary/20 hover:bg-primary/12"
                         : "border-border/20 hover:bg-muted/30"
                       }
                     >
                       <TableCell className="font-semibold">
                         <div className="flex items-center gap-2">
-                          {row.highlighted && <Zap className="w-4 h-4 text-[#FACC15]" />}
-                          <span className={row.highlighted ? "text-[#7C3AED]" : ""}>{row.platform}</span>
+                          {row.highlighted && <Zap className="w-4 h-4 text-primary" />}
+                          <span className={row.highlighted ? "text-primary" : ""}>{row.platform}</span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <span className={row.highlighted ? "font-bold text-[#FACC15]" : ""}>{row.keep}</span>
-                        {row.keepSub && <span className="block text-xs text-[#FACC15]/70">{row.keepSub}</span>}
+                        <span className={row.highlighted ? "font-bold text-primary" : ""}>{row.keep}</span>
+                        {row.keepSub && <span className="block text-xs text-primary/70">{row.keepSub}</span>}
                       </TableCell>
                       <TableCell className={row.highlighted ? "font-medium text-foreground" : "text-muted-foreground"}>
                         {row.approval}
@@ -441,14 +441,13 @@ export default function StudioPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
               {steps.map((step, i) => (
                 <div key={step.num} className="relative text-center group">
-                  {/* Connector line */}
                   {i < steps.length - 1 && (
-                    <div className="hidden lg:block absolute top-10 left-[60%] w-[80%] h-px bg-gradient-to-r from-[#7C3AED]/30 to-transparent" />
+                    <div className="hidden lg:block absolute top-10 left-[60%] w-[80%] h-px bg-gradient-to-r from-primary/30 to-transparent" />
                   )}
-                  <div className="w-20 h-20 rounded-2xl bg-[#7C3AED]/10 border border-[#7C3AED]/20 flex items-center justify-center mx-auto mb-5 group-hover:bg-[#7C3AED]/15 transition-colors">
-                    <step.icon className="w-8 h-8 text-[#7C3AED]" />
+                  <div className="w-20 h-20 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-5 group-hover:bg-primary/15 transition-colors">
+                    <step.icon className="w-8 h-8 text-primary" />
                   </div>
-                  <span className="text-xs font-bold text-[#7C3AED]/50 uppercase tracking-widest">{step.num}</span>
+                  <span className="text-xs font-bold text-primary/50 uppercase tracking-widest">{step.num}</span>
                   <h3 className="font-semibold text-lg mt-1 mb-2">{step.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
                 </div>
@@ -577,8 +576,8 @@ export default function StudioPage() {
                             onClick={() => toggleGenre(g)}
                             className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
                               form.genres.includes(g)
-                                ? "bg-[#7C3AED]/15 text-[#7C3AED] border-[#7C3AED]/30"
-                                : "bg-muted/50 text-muted-foreground border-border/50 hover:border-[#7C3AED]/20"
+                                ? "bg-primary/15 text-primary border-primary/30"
+                                : "bg-muted/50 text-muted-foreground border-border/50 hover:border-primary/20"
                             }`}
                           >
                             {g}
@@ -612,19 +611,19 @@ export default function StudioPage() {
                   <button
                     type="button"
                     onClick={() => coverInputRef.current?.click()}
-                    className="w-full border-2 border-dashed border-border/60 rounded-2xl p-6 text-center hover:border-[#7C3AED]/40 transition-colors group"
+                    className="w-full border-2 border-dashed border-border/60 rounded-2xl p-6 text-center hover:border-primary/40 transition-colors group"
                   >
                     {coverPreview ? (
                       <div className="flex items-center gap-4">
                         <img src={coverPreview} alt="Cover preview" className="w-20 h-28 object-cover rounded-lg border border-border/40" />
                         <div className="text-left">
-                          <p className="text-sm font-medium text-[#7C3AED]">{coverFile?.name}</p>
+                          <p className="text-sm font-medium text-primary">{coverFile?.name}</p>
                           <p className="text-xs text-muted-foreground mt-1">Click to change</p>
                         </div>
                       </div>
                     ) : (
                       <>
-                        <Upload className="w-7 h-7 text-muted-foreground mx-auto mb-2 group-hover:text-[#7C3AED] transition-colors" />
+                        <Upload className="w-7 h-7 text-muted-foreground mx-auto mb-2 group-hover:text-primary transition-colors" />
                         <p className="text-sm text-muted-foreground">Click to upload cover image</p>
                         <p className="text-xs text-muted-foreground/60 mt-1">Recommended: 600×900px, JPG/PNG</p>
                       </>
@@ -639,13 +638,13 @@ export default function StudioPage() {
                   <button
                     type="button"
                     onClick={() => chaptersInputRef.current?.click()}
-                    className="w-full border-2 border-dashed border-border/60 rounded-2xl p-6 text-center hover:border-[#7C3AED]/40 transition-colors group"
+                    className="w-full border-2 border-dashed border-border/60 rounded-2xl p-6 text-center hover:border-primary/40 transition-colors group"
                   >
                     {chapterFiles.length > 0 ? (
-                      <p className="text-sm font-medium text-[#7C3AED]">{chapterFiles.length} file(s) selected</p>
+                      <p className="text-sm font-medium text-primary">{chapterFiles.length} file(s) selected</p>
                     ) : (
                       <>
-                        <Upload className="w-7 h-7 text-muted-foreground mx-auto mb-2 group-hover:text-[#7C3AED] transition-colors" />
+                        <Upload className="w-7 h-7 text-muted-foreground mx-auto mb-2 group-hover:text-primary transition-colors" />
                         <p className="text-sm text-muted-foreground">Click to upload chapter files</p>
                       </>
                     )}
@@ -675,7 +674,7 @@ export default function StudioPage() {
                   <label htmlFor="terms-agree" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
                     I have read and agree to the{" "}
                     <CreatorAgreementModal>
-                      <button type="button" className="text-[#7C3AED] underline hover:text-[#7C3AED]/80 font-medium transition-colors">
+                      <button type="button" className="text-primary underline hover:text-primary/80 font-medium transition-colors">
                         Bibue Creator Agreement and Terms of Service
                       </button>
                     </CreatorAgreementModal>
@@ -685,8 +684,9 @@ export default function StudioPage() {
                 <Button
                   type="submit"
                   disabled={loading || !agreedToTerms}
+                  variant="primary"
                   size="lg"
-                  className="w-full py-6 text-lg rounded-2xl bg-[#7C3AED] hover:bg-[#6D28D9] shadow-[0_0_20px_rgba(124,58,237,0.2)] hover:shadow-[0_0_30px_rgba(124,58,237,0.4)] transition-all duration-300 disabled:opacity-50"
+                  className="w-full py-6 text-lg rounded-2xl disabled:opacity-50"
                 >
                   {loading ? (
                     <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Submitting…</>
@@ -710,19 +710,18 @@ export default function StudioPage() {
               <p className="text-muted-foreground text-lg">What your dashboard looks like after approval.</p>
             </div>
             <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {/* Mock series cards */}
               {[
                 { title: "Crimson Blade", views: "24.3K", earnings: "$1,240", readers: "3,100", genre: "Action" },
                 { title: "Moonlit Garden", views: "18.7K", earnings: "$890", readers: "2,400", genre: "Romance" },
                 { title: "Neon Requiem", views: "12.1K", earnings: "$560", readers: "1,800", genre: "Sci-Fi" },
               ].map((s) => (
-                <div key={s.title} className="p-5 rounded-2xl bg-card border border-border/40 hover:border-[#7C3AED]/20 transition-all">
+                <div key={s.title} className="p-5 rounded-2xl bg-card border border-border/40 hover:border-primary/20 transition-all">
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h4 className="font-semibold">{s.title}</h4>
                       <Badge variant="outline" className="text-xs mt-1">{s.genre}</Badge>
                     </div>
-                    <Badge className="bg-green-500/10 text-green-500 border-green-500/20 text-xs">Live</Badge>
+                    <Badge variant="secondary" className="text-xs">Live</Badge>
                   </div>
                   <div className="grid grid-cols-3 gap-3 mt-4">
                     <div>
@@ -731,7 +730,7 @@ export default function StudioPage() {
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Earnings</p>
-                      <p className="font-semibold text-sm text-[#FACC15]">{s.earnings}</p>
+                      <p className="font-semibold text-sm text-primary">{s.earnings}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Readers</p>
@@ -759,9 +758,9 @@ export default function StudioPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
               {testimonials.map((t) => (
-                <div key={t.name} className="p-6 rounded-2xl bg-background border border-border/40 hover:border-[#7C3AED]/20 transition-all">
+                <div key={t.name} className="p-6 rounded-2xl bg-background border border-border/40 hover:border-primary/20 transition-all">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-[#7C3AED]/10 flex items-center justify-center text-[#7C3AED] font-bold text-sm">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
                       {t.avatar}
                     </div>
                     <div>
@@ -771,8 +770,8 @@ export default function StudioPage() {
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed mb-4">"{t.quote}"</p>
                   <div className="flex items-center gap-1.5">
-                    <TrendingUp className="w-4 h-4 text-[#FACC15]" />
-                    <span className="text-sm font-bold text-[#FACC15]">{t.earnings}</span>
+                    <TrendingUp className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-bold text-primary">{t.earnings}</span>
                   </div>
                 </div>
               ))}
@@ -784,14 +783,15 @@ export default function StudioPage() {
             9. FOOTER CTA
         ══════════════════════════════════════════════ */}
         <section className="py-20 sm:py-28 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-t from-[#7C3AED]/5 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent" />
           <div className="container mx-auto px-4 relative z-10 text-center">
-            <p className="text-sm font-medium text-[#7C3AED] mb-3">Join 200+ creators already building their legacy on Bibue</p>
+            <p className="text-sm font-medium text-primary mb-3">Join 200+ creators already building their legacy on Bibue</p>
             <h2 className="text-3xl sm:text-4xl font-bold mb-6">Ready to publish your story?</h2>
             <Button
               size="lg"
+              variant="primary"
               onClick={scrollToForm}
-              className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-10 py-6 text-lg rounded-2xl gap-2 shadow-[0_0_30px_rgba(124,58,237,0.3)] hover:shadow-[0_0_40px_rgba(124,58,237,0.5)] transition-all duration-300"
+              className="px-10 py-6 text-lg rounded-2xl gap-2"
             >
               Submit Your Series <ArrowRight className="w-5 h-5" />
             </Button>
