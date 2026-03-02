@@ -109,7 +109,7 @@ function GenreSwipeBar({ onSelect, activeGenre }: { onSelect: (id: string | null
   };
 
   return (
-    <div className="relative -mx-4 px-4 overflow-x-auto hide-scrollbar" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch", touchAction: "pan-x" }}>
+    <div className="relative -mx-4 px-4 overflow-x-auto hide-scrollbar">
       <div className="flex items-center gap-2 py-1 w-max">
         {activeGenre && (
           <button
