@@ -54,7 +54,7 @@ export default function OriginalsPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button asChild size="lg" className="gap-2">
-              <Link to="/for-creators">Become a Creator <ArrowRight className="w-4 h-4" /></Link>
+              <Link to="/studio">Become a Creator <ArrowRight className="w-4 h-4" /></Link>
             </Button>
           </div>
         </div>
@@ -121,9 +121,9 @@ export default function OriginalsPage() {
                 No series yet — be one of the first Founding Creators to publish on bibue.net and earn your permanent badge.
               </p>
               <Button asChild size="lg" className="gap-2">
-                <Link to="/creator/dashboard">
+                <Link to="/studio">
                   <Upload className="w-5 h-5" />
-                  Upload Your First Series
+                  Submit Your Series
                 </Link>
               </Button>
             </div>
