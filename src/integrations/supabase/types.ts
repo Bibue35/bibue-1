@@ -123,6 +123,8 @@ export type Database = {
           id: string
           is_hidden: boolean
           likes: number
+          parent_id: string | null
+          status: string
           updated_at: string
           user_id: string
         }
@@ -133,6 +135,8 @@ export type Database = {
           id?: string
           is_hidden?: boolean
           likes?: number
+          parent_id?: string | null
+          status?: string
           updated_at?: string
           user_id: string
         }
@@ -143,6 +147,8 @@ export type Database = {
           id?: string
           is_hidden?: boolean
           likes?: number
+          parent_id?: string | null
+          status?: string
           updated_at?: string
           user_id?: string
         }
@@ -152,6 +158,13 @@ export type Database = {
             columns: ["chapter_id"]
             isOneToOne: false
             referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chapter_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "chapter_comments"
             referencedColumns: ["id"]
           },
         ]
