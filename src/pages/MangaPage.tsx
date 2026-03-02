@@ -18,6 +18,7 @@ import { MangaCard } from "@/components/MangaCard";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { ContentSection } from "@/components/ContentSection";
 import { SearchDropdown } from "@/components/SearchDropdown";
+import { ContinueReadingRow } from "@/components/ContinueRow";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { CardSkeletonRow } from "@/components/skeletons";
 import { Button } from "@/components/ui/button";
@@ -337,6 +338,8 @@ export default function MangaPage() {
       {/* ── Carousel Sections (hidden when searching or genre-filtered) ── */}
       {showCarousels && (
         <>
+          {/* Continue Reading for logged-in users */}
+          <ContinueReadingRow />
           {/* Recently Updated — carousel on mobile, grid on desktop */}
           <ContentSection title={t("manga.recentlyUpdated")} titleJp={t("manga.recentlyUpdatedJp")} icon={RefreshCw} linkTo="/manga">
             {recentlyUpdatedMangaError ? (
