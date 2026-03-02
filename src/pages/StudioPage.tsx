@@ -292,10 +292,7 @@ export default function StudioPage() {
                 Now accepting creators
               </div>
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-5">
-                Bibue Studio — Keep up to{" "}
-                <span className="text-primary">80%</span>.
-                <br className="hidden sm:block" />
-                <span className="text-primary">Get discovered fast.</span>
+                Keep up to <span className="text-primary">80%</span>
               </h1>
               <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
                 The only platform that actually puts creators first with the highest payouts and quickest path to readers.
