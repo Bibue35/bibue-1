@@ -42,7 +42,7 @@ const STATUS_COLORS: Record<string, string> = {
 const FAQ_ITEMS = [
   { q: "How do I become a creator on Bibue?", a: "Head to the For Creators page and click 'Start Uploading Now'. You'll create a creator profile and can start uploading your first chapter immediately. The first 50 creators get a permanent Founding Creator badge!" },
   { q: "When do payouts happen?", a: "Payouts are processed monthly via Stripe or PayPal. Once your earnings reach the minimum threshold, your payout is automatically queued for the next payment cycle." },
-  { q: "How much revenue do I keep?", a: "Creators keep 80-90% of all revenue generated from their series — the highest rate in the industry. This includes ad revenue, tips, and subscription earnings." },
+  { q: "How much revenue do I keep?", a: "Creators keep 75% of net revenue (80% for Founding Creators in their first 6 months) — one of the highest rates in the industry. This includes ad revenue, tips, and subscription earnings." },
   { q: "How do I upload chapters?", a: "Go to your Creator Dashboard, select a series (or create one), then click 'Add Chapter'. Upload your pages as images (JPG, PNG, or WebP). Your first 100 uploads get instant publishing!" },
   { q: "What file formats are supported for uploads?", a: "We support JPG, PNG, and WebP image formats. For best quality, use PNG at 800px width minimum. WebP is recommended for smaller file sizes with great quality." },
   { q: "How does the moderation process work?", a: "Your first few chapters go through a quick review to ensure quality standards. After 3 approved chapters, your future uploads are auto-approved instantly." },
