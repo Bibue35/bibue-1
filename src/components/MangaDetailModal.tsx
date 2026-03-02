@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Link } from "react-router-dom";
 import { BookOpen, X, Star, Copy, Share2, MessageCircle, Send, User, ArrowUpDown, ThumbsUp, History, ChevronDown, Loader2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -241,21 +242,26 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
 
           {/* Genres */}
           {manga?.genres && manga.genres.length > 0 && (
-            <div>
-              <h2 className="uppercase text-[10px] sm:text-xs tracking-widest text-muted-foreground mb-2 sm:mb-3 font-semibold">Genres</h2>
-              <div className="flex flex-wrap gap-2">
-                {manga.genres.map((genre) => (
-                  <Link
-                    key={genre.mal_id}
-                    to={`/manga?genre=${genre.mal_id}`}
-                    onClick={() => onOpenChange(false)}
-                    className="px-4 sm:px-5 py-1.5 sm:py-2 rounded-2xl bg-muted text-muted-foreground text-xs sm:text-sm hover:bg-primary/20 hover:text-primary transition-colors cursor-pointer"
-                  >
-                    {genre.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
+            <Collapsible>
+              <CollapsibleTrigger className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-muted text-muted-foreground text-xs sm:text-sm hover:bg-primary/20 hover:text-primary transition-colors cursor-pointer">
+                <span className="font-medium">Genres</span>
+                <span className="text-muted-foreground/60">({manga.genres.length})</span>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="flex flex-wrap gap-2">
+                  {manga.genres.map((genre) => (
+                    <Link
+                      key={genre.mal_id}
+                      to={`/manga?genre=${genre.mal_id}`}
+                      onClick={() => onOpenChange(false)}
+                      className="px-4 sm:px-5 py-1.5 sm:py-2 rounded-2xl bg-muted text-muted-foreground text-xs sm:text-sm hover:bg-primary/20 hover:text-primary transition-colors cursor-pointer"
+                    >
+                      {genre.name}
+                    </Link>
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           )}
 
           {/* Tabs: Chapters / Comments / Similar */}
