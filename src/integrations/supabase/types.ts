@@ -1327,6 +1327,60 @@ export type Database = {
           },
         ]
       }
+      studio_submissions: {
+        Row: {
+          admin_notes: string | null
+          chapter_urls: string[] | null
+          cover_url: string | null
+          created_at: string
+          description: string
+          email: string
+          genre: string
+          id: string
+          name: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          series_title: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          chapter_urls?: string[] | null
+          cover_url?: string | null
+          created_at?: string
+          description: string
+          email: string
+          genre: string
+          id?: string
+          name: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          series_title: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          chapter_urls?: string[] | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string
+          email?: string
+          genre?: string
+          id?: string
+          name?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          series_title?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       support_tickets: {
         Row: {
           attachment_urls: string[] | null

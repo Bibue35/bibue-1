@@ -65,6 +65,7 @@ const OriginalsPage = lazy(() => import("./pages/OriginalsPage"));
 const OriginalSeriesDetail = lazy(() => import("./pages/OriginalSeriesDetail"));
 const CreatorProfile = lazy(() => import("./pages/CreatorProfile"));
 const SupportPage = lazy(() => import("./pages/SupportPage"));
+const StudioPage = lazy(() => import("./pages/StudioPage"));
 
 // Minimal loading fallback for route transitions
 const PageLoader = () => (
@@ -155,6 +156,7 @@ const App = () => (
                             <Route path="/for-creators" element={<ForCreatorsPage />} />
                             <Route path="/originals" element={<OriginalsPage />} />
                             <Route path="/originals/:id" element={<OriginalSeriesDetail />} />
+                            <Route path="/studio" element={<StudioPage />} />
                             <Route path="/support" element={<SupportPage />} />
                             <Route path="/creator/dashboard" element={<ProtectedRoute><CreatorDashboard /></ProtectedRoute>} />
                             <Route path="/creator/:identifier" element={<CreatorProfile />} />

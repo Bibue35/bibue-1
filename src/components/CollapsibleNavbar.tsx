@@ -26,6 +26,7 @@ export function CollapsibleNavbar() {
   const navLinks = [
     { href: "/manga", label: t("nav.manga") },
     { href: "/originals", label: "Originals" },
+    { href: "/studio", label: "Studio" },
     { href: "/seek", label: "Seek" },
     { href: "/community", label: t("nav.community") },
   ];

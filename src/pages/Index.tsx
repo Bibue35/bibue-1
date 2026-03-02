@@ -17,6 +17,7 @@ import { CardSkeleton, CardSkeletonRow } from "@/components/skeletons";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, TrendingUp, Sparkles, BookOpen, Flame, History, Trophy, Zap, Upload } from "lucide-react";
 import { ContinueReadingRow } from "@/components/ContinueRow";
+import { BibuOriginalsSection } from "@/components/BibuOriginalsSection";
 import { useNotificationGenerator } from "@/hooks/useNotificationGenerator";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -159,6 +160,9 @@ const Index = () => {
           <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
         </Link>
       </section>
+
+      {/* Bibue Originals */}
+      <BibuOriginalsSection />
 
       {/* Continue Reading */}
       <ContinueReadingRow />
