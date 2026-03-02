@@ -244,7 +244,10 @@ function toManga(media: AniListMedia, language: SupportedLanguage = "en"): Manga
       to: media.endDate?.year ? `${media.endDate.year}-${String(media.endDate.month || 1).padStart(2, "0")}-${String(media.endDate.day || 1).padStart(2, "0")}` : "",
       string: media.startDate.year ? `${media.startDate.year}` : "",
     } : undefined,
-    genres: media.genres?.map((g, i) => ({ mal_id: i, name: g })) || [],
+    genres: [
+      ...(media.genres?.map((g, i) => ({ mal_id: i, name: g })) || []),
+      ...(media.tags?.filter(t => t.rank && t.rank >= 60).map((t, i) => ({ mal_id: 1000 + i, name: t.name })) || []),
+    ],
     authors: media.staff?.nodes?.filter(s => s.primaryOccupations?.includes("Mangaka"))?.map(s => ({ mal_id: s.id, name: s.name.full })) || [],
     type: media.format || undefined,
     countryOfOrigin: media.countryOfOrigin || undefined,
@@ -272,6 +275,7 @@ interface AniListMedia {
   source?: string;
   duration?: number;
   genres?: string[];
+  tags?: Array<{ name: string; rank?: number; category?: string }>;
   countryOfOrigin?: string;
   trailer?: { id: string; site: string };
   startDate?: { year?: number; month?: number; day?: number };
@@ -305,6 +309,7 @@ const MEDIA_FRAGMENT = `
   source
   duration
   genres
+  tags { name rank category }
   countryOfOrigin
   trailer { id site }
   startDate { year month day }
@@ -777,6 +782,99 @@ export async function getMangaByGenre(
 
   const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, genre, sort: [sort], countryOfOrigin });
   return data.Page.media.map(m => toManga(m, language));
+}
+
+// ── Niche genre tags (Xianxia, Wuxia, Cultivation, etc.) via AniList tag system ──
+// These aren't standard AniList genres but exist as tags
+export const NICHE_TAG_GENRES: Record<string, string[]> = {
+  "Xianxia": ["Cultivation"],
+  "Wuxia": ["Martial Arts"],
+  "Cultivation": ["Cultivation"],
+  "Martial Arts": ["Martial Arts"],
+  "Reincarnation": ["Reincarnation"],
+  "Villainess": ["Villainess"],
+  "Time Travel": ["Time Skip", "Time Manipulation"],
+  "System": ["Leveling"],
+  "Regression": ["Time Skip"],
+  "Dungeon": ["Dungeon"],
+};
+
+// Check if a genre name is a niche tag (not a standard AniList genre)
+export function isNicheTagGenre(genreName: string): boolean {
+  return genreName in NICHE_TAG_GENRES;
+}
+
+// Get manga by AniList tag (for niche genres like Xianxia, Cultivation, etc.)
+export async function getMangaByTag(
+  tagNames: string[],
+  page = 1,
+  limit = 25,
+  filter?: "manga" | "manhwa" | "manhua",
+  sort: "SCORE_DESC" | "POPULARITY_DESC" | "TRENDING_DESC" = "POPULARITY_DESC",
+  language: SupportedLanguage = "en"
+): Promise<Manga[]> {
+  let countryOfOrigin: string | undefined;
+  if (filter === "manhwa") countryOfOrigin = "KR";
+  else if (filter === "manhua") countryOfOrigin = "CN";
+
+  const query = `
+    query ($page: Int, $perPage: Int, $tagNames: [String], $sort: [MediaSort], $countryOfOrigin: CountryCode) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: MANGA, tag_in: $tagNames, sort: $sort, countryOfOrigin: $countryOfOrigin, isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { 
+    page, perPage: limit, tagNames, sort: [sort], countryOfOrigin 
+  });
+  return data.Page.media.map(m => toManga(m, language));
+}
+
+// ── Hybrid merge utilities ──
+
+// Normalize title for comparison
+function normalizeTitle(title: string): string {
+  return title.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+// Deduplicate manga from multiple sources, keeping best metadata
+export function deduplicateManga(primary: Manga[], supplement: Manga[]): Manga[] {
+  const seen = new Map<string, Manga>();
+  const idSeen = new Set<number>();
+
+  // Primary results go first
+  for (const m of primary) {
+    seen.set(normalizeTitle(m.title), m);
+    idSeen.add(m.anilist_id);
+  }
+
+  // Supplement: only add truly new titles, or enrich existing ones
+  for (const s of supplement) {
+    const normTitle = normalizeTitle(s.title);
+    const existing = seen.get(normTitle);
+    if (existing) {
+      // Merge: pick best metadata
+      if (!existing.score && s.score) existing.score = s.score;
+      if (!existing.synopsis && s.synopsis) existing.synopsis = s.synopsis;
+      if (!existing.chapters && s.chapters) existing.chapters = s.chapters;
+      if (!existing.volumes && s.volumes) existing.volumes = s.volumes;
+      if (!existing.authors?.length && s.authors?.length) existing.authors = s.authors;
+      // Merge genres (deduplicated)
+      if (s.genres?.length) {
+        const existingGenreNames = new Set(existing.genres?.map(g => g.name) || []);
+        const newGenres = s.genres.filter(g => !existingGenreNames.has(g.name));
+        existing.genres = [...(existing.genres || []), ...newGenres];
+      }
+    } else if (!idSeen.has(s.anilist_id)) {
+      seen.set(normTitle, s);
+      idSeen.add(s.anilist_id);
+    }
+  }
+
+  return Array.from(seen.values());
 }
 
 export async function getMangaById(id: number, language: SupportedLanguage = "en"): Promise<Manga> {
