@@ -17,6 +17,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
+  standardizeChapter,
+  cleanupStandardizedPages,
+  type StandardizedPage,
+  type StandardizeResult,
+} from "@/lib/imageStandardizer";
+import {
   Upload,
   Plus,
   BookOpen,
@@ -34,10 +40,13 @@ import {
   CreditCard,
   Flame,
   Award,
+  RefreshCw,
+  Columns2,
+  GripVertical,
 } from "lucide-react";
 
 type DashboardTab = "overview" | "series" | "upload" | "analytics" | "payouts" | "guidelines";
-type UploadStep = "select-series" | "guidelines" | "chapter-info" | "upload-pages" | "preview" | "done";
+type UploadStep = "select-series" | "guidelines" | "chapter-info" | "upload-pages" | "standardize" | "preview" | "done";
 
 interface PageFile {
   file: File;
@@ -45,6 +54,8 @@ interface PageFile {
   uploaded: boolean;
   progress: number;
 }
+
+type FormatChoice = "standardized" | "original" | "reorder";
 
 /* ─── Content Guidelines ─── */
 const CONTENT_RULES = [
@@ -54,6 +65,8 @@ const CONTENT_RULES = [
   "No AI-generated art or writing",
   "No hate speech, real-person content, or illegal material",
 ];
+
+const UPLOAD_STEPS: UploadStep[] = ["select-series", "guidelines", "chapter-info", "upload-pages", "standardize", "preview"];
 
 export default function CreatorDashboard() {
   const { user } = useAuth();
@@ -103,6 +116,14 @@ export default function CreatorDashboard() {
   const [newSeriesDesc, setNewSeriesDesc] = useState("");
   const [guidelinesAccepted, setGuidelinesAccepted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Standardization state
+  const [standardizing, setStandardizing] = useState(false);
+  const [standardizeProgress, setStandardizeProgress] = useState(0);
+  const [standardizeMessage, setStandardizeMessage] = useState("");
+  const [standardizeResult, setStandardizeResult] = useState<StandardizeResult | null>(null);
+  const [formatChoice, setFormatChoice] = useState<FormatChoice>("standardized");
+  const [reorderedPages, setReorderedPages] = useState<StandardizedPage[]>([]);
 
   // Auto-save
   useEffect(() => {
@@ -176,12 +197,65 @@ export default function CreatorDashboard() {
     onError: (e) => toast.error(e.message),
   });
 
+  /* ─── Standardize ─── */
+  const runStandardization = useCallback(async () => {
+    if (pages.length === 0) return;
+    setStandardizing(true);
+    setStandardizeProgress(0);
+    setStandardizeMessage("Starting...");
+
+    try {
+      const result = await standardizeChapter(
+        pages.map((p) => p.file),
+        (pct, msg) => {
+          setStandardizeProgress(pct);
+          setStandardizeMessage(msg);
+        }
+      );
+      setStandardizeResult(result);
+      setReorderedPages([...result.pages]);
+      setFormatChoice("standardized");
+    } catch (err: any) {
+      toast.error("Standardization failed: " + (err.message || "Unknown error"));
+    } finally {
+      setStandardizing(false);
+    }
+  }, [pages]);
+
+  // Auto-run standardization when entering standardize step
+  useEffect(() => {
+    if (step === "standardize" && !standardizeResult && !standardizing) {
+      runStandardization();
+    }
+  }, [step, standardizeResult, standardizing, runStandardization]);
+
+  const handleReprocess = () => {
+    if (standardizeResult) cleanupStandardizedPages(standardizeResult.pages);
+    setStandardizeResult(null);
+    setReorderedPages([]);
+    runStandardization();
+  };
+
+  const movePageInReorder = (from: number, to: number) => {
+    setReorderedPages((prev) => {
+      const arr = [...prev];
+      const [item] = arr.splice(from, 1);
+      arr.splice(to, 0, item);
+      return arr;
+    });
+  };
+
+  /* ─── Upload ─── */
   const handleUpload = async () => {
     if (!user || !selectedSeriesId || pages.length === 0) return;
     setUploading(true);
     setUploadProgress(0);
 
+    const useStandardized = formatChoice === "standardized" || formatChoice === "reorder";
+    const finalPages = useStandardized ? (formatChoice === "reorder" ? reorderedPages : standardizeResult?.pages || []) : [];
+
     try {
+      const pageCount = useStandardized ? finalPages.length : pages.length;
       const { data: chapter, error: chapterError } = await supabase
         .from("chapters")
         .insert({
@@ -189,37 +263,71 @@ export default function CreatorDashboard() {
           creator_id: user.id,
           chapter_number: chapterNumber,
           title: chapterTitle || null,
-          page_count: pages.length,
+          page_count: pageCount,
           status: "pending",
+          format_type: useStandardized ? "standardized" : "original",
         })
         .select()
         .single();
 
       if (chapterError) throw chapterError;
 
+      // Upload originals first
       for (let i = 0; i < pages.length; i++) {
         const page = pages[i];
         const ext = page.file.name.split(".").pop() || "jpg";
-        const path = `${user.id}/${selectedSeriesId}/${chapter.id}/page_${String(i + 1).padStart(3, "0")}.${ext}`;
+        const path = `${user.id}/${selectedSeriesId}/${chapter.id}/original/page_${String(i + 1).padStart(3, "0")}.${ext}`;
+        await supabase.storage.from("creator-uploads").upload(path, page.file, { contentType: page.file.type, upsert: true });
+      }
 
-        const { error: uploadError } = await supabase.storage
-          .from("creator-uploads")
-          .upload(path, page.file, { contentType: page.file.type, upsert: true });
+      if (useStandardized) {
+        // Upload standardized pages
+        for (let i = 0; i < finalPages.length; i++) {
+          const sPage = finalPages[i];
+          const path = `${user.id}/${selectedSeriesId}/${chapter.id}/standardized/page_${String(i + 1).padStart(3, "0")}.jpg`;
+          await supabase.storage.from("creator-uploads").upload(path, sPage.blob, { contentType: "image/jpeg", upsert: true });
 
-        if (uploadError) throw uploadError;
+          const { data: urlData } = supabase.storage.from("creator-uploads").getPublicUrl(path);
+          // Also get original URL
+          const origIdx = sPage.sourceIndex;
+          const origFile = pages[origIdx];
+          const origExt = origFile.file.name.split(".").pop() || "jpg";
+          const origPath = `${user.id}/${selectedSeriesId}/${chapter.id}/original/page_${String(origIdx + 1).padStart(3, "0")}.${origExt}`;
+          const { data: origUrlData } = supabase.storage.from("creator-uploads").getPublicUrl(origPath);
 
-        const { data: urlData } = supabase.storage.from("creator-uploads").getPublicUrl(path);
+          await supabase.from("chapter_pages").insert({
+            chapter_id: chapter.id,
+            page_number: i + 1,
+            image_url: urlData.publicUrl,
+            original_image_url: origUrlData.publicUrl,
+            original_filename: origFile.file.name,
+            file_size: sPage.blob.size,
+            is_standardized: true,
+          });
 
-        await supabase.from("chapter_pages").insert({
-          chapter_id: chapter.id,
-          page_number: i + 1,
-          image_url: urlData.publicUrl,
-          original_filename: page.file.name,
-          file_size: page.file.size,
-        });
+          setUploadProgress(Math.round(((i + 1) / finalPages.length) * 100));
+        }
+      } else {
+        // Upload original pages as-is
+        for (let i = 0; i < pages.length; i++) {
+          const page = pages[i];
+          const ext = page.file.name.split(".").pop() || "jpg";
+          const path = `${user.id}/${selectedSeriesId}/${chapter.id}/page_${String(i + 1).padStart(3, "0")}.${ext}`;
+          await supabase.storage.from("creator-uploads").upload(path, page.file, { contentType: page.file.type, upsert: true });
 
-        setPages((prev) => prev.map((p, idx) => (idx === i ? { ...p, uploaded: true, progress: 100 } : p)));
-        setUploadProgress(Math.round(((i + 1) / pages.length) * 100));
+          const { data: urlData } = supabase.storage.from("creator-uploads").getPublicUrl(path);
+
+          await supabase.from("chapter_pages").insert({
+            chapter_id: chapter.id,
+            page_number: i + 1,
+            image_url: urlData.publicUrl,
+            original_filename: page.file.name,
+            file_size: page.file.size,
+            is_standardized: false,
+          });
+
+          setUploadProgress(Math.round(((i + 1) / pages.length) * 100));
+        }
       }
 
       localStorage.removeItem("bibue_draft_chapter");
@@ -232,6 +340,7 @@ export default function CreatorDashboard() {
   };
 
   const resetWizard = () => {
+    if (standardizeResult) cleanupStandardizedPages(standardizeResult.pages);
     setStep("select-series");
     setSelectedSeriesId(null);
     setChapterTitle("");
@@ -239,6 +348,10 @@ export default function CreatorDashboard() {
     setPages([]);
     setUploadProgress(0);
     setGuidelinesAccepted(false);
+    setStandardizeResult(null);
+    setReorderedPages([]);
+    setFormatChoice("standardized");
+    setStandardizing(false);
     localStorage.removeItem("bibue_draft_chapter");
   };
 
@@ -263,6 +376,8 @@ export default function CreatorDashboard() {
     { id: "payouts", label: "Payouts", icon: CreditCard },
     { id: "guidelines", label: "Guidelines", icon: ShieldCheck },
   ];
+
+  const stepIndex = UPLOAD_STEPS.indexOf(step);
 
   return (
     <div className="min-h-screen bg-background">
@@ -327,7 +442,6 @@ export default function CreatorDashboard() {
                     ))}
                   </div>
 
-                  {/* Quick actions */}
                   <Card className="border-border/50">
                     <CardContent className="p-6 flex flex-col sm:flex-row items-center gap-4">
                       <div className="flex-1">
@@ -403,21 +517,23 @@ export default function CreatorDashboard() {
                   <CardContent className="p-6">
                     {/* Step indicator */}
                     <div className="flex items-center gap-2 mb-8">
-                      {(["select-series", "guidelines", "chapter-info", "upload-pages", "preview"] as UploadStep[]).map((s, i) => {
-                        const steps: UploadStep[] = ["select-series", "guidelines", "chapter-info", "upload-pages", "preview"];
-                        const currentIdx = steps.indexOf(step);
-                        const isDone = currentIdx > i || step === "done";
+                      {UPLOAD_STEPS.map((s, i) => {
+                        const isDone = stepIndex > i || step === "done";
+                        const labels = ["Series", "Guidelines", "Details", "Pages", "Standardize", "Review"];
                         return (
                           <div key={s} className="flex items-center gap-2">
-                            <div className={cn(
-                              "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors",
-                              step === s ? "bg-primary text-primary-foreground"
-                                : isDone ? "bg-primary/20 text-primary"
-                                : "bg-muted text-muted-foreground"
-                            )}>
-                              {isDone ? <Check className="w-3.5 h-3.5" /> : i + 1}
+                            <div className="flex flex-col items-center gap-1">
+                              <div className={cn(
+                                "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors",
+                                step === s ? "bg-primary text-primary-foreground"
+                                  : isDone ? "bg-primary/20 text-primary"
+                                  : "bg-muted text-muted-foreground"
+                              )}>
+                                {isDone ? <Check className="w-3.5 h-3.5" /> : i + 1}
+                              </div>
+                              <span className="text-[10px] text-muted-foreground hidden sm:block">{labels[i]}</span>
                             </div>
-                            {i < 4 && <div className="w-6 h-0.5 bg-border" />}
+                            {i < UPLOAD_STEPS.length - 1 && <div className="w-4 sm:w-6 h-0.5 bg-border mb-4 sm:mb-0" />}
                           </div>
                         );
                       })}
@@ -550,54 +666,195 @@ export default function CreatorDashboard() {
                         >
                           <FileImage className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3 group-hover:text-primary transition-colors" />
                           <p className="font-medium text-sm">Click to select images</p>
-                          <p className="text-xs text-muted-foreground mt-1">PNG, JPG, WebP — sorted automatically by filename</p>
+                          <p className="text-xs text-muted-foreground mt-1">PNG, JPG, WebP — any format (webtoon strips, individual pages, double-spreads)</p>
                         </button>
                         <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleFileSelect} className="hidden" />
 
                         {pages.length > 0 && (
                           <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                              <p className="text-sm font-medium">{pages.length} page{pages.length !== 1 ? "s" : ""}</p>
+                              <p className="text-sm font-medium">{pages.length} file{pages.length !== 1 ? "s" : ""} selected</p>
                               <Button variant="ghost" size="sm" onClick={() => { pages.forEach((p) => URL.revokeObjectURL(p.preview)); setPages([]); }}>
                                 Clear all
                               </Button>
                             </div>
 
-                            {/* Vertical scroll preview */}
-                            <div className="max-h-[50vh] overflow-y-auto rounded-xl border border-border/50 bg-muted/10 p-2 space-y-1">
+                            <div className="flex gap-2 overflow-x-auto pb-2">
                               {pages.map((page, i) => (
-                                <div key={i} className="relative group">
-                                  <img src={page.preview} alt={`Page ${i + 1}`} className="w-full rounded-lg" />
-                                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                                    <button onClick={() => removePage(i)} className="p-1.5 rounded-full bg-destructive text-destructive-foreground">
-                                      <X className="w-3.5 h-3.5" />
-                                    </button>
-                                  </div>
-                                  <span className="absolute bottom-2 left-2 text-xs font-bold bg-background/80 px-2 py-0.5 rounded-full">
-                                    {i + 1}
-                                  </span>
-                                  {page.uploaded && (
-                                    <div className="absolute top-2 left-2 bg-primary text-primary-foreground rounded-full p-1">
-                                      <Check className="w-3 h-3" />
-                                    </div>
-                                  )}
+                                <div key={i} className="shrink-0 w-16 aspect-[2/3] rounded-lg overflow-hidden border border-border/50 relative group">
+                                  <img src={page.preview} alt={`File ${i + 1}`} className="w-full h-full object-cover" />
+                                  <button
+                                    onClick={() => removePage(i)}
+                                    className="absolute top-0.5 right-0.5 p-0.5 rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <X className="w-2.5 h-2.5" />
+                                  </button>
+                                  <span className="absolute bottom-0.5 left-0.5 text-[10px] font-bold bg-background/80 px-1 rounded">{i + 1}</span>
                                 </div>
                               ))}
                             </div>
 
-                            <Button className="w-full" onClick={() => setStep("preview")}>
-                              Review & Publish
+                            {/* Info about standardization */}
+                            <div className="flex items-start gap-3 p-4 rounded-xl border border-primary/10 bg-primary/5">
+                              <Columns2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                              <div className="text-xs text-muted-foreground leading-relaxed">
+                                <p className="font-medium text-foreground text-sm mb-1">Automatic Format Standardization</p>
+                                <p>Your pages will be automatically converted to the standard vertical scrolling format so readers get the best possible experience on every device. Webtoon strips are split into pages, landscapes are handled, and all images are optimized.</p>
+                              </div>
+                            </div>
+
+                            <Button className="w-full" onClick={() => { setStandardizeResult(null); setStep("standardize"); }}>
+                              Continue — Standardize Format
                             </Button>
                           </div>
                         )}
                       </div>
                     )}
 
-                    {/* Step 5: Preview */}
+                    {/* Step 5: Standardize Format */}
+                    {step === "standardize" && (
+                      <div className="space-y-6">
+                        <div className="flex items-center gap-2 mb-2">
+                          <button onClick={() => setStep("upload-pages")} className="text-muted-foreground hover:text-foreground">
+                            <ArrowLeft className="w-4 h-4" />
+                          </button>
+                          <h3 className="font-semibold">Standardize Format</h3>
+                        </div>
+
+                        {standardizing && (
+                          <div className="space-y-4 py-8">
+                            <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+                              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                            </div>
+                            <div className="text-center">
+                              <p className="font-medium mb-1">Processing your pages...</p>
+                              <p className="text-xs text-muted-foreground">{standardizeMessage}</p>
+                            </div>
+                            <Progress value={standardizeProgress} className="h-2 max-w-xs mx-auto" />
+                          </div>
+                        )}
+
+                        {!standardizing && standardizeResult && (
+                          <div className="space-y-6">
+                            {/* Summary */}
+                            <div className="flex items-center gap-4 p-4 rounded-xl border border-border/50 bg-muted/10">
+                              <div className="flex items-center gap-2">
+                                <Check className="w-4 h-4 text-primary" />
+                                <span className="text-sm font-medium">Standardization complete</span>
+                              </div>
+                              <div className="flex items-center gap-4 ml-auto text-xs text-muted-foreground">
+                                <span>{standardizeResult.originalCount} original → {standardizeResult.standardizedCount} pages</span>
+                                {standardizeResult.wasModified && (
+                                  <Badge variant="secondary" className="text-[10px]">Modified</Badge>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Side by side preview */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                              {/* Original */}
+                              <div>
+                                <p className="text-xs font-medium text-muted-foreground mb-2 text-center">Your Original Upload</p>
+                                <div className="max-h-[40vh] overflow-y-auto rounded-xl border border-border/50 bg-muted/10 p-2 space-y-1">
+                                  {pages.map((page, i) => (
+                                    <div key={i} className="relative">
+                                      <img src={page.preview} alt={`Original ${i + 1}`} className="w-full rounded-lg" />
+                                      <span className="absolute bottom-1.5 left-1.5 text-[10px] font-bold bg-background/80 px-1.5 py-0.5 rounded-full">
+                                        {i + 1}/{pages.length}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Standardized */}
+                              <div>
+                                <p className="text-xs font-medium text-muted-foreground mb-2 text-center">
+                                  How readers will see it
+                                  <Badge variant="secondary" className="ml-2 text-[10px]">Traditional Scrolling</Badge>
+                                </p>
+                                <div className="max-h-[40vh] overflow-y-auto rounded-xl border border-primary/20 bg-muted/10 p-2 space-y-1">
+                                  {(formatChoice === "reorder" ? reorderedPages : standardizeResult.pages).map((page, i) => (
+                                    <div key={i} className="relative group">
+                                      <img src={page.preview} alt={`Page ${i + 1}`} className="w-full rounded-lg" />
+                                      <span className="absolute bottom-1.5 left-1.5 text-[10px] font-bold bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">
+                                        {i + 1}/{formatChoice === "reorder" ? reorderedPages.length : standardizeResult.pages.length}
+                                      </span>
+                                      {formatChoice === "reorder" && (
+                                        <div className="absolute top-1.5 right-1.5 flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                          {i > 0 && (
+                                            <button onClick={() => movePageInReorder(i, i - 1)} className="p-1 rounded bg-background/80 hover:bg-background text-xs">↑</button>
+                                          )}
+                                          {i < reorderedPages.length - 1 && (
+                                            <button onClick={() => movePageInReorder(i, i + 1)} className="p-1 rounded bg-background/80 hover:bg-background text-xs">↓</button>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Format choice */}
+                            <div className="space-y-2">
+                              <p className="text-sm font-medium">Choose your format</p>
+                              <div className="grid gap-2">
+                                {([
+                                  { id: "standardized" as FormatChoice, label: "Approve Standardized Version", desc: "Recommended — optimized for all devices", recommended: true },
+                                  { id: "original" as FormatChoice, label: "Keep Original Format", desc: "For special artistic cases", recommended: false },
+                                  { id: "reorder" as FormatChoice, label: "Manually Reorder Pages", desc: "Hover over pages on the right to move them", recommended: false },
+                                ]).map((opt) => (
+                                  <button
+                                    key={opt.id}
+                                    onClick={() => {
+                                      setFormatChoice(opt.id);
+                                      if (opt.id === "reorder" && reorderedPages.length === 0) {
+                                        setReorderedPages([...standardizeResult.pages]);
+                                      }
+                                    }}
+                                    className={cn(
+                                      "flex items-center gap-3 p-3 rounded-xl border transition-all text-left",
+                                      formatChoice === opt.id ? "border-primary bg-primary/5" : "border-border/50 hover:border-primary/20"
+                                    )}
+                                  >
+                                    <div className={cn(
+                                      "w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0",
+                                      formatChoice === opt.id ? "border-primary" : "border-muted-foreground/30"
+                                    )}>
+                                      {formatChoice === opt.id && <div className="w-2 h-2 rounded-full bg-primary" />}
+                                    </div>
+                                    <div className="min-w-0">
+                                      <p className="text-sm font-medium flex items-center gap-2">
+                                        {opt.label}
+                                        {opt.recommended && <Badge className="text-[10px] bg-primary/10 text-primary border-0">Recommended</Badge>}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">{opt.desc}</p>
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Re-process */}
+                            <div className="flex gap-3">
+                              <Button variant="outline" className="gap-2" onClick={handleReprocess}>
+                                <RefreshCw className="w-3.5 h-3.5" /> Re-process
+                              </Button>
+                              <Button className="flex-1" onClick={() => setStep("preview")}>
+                                Continue to Review
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Step 6: Preview */}
                     {step === "preview" && (
                       <div className="space-y-4">
                         <div className="flex items-center gap-2 mb-2">
-                          <button onClick={() => setStep("upload-pages")} className="text-muted-foreground hover:text-foreground">
+                          <button onClick={() => setStep("standardize")} className="text-muted-foreground hover:text-foreground">
                             <ArrowLeft className="w-4 h-4" />
                           </button>
                           <h3 className="font-semibold">Review before submitting</h3>
@@ -605,20 +862,38 @@ export default function CreatorDashboard() {
 
                         <div className="rounded-xl border border-border/50 p-5 space-y-2 bg-muted/10">
                           <p className="text-sm"><span className="text-muted-foreground">Chapter:</span> <span className="font-medium">#{chapterNumber}{chapterTitle ? ` — ${chapterTitle}` : ""}</span></p>
-                          <p className="text-sm"><span className="text-muted-foreground">Pages:</span> <span className="font-medium">{pages.length}</span></p>
+                          <p className="text-sm">
+                            <span className="text-muted-foreground">Format:</span>{" "}
+                            <Badge variant="secondary" className="text-xs">
+                              {formatChoice === "original" ? "Original" : "Traditional Scrolling"}
+                            </Badge>
+                          </p>
+                          <p className="text-sm">
+                            <span className="text-muted-foreground">Pages:</span>{" "}
+                            <span className="font-medium">
+                              {formatChoice === "original"
+                                ? pages.length
+                                : formatChoice === "reorder"
+                                ? reorderedPages.length
+                                : standardizeResult?.standardizedCount || pages.length}
+                            </span>
+                          </p>
                         </div>
 
                         <div className="flex gap-2 overflow-x-auto pb-2">
-                          {pages.slice(0, 6).map((page, i) => (
-                            <div key={i} className="shrink-0 w-20 aspect-[2/3] rounded-lg overflow-hidden border border-border/50">
-                              <img src={page.preview} alt={`Page ${i + 1}`} className="w-full h-full object-cover" />
-                            </div>
-                          ))}
-                          {pages.length > 6 && (
-                            <div className="shrink-0 w-20 aspect-[2/3] rounded-lg border border-border/50 flex items-center justify-center bg-muted">
-                              <span className="text-xs font-medium">+{pages.length - 6}</span>
-                            </div>
-                          )}
+                          {(() => {
+                            const previewImages = formatChoice === "original"
+                              ? pages.map((p) => p.preview)
+                              : formatChoice === "reorder"
+                              ? reorderedPages.map((p) => p.preview)
+                              : (standardizeResult?.pages || []).map((p) => p.preview);
+
+                            return previewImages.slice(0, 8).map((src, i) => (
+                              <div key={i} className="shrink-0 w-16 aspect-[2/3] rounded-lg overflow-hidden border border-border/50">
+                                <img src={src} alt={`Page ${i + 1}`} className="w-full h-full object-cover" />
+                              </div>
+                            ));
+                          })()}
                         </div>
 
                         {uploading && (

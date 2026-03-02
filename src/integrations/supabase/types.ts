@@ -93,7 +93,9 @@ export type Database = {
           file_size: number | null
           id: string
           image_url: string
+          is_standardized: boolean
           original_filename: string | null
+          original_image_url: string | null
           page_number: number
         }
         Insert: {
@@ -102,7 +104,9 @@ export type Database = {
           file_size?: number | null
           id?: string
           image_url: string
+          is_standardized?: boolean
           original_filename?: string | null
+          original_image_url?: string | null
           page_number: number
         }
         Update: {
@@ -111,7 +115,9 @@ export type Database = {
           file_size?: number | null
           id?: string
           image_url?: string
+          is_standardized?: boolean
           original_filename?: string | null
+          original_image_url?: string | null
           page_number?: number
         }
         Relationships: [
@@ -203,6 +209,7 @@ export type Database = {
           chapter_number: number
           created_at: string
           creator_id: string
+          format_type: string
           id: string
           page_count: number
           published_at: string | null
@@ -217,6 +224,7 @@ export type Database = {
           chapter_number: number
           created_at?: string
           creator_id: string
+          format_type?: string
           id?: string
           page_count?: number
           published_at?: string | null
@@ -231,6 +239,7 @@ export type Database = {
           chapter_number?: number
           created_at?: string
           creator_id?: string
+          format_type?: string
           id?: string
           page_count?: number
           published_at?: string | null
