@@ -91,17 +91,6 @@ const Index = () => {
       {/* Hero with Apple-style Search */}
       <section className="pt-24 sm:pt-28 pb-8 sm:pb-12">
         <div className="container mx-auto px-4">
-          {/* Large Apple-style Search */}
-          <div className="flex justify-center mb-10 sm:mb-14">
-            <SearchDropdown
-              type="manga"
-              value={heroSearch}
-              onChange={handleSearchChange}
-              placeholder="Search any manga, manhwa, manhua…"
-              size="large"
-            />
-          </div>
-
           {/* Title + CTAs */}
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
             <div>
@@ -125,6 +114,17 @@ const Index = () => {
                 <Link to="/genres">Explore Genres</Link>
               </Button>
             </div>
+          </div>
+
+          {/* Search below hero text */}
+          <div className="flex justify-center mb-10 sm:mb-14">
+            <SearchDropdown
+              type="manga"
+              value={heroSearch}
+              onChange={handleSearchChange}
+              placeholder="Search any manga, manhwa, manhua…"
+              size="large"
+            />
           </div>
 
           {/* Featured Manga Row */}
