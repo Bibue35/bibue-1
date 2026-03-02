@@ -44,14 +44,14 @@ export function CreatorWelcomeModal() {
           
           <Badge variant="secondary" className="mb-3">
             <DollarSign className="w-3 h-3 mr-1" />
-            Earn up to 90% revenue
+            Keep 75% of net revenue
           </Badge>
           
           <h2 className="text-2xl font-bold font-sacred mb-2">
             Welcome, Creator!
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            You're one of the first to join bibue.net. Upload your original manga, manhwa or manhua and start earning today.
+            You're one of the first to join bibue.net. Upload your original manga, manhwa or manhua and start earning today. Founding creators get an extra 5% bonus.
           </p>
         </div>
 
