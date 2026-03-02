@@ -417,9 +417,13 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
           <div className="lg:sticky lg:top-8 space-y-6">
 
             {/* Add to List */}
-            <div className="relative">
+            <div
+              className="relative group/list"
+              onMouseLeave={() => setShowStatusMenu(false)}
+            >
               <Button
                 onClick={handleAddToList}
+                onMouseEnter={() => { if (inList) setShowStatusMenu(true); }}
                 disabled={listLoading}
                 className={cn(
                   "w-full gap-2 text-sm font-semibold rounded-2xl h-12",
@@ -442,7 +446,7 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                 {inList && <ChevronDown className="w-3.5 h-3.5 ml-auto" />}
               </Button>
               {showStatusMenu && inList && (
-                <div className="absolute top-full left-0 right-0 mt-2 rounded-xl bg-card border border-border shadow-xl z-50 overflow-hidden">
+                <div className="absolute top-full left-0 right-0 mt-1 rounded-xl bg-card border border-border shadow-xl z-50 overflow-hidden">
                   {statusOptions.map(opt => (
                     <button
                       key={opt.value}
