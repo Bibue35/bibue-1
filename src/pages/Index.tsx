@@ -11,27 +11,26 @@ import { ContentSection } from "@/components/ContentSection";
 import { Footer } from "@/components/Footer";
 import { AdUnit } from "@/components/AdUnit";
 import { PullToRefresh } from "@/components/PullToRefresh";
-import { SearchDropdown } from "@/components/SearchDropdown";
+import { CinematicHero } from "@/components/CinematicHero";
 import { useTopManga, useTrendingManhwa, useTrendingManhua, useRecentlyUpdatedManga, useAllTimeTopManga } from "@/hooks/useAnimeData";
 import { CardSkeleton, CardSkeletonRow } from "@/components/skeletons";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, TrendingUp, Sparkles, BookOpen, Flame, History, Trophy, Zap, Upload } from "lucide-react";
 import { ContinueReadingRow } from "@/components/ContinueRow";
 import { BibuOriginalsSection } from "@/components/BibuOriginalsSection";
-import { HeroGenrePanel } from "@/components/HeroGenrePanel";
+
 import { useNotificationGenerator } from "@/hooks/useNotificationGenerator";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useViewingHistory } from "@/hooks/useViewingHistory";
-import { useMemo, useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDeferredSection } from "@/hooks/useDeferredSection";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { CyclingText } from "@/components/CyclingText";
+
 
 const Index = () => {
-  const [heroSearch, setHeroSearch] = useState("");
   const navigate = useNavigate();
 
   // Above-fold hooks
@@ -63,19 +62,6 @@ const Index = () => {
     ]);
   }, [queryClient]);
 
-  // Navigate to manga page with search when user types
-  const handleSearchChange = useCallback((value: string) => {
-    setHeroSearch(value);
-    if (value.trim().length > 0) {
-      navigate(`/manga?q=${encodeURIComponent(value.trim())}`);
-    }
-  }, [navigate]);
-
-  // Hero manga for the top section
-  const heroManga = useMemo(() => {
-    if (!topManga?.length) return [];
-    return topManga.slice(0, 5);
-  }, [topManga]);
 
   return (
     <>
@@ -89,53 +75,8 @@ const Index = () => {
       <PullToRefresh onRefresh={handleRefresh}>
       <main id="main-content">
 
-      {/* Hero with Apple-style Search */}
-      <section className="pt-24 sm:pt-28 pb-8 sm:pb-12">
-        <div className="container mx-auto px-4">
-          {/* Title + CTAs */}
-          <div className="flex flex-col gap-4 mb-8">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight">
-              Discover Peak{" "}
-              <CyclingText
-                words={["Manga", "Manhwa", "Manhua"]}
-                interval={2500}
-                className="text-primary"
-              />
-            </h1>
-
-            {/* Search */}
-            <div className="flex justify-center sm:justify-start max-w-xl">
-              <SearchDropdown
-                type="manga"
-                value={heroSearch}
-                onChange={handleSearchChange}
-                placeholder="Search any manga, manhwa, manhua…"
-                size="large"
-              />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button asChild size="sm">
-                <Link to="/manga">Browse All</Link>
-              </Button>
-              <HeroGenrePanel />
-            </div>
-          </div>
-
-          {/* Featured Manga Row */}
-          <HorizontalScroll showArrows={!isMobile}>
-            {topMangaLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-48" />
-            ) : (
-              heroManga.map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-48" style={{ scrollSnapAlign: "start" }}>
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
-        </div>
-      </section>
+      {/* Cinematic Hero */}
+      <CinematicHero />
 
       {/* For Creators Banner */}
       <section className="container mx-auto px-3 sm:px-4 py-4">
