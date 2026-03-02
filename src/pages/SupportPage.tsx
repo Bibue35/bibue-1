@@ -341,82 +341,110 @@ export default function SupportPage() {
 
       {/* Support Cards */}
       <section className="container mx-auto px-4 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {/* Creator Priority */}
-          <Card className={cn(
-            "border-2 transition-all duration-300",
-            isCreator
-              ? "border-neon-gold/40 shadow-[0_0_30px_hsl(48,96%,53%,0.1)]"
-              : "border-neon-gold/20"
-          )}>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-neon-gold/10 flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-neon-gold" />
+        <div className={cn("grid gap-6 max-w-4xl mx-auto", isCreator ? "grid-cols-1 max-w-2xl" : "grid-cols-1 md:grid-cols-2")}>
+          {isCreator ? (
+            /* Creator Priority — full width when creator */
+            <Card className="border-2 border-neon-gold/40 shadow-[0_0_30px_hsl(48,96%,53%,0.1)]">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-neon-gold/10 flex items-center justify-center">
+                    <Zap className="w-6 h-6 text-neon-gold" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-lg">Creator Priority Support</h3>
+                      <Badge className="bg-neon-gold/20 text-neon-gold border-neon-gold/30 text-xs gap-1">
+                        <Award className="w-3 h-3" /> Creator
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Direct access to the team — you're a verified creator</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold">Creator Priority Support</h3>
-                  <p className="text-xs text-muted-foreground">Direct access to the team</p>
-                </div>
-              </div>
-              <Badge className="bg-neon-gold/20 text-neon-gold border-neon-gold/30 text-xs gap-1 mb-4">
-                <Clock className="w-3 h-3" /> We reply within 24 hours
-              </Badge>
-              <ul className="text-sm text-muted-foreground space-y-1.5 mb-5">
-                <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-neon-gold" /> Upload Issues</li>
-                <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-neon-gold" /> Revenue & Payouts</li>
-                <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-neon-gold" /> Series Management</li>
-                <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-neon-gold" /> Technical Support</li>
-              </ul>
-              {user ? (
+                <Badge className="bg-neon-gold/20 text-neon-gold border-neon-gold/30 text-xs gap-1 mb-4">
+                  <Clock className="w-3 h-3" /> We reply within 24 hours
+                </Badge>
+                <ul className="text-sm text-muted-foreground space-y-1.5 mb-5">
+                  <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-neon-gold" /> Upload Issues</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-neon-gold" /> Revenue & Payouts</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-neon-gold" /> Series Management</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-neon-gold" /> Technical Support</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-neon-gold" /> Account issues</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-neon-gold" /> Feature requests</li>
+                </ul>
                 <Button
                   variant="amber"
                   className="w-full gap-2"
                   onClick={() => setShowForm(true)}
                 >
-                  <Send className="w-4 h-4" />
-                  {isCreator ? "Submit Priority Ticket" : "Submit Ticket"}
+                  <Send className="w-4 h-4" /> Submit Priority Ticket
                 </Button>
-              ) : (
-                <p className="text-xs text-muted-foreground text-center">Log in to submit a ticket</p>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              {/* Creator Priority info card */}
+              <Card className="border-2 border-neon-gold/20">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-neon-gold/10 flex items-center justify-center">
+                      <Zap className="w-5 h-5 text-neon-gold" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold">Creator Priority Support</h3>
+                      <p className="text-xs text-muted-foreground">Direct access to the team</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-neon-gold/20 text-neon-gold border-neon-gold/30 text-xs gap-1 mb-4">
+                    <Clock className="w-3 h-3" /> We reply within 24 hours
+                  </Badge>
+                  <ul className="text-sm text-muted-foreground space-y-1.5 mb-5">
+                    <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-neon-gold" /> Upload Issues</li>
+                    <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-neon-gold" /> Revenue & Payouts</li>
+                    <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-neon-gold" /> Series Management</li>
+                    <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-neon-gold" /> Technical Support</li>
+                  </ul>
+                  <p className="text-xs text-muted-foreground text-center">
+                    <Link to="/for-creators" className="text-neon-gold hover:underline">Become a creator</Link> to unlock priority support
+                  </p>
+                </CardContent>
+              </Card>
 
-          {/* General Support */}
-          <Card className="border-border/50">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <MessageSquare className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-bold">General Support</h3>
-                  <p className="text-xs text-muted-foreground">For all users</p>
-                </div>
-              </div>
-              <p className="text-sm text-muted-foreground mb-5">
-                Need help with your account, watchlist, or have a question? We're here to help.
-              </p>
-              <ul className="text-sm text-muted-foreground space-y-1.5 mb-5">
-                <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-primary" /> Account issues</li>
-                <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-primary" /> Bug reports</li>
-                <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-primary" /> Feature requests</li>
-                <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-primary" /> Content reports</li>
-              </ul>
-              {user ? (
-                <Button
-                  variant="magenta"
-                  className="w-full gap-2"
-                  onClick={() => setShowForm(true)}
-                >
-                  <Send className="w-4 h-4" /> Submit Ticket
-                </Button>
-              ) : (
-                <p className="text-xs text-muted-foreground text-center">Log in to submit a ticket</p>
-              )}
-            </CardContent>
-          </Card>
+              {/* General Support */}
+              <Card className="border-border/50">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <MessageSquare className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold">General Support</h3>
+                      <p className="text-xs text-muted-foreground">For all users</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-5">
+                    Need help with your account, watchlist, or have a question? We're here to help.
+                  </p>
+                  <ul className="text-sm text-muted-foreground space-y-1.5 mb-5">
+                    <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-primary" /> Account issues</li>
+                    <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-primary" /> Bug reports</li>
+                    <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-primary" /> Feature requests</li>
+                    <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-primary" /> Content reports</li>
+                  </ul>
+                  {user ? (
+                    <Button
+                      variant="magenta"
+                      className="w-full gap-2"
+                      onClick={() => setShowForm(true)}
+                    >
+                      <Send className="w-4 h-4" /> Submit Ticket
+                    </Button>
+                  ) : (
+                    <p className="text-xs text-muted-foreground text-center">Log in to submit a ticket</p>
+                  )}
+                </CardContent>
+              </Card>
+            </>
+          )}
         </div>
       </section>
 
