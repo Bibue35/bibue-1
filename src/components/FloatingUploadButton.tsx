@@ -38,7 +38,8 @@ export function FloatingUploadButton() {
         "w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30",
         "flex items-center justify-center",
         "transition-transform active:scale-90 touch-manipulation",
-        "hover:shadow-xl hover:shadow-primary/40"
+        "hover:shadow-xl hover:shadow-primary/40",
+        "animate-float"
       )}
       aria-label="Upload new chapter"
     >

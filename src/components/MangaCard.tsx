@@ -95,10 +95,10 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
     <>
       <button
         onClick={() => setModalOpen(true)}
-        className="block group text-left w-full active:scale-[0.98] transition-transform duration-150"
+        className="block group/card text-left w-full active:scale-[0.98] transition-transform duration-150 isolate"
       >
         {/* Image with simple hover effect */}
-        <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted will-change-transform transform-gpu">
+        <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted will-change-transform transform-gpu card-hover-glow">
           <img
             src={manga.images.webp.image_url}
             alt={`${manga.title} cover art`}
@@ -107,7 +107,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
             loading="lazy"
             decoding="async"
             sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, 176px"
-            className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 will-change-transform transform-gpu"
+            className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover/card:scale-105 will-change-transform transform-gpu"
           />
           {/* Chapter count badge */}
           {chapterCount && (
@@ -124,7 +124,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
           </div>
           {/* Save button - appears on hover */}
           <div 
-            className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 opacity-0 group-hover:opacity-100 transition-all"
+            className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 opacity-0 group-hover/card:opacity-100 transition-all"
             onClick={(e) => e.stopPropagation()}
           >
             <WatchlistButton
@@ -142,7 +142,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
 
         {/* Title with verification tooltip */}
         <div className="flex items-start gap-1">
-          <h3 className="font-medium text-[11px] sm:text-xs md:text-sm line-clamp-2 mb-0.5 sm:mb-1 group-hover:text-foreground/80 transition-colors leading-tight flex-1">
+          <h3 className="font-medium text-[11px] sm:text-xs md:text-sm line-clamp-2 mb-0.5 sm:mb-1 group-hover/card:text-foreground/80 transition-colors leading-tight flex-1">
             {manga.title}
           </h3>
           <TitleTooltip 

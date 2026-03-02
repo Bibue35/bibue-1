@@ -15,11 +15,8 @@ export function ThemeSelector({ variant = "icon" }: ThemeSelectorProps) {
 
   const toggleTheme = useCallback(() => {
     const goingLight = resolvedMode === "dark";
-    // Ensure celestial flavor is active for the transition
     setFlavor("celestial");
-    // Trigger the animated overlay
     trigger(goingLight ? "to-sun" : "to-moon");
-    // Apply mode change after a short delay so overlay covers the switch
     setTimeout(() => {
       setMode(goingLight ? "light" : "dark");
     }, 500);
@@ -32,10 +29,7 @@ export function ThemeSelector({ variant = "icon" }: ThemeSelectorProps) {
           onClick={toggleTheme}
           className={cn(
             "px-4 py-3 rounded-xl text-sm font-medium transition-colors w-full text-left flex items-center gap-3",
-            "hover:bg-foreground/5",
-            resolvedMode === "dark"
-              ? "text-muted-foreground"
-              : "text-muted-foreground"
+            "hover:bg-foreground/5 text-muted-foreground"
           )}
         >
           {resolvedMode === "dark" ? (
@@ -56,18 +50,14 @@ export function ThemeSelector({ variant = "icon" }: ThemeSelectorProps) {
         variant="ghost"
         size="icon"
         onClick={toggleTheme}
-        className="rounded-full hover:bg-foreground/5 transition-colors relative group"
+        className="rounded-full hover:bg-foreground/5 transition-all group btn-press"
+        aria-label={`Switch to ${resolvedMode === "dark" ? "Sunlight" : "Moonlight"} mode`}
       >
-        <div className="relative">
-          {resolvedMode === "dark" ? (
-            <Moon className="h-5 w-5 text-foreground/80 group-hover:text-foreground transition-colors" />
-          ) : (
-            <Sun className="h-5 w-5 text-foreground/80 group-hover:text-foreground transition-colors" />
-          )}
-        </div>
-        <span className="sr-only">
-          Switch to {resolvedMode === "dark" ? "Sunlight" : "Moonlight"} mode
-        </span>
+        {resolvedMode === "dark" ? (
+          <Moon className="h-5 w-5 text-foreground/80 group-hover:text-foreground transition-colors" />
+        ) : (
+          <Sun className="h-5 w-5 text-foreground/80 group-hover:text-foreground transition-colors" />
+        )}
       </Button>
       <ThemeTransitionOverlay direction={direction} onComplete={handleComplete} />
     </>
