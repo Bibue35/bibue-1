@@ -102,17 +102,14 @@ const Index = () => {
                   className="text-primary"
                 />
               </h1>
-              <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-lg">
-                {t("hero.subtitle") || "Track your reading list, explore trending titles, and connect with fellow readers."}
-              </p>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <Button asChild>
-                <Link to="/manga">Browse All</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link to="/genres">Explore Genres</Link>
-              </Button>
+              <div className="flex items-center gap-2 mt-3">
+                <Button asChild size="sm">
+                  <Link to="/manga">Browse All</Link>
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/genres">Explore Genres</Link>
+                </Button>
+              </div>
             </div>
           </div>
 
