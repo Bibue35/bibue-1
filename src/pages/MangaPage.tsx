@@ -233,68 +233,10 @@ export default function MangaPage() {
       />
       <CollapsibleNavbar />
 
-      {/* ── Sticky Format Selector ── */}
-      <div className="sticky top-[56px] z-30 bg-background/80 backdrop-blur-md border-b border-border/30">
-        <div className="container mx-auto px-3 sm:px-4 py-2.5 flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
-          {FORMAT_TABS.map((tab) => (
-            <button
-              key={tab.value}
-              onClick={() => handleTypeFilter(tab.value)}
-              className={cn(
-                "flex-shrink-0 px-4 sm:px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 active:scale-95",
-                typeFilter === tab.value
-                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                  : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
-
-          <div className="w-px h-6 bg-border/40 mx-1 flex-shrink-0 hidden sm:block" />
-
-          {/* Sort */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium bg-muted/50 text-muted-foreground hover:bg-muted transition-colors">
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-                {sortBy === "popularity" ? "Trending" : sortBy === "score" ? "Top Rated" : "Newest"}
-                <ChevronDown className="w-3 h-3 opacity-50" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-44 p-2" align="start">
-              {(["popularity", "score", "newest"] as const).map((s) => (
-                <button
-                  key={s}
-                  onClick={() => { isUserAction.current = true; setSortBy(s); }}
-                  className={cn(
-                    "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
-                    sortBy === s ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
-                  )}
-                >
-                  {s === "popularity" ? "Trending" : s === "score" ? "Top Rated" : "Newest"}
-                </button>
-              ))}
-            </PopoverContent>
-          </Popover>
-
-          <div className="flex-1" />
-
-          {user && (
-            <Button variant="ghost" size="sm" className="rounded-full gap-1.5 text-xs flex-shrink-0" asChild>
-              <Link to="/recommendations"><Sparkles className="w-3.5 h-3.5" /> For You</Link>
-            </Button>
-          )}
-          <Button variant="ghost" size="sm" className="rounded-full gap-1.5 text-xs flex-shrink-0" asChild>
-            <Link to="/watchlist?type=manga"><Bookmark className="w-3.5 h-3.5" /> Saved</Link>
-          </Button>
-        </div>
-      </div>
-
-      {/* ── Search Bar ── */}
-      <section className="pt-6 sm:pt-8 pb-2">
+      {/* ── Search & Filters ── */}
+      <section className="pt-24 sm:pt-28 pb-4">
         <div className="container mx-auto px-4">
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-6">
             <SearchDropdown
               type="manga"
               value={localSearch}
@@ -303,15 +245,70 @@ export default function MangaPage() {
               size="large"
             />
           </div>
+
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-1">
             {genreId ? `${genreName}` : isSearching ? `Results for "${debouncedSearch}"` : "Browse Manga"}
           </h1>
-          <p className="text-sm text-muted-foreground mb-2">
+          <p className="text-sm text-muted-foreground mb-5">
             {genreId
               ? `Top ${typeFilter !== "all" ? typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1) + " " : ""}${genreName} series`
               : "Your discovery hub for manga, manhwa & manhua."
             }
           </p>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {FORMAT_TABS.map((tab) => (
+              <button
+                key={tab.value}
+                onClick={() => handleTypeFilter(tab.value)}
+                className={cn(
+                  "px-4 sm:px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 active:scale-95",
+                  typeFilter === tab.value
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+
+            <div className="w-px h-6 bg-border/40 mx-1 hidden sm:block" />
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium bg-muted/50 text-muted-foreground hover:bg-muted transition-colors">
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  {sortBy === "popularity" ? "Trending" : sortBy === "score" ? "Top Rated" : "Newest"}
+                  <ChevronDown className="w-3 h-3 opacity-50" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-44 p-2" align="start">
+                {(["popularity", "score", "newest"] as const).map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => { isUserAction.current = true; setSortBy(s); }}
+                    className={cn(
+                      "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
+                      sortBy === s ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
+                    )}
+                  >
+                    {s === "popularity" ? "Trending" : s === "score" ? "Top Rated" : "Newest"}
+                  </button>
+                ))}
+              </PopoverContent>
+            </Popover>
+
+            <div className="flex-1" />
+
+            {user && (
+              <Button variant="ghost" size="sm" className="rounded-full gap-1.5 text-xs" asChild>
+                <Link to="/recommendations"><Sparkles className="w-3.5 h-3.5" /> For You</Link>
+              </Button>
+            )}
+            <Button variant="ghost" size="sm" className="rounded-full gap-1.5 text-xs" asChild>
+              <Link to="/watchlist?type=manga"><Bookmark className="w-3.5 h-3.5" /> Saved</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
