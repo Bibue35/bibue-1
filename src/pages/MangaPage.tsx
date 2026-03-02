@@ -82,58 +82,36 @@ const FORMAT_TABS = [
   { value: "manhua" as const, label: "Manhua" },
 ];
 
-/* ── Genre Grid Section (collapsed by default, expands) ── */
-function GenreGrid({ onSelect, activeGenre }: { onSelect: (id: string | null) => void; activeGenre: string | null }) {
-  const [expanded, setExpanded] = useState(false);
-  const visible = expanded ? BROWSE_GENRES : BROWSE_GENRES.slice(0, 12);
-
+/* ── Genre Swipe Bar ── */
+function GenreSwipeBar({ onSelect, activeGenre }: { onSelect: (id: string | null) => void; activeGenre: string | null }) {
   return (
-    <section className="py-8 sm:py-12">
-      <div className="container mx-auto px-3 sm:px-4">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-xl sm:text-2xl font-bold">Browse by Genre</h2>
-          {activeGenre && (
-            <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => onSelect(null)}>
-              <X className="w-3.5 h-3.5" /> Clear
-            </Button>
-          )}
-        </div>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5 sm:gap-3">
-          {visible.map((g) => (
-            <button
-              key={g.id}
-              onClick={() => onSelect(activeGenre === g.id ? null : g.id)}
-              className={cn(
-                "group relative rounded-xl border p-3 sm:p-4 text-left transition-all duration-200 hover:shadow-lg active:scale-[0.97]",
-                activeGenre === g.id
-                  ? "border-primary bg-primary/10 shadow-md shadow-primary/10"
-                  : "border-border/50 bg-card hover:border-primary/30"
-              )}
-            >
-              <span className="text-xl sm:text-2xl block mb-1.5">{g.emoji}</span>
-              <span className={cn(
-                "text-xs sm:text-sm font-semibold transition-colors",
-                activeGenre === g.id ? "text-primary" : "text-foreground group-hover:text-primary"
-              )}>
-                {g.name}
-              </span>
-              <ArrowRight className={cn(
-                "absolute top-3 right-3 w-3.5 h-3.5 opacity-0 group-hover:opacity-60 transition-opacity text-muted-foreground",
-                activeGenre === g.id && "opacity-60 text-primary"
-              )} />
-            </button>
-          ))}
-        </div>
-        {BROWSE_GENRES.length > 12 && (
-          <div className="flex justify-center mt-4">
-            <Button variant="ghost" size="sm" className="text-xs gap-1.5" onClick={() => setExpanded(!expanded)}>
-              {expanded ? "Show Less" : `Show All ${BROWSE_GENRES.length} Genres`}
-              <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", expanded && "rotate-180")} />
-            </Button>
-          </div>
+    <div className="relative -mx-4 px-4 overflow-x-auto hide-scrollbar" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch", touchAction: "pan-x" }}>
+      <div className="flex items-center gap-2 py-1 w-max">
+        {activeGenre && (
+          <button
+            onClick={() => onSelect(null)}
+            className="flex-shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors active:scale-95"
+          >
+            <X className="w-3 h-3" /> Clear
+          </button>
         )}
+        {BROWSE_GENRES.map((g) => (
+          <button
+            key={g.id}
+            onClick={() => onSelect(activeGenre === g.id ? null : g.id)}
+            className={cn(
+              "flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap active:scale-95",
+              activeGenre === g.id
+                ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+            )}
+          >
+            <span>{g.emoji}</span>
+            {g.name}
+          </button>
+        ))}
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -313,9 +291,11 @@ export default function MangaPage() {
               </PopoverContent>
             </Popover>
 
-            <Button variant="ghost" size="sm" className="rounded-full gap-1.5 text-xs" asChild>
-              <Link to="/genres"><Tag className="w-3.5 h-3.5" /> Genres</Link>
-            </Button>
+            {!isSearching && (
+              <div className="w-full mt-3 order-last">
+                <GenreSwipeBar onSelect={handleGenreSelect} activeGenre={genreId} />
+              </div>
+            )}
 
             <div className="flex-1" />
 
@@ -405,8 +385,6 @@ export default function MangaPage() {
         </>
       )}
 
-      {/* ── Browse by Genre Grid ── */}
-      {!isSearching && <GenreGrid onSelect={handleGenreSelect} activeGenre={genreId} />}
 
       {/* Results anchor */}
       <div ref={resultsRef} />
