@@ -38,7 +38,7 @@ export function CollapsibleNavbar() {
     { href: "/recommendations", label: t("nav.forYou") },
     { href: "/manga", label: "Browse by Genre" },
     { href: "/for-creators", label: "For Creators" },
-    { href: "/support", label: "Support" },
+    ...(user ? [{ href: "/support", label: "Support" }] : []),
   ];
 
   useEffect(() => {
