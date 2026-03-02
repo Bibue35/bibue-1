@@ -124,19 +124,17 @@ const Index = () => {
             ))}
           </div>
 
-          {/* Genre pills — horizontal scroll */}
-          <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 mt-2">
-            <div className="flex items-center gap-1.5 w-max">
-              {GENRE_PILLS.map((genre) => (
-                <Link
-                  key={genre}
-                  to={`/genres/${genre.toLowerCase().replace(/[\s]+/g, "-")}`}
-                  className="px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-medium text-muted-foreground hover:text-foreground bg-muted/40 hover:bg-foreground/5 transition-colors whitespace-nowrap"
-                >
-                  {genre}
-                </Link>
-              ))}
-            </div>
+          {/* Genre pills — wrap */}
+          <div className="flex flex-wrap items-center gap-1.5 mt-2">
+            {GENRE_PILLS.map((genre) => (
+              <Link
+                key={genre}
+                to={`/genres/${genre.toLowerCase().replace(/[\s]+/g, "-")}`}
+                className="px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium text-muted-foreground hover:text-foreground bg-muted/40 hover:bg-foreground/5 transition-colors"
+              >
+                {genre}
+              </Link>
+            ))}
           </div>
         </div>
       </section>
