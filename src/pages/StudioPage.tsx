@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -14,6 +15,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -25,15 +37,29 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { CreatorAgreementModal } from "@/components/CreatorAgreementModal";
 import {
   Loader2, Upload, CheckCircle, Sparkles, PenTool, DollarSign, Eye,
   Clock, Shield, BarChart3, Wallet, Star, ArrowRight, Zap,
-  BookOpen, TrendingUp, Users, MessageSquare, Award,
+  BookOpen, TrendingUp, Users, MessageSquare, Award, Info, X, ChevronDown,
 } from "lucide-react";
 
 const GENRES = [
-  "Action", "Romance", "Fantasy", "Comedy", "Drama", "Horror",
-  "Sci-Fi", "Slice of Life", "Thriller", "Mystery", "Adventure", "Sports",
+  "Action", "Romance", "Fantasy", "Drama", "Comedy", "Horror", "Thriller", "Mystery",
+  "Slice of Life", "Isekai", "Shonen", "Shojo", "Seinen", "Josei", "Martial Arts",
+  "Revenge", "Historical", "School Life", "Office", "Psychological", "Supernatural",
+  "Sports", "Music", "Medical", "Military", "Post-Apocalyptic",
+  "Xianxia (Manhua)", "Wuxia (Manhua)", "Cultivation (Manhwa/Manhua)",
+  "System Apocalypse", "Mecha", "Yuri", "Yaoi", "BL", "GL",
+];
+
+const FORMATS = ["Manga", "Manhwa", "Manhua"];
+
+const CONTENT_RATINGS = [
+  { value: "all-ages", label: "All Ages" },
+  { value: "teen", label: "Teen (13+)" },
+  { value: "mature", label: "Mature (17+)" },
+  { value: "adult", label: "18+ / Adult" },
 ];
 
 /* ── Comparison Data ─────────────────────────────── */
@@ -116,24 +142,58 @@ export default function StudioPage() {
   const [loading, setLoading] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
   const [form, setForm] = useState({
-    name: "",
+    penName: "",
+    legalName: "",
     email: "",
-    discord: "",
     seriesTitle: "",
-    genre: "",
+    format: "",
+    genres: [] as string[],
+    contentRating: "",
     description: "",
   });
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [chapterFiles, setChapterFiles] = useState<File[]>([]);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const chaptersInputRef = useRef<HTMLInputElement>(null);
+  const [genrePopoverOpen, setGenrePopoverOpen] = useState(false);
 
+  const handleCoverChange = (file: File | null) => {
+    setCoverFile(file);
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setCoverPreview(url);
+    } else {
+      setCoverPreview(null);
+    }
+  };
+
+  const toggleGenre = (genre: string) => {
+    setForm((prev) => ({
+      ...prev,
+      genres: prev.genres.includes(genre)
+        ? prev.genres.filter((g) => g !== genre)
+        : prev.genres.length < 5
+          ? [...prev.genres, genre]
+          : prev.genres,
+    }));
+  };
+  
   const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.seriesTitle || !form.genre || !form.description) {
+    if (!form.penName || !form.legalName || !form.email || !form.seriesTitle || !form.format || !form.contentRating || form.genres.length === 0 || !form.description) {
       toast.error("Please fill all required fields");
+      return;
+    }
+    if (form.description.length < 200) {
+      toast.error("Synopsis must be at least 200 characters");
+      return;
+    }
+    if (!agreedToTerms) {
+      toast.error("Please agree to the Creator Agreement");
       return;
     }
     setLoading(true);
@@ -162,10 +222,10 @@ export default function StudioPage() {
       }
       const { error } = await supabase.from("studio_submissions").insert({
         user_id: user?.id || null,
-        name: form.name,
+        name: form.penName,
         email: form.email,
         series_title: form.seriesTitle,
-        genre: form.genre,
+        genre: `${form.format} | ${form.genres.join(", ")} | ${form.contentRating}`,
         description: form.description,
         cover_url: coverUrl || null,
         chapter_urls: chapterUrls,
@@ -407,87 +467,161 @@ export default function StudioPage() {
                 <h2 className="text-3xl sm:text-4xl font-bold mb-3">Submit Your Series</h2>
                 <p className="text-muted-foreground text-lg">Fill out the form below. We'll review your submission quickly.</p>
               </div>
-              <form onSubmit={handleSubmit} className="space-y-5 p-6 sm:p-8 rounded-3xl border border-border/40 bg-background/50 backdrop-blur-sm">
+              <TooltipProvider>
+              <form onSubmit={handleSubmit} className="space-y-6 p-6 sm:p-8 rounded-3xl border border-border/40 bg-background/50 backdrop-blur-sm">
+                {/* Series Title */}
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block">Series Title *</label>
+                  <Input
+                    placeholder="e.g. Crimson Blade"
+                    value={form.seriesTitle}
+                    onChange={(e) => setForm({ ...form, seriesTitle: e.target.value })}
+                    required
+                  />
+                </div>
+
+                {/* Pen Name + Legal Name */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium mb-1.5 block">Pen Name / Author Name *</label>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <label className="text-sm font-medium">Pen Name (Public Display Name) *</label>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent><p>This is the name readers will see</p></TooltipContent>
+                      </Tooltip>
+                    </div>
                     <Input
                       placeholder="Your creator name"
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      value={form.penName}
+                      onChange={(e) => setForm({ ...form, penName: e.target.value })}
                       required
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium mb-1.5 block">Email *</label>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <label className="text-sm font-medium">Legal Author Name *</label>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent><p>Your real name for legal/tax purposes — kept private</p></TooltipContent>
+                      </Tooltip>
+                    </div>
                     <Input
-                      type="email"
-                      placeholder="you@email.com"
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      placeholder="Your legal name"
+                      value={form.legalName}
+                      onChange={(e) => setForm({ ...form, legalName: e.target.value })}
                       required
                     />
                   </div>
                 </div>
 
+                {/* Format + Content Rating */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium mb-1.5 block">Series Title *</label>
-                    <Input
-                      placeholder="e.g. Crimson Blade"
-                      value={form.seriesTitle}
-                      onChange={(e) => setForm({ ...form, seriesTitle: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-1.5 block">Genre *</label>
-                    <Select value={form.genre} onValueChange={(v) => setForm({ ...form, genre: v })}>
+                    <label className="text-sm font-medium mb-1.5 block">Format *</label>
+                    <Select value={form.format} onValueChange={(v) => setForm({ ...form, format: v })}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select genre" />
+                        <SelectValue placeholder="Select format" />
                       </SelectTrigger>
                       <SelectContent>
-                        {GENRES.map((g) => (
-                          <SelectItem key={g} value={g}>{g}</SelectItem>
+                        {FORMATS.map((f) => (
+                          <SelectItem key={f} value={f}>{f}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-1.5 block">Content Rating *</label>
+                    <Select value={form.contentRating} onValueChange={(v) => setForm({ ...form, contentRating: v })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select rating" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CONTENT_RATINGS.map((r) => (
+                          <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
+                {/* Genres Multi-Select */}
                 <div>
-                  <label className="text-sm font-medium mb-1.5 block">Short Synopsis *</label>
+                  <label className="text-sm font-medium mb-1.5 block">Genres * <span className="text-xs text-muted-foreground font-normal">(select up to 5)</span></label>
+                  <Popover open={genrePopoverOpen} onOpenChange={setGenrePopoverOpen}>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className="flex w-full min-h-[40px] items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background hover:bg-accent/50 transition-colors"
+                      >
+                        <span className="flex flex-wrap gap-1.5">
+                          {form.genres.length > 0 ? form.genres.map((g) => (
+                            <Badge key={g} variant="secondary" className="text-xs gap-1">
+                              {g}
+                              <X className="w-3 h-3 cursor-pointer" onClick={(e) => { e.stopPropagation(); toggleGenre(g); }} />
+                            </Badge>
+                          )) : <span className="text-muted-foreground">Select genres…</span>}
+                        </span>
+                        <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 ml-2" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[340px] sm:w-[400px] p-3 max-h-[300px] overflow-y-auto" align="start">
+                      <div className="flex flex-wrap gap-1.5">
+                        {GENRES.map((g) => (
+                          <button
+                            key={g}
+                            type="button"
+                            onClick={() => toggleGenre(g)}
+                            className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
+                              form.genres.includes(g)
+                                ? "bg-[#7C3AED]/15 text-[#7C3AED] border-[#7C3AED]/30"
+                                : "bg-muted/50 text-muted-foreground border-border/50 hover:border-[#7C3AED]/20"
+                            }`}
+                          >
+                            {g}
+                          </button>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {/* Synopsis */}
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block">Short Synopsis * <span className="text-xs text-muted-foreground font-normal">(200–600 characters)</span></label>
                   <Textarea
-                    placeholder="Tell us about your series in 2-3 sentences…"
+                    placeholder="Tell us about your series — what makes it unique?"
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
-                    rows={3}
+                    rows={4}
                     required
-                    maxLength={500}
+                    maxLength={600}
                   />
-                  <p className="text-xs text-muted-foreground mt-1">{form.description.length}/500</p>
+                  <p className={`text-xs mt-1 ${form.description.length < 200 ? "text-destructive" : "text-muted-foreground"}`}>
+                    {form.description.length}/600 {form.description.length > 0 && form.description.length < 200 && "(min 200)"}
+                  </p>
                 </div>
 
+                {/* Cover Upload with Preview */}
                 <div>
-                  <label className="text-sm font-medium mb-1.5 block">Discord (optional)</label>
-                  <Input
-                    placeholder="username#0000"
-                    value={form.discord}
-                    onChange={(e) => setForm({ ...form, discord: e.target.value })}
-                  />
-                </div>
-
-                {/* Cover Upload */}
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Cover Art</label>
-                  <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => setCoverFile(e.target.files?.[0] || null)} />
+                  <label className="text-sm font-medium mb-1.5 block">Cover Art *</label>
+                  <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleCoverChange(e.target.files?.[0] || null)} />
                   <button
                     type="button"
                     onClick={() => coverInputRef.current?.click()}
-                    className="w-full border-2 border-dashed border-border/60 rounded-2xl p-8 text-center hover:border-[#7C3AED]/40 transition-colors group"
+                    className="w-full border-2 border-dashed border-border/60 rounded-2xl p-6 text-center hover:border-[#7C3AED]/40 transition-colors group"
                   >
-                    {coverFile ? (
-                      <p className="text-sm font-medium text-[#7C3AED]">{coverFile.name}</p>
+                    {coverPreview ? (
+                      <div className="flex items-center gap-4">
+                        <img src={coverPreview} alt="Cover preview" className="w-20 h-28 object-cover rounded-lg border border-border/40" />
+                        <div className="text-left">
+                          <p className="text-sm font-medium text-[#7C3AED]">{coverFile?.name}</p>
+                          <p className="text-xs text-muted-foreground mt-1">Click to change</p>
+                        </div>
+                      </div>
                     ) : (
                       <>
                         <Upload className="w-7 h-7 text-muted-foreground mx-auto mb-2 group-hover:text-[#7C3AED] transition-colors" />
@@ -500,12 +634,12 @@ export default function StudioPage() {
 
                 {/* Chapter Upload */}
                 <div>
-                  <label className="text-sm font-medium mb-1.5 block">First 3 Chapters (PDF or images)</label>
+                  <label className="text-sm font-medium mb-1.5 block">Upload First 3 Chapters * <span className="text-xs text-muted-foreground font-normal">(images or PDF, max 50MB total)</span></label>
                   <input ref={chaptersInputRef} type="file" accept="image/*,.pdf" multiple className="hidden" onChange={(e) => setChapterFiles(Array.from(e.target.files || []))} />
                   <button
                     type="button"
                     onClick={() => chaptersInputRef.current?.click()}
-                    className="w-full border-2 border-dashed border-border/60 rounded-2xl p-8 text-center hover:border-[#7C3AED]/40 transition-colors group"
+                    className="w-full border-2 border-dashed border-border/60 rounded-2xl p-6 text-center hover:border-[#7C3AED]/40 transition-colors group"
                   >
                     {chapterFiles.length > 0 ? (
                       <p className="text-sm font-medium text-[#7C3AED]">{chapterFiles.length} file(s) selected</p>
@@ -518,11 +652,41 @@ export default function StudioPage() {
                   </button>
                 </div>
 
+                {/* Email */}
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block">Email Address * <span className="text-xs text-muted-foreground font-normal">(for communication &amp; payouts)</span></label>
+                  <Input
+                    type="email"
+                    placeholder="you@email.com"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    required
+                  />
+                </div>
+
+                {/* Terms Checkbox */}
+                <div className="flex items-start gap-3 p-4 rounded-xl border border-border/40 bg-muted/20">
+                  <Checkbox
+                    id="terms-agree"
+                    checked={agreedToTerms}
+                    onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
+                    className="mt-0.5"
+                  />
+                  <label htmlFor="terms-agree" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
+                    I have read and agree to the{" "}
+                    <CreatorAgreementModal>
+                      <button type="button" className="text-[#7C3AED] underline hover:text-[#7C3AED]/80 font-medium transition-colors">
+                        Bibue Creator Agreement and Terms of Service
+                      </button>
+                    </CreatorAgreementModal>
+                  </label>
+                </div>
+
                 <Button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !agreedToTerms}
                   size="lg"
-                  className="w-full py-6 text-lg rounded-2xl bg-[#7C3AED] hover:bg-[#6D28D9] shadow-[0_0_20px_rgba(124,58,237,0.2)] hover:shadow-[0_0_30px_rgba(124,58,237,0.4)] transition-all duration-300"
+                  className="w-full py-6 text-lg rounded-2xl bg-[#7C3AED] hover:bg-[#6D28D9] shadow-[0_0_20px_rgba(124,58,237,0.2)] hover:shadow-[0_0_30px_rgba(124,58,237,0.4)] transition-all duration-300 disabled:opacity-50"
                 >
                   {loading ? (
                     <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Submitting…</>
@@ -530,12 +694,8 @@ export default function StudioPage() {
                     <>Submit for Review <ArrowRight className="w-5 h-5 ml-2" /></>
                   )}
                 </Button>
-
-                <p className="text-xs text-center text-muted-foreground">
-                  By submitting, you confirm this is your original work and agree to our{" "}
-                  <Link to="/terms" className="text-[#7C3AED] underline hover:text-[#7C3AED]/80 transition-colors">terms</Link>.
-                </p>
               </form>
+              </TooltipProvider>
             </div>
           </div>
         </section>
