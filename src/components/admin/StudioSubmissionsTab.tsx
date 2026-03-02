@@ -24,16 +24,53 @@ export function StudioSubmissionsTab() {
   });
 
   const updateStatus = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+    mutationFn: async ({ id, status, submission }: { id: string; status: string; submission?: any }) => {
       const { error } = await supabase
         .from("studio_submissions")
         .update({ status, reviewed_at: new Date().toISOString() })
         .eq("id", id);
       if (error) throw error;
+
+      // When approved, auto-create a series entry
+      if (status === "approved" && submission) {
+        const { data: { user } } = await supabase.auth.getUser();
+        const creatorId = submission.user_id || user?.id;
+        if (!creatorId) throw new Error("No creator ID available");
+
+        // Ensure a creator_profiles entry exists for this user
+        const { data: existingProfile } = await supabase
+          .from("creator_profiles")
+          .select("user_id")
+          .eq("user_id", creatorId)
+          .maybeSingle();
+
+        if (!existingProfile) {
+          await supabase.from("creator_profiles").insert({
+            user_id: creatorId,
+            display_name: submission.name || "Studio Creator",
+            status: "active",
+          });
+        }
+
+        const { error: seriesError } = await supabase.from("series").insert({
+          creator_id: creatorId,
+          title: submission.series_title,
+          description: submission.description,
+          cover_image_url: submission.cover_url,
+          genre_tags: submission.genre ? [submission.genre] : [],
+          status: "approved",
+          content_rating: "everyone",
+        });
+        if (seriesError) throw seriesError;
+      }
     },
     onSuccess: (_, { status }) => {
       queryClient.invalidateQueries({ queryKey: ["admin-studio-submissions"] });
-      toast.success(`Submission ${status}`);
+      if (status === "approved") {
+        toast.success("Submission approved & series created in Originals!");
+      } else {
+        toast.success(`Submission ${status}`);
+      }
     },
   });
 
@@ -127,7 +164,7 @@ export function StudioSubmissionsTab() {
                     <div className="flex gap-2 mt-4">
                       <Button
                         size="sm"
-                        onClick={() => updateStatus.mutate({ id: sub.id, status: "approved" })}
+                        onClick={() => updateStatus.mutate({ id: sub.id, status: "approved", submission: sub })}
                         disabled={updateStatus.isPending}
                         className="gap-1"
                       >
