@@ -253,7 +253,7 @@ export function CinematicHero() {
       )}
 
       {/* Bottom section: progress + trending */}
-      <div className="relative z-10 pb-6 sm:pb-10 mt-auto">
+      <div className="relative z-10 pb-6 sm:pb-10 mt-auto pt-8 sm:pt-12">
         <div className="container mx-auto px-4 sm:px-6">
           {/* Progress dots */}
           <div className="flex items-center gap-1 mb-4 sm:mb-6">
