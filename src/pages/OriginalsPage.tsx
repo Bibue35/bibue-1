@@ -82,9 +82,9 @@ export default function OriginalsPage() {
                     </div>
                     <CardContent className="p-5">
                       <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">{s.title}</h3>
-                      <p className="text-sm text-primary font-medium mb-2">
+                      <Link to={`/creator/${(s as any).creator_profiles?.user_id}`} className="text-sm text-primary font-medium mb-2 block hover:underline" onClick={(e) => e.stopPropagation()}>
                         by {(s as any).creator_profiles?.display_name || "Creator"}
-                      </p>
+                      </Link>
                       {s.genre_tags && s.genre_tags.length > 0 && (
                         <p className="text-xs text-muted-foreground mb-3">{s.genre_tags.slice(0, 3).join(" • ")}</p>
                       )}

@@ -60,6 +60,7 @@ const ForCreatorsPage = lazy(() => import("./pages/ForCreatorsPage"));
 const CreatorDashboard = lazy(() => import("./pages/CreatorDashboard"));
 const OriginalsPage = lazy(() => import("./pages/OriginalsPage"));
 const OriginalSeriesDetail = lazy(() => import("./pages/OriginalSeriesDetail"));
+const CreatorProfile = lazy(() => import("./pages/CreatorProfile"));
 const SupportPage = lazy(() => import("./pages/SupportPage"));
 
 // Minimal loading fallback for route transitions
@@ -151,6 +152,7 @@ const App = () => (
                             <Route path="/originals/:id" element={<OriginalSeriesDetail />} />
                             <Route path="/support" element={<SupportPage />} />
                             <Route path="/creator/dashboard" element={<ProtectedRoute><CreatorDashboard /></ProtectedRoute>} />
+                            <Route path="/creator/:identifier" element={<CreatorProfile />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </AnimatedRoutes>
