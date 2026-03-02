@@ -106,8 +106,8 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
             height={450}
             loading="lazy"
             decoding="async"
-            fetchPriority="low"
-            sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, 176px"
+            fetchPriority="auto"
+            sizes="(max-width: 480px) 33vw, (max-width: 768px) 25vw, (max-width: 1024px) 20vw, 176px"
             className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover/card:scale-105 will-change-transform transform-gpu"
           />
           {/* Chapter count badge */}

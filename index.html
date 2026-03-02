@@ -6,7 +6,7 @@
     <link rel="apple-touch-icon" href="/favicon.png" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#0a0a0f" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -39,11 +39,18 @@
     <link rel="dns-prefetch" href="https://cdn.myanimelist.net" />
     <link rel="dns-prefetch" href="https://api.jikan.moe" />
     <link rel="dns-prefetch" href="https://dsquhilpqcwqydsfhooi.supabase.co" />
+    <link rel="dns-prefetch" href="https://uploads.mangadex.org" />
 
-    <!-- Non-blocking font stylesheets -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" media="print" onload="this.media='all'" />
+    <!-- Preload critical font (Inter 400/500/700) for faster FCP -->
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" /></noscript>
 
+    <!-- Non-critical font loaded async -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" media="print" onload="this.media='all'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" /></noscript>
 
@@ -56,7 +63,7 @@
           s.crossOrigin = 'anonymous';
           s.async = true;
           document.head.appendChild(s);
-        });
+        }, { timeout: 5000 });
       } else {
         setTimeout(function() {
           var s = document.createElement('script');
@@ -64,9 +71,21 @@
           s.crossOrigin = 'anonymous';
           s.async = true;
           document.head.appendChild(s);
-        }, 3000);
+        }, 5000);
       }
     </script>
+
+    <!-- Inline critical CSS for instant first paint -->
+    <style>
+      #root { min-height: 100vh; }
+      body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+      .skeleton-shimmer-inline {
+        background: linear-gradient(90deg, #1a1a2e 25%, #2a2a3e 50%, #1a1a2e 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+      @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    </style>
   </head>
 
   <body>

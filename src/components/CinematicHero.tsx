@@ -125,7 +125,7 @@ export function CinematicHero() {
 
   return (
     <section aria-label="Featured manga" className="relative min-h-[80vh] sm:min-h-[85vh] md:min-h-[90vh] flex flex-col overflow-x-hidden">
-      {/* Background crossfade */}
+      {/* Background crossfade — LCP image gets high priority */}
       <div className="absolute inset-0 z-0">
         {rotation.map((item, i) => (
           <img
@@ -137,8 +137,10 @@ export function CinematicHero() {
               "absolute inset-0 w-full h-full object-cover transition-opacity duration-700",
               i === idx ? "opacity-100" : "opacity-0"
             )}
-            loading={i < 3 ? "eager" : "lazy"}
+            loading={i === 0 ? "eager" : "lazy"}
             decoding={i === 0 ? "sync" : "async"}
+            fetchPriority={i === 0 ? "high" : "low"}
+            sizes="100vw"
           />
         ))}
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/30" />

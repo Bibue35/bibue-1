@@ -14,11 +14,13 @@ import { AnimatedRoutes } from "@/components/AnimatedRoutes";
 import { SwipeNavigationWrapper } from "@/components/SwipeNavigationWrapper";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
-import { BackToTop } from "@/components/BackToTop";
-import { OfflineBanner } from "@/components/OfflineBanner";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
+
+// Lazy load non-critical shell components
+const BackToTop = lazy(() => import("@/components/BackToTop").then(m => ({ default: m.BackToTop })));
+const OfflineBanner = lazy(() => import("@/components/OfflineBanner").then(m => ({ default: m.OfflineBanner })));
+const MobileBottomNav = lazy(() => import("@/components/MobileBottomNav").then(m => ({ default: m.MobileBottomNav })));
 
 // Lazy load non-critical global components
 const MiniPlayer = lazy(() => import("@/components/MiniPlayer").then(m => ({ default: m.MiniPlayer })));
@@ -109,7 +111,7 @@ const App = () => (
             <SpoilerFreeProvider>
             <MiniPlayerProvider>
               <TooltipProvider>
-                <OfflineBanner />
+                <Suspense fallback={null}><OfflineBanner /></Suspense>
                 <IncognitoOverlay />
                 <Toaster />
                 <Sonner />
@@ -173,7 +175,7 @@ const App = () => (
                       </AnimatedRoutes>
                     </SwipeNavigationWrapper>
                   </Suspense>
-                  <MobileBottomNav />
+                  <Suspense fallback={null}><MobileBottomNav /></Suspense>
                 </BrowserRouter>
               </TooltipProvider>
             </MiniPlayerProvider>

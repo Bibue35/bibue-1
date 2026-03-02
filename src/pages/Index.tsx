@@ -2,32 +2,34 @@
  * Bibue - Manga, Manhwa & Manhua Platform
  * Main landing page with Apple-style search design
  */
+import { lazy, Suspense, useCallback } from "react";
 import { SEO, websiteJsonLd } from "@/components/SEO";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { SectionError } from "@/components/SectionError";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { MangaCard } from "@/components/MangaCard";
 import { ContentSection } from "@/components/ContentSection";
-import { Footer } from "@/components/Footer";
-import { AdUnit } from "@/components/AdUnit";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { CinematicHero } from "@/components/CinematicHero";
 import { useTopManga, useTrendingManhwa, useTrendingManhua, useRecentlyUpdatedManga, useAllTimeTopManga } from "@/hooks/useAnimeData";
-import { CardSkeleton, CardSkeletonRow } from "@/components/skeletons";
+import { CardSkeletonRow } from "@/components/skeletons";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, TrendingUp, Sparkles, BookOpen, Flame, History, Trophy, Zap, Upload } from "lucide-react";
+import { ArrowRight, TrendingUp, Sparkles, Flame, History, Trophy, Zap, Upload, BookOpen } from "lucide-react";
 import { ContinueReadingRow } from "@/components/ContinueRow";
-import { BibuOriginalsSection } from "@/components/BibuOriginalsSection";
 
 import { useNotificationGenerator } from "@/hooks/useNotificationGenerator";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useViewingHistory } from "@/hooks/useViewingHistory";
-import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDeferredSection } from "@/hooks/useDeferredSection";
 import { useIsMobile } from "@/hooks/use-mobile";
+
+// Lazy-load below-fold heavy components
+const Footer = lazy(() => import("@/components/Footer").then(m => ({ default: m.Footer })));
+const AdUnit = lazy(() => import("@/components/AdUnit").then(m => ({ default: m.AdUnit })));
+const BibuOriginalsSection = lazy(() => import("@/components/BibuOriginalsSection").then(m => ({ default: m.BibuOriginalsSection })));
 
 
 const Index = () => {
@@ -188,9 +190,11 @@ const Index = () => {
         )}
       </ContentSection>
 
-      <div className="container mx-auto px-3 sm:px-4">
-        <AdUnit slot="1234567890" format="horizontal" className="my-4 sm:my-6 md:my-8" />
-      </div>
+      <Suspense fallback={null}>
+        <div className="container mx-auto px-3 sm:px-4">
+          <AdUnit slot="1234567890" format="horizontal" className="my-4 sm:my-6 md:my-8" />
+        </div>
+      </Suspense>
 
       {/* Trending Manhua */}
       <ContentSection title={t("section.trendingManhua") || "Trending Manhua"} icon={Zap} linkTo="/manga?filter=manhua">
@@ -257,12 +261,16 @@ const Index = () => {
       ) : <div className="py-6 sm:py-10" />}
       </div>
 
-      <div className="container mx-auto px-3 sm:px-4">
-        <AdUnit slot="2345678901" format="horizontal" className="my-4 sm:my-6 md:my-8" />
-      </div>
+      <Suspense fallback={null}>
+        <div className="container mx-auto px-3 sm:px-4">
+          <AdUnit slot="2345678901" format="horizontal" className="my-4 sm:my-6 md:my-8" />
+        </div>
+      </Suspense>
 
       </main>
-      <Footer />
+      <Suspense fallback={null}>
+        <Footer />
+      </Suspense>
       </PullToRefresh>
     </>
   );
