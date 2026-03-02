@@ -73,6 +73,8 @@ const comparisonRows = [
     promotionSub: "Featured on Originals + homepage",
     payout: "Monthly",
     fee: "20%",
+    ownership: "100% yours",
+    support: "Personal support",
     highlighted: true,
   },
   {
@@ -84,6 +86,8 @@ const comparisonRows = [
     promotionSub: "",
     payout: "Monthly",
     fee: "30%",
+    ownership: "Shared rights",
+    support: "Community forums",
     highlighted: false,
   },
   {
@@ -95,6 +99,8 @@ const comparisonRows = [
     promotionSub: "",
     payout: "Monthly",
     fee: "50%",
+    ownership: "Shared rights",
+    support: "Ticket system",
     highlighted: false,
   },
   {
@@ -106,6 +112,8 @@ const comparisonRows = [
     promotionSub: "",
     payout: "Monthly",
     fee: "30%",
+    ownership: "Varies",
+    support: "Email only",
     highlighted: false,
   },
 ];
@@ -372,7 +380,7 @@ export default function StudioPage() {
               <h2 className="text-3xl sm:text-4xl font-bold mb-3">How Bibue Compares</h2>
               <p className="text-muted-foreground text-lg">See why more creators are switching to Bibue Studio.</p>
             </div>
-            <div className="max-w-5xl mx-auto overflow-x-auto rounded-2xl border border-border/50">
+            <div className="max-w-6xl mx-auto overflow-x-auto rounded-2xl border border-border/50">
               <Table>
                 <TableHeader>
                   <TableRow className="border-border/30">
@@ -380,7 +388,8 @@ export default function StudioPage() {
                     <TableHead className="font-semibold text-foreground min-w-[160px]">Creator Keep</TableHead>
                     <TableHead className="font-semibold text-foreground">Approval</TableHead>
                     <TableHead className="font-semibold text-foreground min-w-[140px]">Promotion</TableHead>
-                    <TableHead className="font-semibold text-foreground">Payouts</TableHead>
+                    <TableHead className="font-semibold text-foreground">IP Ownership</TableHead>
+                    <TableHead className="font-semibold text-foreground">Support</TableHead>
                     <TableHead className="font-semibold text-foreground">Platform Fee</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -389,33 +398,40 @@ export default function StudioPage() {
                     <TableRow
                       key={row.platform}
                       className={row.highlighted
-                        ? "bg-primary/8 border-primary/20 hover:bg-primary/12"
-                        : "border-border/20 hover:bg-muted/30"
+                        ? "bg-primary/15 border-l-4 border-l-primary border-primary/30 hover:bg-primary/20"
+                        : "border-border/20 hover:bg-muted/30 opacity-70"
                       }
                     >
                       <TableCell className="font-semibold">
                         <div className="flex items-center gap-2">
-                          {row.highlighted && <Zap className="w-4 h-4 text-primary" />}
-                          <span className={row.highlighted ? "text-primary" : ""}>{row.platform}</span>
+                          {row.highlighted && <Zap className="w-5 h-5 text-primary" />}
+                          <span className={row.highlighted ? "text-primary text-base font-bold" : "text-sm"}>{row.platform}</span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <span className={row.highlighted ? "font-bold text-primary" : ""}>{row.keep}</span>
-                        {row.keepSub && <span className="block text-xs text-primary/70">{row.keepSub}</span>}
+                        <span className={row.highlighted ? "font-bold text-primary text-lg" : "text-sm"}>{row.keep}</span>
+                        {row.keepSub && <span className="block text-xs text-primary/70 font-medium">{row.keepSub}</span>}
                       </TableCell>
-                      <TableCell className={row.highlighted ? "font-medium text-foreground" : "text-muted-foreground"}>
+                      <TableCell className={row.highlighted ? "font-semibold text-foreground" : "text-muted-foreground text-sm"}>
+                        {row.highlighted && <span className="inline-block mr-1.5 text-primary">✓</span>}
                         {row.approval}
                       </TableCell>
                       <TableCell>
-                        <span className={row.highlighted ? "font-medium text-foreground" : "text-muted-foreground"}>
+                        <span className={row.highlighted ? "font-semibold text-foreground" : "text-muted-foreground text-sm"}>
+                          {row.highlighted && <span className="inline-block mr-1.5 text-primary">✓</span>}
                           {row.promotion}
                         </span>
                         {row.promotionSub && <span className="block text-xs text-muted-foreground">{row.promotionSub}</span>}
                       </TableCell>
-                      <TableCell className={row.highlighted ? "font-medium text-foreground" : "text-muted-foreground"}>
-                        {row.payout}
+                      <TableCell className={row.highlighted ? "font-semibold text-primary" : "text-muted-foreground text-sm"}>
+                        {row.highlighted && <span className="inline-block mr-1.5">✓</span>}
+                        {row.ownership}
                       </TableCell>
-                      <TableCell className={row.highlighted ? "font-medium text-foreground" : "text-muted-foreground"}>
+                      <TableCell className={row.highlighted ? "font-semibold text-foreground" : "text-muted-foreground text-sm"}>
+                        {row.highlighted && <span className="inline-block mr-1.5 text-primary">✓</span>}
+                        {row.support}
+                      </TableCell>
+                      <TableCell className={row.highlighted ? "font-semibold text-foreground" : "text-muted-foreground text-sm"}>
                         {row.fee}
                       </TableCell>
                     </TableRow>
