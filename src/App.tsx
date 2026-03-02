@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { IncognitoProvider } from "@/contexts/IncognitoContext";
@@ -94,6 +94,12 @@ const queryClient = new QueryClient({
   },
 });
 
+// Redirect /anime/:id to /manga/:id preserving the ID
+function AnimeRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/manga/${id}`} replace />;
+}
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -126,7 +132,7 @@ const App = () => (
                         <Routes>
                           <Route path="/" element={<Index />} />
                           <Route path="/anime" element={<Navigate to="/manga" replace />} />
-                          <Route path="/anime/:id" element={<Navigate to="/manga" replace />} />
+                          <Route path="/anime/:id" element={<AnimeRedirect />} />
                           <Route path="/manga" element={<MangaPage />} />
                           <Route path="/manga/:id" element={<MangaDetail />} />
                           <Route path="/news" element={<NewsPage />} />
