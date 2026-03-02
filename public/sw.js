@@ -42,6 +42,9 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (request.method !== 'GET') return;
 
+  // Never cache OAuth redirects
+  if (url.pathname.startsWith('/~oauth')) return;
+
   // Strategy: Stale-while-revalidate for AniList images
   if (url.hostname === 's4.anilist.co') {
     event.respondWith(staleWhileRevalidate(request, IMAGE_CACHE, 7 * 24 * 60 * 60 * 1000));
