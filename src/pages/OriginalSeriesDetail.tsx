@@ -162,7 +162,7 @@ export default function OriginalSeriesDetail() {
               {/* Creator */}
               {creator && (
                 <Link
-                  to={`/user/${creator.user_id}`}
+                  to={`/creator/${creator.user_id}`}
                   className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-4"
                 >
                   <div className="w-6 h-6 rounded-full bg-muted overflow-hidden">
