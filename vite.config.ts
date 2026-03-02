@@ -21,13 +21,21 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: "es2020",
+    cssMinify: "lightningcss" as any,
     rollupOptions: {
       output: {
         manualChunks: {
           "vendor-react": ["react", "react-dom"],
           "vendor-router": ["react-router-dom"],
           "vendor-query": ["@tanstack/react-query"],
-          "vendor-ui": ["@radix-ui/react-dialog", "@radix-ui/react-popover", "@radix-ui/react-dropdown-menu", "@radix-ui/react-tabs"],
+          "vendor-supabase": ["@supabase/supabase-js"],
+          "vendor-ui": [
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-popover",
+            "@radix-ui/react-dropdown-menu",
+            "@radix-ui/react-tabs",
+            "@radix-ui/react-tooltip",
+          ],
         },
       },
     },

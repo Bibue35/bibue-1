@@ -5,10 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
-  getTopAnime,
-  getSeasonalAnime,
   getTopManga,
-  getRecentlyUpdatedAnime,
   getRecentlyUpdatedManga,
   SupportedLanguage,
 } from "@/lib/api";
@@ -18,12 +15,11 @@ interface SwipeNavigationWrapperProps {
 }
 
 /** Swipable tab routes — must match useSwipeNavigation */
-const TAB_ROUTES = ["/anime", "/", "/manga"];
+const TAB_ROUTES = ["/", "/manga"];
 
 /** Preload map: route → dynamic import for adjacent pages */
 const PRELOAD_MAP: Record<string, () => void> = {
-  "/": () => { import("@/pages/AnimePage"); import("@/pages/MangaPage"); },
-  "/anime": () => { import("@/pages/Index"); },
+  "/": () => { import("@/pages/MangaPage"); },
   "/manga": () => { import("@/pages/Index"); },
 };
 
@@ -57,22 +53,12 @@ export const SwipeNavigationWrapper = memo(function SwipeNavigationWrapper({
       const lang = language as SupportedLanguage;
       const staleTime = 1000 * 60 * 10;
 
-        // Prefetch data for adjacent pages based on current route
-        if (location.pathname === "/") {
-          // Prefetch Anime page data
-          queryClient.prefetchQuery({ queryKey: ["topAnime", 1, "airing", lang], queryFn: () => getTopAnime(1, 25, "airing", lang), staleTime });
-          queryClient.prefetchQuery({ queryKey: ["recentlyUpdatedAnime", 1, lang], queryFn: () => getRecentlyUpdatedAnime(1, 25, lang), staleTime });
-          // Prefetch Manga page data
-          queryClient.prefetchQuery({ queryKey: ["topManga", 1, undefined, "popularity", lang], queryFn: () => getTopManga(1, 25, undefined, "popularity", lang), staleTime });
-          queryClient.prefetchQuery({ queryKey: ["recentlyUpdatedManga", 1, lang], queryFn: () => getRecentlyUpdatedManga(1, 25, lang), staleTime });
-      } else if (location.pathname === "/anime") {
-        // Prefetch Home page data
-        queryClient.prefetchQuery({ queryKey: ["topAnime", 1, "airing", lang], queryFn: () => getTopAnime(1, 25, "airing", lang), staleTime });
-        queryClient.prefetchQuery({ queryKey: ["seasonalAnime", undefined, undefined, lang], queryFn: () => getSeasonalAnime(undefined, undefined, lang), staleTime });
+      // Only prefetch manga data for adjacent pages
+      if (location.pathname === "/") {
+        queryClient.prefetchQuery({ queryKey: ["topManga", 1, undefined, "popularity", lang], queryFn: () => getTopManga(1, 25, undefined, "popularity", lang), staleTime });
+        queryClient.prefetchQuery({ queryKey: ["recentlyUpdatedManga", 1, lang], queryFn: () => getRecentlyUpdatedManga(1, 25, lang), staleTime });
       } else if (location.pathname === "/manga") {
-        // Prefetch Home page data
-        queryClient.prefetchQuery({ queryKey: ["topAnime", 1, "airing", lang], queryFn: () => getTopAnime(1, 25, "airing", lang), staleTime });
-        queryClient.prefetchQuery({ queryKey: ["seasonalAnime", undefined, undefined, lang], queryFn: () => getSeasonalAnime(undefined, undefined, lang), staleTime });
+        queryClient.prefetchQuery({ queryKey: ["topManga", 1, undefined, "popularity", lang], queryFn: () => getTopManga(1, 25, undefined, "popularity", lang), staleTime });
       }
     };
 
