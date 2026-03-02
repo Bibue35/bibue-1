@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +23,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { OriginalChapterComments } from "@/components/OriginalChapterComments";
 
 function useSeriesDetail(id: string | undefined) {
   return useQuery({
@@ -80,6 +82,7 @@ export default function OriginalSeriesDetail() {
   const { data: series, isLoading } = useSeriesDetail(id);
   const { data: chapters = [] } = useSeriesChapters(id);
   const { data: related = [] } = useRelatedSeries(id, series?.genre_tags);
+  const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
 
   const creator = series ? (series as any).creator_profiles : null;
 
@@ -246,41 +249,59 @@ export default function OriginalSeriesDetail() {
 
           {chapters.length > 0 ? (
             <div className="space-y-1.5">
-              {chapters.map((ch) => (
-                <button
-                  key={ch.id}
-                  className={cn(
-                    "w-full text-left group rounded-xl transition-all duration-200",
-                    "px-4 py-3 sm:px-5 sm:py-4",
-                    "hover:bg-muted/40 active:scale-[0.99]",
-                    "border border-transparent hover:border-border/50"
-                  )}
-                >
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    {/* Chapter number */}
-                    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-muted/50 group-hover:bg-primary/10 flex items-center justify-center font-bold text-sm transition-colors shrink-0">
-                      {ch.chapter_number}
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-sm truncate group-hover:text-primary transition-colors">
-                        {ch.title || `Chapter ${ch.chapter_number}`}
-                      </h4>
-                      <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {new Date(ch.published_at || ch.created_at).toLocaleDateString()}
-                        </span>
-                        <span>{ch.page_count} pages</span>
+              {chapters.map((ch) => {
+                const isSelected = selectedChapterId === ch.id;
+                return (
+                  <div key={ch.id}>
+                    <button
+                      onClick={() => setSelectedChapterId(isSelected ? null : ch.id)}
+                      className={cn(
+                        "w-full text-left group rounded-xl transition-all duration-200",
+                        "px-4 py-3 sm:px-5 sm:py-4",
+                        "hover:bg-muted/40 active:scale-[0.99]",
+                        isSelected
+                          ? "border border-primary/30 bg-primary/5"
+                          : "border border-transparent hover:border-border/50"
+                      )}
+                    >
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <div className={cn(
+                          "w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-bold text-sm transition-colors shrink-0",
+                          isSelected ? "bg-primary text-primary-foreground" : "bg-muted/50 group-hover:bg-primary/10"
+                        )}>
+                          {ch.chapter_number}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className={cn(
+                            "font-medium text-sm truncate transition-colors",
+                            isSelected ? "text-primary" : "group-hover:text-primary"
+                          )}>
+                            {ch.title || `Chapter ${ch.chapter_number}`}
+                          </h4>
+                          <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              {new Date(ch.published_at || ch.created_at).toLocaleDateString()}
+                            </span>
+                            <span>{ch.page_count} pages</span>
+                          </div>
+                        </div>
+                        <ChevronRight className={cn(
+                          "w-4 h-4 transition-all shrink-0",
+                          isSelected ? "text-primary rotate-90" : "text-muted-foreground/40 group-hover:text-primary"
+                        )} />
                       </div>
-                    </div>
+                    </button>
 
-                    {/* Arrow */}
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-primary transition-colors shrink-0" />
+                    {/* Comments for selected chapter */}
+                    {isSelected && (
+                      <div className="ml-4 sm:ml-6 mt-3 mb-4 pl-4 sm:pl-5 border-l-2 border-primary/20">
+                        <OriginalChapterComments chapterId={ch.id} />
+                      </div>
+                    )}
                   </div>
-                </button>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-12">

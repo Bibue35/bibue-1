@@ -12,17 +12,19 @@ import { formatDistanceToNow, format } from "date-fns";
 import {
   Shield, LayoutDashboard, Users, BookOpen, AlertTriangle, BarChart3, DollarSign,
   Search, Loader2, CheckCircle, XCircle, Download, Eye, Heart, ChevronRight,
-  TrendingUp, FileText, Clock, CreditCard, Headphones,
+  TrendingUp, FileText, Clock, CreditCard, Headphones, MessageCircle, EyeOff,
 } from "lucide-react";
 import { SupportTicketsTab } from "@/components/admin/SupportTicketsTab";
+import { AdminChapterComments } from "@/components/admin/AdminChapterComments";
 
-type Tab = "overview" | "creators" | "series" | "moderation" | "analytics" | "payouts" | "support";
+type Tab = "overview" | "creators" | "series" | "moderation" | "comments" | "analytics" | "payouts" | "support";
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "creators", label: "Creators", icon: Users },
   { id: "series", label: "All Series", icon: BookOpen },
   { id: "moderation", label: "Moderation", icon: AlertTriangle },
+  { id: "comments", label: "Comments", icon: MessageCircle },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "payouts", label: "Payouts", icon: DollarSign },
   { id: "support", label: "Support Tickets", icon: Headphones },
@@ -123,6 +125,7 @@ export default function AdminPage() {
           {activeTab === "creators" && <CreatorsTab />}
           {activeTab === "series" && <SeriesTab />}
           {activeTab === "moderation" && <ModerationTab />}
+          {activeTab === "comments" && <AdminChapterComments />}
           {activeTab === "analytics" && <AnalyticsTab />}
           {activeTab === "payouts" && <PayoutsTab />}
           {activeTab === "support" && <SupportTicketsTab />}
