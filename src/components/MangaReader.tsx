@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, List, X, MessageCircle, Send, User, ArrowUp, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, List, X, MessageCircle, Send, User, ArrowUp, Loader2, Languages, Eye, EyeOff, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,9 @@ import { validateComment } from "@/lib/validation";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
 import { useSwipeGesture } from "@/hooks/useSwipeGesture";
 import { useMangaDexPages, type MangaDexChapter } from "@/hooks/useMangaDex";
+import { useChapterTranslation } from "@/hooks/useChapterTranslation";
+import { TranslationOverlay } from "@/components/TranslationOverlay";
+import { Progress } from "@/components/ui/progress";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,6 +62,23 @@ export function MangaReader({
   const { data: pageData, isLoading: pagesLoading, isError: pagesError } = useMangaDexPages(chapterId);
   
   const pages = useDataSaver ? (pageData?.dataSaver || []) : (pageData?.pages || []);
+
+  // Current chapter info for language detection
+  const currentChapter = chapters.find(ch => ch.id === chapterId);
+  const chapterLang = currentChapter?.translatedLanguage || "en";
+  const isNonEnglish = chapterLang !== "en";
+
+  // Translation feature
+  const {
+    translations,
+    translatingPages,
+    showTranslation,
+    isTranslating,
+    translationProgress,
+    hasTranslations,
+    translateChapter,
+    toggleTranslation,
+  } = useChapterTranslation(chapterId);
 
   // Current chapter index in the sorted list
   const currentIdx = chapters.findIndex(ch => ch.id === chapterId);
@@ -273,6 +293,62 @@ export function MangaReader({
           >
             {useDataSaver ? '📶 Data Saver ON' : '🖼️ Full Quality'}
           </button>
+
+          {/* Language badge */}
+          <div className="mt-3 flex items-center justify-center gap-2">
+            <span className={cn(
+              "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium",
+              isNonEnglish 
+                ? "bg-primary/10 text-primary border border-primary/20" 
+                : "bg-muted text-muted-foreground"
+            )}>
+              <Languages className="w-3 h-3" />
+              {isNonEnglish ? chapterLang.toUpperCase() : "English"}
+            </span>
+          </div>
+
+          {/* AI Translate Button */}
+          {isNonEnglish && !pagesLoading && pages.length > 0 && (
+            <div className="mt-4 flex flex-col items-center gap-2">
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => translateChapter(pages)}
+                disabled={isTranslating && translationProgress.done === translationProgress.total}
+                className="gap-2 bg-[hsl(263,70%,55%)] hover:bg-[hsl(263,70%,45%)] text-white shadow-lg shadow-[hsl(263,70%,55%)]/25"
+              >
+                <Sparkles className="w-4 h-4" />
+                {isTranslating 
+                  ? `Translating… ${translationProgress.done}/${translationProgress.total}` 
+                  : hasTranslations 
+                    ? "Re-translate Chapter"
+                    : "AI Translate to English (Beta)"
+                }
+              </Button>
+              <span className="text-[9px] text-muted-foreground/50">Powered by Gemini Vision • 5 free/day</span>
+
+              {/* Progress bar during translation */}
+              {isTranslating && (
+                <div className="w-48 sm:w-64">
+                  <Progress 
+                    value={translationProgress.total > 0 ? (translationProgress.done / translationProgress.total) * 100 : 0} 
+                    className="h-1.5" 
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Toggle original/translated */}
+          {hasTranslations && (
+            <button
+              onClick={toggleTranslation}
+              className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs bg-muted/50 text-muted-foreground hover:text-foreground transition-colors border border-border/20"
+            >
+              {showTranslation ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+              {showTranslation ? "Show Original" : "Show Translated"}
+            </button>
+          )}
         </div>
 
         {/* Manga Pages */}
@@ -303,6 +379,20 @@ export function MangaReader({
                   fetchPriority={idx === 0 ? "high" : "low"}
                   referrerPolicy="no-referrer"
                 />
+                {/* Translation overlay */}
+                {translations[idx] && (
+                  <TranslationOverlay 
+                    bubbles={translations[idx].bubbles} 
+                    visible={showTranslation} 
+                  />
+                )}
+                {/* Translating skeleton */}
+                {translatingPages.has(idx) && (
+                  <div className="absolute inset-0 bg-background/40 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 z-20">
+                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                    <span className="text-xs text-primary font-medium">Translating panels…</span>
+                  </div>
+                )}
               </div>
             ))
           )}
