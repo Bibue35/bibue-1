@@ -42,16 +42,16 @@ const comparisonRows = [
     platform: "Bibue Studio",
     keep: "Up to 80%",
     keepSub: "75% + 5% Founder Bonus",
-    approval: "48 hours",
+    approval: "Quick approval",
     promotion: "Excellent",
-    promotionSub: "Homepage, Originals, Social",
-    payout: "Weekly",
+    promotionSub: "Featured on Originals + homepage",
+    payout: "Monthly",
     fee: "20%",
     highlighted: true,
   },
   {
     platform: "Webtoon Canvas",
-    keep: "~70–80%",
+    keep: "70%",
     keepSub: "",
     approval: "1–4 weeks",
     promotion: "Good",
@@ -82,35 +82,24 @@ const comparisonRows = [
     fee: "30%",
     highlighted: false,
   },
-  {
-    platform: "Inkr",
-    keep: "60–70%",
-    keepSub: "",
-    approval: "1–2 weeks",
-    promotion: "Basic",
-    promotionSub: "",
-    payout: "Monthly",
-    fee: "30–40%",
-    highlighted: false,
-  },
 ];
 
 /* ── Benefits ────────────────────────────────────── */
 const benefits = [
-  { icon: Clock, title: "48-Hour Approval", desc: "Submit today, go live by tomorrow. No month-long queues." },
-  { icon: DollarSign, title: "Best Earnings", desc: "Up to 80% revenue — the highest creator share in the industry." },
-  { icon: Shield, title: "Full Creative Control", desc: "Your story, your rules. No editorial interference." },
-  { icon: Eye, title: "Strong Promotion", desc: "Featured across Originals, homepage feeds, and our social channels." },
-  { icon: BarChart3, title: "Pro Analytics", desc: "Real-time views, earnings, and reader engagement data." },
-  { icon: Wallet, title: "Weekly Payouts", desc: "Get paid every week — not once a month." },
+  { icon: Clock, title: "Quick Approval", desc: "Get reviewed and live in days, not weeks." },
+  { icon: DollarSign, title: "Up to 80% Earnings", desc: "Best creator split in the industry + Founder Bonus." },
+  { icon: Wallet, title: "Monthly Payouts", desc: "Get paid reliably every month via Stripe." },
+  { icon: Eye, title: "Powerful Promotion", desc: "Automatic feature on Originals homepage + social push." },
+  { icon: Shield, title: "Full Creative Freedom", desc: "No restrictive guidelines, you own your IP 100%." },
+  { icon: BarChart3, title: "Real-Time Analytics + Personal Support", desc: "Beautiful dashboard + direct help from the Bibue team." },
 ];
 
 /* ── How It Works Steps ──────────────────────────── */
 const steps = [
-  { num: "01", icon: Upload, title: "Submit Your Series", desc: "Upload cover art & first 3 chapters. We review within 48 hours." },
-  { num: "02", icon: CheckCircle, title: "Get Approved", desc: "Once approved, your series goes live instantly on Originals." },
-  { num: "03", icon: BookOpen, title: "Readers Discover You", desc: "Readers unlock chapters with coins. You earn from every read." },
-  { num: "04", icon: Wallet, title: "Get Paid Weekly", desc: "Earnings hit your account every week. No minimums." },
+  { num: "01", icon: Upload, title: "Submit Your Series", desc: "Upload cover art & first 3 chapters. Quick approval — days, not weeks." },
+  { num: "02", icon: CheckCircle, title: "Go Live on Originals", desc: "Once approved, your series goes live instantly with a Bibue badge." },
+  { num: "03", icon: BookOpen, title: "Readers Pay with Coins", desc: "Readers unlock chapters with coins. You earn from every read." },
+  { num: "04", icon: Wallet, title: "Get Paid Monthly", desc: "Earnings hit your account every month. Reliable and transparent." },
 ];
 
 /* ── Testimonials ────────────────────────────────── */
@@ -204,7 +193,7 @@ export default function StudioPage() {
             </div>
             <h1 className="text-3xl font-bold mb-3">Thank you!</h1>
             <p className="text-muted-foreground text-lg">
-              We've received your submission. Our team will review it within <strong className="text-foreground">48 hours</strong>.
+              We've received your submission. Our team will review it shortly.
             </p>
             <p className="text-sm text-muted-foreground mt-4">
               We'll reach out to <strong className="text-foreground">{form.email}</strong> with next steps.
@@ -250,7 +239,7 @@ export default function StudioPage() {
                 <span className="text-[#7C3AED]">Get discovered fast.</span>
               </h1>
               <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
-                The creator-first platform where you own your story and we do the heavy lifting.
+                The only platform that actually puts creators first with the highest payouts and quickest path to readers.
               </p>
               <Button
                 size="lg"
@@ -387,7 +376,7 @@ export default function StudioPage() {
           <div className="container mx-auto px-4">
             <div className="text-center mb-14">
               <h2 className="text-3xl sm:text-4xl font-bold mb-3">How It Works</h2>
-              <p className="text-muted-foreground text-lg">From submission to your first payout — in days, not months.</p>
+              <p className="text-muted-foreground text-lg">From submission to your first payout — fast and simple.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
               {steps.map((step, i) => (
@@ -416,7 +405,7 @@ export default function StudioPage() {
             <div className="max-w-2xl mx-auto">
               <div className="text-center mb-10">
                 <h2 className="text-3xl sm:text-4xl font-bold mb-3">Submit Your Series</h2>
-                <p className="text-muted-foreground text-lg">Fill out the form below. We'll review your submission within 48 hours.</p>
+                <p className="text-muted-foreground text-lg">Fill out the form below. We'll review your submission quickly.</p>
               </div>
               <form onSubmit={handleSubmit} className="space-y-5 p-6 sm:p-8 rounded-3xl border border-border/40 bg-background/50 backdrop-blur-sm">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
