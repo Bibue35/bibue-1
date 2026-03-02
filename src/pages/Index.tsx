@@ -27,24 +27,16 @@ import { cn } from "@/lib/utils";
 
 const FORMAT_TABS = [
   { value: "all" as const, label: "All" },
-  { value: "manga" as const, label: "🇯🇵 Manga" },
-  { value: "manhwa" as const, label: "🇰🇷 Manhwa" },
-  { value: "manhua" as const, label: "🇨🇳 Manhua" },
+  { value: "manga" as const, label: "Manga" },
+  { value: "manhwa" as const, label: "Manhwa" },
+  { value: "manhua" as const, label: "Manhua" },
 ];
 
 const GENRE_PILLS = [
-  { name: "Action", slug: "action" },
-  { name: "Romance", slug: "romance" },
-  { name: "Fantasy", slug: "fantasy" },
-  { name: "Drama", slug: "drama" },
-  { name: "Comedy", slug: "comedy" },
-  { name: "Horror", slug: "horror" },
-  { name: "Isekai", slug: "isekai" },
-  { name: "Slice of Life", slug: "slice-of-life" },
-  { name: "Thriller", slug: "thriller" },
-  { name: "Sci-Fi", slug: "sci-fi" },
-  { name: "Mystery", slug: "mystery" },
-  { name: "Psychological", slug: "psychological" },
+  "Action", "Romance", "Fantasy", "Drama", "Comedy", "Horror", "Isekai",
+  "Slice of Life", "Thriller", "Sci-Fi", "Mystery", "Psychological",
+  "Adventure", "Supernatural", "Historical", "Sports", "Shounen", "Shoujo",
+  "Seinen", "Josei", "Martial Arts", "Reincarnation", "Cultivation",
 ];
 
 const Index = () => {
@@ -130,22 +122,21 @@ const Index = () => {
                 {tab.label}
               </button>
             ))}
+          </div>
 
-            <div className="w-px h-5 bg-border/40 mx-1 hidden sm:block" />
-
-            {GENRE_PILLS.map((g) => (
-              <Link
-                key={g.slug}
-                to={`/genres/${g.slug}`}
-                className="px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors hidden sm:inline-flex"
-              >
-                {g.name}
-              </Link>
-            ))}
-
-            <Button variant="ghost" size="sm" className="rounded-full text-xs ml-auto" asChild>
-              <Link to="/manga">Browse All <ArrowRight className="w-3 h-3 ml-1" /></Link>
-            </Button>
+          {/* Genre pills — horizontal scroll */}
+          <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 mt-2">
+            <div className="flex items-center gap-1.5 w-max">
+              {GENRE_PILLS.map((genre) => (
+                <Link
+                  key={genre}
+                  to={`/genres/${genre.toLowerCase().replace(/[\s]+/g, "-")}`}
+                  className="px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-medium text-muted-foreground hover:text-foreground bg-muted/40 hover:bg-foreground/5 transition-colors whitespace-nowrap"
+                >
+                  {genre}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
