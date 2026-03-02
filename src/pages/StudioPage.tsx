@@ -471,9 +471,6 @@ export default function StudioPage() {
                         <div className="flex items-center gap-2">
                           {row.highlighted && <Trophy className="w-5 h-5 text-primary" />}
                           <span className={row.highlighted ? "text-primary text-base font-bold" : "text-sm"}>{row.platform}</span>
-                          {row.highlighted && (
-                            <Badge variant="outline" className="text-[10px] border-primary/40 text-primary px-1.5 py-0">Winner</Badge>
-                          )}
                         </div>
                       </TableCell>
                       <TableCell>
