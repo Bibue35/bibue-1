@@ -293,31 +293,6 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                   ))}
                 </div>
 
-                {/* External reading note */}
-                <div className="rounded-2xl bg-primary/5 border border-primary/20 p-5">
-                  <div className="flex items-start gap-3">
-                    <BookOpen className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground mb-1">Chapters are not available for reading on Bibue</p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        You can read the latest chapters on official platforms. Bibue is your discovery & tracking hub.
-                      </p>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {(manga?.type === 'Manhwa' || manga?.type === 'Manhua' || manga?.countryOfOrigin === 'KR' || manga?.countryOfOrigin === 'CN') ? (
-                          <>
-                            <a href="https://www.webtoons.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors border border-primary/20"><ExternalLink className="w-3 h-3" /> WEBTOON</a>
-                            <a href="https://www.tappytoon.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors border border-primary/20"><ExternalLink className="w-3 h-3" /> Tappytoon</a>
-                          </>
-                        ) : (
-                          <>
-                            <a href="https://mangaplus.shueisha.co.jp" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors border border-primary/20"><ExternalLink className="w-3 h-3" /> MANGA Plus</a>
-                            <a href="https://www.viz.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors border border-primary/20"><ExternalLink className="w-3 h-3" /> VIZ</a>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             )}
 
