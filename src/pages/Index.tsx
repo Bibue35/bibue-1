@@ -18,6 +18,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, TrendingUp, Sparkles, BookOpen, Flame, History, Trophy, Zap, Upload } from "lucide-react";
 import { ContinueReadingRow } from "@/components/ContinueRow";
 import { BibuOriginalsSection } from "@/components/BibuOriginalsSection";
+import { HeroGenrePanel } from "@/components/HeroGenrePanel";
 import { useNotificationGenerator } from "@/hooks/useNotificationGenerator";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -106,9 +107,7 @@ const Index = () => {
                 <Button asChild size="sm">
                   <Link to="/manga">Browse All</Link>
                 </Button>
-                <Button variant="outline" size="sm" asChild>
-                  <Link to="/genres">Explore Genres</Link>
-                </Button>
+                <HeroGenrePanel />
               </div>
             </div>
           </div>
