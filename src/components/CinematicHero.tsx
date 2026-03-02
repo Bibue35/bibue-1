@@ -3,6 +3,7 @@ import { Star, BookOpen, TrendingUp, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTopManga, useTrendingManhwa, useTrendingManhua } from "@/hooks/useAnimeData";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
+import { MangaCard } from "@/components/MangaCard";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { formatScore, type Manga } from "@/lib/api";
@@ -278,37 +279,14 @@ export function CinematicHero() {
                 <span className="text-sm sm:text-base font-semibold">Trending Now</span>
               </div>
               <HorizontalScroll showArrows={false}>
-                {trending.slice(0, 12).map((item) => (
-                  <Link
+                {trending.slice(0, 12).map((item, index) => (
+                  <div
                     key={item.manga.anilist_id}
-                    to={`/manga/${item.manga.anilist_id}`}
-                    className="flex-shrink-0 w-32 sm:w-36 md:w-40 group"
+                    className="flex-shrink-0 w-28 sm:w-36 md:w-44"
                     style={{ scrollSnapAlign: "start" }}
                   >
-                    <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted mb-1.5">
-                      <img
-                        src={item.manga.images.webp.image_url}
-                        alt={`${item.manga.title} cover`}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      <div className="absolute top-1.5 right-1.5">
-                        <span className={cn("px-1.5 py-0.5 rounded text-[9px] font-bold text-white", TYPE_STYLES[item.type].bg)}>
-                          {TYPE_STYLES[item.type].label}
-                        </span>
-                      </div>
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 to-transparent px-2 py-1.5">
-                        <span className="text-[10px] sm:text-xs flex items-center gap-0.5 text-muted-foreground">
-                          <Eye className="w-3 h-3" />
-                          {formatViews(item.viewsToday)}
-                        </span>
-                      </div>
-                    </div>
-                    <p className="text-xs sm:text-sm font-medium truncate group-hover:text-primary transition-colors">
-                      {item.manga.title}
-                    </p>
-                  </Link>
+                    <MangaCard manga={item.manga} index={index} />
+                  </div>
                 ))}
               </HorizontalScroll>
             </>
