@@ -358,7 +358,7 @@ export default function MangaPage() {
                     })
                     .slice(0, 12)
                     .map((manga, index) => (
-                      <div key={manga.anilist_id} className="flex-shrink-0 w-28">
+                      <div key={manga.anilist_id} className="flex-shrink-0 w-36 sm:w-40">
                         <MangaCard manga={manga} index={index} />
                       </div>
                     ))
@@ -366,13 +366,13 @@ export default function MangaPage() {
               </HorizontalScroll>
             ) : (
               recentlyUpdatedMangaLoading ? (
-                <div className="grid gap-4 grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+                <div className="grid gap-4 grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                   {Array.from({ length: 12 }).map((_, i) => (
-                    <Skeleton key={i} className="aspect-[2/3] rounded-xl" />
+                    <Skeleton key={i} className="aspect-[3/4] rounded-2xl" />
                   ))}
                 </div>
               ) : (
-                <div className="grid gap-4 grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+                <div className="grid gap-4 grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                   {recentlyUpdatedManga
                     ?.filter((m) => {
                       if (typeFilter === "all") return true;
@@ -395,9 +395,9 @@ export default function MangaPage() {
             <ContentSection title={t("manga.mostPopular")} titleJp={t("manga.mostPopularJp")} icon={TrendingUp} linkTo="/manga?filter=manga">
               {mangaError ? <SectionError onRetry={() => refetchManga()} /> : (
                 <HorizontalScroll showArrows={!isMobile}>
-                  {mangaLoading ? <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" /> : (
+                  {mangaLoading ? <CardSkeletonRow count={6} itemClassName="w-36 sm:w-40 md:w-48" /> : (
                     mangaOnly?.slice(0, 12).map((manga, index) => (
-                      <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                      <div key={manga.anilist_id} className="flex-shrink-0 w-36 sm:w-40 md:w-48">
                         <MangaCard manga={manga} index={index} />
                       </div>
                     ))
@@ -412,9 +412,9 @@ export default function MangaPage() {
             <ContentSection title={t("manga.topRated")} titleJp={t("manga.topRatedJp")} icon={Trophy} linkTo="/manga?filter=manga&sort=score">
               {mangaError ? <SectionError onRetry={() => refetchManga()} /> : (
                 <HorizontalScroll showArrows={!isMobile}>
-                  {mangaLoading ? <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" /> : (
+                  {mangaLoading ? <CardSkeletonRow count={6} itemClassName="w-36 sm:w-40 md:w-48" /> : (
                     topRatedManga?.map((manga, index) => (
-                      <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                      <div key={manga.anilist_id} className="flex-shrink-0 w-36 sm:w-40 md:w-48">
                         <MangaCard manga={manga} index={index} />
                       </div>
                     ))
@@ -499,14 +499,14 @@ export default function MangaPage() {
               </div>
             </div>
           ) : gridLoading ? (
-            <div className="grid gap-2.5 sm:gap-4 grid-cols-3 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8">
-              {Array.from({ length: 24 }).map((_, i) => (
-                <Skeleton key={i} className="aspect-[2/3] rounded-xl" />
+            <div className="grid gap-3 sm:gap-5 grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              {Array.from({ length: 18 }).map((_, i) => (
+                <Skeleton key={i} className="aspect-[3/4] rounded-2xl" />
               ))}
             </div>
           ) : (
             <>
-              <div className="grid gap-2.5 sm:gap-4 grid-cols-3 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8">
+              <div className="grid gap-3 sm:gap-5 grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                 {allItems.map((manga, index) => (
                   <MangaCard key={`${manga.anilist_id}-${index}`} manga={manga} index={index} />
                 ))}

@@ -19,17 +19,12 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
   const [modalOpen, setModalOpen] = useState(false);
   const { onHoverStart, onHoverEnd } = usePrefetch();
 
-  // Format aired date
   const getAiredInfo = () => {
-    if (anime.aired?.from) {
-      const date = new Date(anime.aired.from);
-      return date.getFullYear().toString();
-    }
+    if (anime.aired?.from) return new Date(anime.aired.from).getFullYear().toString();
     if (anime.year) return anime.year.toString();
     return null;
   };
 
-  // Format upcoming release date (e.g., "Jan 15" or "Apr 2026")
   const getUpcomingDate = () => {
     if (anime.status === "NOT_YET_RELEASED" && anime.aired?.from) {
       const date = new Date(anime.aired.from);
@@ -37,12 +32,7 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
       const day = date.getDate();
       const year = date.getFullYear();
       const currentYear = new Date().getFullYear();
-      
-      // If it's this year, show "Jan 15", otherwise show "Apr 2026"
-      if (year === currentYear) {
-        return `${month} ${day}`;
-      }
-      return `${month} ${year}`;
+      return year === currentYear ? `${month} ${day}` : `${month} ${year}`;
     }
     return null;
   };
@@ -50,13 +40,14 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
   const airedYear = getAiredInfo();
   const upcomingDate = getUpcomingDate();
   const episodeCount = anime.episodes;
+  const statusLabel = anime.status === "Currently Airing" || anime.status === "RELEASING" ? "Airing" : anime.status === "FINISHED" ? "Finished" : anime.status || null;
 
   if (variant === "compact") {
     return (
       <>
         <button
           onClick={() => setModalOpen(true)}
-          className="flex items-center gap-3 sm:gap-4 p-3 rounded-xl transition-all duration-150 group text-left w-full hover:bg-foreground/5 active:scale-[0.98]"
+          className="flex items-center gap-3 sm:gap-4 p-3 rounded-xl transition-all duration-150 group text-left w-full hover:bg-accent/50 active:scale-[0.98]"
         >
           <img
             src={anime.images.webp.image_url}
@@ -68,7 +59,7 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
             className="w-14 sm:w-16 h-18 sm:h-20 object-cover rounded-lg bg-muted"
           />
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-sm sm:text-base truncate group-hover:text-foreground/80 transition-colors">
+            <h3 className="font-medium text-sm sm:text-base truncate group-hover:text-primary transition-colors">
               {anime.title}
             </h3>
             <p className="text-xs sm:text-sm text-muted-foreground truncate">
@@ -77,22 +68,12 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
             <div className="flex items-center gap-3 mt-1 flex-wrap">
               {anime.score && (
                 <div className="flex items-center gap-1">
-                  <Star className="w-3 h-3 text-foreground fill-foreground" />
+                  <Star className="w-3 h-3 fill-primary text-primary" />
                   <span className="text-xs sm:text-sm font-medium">{formatScore(anime.score)}</span>
                 </div>
               )}
-              {airedYear && (
-                <div className="flex items-center gap-1 text-muted-foreground">
-                  <Calendar className="w-3 h-3" />
-                  <span className="text-xs">{airedYear}</span>
-                </div>
-              )}
-              {episodeCount && (
-                <div className="flex items-center gap-1 text-muted-foreground">
-                  <Play className="w-3 h-3" />
-                  <span className="text-xs">{episodeCount} ep</span>
-                </div>
-              )}
+              {airedYear && <span className="text-xs text-muted-foreground">{airedYear}</span>}
+              {episodeCount && <span className="text-xs text-muted-foreground">{episodeCount} ep</span>}
             </div>
           </div>
         </button>
@@ -118,89 +99,92 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
         onMouseLeave={onHoverEnd}
         className="block group/card text-left w-full active:scale-[0.98] transition-transform duration-150 isolate"
       >
-        {/* Image with simple hover effect */}
-        <div className="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden mb-1.5 sm:mb-2 bg-muted will-change-transform transform-gpu card-hover-glow">
-          <img
-            src={anime.images.webp.image_url}
-            alt={`${anime.title} cover art`}
-            width={300}
-            height={450}
-            loading={eager ? "eager" : "lazy"}
-            decoding="async"
-            sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, 176px"
-            className={cn(
-              "w-full h-full object-cover transition-transform duration-300 ease-out group-hover/card:scale-105 will-change-transform transform-gpu",
-            )}
-            style={{ opacity: 1 }}
-          />
-          {/* Episode count badge */}
-          {episodeCount && !anime.nextAiringEpisode && (
-            <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 bg-background/80 text-foreground text-[10px] sm:text-xs font-bold px-1 py-0.5 sm:px-1.5 rounded">
-              E{episodeCount}
-            </div>
-          )}
-          {/* Airing countdown badge */}
-          {anime.nextAiringEpisode && (
-            <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2">
-              <EpisodeCountdown
-                airingAt={anime.nextAiringEpisode.airingAt}
-                episode={anime.nextAiringEpisode.episode}
-                compact
-              />
-            </div>
-          )}
-          {/* Save button - appears on hover */}
-          <div 
-            className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 opacity-0 group-hover/card:opacity-100 transition-all"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <WatchlistButton
-              mal_id={anime.anilist_id}
-              media_type="anime"
-              title={anime.title}
-              title_japanese={anime.title_japanese}
-              image_url={anime.images.webp.image_url}
-              score={anime.score}
-              variant="icon"
-              className="bg-background/80 hover:bg-background h-7 w-7 sm:h-8 sm:w-8"
+        <div className="bg-card border border-border/60 rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 group-hover/card:border-primary/50 group-hover/card:-translate-y-3 group-hover/card:shadow-2xl group-hover/card:shadow-primary/20 will-change-transform transform-gpu">
+          {/* Image */}
+          <div className="relative aspect-[3/4] overflow-hidden">
+            <img
+              src={anime.images.webp.image_url}
+              alt={`${anime.title} cover art`}
+              width={300}
+              height={400}
+              loading={eager ? "eager" : "lazy"}
+              decoding="async"
+              sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, 200px"
+              className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover/card:scale-105 will-change-transform transform-gpu"
             />
+
+            {/* Top-right badges */}
+            <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex flex-col gap-1.5">
+              {anime.score && (
+                <div className="bg-background/70 backdrop-blur-sm text-foreground text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-medium flex items-center gap-1">
+                  <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-primary text-primary" />
+                  {formatScore(anime.score)}
+                </div>
+              )}
+              {episodeCount && !anime.nextAiringEpisode && (
+                <div className="bg-background/70 backdrop-blur-sm text-foreground text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-medium text-center">
+                  {episodeCount} EP
+                </div>
+              )}
+            </div>
+
+            {/* Airing countdown */}
+            {anime.nextAiringEpisode && (
+              <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
+                <EpisodeCountdown
+                  airingAt={anime.nextAiringEpisode.airingAt}
+                  episode={anime.nextAiringEpisode.episode}
+                  compact
+                />
+              </div>
+            )}
+
+            {/* Save button - top left on hover */}
+            {!anime.nextAiringEpisode && (
+              <div
+                className="absolute top-2 left-2 sm:top-3 sm:left-3 opacity-0 group-hover/card:opacity-100 transition-all duration-200"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <WatchlistButton
+                  mal_id={anime.anilist_id}
+                  media_type="anime"
+                  title={anime.title}
+                  title_japanese={anime.title_japanese}
+                  image_url={anime.images.webp.image_url}
+                  score={anime.score}
+                  variant="icon"
+                  className="bg-background/70 backdrop-blur-sm hover:bg-background h-7 w-7 sm:h-8 sm:w-8"
+                />
+              </div>
+            )}
           </div>
-        </div>
 
-        {/* Title with verification tooltip */}
-        <div className="flex items-start gap-1">
-          <h3 className="font-medium text-[11px] sm:text-xs md:text-sm line-clamp-2 mb-0.5 sm:mb-1 group-hover/card:text-foreground/80 transition-colors leading-tight flex-1">
-            {anime.title}
-          </h3>
-          <TitleTooltip 
-            romaji={anime.title_romaji}
-            english={anime.title_english}
-            native={anime.title_japanese}
-            className="mt-0.5 shrink-0"
-          />
-        </div>
+          {/* Content */}
+          <div className="p-2.5 sm:p-4 md:p-5">
+            <h3 className="font-semibold text-[11px] sm:text-sm md:text-base leading-tight line-clamp-1 sm:line-clamp-2 text-card-foreground group-hover/card:text-primary transition-colors">
+              {anime.title}
+            </h3>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1 truncate">
+              {anime.status === "NOT_YET_RELEASED" && upcomingDate ? (
+                <span className="text-primary font-medium">{upcomingDate}</span>
+              ) : (
+                <>
+                  {statusLabel && <>{statusLabel}</>}
+                  {airedYear && <> • {airedYear}</>}
+                </>
+              )}
+            </p>
 
-        {/* Score */}
-        {anime.score && (
-          <div className="flex items-center gap-0.5 sm:gap-1 mb-0.5 sm:mb-1">
-            <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary fill-primary" />
-            <span className="text-[10px] sm:text-xs md:text-sm font-medium">{formatScore(anime.score)}</span>
+            <div className="flex items-center gap-2 sm:gap-3 mt-1.5 sm:mt-3 text-[9px] sm:text-xs text-muted-foreground">
+              {episodeCount && <span>{episodeCount} Episodes</span>}
+              {anime.genres && anime.genres.length > 0 && (
+                <>
+                  {episodeCount && <span className="w-1 h-1 bg-muted-foreground/40 rounded-full" />}
+                  <span className="truncate">{anime.genres.slice(0, 2).map(g => g.name).join(", ")}</span>
+                </>
+              )}
+            </div>
           </div>
-        )}
-
-        {/* Metadata underneath - always visible */}
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-[10px] sm:text-xs text-muted-foreground">
-          {anime.status === "NOT_YET_RELEASED" && upcomingDate ? (
-            <span className="text-primary font-medium">{upcomingDate}</span>
-          ) : anime.status && (
-            <span>{anime.status === "Currently Airing" ? "TV" : anime.status === "RELEASING" ? "Airing" : anime.status === "FINISHED" ? "Finished" : anime.status}</span>
-          )}
-          {airedYear && anime.status !== "NOT_YET_RELEASED" && (
-            <>
-              <span>•</span>
-              <span>{airedYear}</span>
-            </>
-          )}
         </div>
       </button>
       

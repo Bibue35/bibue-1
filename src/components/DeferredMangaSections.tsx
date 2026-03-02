@@ -19,10 +19,10 @@ function MangaRow({ data, isLoading, isError, onRetry, isMobile }: {
   return (
     <HorizontalScroll showArrows={!isMobile}>
       {isLoading ? (
-        <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />
+        <CardSkeletonRow count={6} itemClassName="w-36 sm:w-40 md:w-48" />
       ) : (
         data?.slice(0, 12).map((manga, index) => (
-          <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+          <div key={manga.anilist_id} className="flex-shrink-0 w-36 sm:w-40 md:w-48">
             <MangaCard manga={manga} index={index} />
           </div>
         ))
@@ -100,7 +100,7 @@ export function DeferredNewThisWeekSection({ isMobile }: { isMobile: boolean }) 
 }
 function NewThisWeekContent({ isMobile, enabled }: { isMobile: boolean; enabled: boolean }) {
   const { data, isLoading, isError, refetch } = useNewThisWeekManga(1);
-  if (!enabled) return <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />;
+  if (!enabled) return <CardSkeletonRow count={6} itemClassName="w-36 sm:w-40 md:w-48" />;
   return <MangaRow data={data} isLoading={isLoading} isError={isError} onRetry={() => refetch()} isMobile={isMobile} />;
 }
 
@@ -115,7 +115,7 @@ export function DeferredCompletedSection({ isMobile }: { isMobile: boolean }) {
 }
 function CompletedContent({ isMobile, enabled }: { isMobile: boolean; enabled: boolean }) {
   const { data, isLoading, isError, refetch } = useCompletedManga(1);
-  if (!enabled) return <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />;
+  if (!enabled) return <CardSkeletonRow count={6} itemClassName="w-36 sm:w-40 md:w-48" />;
   return <MangaRow data={data} isLoading={isLoading} isError={isError} onRetry={() => refetch()} isMobile={isMobile} />;
 }
 
@@ -135,6 +135,6 @@ export function DeferredMangaGenreSection({ genre, titleJp, icon, linkTo, isMobi
 }
 function MangaGenreContent({ genre, isMobile, enabled }: { genre: string; isMobile: boolean; enabled: boolean }) {
   const { data, isLoading, isError, refetch } = useMangaByGenre(genre, 1);
-  if (!enabled) return <CardSkeletonRow count={6} itemClassName="w-28 sm:w-36 md:w-44" />;
+  if (!enabled) return <CardSkeletonRow count={6} itemClassName="w-36 sm:w-40 md:w-48" />;
   return <MangaRow data={data} isLoading={isLoading} isError={isError} onRetry={() => refetch()} isMobile={isMobile} />;
 }
