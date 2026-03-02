@@ -24,6 +24,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useTopManga, useRecentlyUpdatedManga, useInfiniteTopManga, useInfiniteMangaByGenre, useInfiniteSearchManga } from "@/hooks/useAnimeData";
+import { useHybridMangaByGenre } from "@/hooks/useHybridMangaData";
+import { isNicheTagGenre } from "@/lib/api";
 import { useInView } from "@/hooks/useInView";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
@@ -58,6 +60,16 @@ const BROWSE_GENRES = [
   { id: "24", name: "Sci-Fi", emoji: "🚀" },
   { id: "73", name: "School", emoji: "🏫" },
   { id: "2", name: "Adventure", emoji: "🗺️" },
+  // Niche tag-based genres
+  { id: "tag-xianxia", name: "Xianxia", emoji: "🐉" },
+  { id: "tag-wuxia", name: "Wuxia", emoji: "🥋" },
+  { id: "tag-cultivation", name: "Cultivation", emoji: "🧘" },
+  { id: "tag-martial-arts", name: "Martial Arts", emoji: "👊" },
+  { id: "tag-reincarnation", name: "Reincarnation", emoji: "🔄" },
+  { id: "tag-villainess", name: "Villainess", emoji: "👑" },
+  { id: "tag-regression", name: "Regression", emoji: "⏪" },
+  { id: "tag-dungeon", name: "Dungeon", emoji: "🏰" },
+  { id: "tag-system", name: "System", emoji: "📊" },
 ];
 
 const GENRE_ID_TO_NAME: Record<string, string> = {};
@@ -181,6 +193,7 @@ export default function MangaPage() {
     await queryClient.invalidateQueries({ queryKey: ["topManga"] });
     await queryClient.invalidateQueries({ queryKey: ["infiniteTopManga"] });
     await queryClient.invalidateQueries({ queryKey: ["infiniteMangaByGenre"] });
+    await queryClient.invalidateQueries({ queryKey: ["hybridMangaByGenre"] });
     await queryClient.invalidateQueries({ queryKey: ["infiniteSearchManga"] });
     await queryClient.invalidateQueries({ queryKey: ["trendingManhwa"] });
     await queryClient.invalidateQueries({ queryKey: ["trendingManhua"] });
@@ -200,12 +213,14 @@ export default function MangaPage() {
     return "POPULARITY_DESC" as const;
   };
   const genreName = genreId ? GENRE_ID_TO_NAME[genreId] || genreId : "";
+  const isNicheGenre = !!genreName && isNicheTagGenre(genreName);
 
   const infiniteTop = useInfiniteTopManga(typeFilter === "all" ? undefined : typeFilter, sortBy);
   const infiniteGenre = useInfiniteMangaByGenre(genreName, typeFilter === "all" ? undefined : typeFilter, sortToAniList(sortBy));
+  const hybridGenre = useHybridMangaByGenre(isNicheGenre ? genreName : "", typeFilter === "all" ? undefined : typeFilter, sortToAniList(sortBy));
   const infiniteSearch = useInfiniteSearchManga(debouncedSearch, isSearching, typeFilter === "all" ? undefined : typeFilter);
 
-  const activeInfinite = isSearching ? infiniteSearch : genreId ? infiniteGenre : infiniteTop;
+  const activeInfinite = isSearching ? infiniteSearch : genreId ? (isNicheGenre ? hybridGenre : infiniteGenre) : infiniteTop;
   const allItems = activeInfinite.data?.pages.flat() ?? [];
   const gridLoading = activeInfinite.isLoading;
   const isFetchingNext = activeInfinite.isFetchingNextPage;
@@ -473,6 +488,15 @@ export default function MangaPage() {
               </div>
             </>
           )}
+        </div>
+      </section>
+
+      {/* ── Data Source Attribution ── */}
+      <section className="pb-6">
+        <div className="container mx-auto px-4">
+          <p className="text-[10px] sm:text-xs text-muted-foreground/50 text-center">
+            Powered by <span className="font-medium text-muted-foreground/70">AniList</span> + <span className="font-medium text-muted-foreground/70">MangaDex</span> + <span className="font-medium text-muted-foreground/70">MyAnimeList</span>
+          </p>
         </div>
       </section>
 
