@@ -176,24 +176,32 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
 
           {/* Genres */}
           {manga?.genres && manga.genres.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {manga.genres.map((genre) => (
-                <Link
-                  key={genre.mal_id}
-                  to={`/manga?genre=${genre.mal_id}`}
-                  onClick={() => onOpenChange(false)}
-                  className="px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium hover:bg-primary/20 transition-colors border border-primary/20"
-                >
-                  {genre.name}
-                </Link>
-              ))}
-              {manga?.themes?.map(t => (
-                <span key={t.mal_id} className="px-3 py-1.5 rounded-full bg-muted text-muted-foreground text-xs border border-border/30">{t.name}</span>
-              ))}
-              {(manga as any)?.demographics?.map((d: any) => (
-                <span key={d.mal_id} className="px-3 py-1.5 rounded-full bg-muted text-foreground text-xs font-medium border border-border/30">{d.name}</span>
-              ))}
-            </div>
+            <Collapsible defaultOpen>
+              <CollapsibleTrigger className="flex items-center gap-2 group cursor-pointer w-full">
+                <h2 className="uppercase text-[10px] sm:text-xs tracking-widest text-muted-foreground font-semibold">Genres & Themes</h2>
+                <ChevronDown className="w-3.5 h-3.5 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="flex flex-wrap gap-2">
+                  {manga.genres.map((genre) => (
+                    <Link
+                      key={genre.mal_id}
+                      to={`/manga?genre=${genre.mal_id}`}
+                      onClick={() => onOpenChange(false)}
+                      className="px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium hover:bg-primary/20 transition-colors border border-primary/20"
+                    >
+                      {genre.name}
+                    </Link>
+                  ))}
+                  {manga?.themes?.map(t => (
+                    <span key={t.mal_id} className="px-3 py-1.5 rounded-full bg-muted text-muted-foreground text-xs border border-border/30">{t.name}</span>
+                  ))}
+                  {(manga as any)?.demographics?.map((d: any) => (
+                    <span key={d.mal_id} className="px-3 py-1.5 rounded-full bg-muted text-foreground text-xs font-medium border border-border/30">{d.name}</span>
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           )}
 
           {/* Tabs */}
