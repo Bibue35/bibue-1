@@ -116,13 +116,6 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
               C{chapterCount}
             </div>
           )}
-          {/* Content type badge */}
-          <div className={cn(
-            "absolute top-1.5 left-1.5 sm:top-2 sm:left-2 text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded",
-            getContentTypeBadgeClass(contentType)
-          )}>
-            {typeLabel}
-          </div>
           {/* Save button - appears on hover */}
           <div 
             className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 opacity-0 group-hover/card:opacity-100 transition-all"
