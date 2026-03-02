@@ -145,7 +145,7 @@ const Index = () => {
       {/* For Creators Banner */}
       <section className="container mx-auto px-3 sm:px-4 py-4">
         <Link
-          to="/for-creators"
+          to="/studio"
           className="group flex items-center justify-between gap-4 px-5 py-3.5 rounded-2xl border border-border/50 bg-card/50 hover:bg-card/80 hover:border-primary/30 transition-all duration-200"
         >
           <div className="flex items-center gap-3">

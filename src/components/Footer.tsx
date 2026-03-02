@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 
 const FOOTER_LINKS = [
-  { to: "/manga", label: "Discover" },
+  { to: "/manga", label: "Browse Manga" },
   { to: "/originals", label: "Originals" },
-  { to: "/for-creators", label: "For Creators" },
+  { to: "/studio", label: "Studio" },
+  { to: "/community", label: "Community" },
   { to: "/terms", label: "Guidelines" },
   { to: "/privacy", label: "Legal" },
   { to: "/support", label: "Support" },

@@ -22,8 +22,9 @@ export function FloatingNav() {
   const { data: unreadCount } = useUnreadCount();
 
   const navLinks = [
-    { href: "/manga", label: t("nav.manga") },
-    { href: "/seek", label: "Seek" },
+    { href: "/manga", label: "Browse Manga" },
+    { href: "/originals", label: "Originals" },
+    { href: "/studio", label: "Studio" },
     { href: "/community", label: t("nav.community") },
   ];
 
