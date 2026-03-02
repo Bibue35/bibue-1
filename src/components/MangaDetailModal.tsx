@@ -397,17 +397,6 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
               </Collapsible>
             )}
 
-            {/* External Links */}
-            <div className="flex flex-col gap-2">
-              <a href={`https://anilist.co/manga/${manga?.anilist_id}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-muted/30 border border-border/30 text-xs sm:text-sm hover:bg-muted/50 transition-colors">
-                <ExternalLink className="w-3.5 h-3.5 text-primary" /><span className="font-medium">View on AniList</span>
-              </a>
-              {manga?.idMal && (
-                <a href={`https://myanimelist.net/manga/${manga.idMal}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-muted/30 border border-border/30 text-xs sm:text-sm hover:bg-muted/50 transition-colors">
-                  <ExternalLink className="w-3.5 h-3.5 text-primary" /><span className="font-medium">View on MyAnimeList</span>
-                </a>
-              )}
-            </div>
 
             {/* Actions */}
             <div className="flex items-center gap-2">
