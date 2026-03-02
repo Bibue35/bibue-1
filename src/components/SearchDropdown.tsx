@@ -30,14 +30,14 @@ export function SearchDropdown({
     <div className={cn("relative w-full mx-auto", isLarge ? "max-w-2xl" : "max-w-xl")}>
       <div
         className={cn(
-          "flex items-center rounded-full border border-border/60 bg-card/80 backdrop-blur-sm transition-all duration-200",
-          "focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/10 focus-within:shadow-lg",
-          "shadow-sm",
-          isLarge ? "px-7 py-1" : "px-5 py-0.5"
+          "flex items-center rounded-[9999px] border border-border/40 bg-card/60 backdrop-blur-md transition-all duration-300",
+          "focus-within:border-foreground/20 focus-within:ring-4 focus-within:ring-foreground/5 focus-within:shadow-lg",
+          "shadow-sm hover:shadow-md",
+          isLarge ? "px-8 py-1.5" : "px-6 py-1"
         )}
       >
         <Search className={cn(
-          "text-muted-foreground shrink-0",
+          "text-muted-foreground/60 shrink-0",
           isLarge ? "w-6 h-6" : "w-5 h-5"
         )} />
         <input
@@ -47,8 +47,8 @@ export function SearchDropdown({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className={cn(
-            "flex-1 bg-transparent placeholder:text-muted-foreground/60 focus:outline-none",
-            isLarge ? "ml-4 h-14 text-lg" : "ml-3 h-12 text-base"
+            "flex-1 bg-transparent placeholder:text-muted-foreground/50 focus:outline-none text-foreground",
+            isLarge ? "ml-4 h-14 text-xl" : "ml-3 h-12 text-base"
           )}
         />
         {value && (

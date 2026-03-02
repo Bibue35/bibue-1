@@ -236,8 +236,8 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
         >
           {/* Search Input */}
           <div className="relative flex-shrink-0">
-            <div className="liquid-glass-strong rounded-2xl">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" aria-hidden="true" />
+            <div className="flex items-center rounded-[9999px] border border-border/40 bg-card/60 backdrop-blur-md px-8 py-1.5 shadow-sm hover:shadow-md transition-all duration-300 focus-within:border-foreground/20 focus-within:ring-4 focus-within:ring-foreground/5 focus-within:shadow-lg">
+              <Search className="w-6 h-6 text-muted-foreground/60 shrink-0" aria-hidden="true" />
               <input
                 type="text"
                 placeholder={t("search.placeholder")}
@@ -248,15 +248,15 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 }}
                 autoFocus
                 aria-label="Search anime and manga"
-                className="w-full h-14 pl-14 pr-14 bg-transparent text-lg placeholder:text-muted-foreground focus:outline-none"
+                className="flex-1 ml-4 h-14 bg-transparent text-xl placeholder:text-muted-foreground/50 focus:outline-none text-foreground"
               />
               {query && (
                 <button
                   onClick={() => setQuery("")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 sm:p-1.5 bg-muted/60 hover:bg-muted rounded-full transition-colors active:scale-95"
+                  className="p-1.5 bg-muted/60 hover:bg-muted rounded-full transition-colors active:scale-95 shrink-0"
                   aria-label="Clear search"
                 >
-                  <X className="w-5 h-5 sm:w-4 sm:h-4" />
+                  <X className="w-5 h-5" />
                 </button>
               )}
             </div>
