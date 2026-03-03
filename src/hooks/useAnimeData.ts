@@ -318,13 +318,14 @@ export function useCompletedManga(page = 1) {
   });
 }
 
-export function useRecentlyUpdatedAnime(page = 1) {
+export function useRecentlyUpdatedAnime(page = 1, enabled = true) {
   const { language } = useLanguage();
   return useQuery({
     queryKey: ["recentlyUpdatedAnime", page, language],
     queryFn: () => getRecentlyUpdatedAnime(page, 25, language as SupportedLanguage),
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 15,
+    enabled,
   });
 }
 
