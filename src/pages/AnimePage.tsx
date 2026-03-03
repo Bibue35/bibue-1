@@ -407,6 +407,7 @@ export default function AnimePage() {
               ))}
             </div>
           ) : (
+            <>
             <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
               {displayAnime?.map((anime, index) => (
                 viewMode === "grid" ? (
@@ -417,7 +418,6 @@ export default function AnimePage() {
               ))}
             </div>
 
-            {/* Load more sentinel */}
             <div ref={loadMoreRef} className="flex justify-center py-8">
               {isFetchingNext && (
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -426,6 +426,7 @@ export default function AnimePage() {
                 <p className="text-sm text-muted-foreground">You've seen it all!</p>
               )}
             </div>
+            </>
           )}
         </div>
       </section>
