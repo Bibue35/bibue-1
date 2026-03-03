@@ -57,24 +57,14 @@ export function CinematicHero() {
 
     const ma = tag(mangaData, "manga");
 
-    // Phase 1: interleave available types
-    const rot: HeroItem[] = [
-      ma[0], mh[0], mn[0],
-      ma[1], mh[1], mn[1],
-    ].filter(Boolean);
-
-    // Phase 2: rising today — mix remaining sorted by views
-    const rising = [...ma.slice(2, 6), ...mh.slice(2, 6), ...mn.slice(2, 6)]
-      .sort((a, b) => b.viewsToday - a.viewsToday)
-      .slice(0, 6);
-    rot.push(...rising);
+    // Rotation: top manga only (no extra API calls)
+    const rot: HeroItem[] = ma.slice(0, 8);
 
     // Trending carousel: next batch
-    const trend = [...ma.slice(6, 11), ...mh.slice(6, 11), ...mn.slice(6, 11)]
-      .sort((a, b) => b.viewsToday - a.viewsToday);
+    const trend = ma.slice(8, 18);
 
     return { rotation: rot, trending: trend };
-  }, [mangaData, manhwaData, manhuaData]);
+  }, [mangaData]);
 
   // Auto-cycle 8s
   useEffect(() => {
