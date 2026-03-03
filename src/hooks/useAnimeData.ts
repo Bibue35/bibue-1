@@ -240,13 +240,14 @@ export function useMangaByYearRange(
   });
 }
 
-export function useAllTimeTopManga(page = 1, filter?: "manga" | "manhwa" | "manhua") {
+export function useAllTimeTopManga(page = 1, filter?: "manga" | "manhwa" | "manhua", enabled = true) {
   const { language } = useLanguage();
   return useQuery({
     queryKey: ["allTimeTopManga", page, filter, language],
     queryFn: () => getAllTimeTopManga(page, 25, filter, language as SupportedLanguage),
     staleTime: 1000 * 60 * 15,
     gcTime: 1000 * 60 * 60,
+    enabled,
   });
 }
 
@@ -318,23 +319,25 @@ export function useCompletedManga(page = 1) {
   });
 }
 
-export function useRecentlyUpdatedAnime(page = 1) {
+export function useRecentlyUpdatedAnime(page = 1, enabled = true) {
   const { language } = useLanguage();
   return useQuery({
     queryKey: ["recentlyUpdatedAnime", page, language],
     queryFn: () => getRecentlyUpdatedAnime(page, 25, language as SupportedLanguage),
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 15,
+    enabled,
   });
 }
 
-export function useRecentlyUpdatedManga(page = 1) {
+export function useRecentlyUpdatedManga(page = 1, enabled = true) {
   const { language } = useLanguage();
   return useQuery({
     queryKey: ["recentlyUpdatedManga", page, language],
     queryFn: () => getRecentlyUpdatedManga(page, 25, language as SupportedLanguage),
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 15,
+    enabled,
   });
 }
 

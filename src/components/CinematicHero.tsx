@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { Star, BookOpen, TrendingUp, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTopManga, useTrendingManhwa, useTrendingManhua } from "@/hooks/useAnimeData";
+import { useTopManga } from "@/hooks/useAnimeData";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { MangaCard } from "@/components/MangaCard";
 import { cn } from "@/lib/utils";
@@ -40,8 +40,8 @@ function stripHtml(html: string): string {
 
 export function CinematicHero() {
   const { data: mangaData, isLoading: ml } = useTopManga(1, undefined, "popularity");
-  const { data: manhwaData } = useTrendingManhwa();
-  const { data: manhuaData } = useTrendingManhua();
+  // Manhwa/manhua are NOT fetched here — they come from Index.tsx via deferred sections.
+  // Hero renders with manga-only data; no duplicate network requests.
   const isMobile = useIsMobile();
   const [idx, setIdx] = useState(0);
   // Only block on the primary manga data — manhwa/manhua enhance progressively
@@ -56,27 +56,15 @@ export function CinematicHero() {
       list.map((m) => ({ manga: m, type, viewsToday: mockViews(m.anilist_id) }));
 
     const ma = tag(mangaData, "manga");
-    const mh = manhwaData?.length ? tag(manhwaData, "manhwa") : [];
-    const mn = manhuaData?.length ? tag(manhuaData, "manhua") : [];
 
-    // Phase 1: interleave available types
-    const rot: HeroItem[] = [
-      ma[0], mh[0], mn[0],
-      ma[1], mh[1], mn[1],
-    ].filter(Boolean);
-
-    // Phase 2: rising today — mix remaining sorted by views
-    const rising = [...ma.slice(2, 6), ...mh.slice(2, 6), ...mn.slice(2, 6)]
-      .sort((a, b) => b.viewsToday - a.viewsToday)
-      .slice(0, 6);
-    rot.push(...rising);
+    // Rotation: top manga only (no extra API calls)
+    const rot: HeroItem[] = ma.slice(0, 8);
 
     // Trending carousel: next batch
-    const trend = [...ma.slice(6, 11), ...mh.slice(6, 11), ...mn.slice(6, 11)]
-      .sort((a, b) => b.viewsToday - a.viewsToday);
+    const trend = ma.slice(8, 18);
 
     return { rotation: rot, trending: trend };
-  }, [mangaData, manhwaData, manhuaData]);
+  }, [mangaData]);
 
   // Auto-cycle 8s
   useEffect(() => {
@@ -128,12 +116,10 @@ export function CinematicHero() {
     <section aria-label="Featured manga" className="relative min-h-[80vh] sm:min-h-[85vh] md:min-h-[90vh] flex flex-col overflow-x-hidden">
       {/* Background crossfade — only render nearby slides to avoid downloading all images */}
       <div className="absolute inset-0 z-0">
-        {rotation.map((item, i) => {
-          // Only mount current, previous, and next slides to limit image downloads
-          const len = rotation.length;
-          const prev = (idx - 1 + len) % len;
-          const next = (idx + 1) % len;
-          const shouldMount = i === idx || i === prev || i === next;
+      {rotation.map((item, i) => {
+          // Only mount current and next slide to minimize image downloads
+          const next = (idx + 1) % rotation.length;
+          const shouldMount = i === idx || i === next;
           if (!shouldMount) return null;
           const isCurrent = i === idx;
           return (
