@@ -40,25 +40,26 @@ function stripHtml(html: string): string {
 
 export function CinematicHero() {
   const { data: mangaData, isLoading: ml } = useTopManga(1, undefined, "popularity");
-  const { data: manhwaData, isLoading: mhl } = useTrendingManhwa();
-  const { data: manhuaData, isLoading: mnl } = useTrendingManhua();
+  const { data: manhwaData } = useTrendingManhwa();
+  const { data: manhuaData } = useTrendingManhua();
   const isMobile = useIsMobile();
   const [idx, setIdx] = useState(0);
-  const isLoading = ml || mhl || mnl;
+  // Only block on the primary manga data — manhwa/manhua enhance progressively
+  const isLoading = ml;
 
-  // Build rotation + trending
+  // Build rotation + trending — render as soon as mangaData loads; manhwa/manhua enhance progressively
   const { rotation, trending } = useMemo(() => {
-    if (!mangaData?.length || !manhwaData?.length || !manhuaData?.length)
+    if (!mangaData?.length)
       return { rotation: [] as HeroItem[], trending: [] as HeroItem[] };
 
     const tag = (list: Manga[], type: ContentType): HeroItem[] =>
       list.map((m) => ({ manga: m, type, viewsToday: mockViews(m.anilist_id) }));
 
     const ma = tag(mangaData, "manga");
-    const mh = tag(manhwaData, "manhwa");
-    const mn = tag(manhuaData, "manhua");
+    const mh = manhwaData?.length ? tag(manhwaData, "manhwa") : [];
+    const mn = manhuaData?.length ? tag(manhuaData, "manhua") : [];
 
-    // Phase 1: two rounds manga→manhwa→manhua
+    // Phase 1: interleave available types
     const rot: HeroItem[] = [
       ma[0], mh[0], mn[0],
       ma[1], mh[1], mn[1],
