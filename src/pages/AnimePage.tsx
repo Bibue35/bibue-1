@@ -18,7 +18,8 @@ import { ScheduleSection } from "@/components/ScheduleSection";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardSkeletonRow } from "@/components/skeletons";
-import { useTopAnime, useSeasonalAnime, useSearchAnime, useRecentlyUpdatedAnime } from "@/hooks/useAnimeData";
+import { useTopAnime, useSeasonalAnime, useSearchAnime, useRecentlyUpdatedAnime, useInfiniteTopAnime, useInfiniteSearchAnime } from "@/hooks/useAnimeData";
+import { useInView } from "@/hooks/useInView";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -93,6 +94,8 @@ export default function AnimePage() {
   // Pull-to-refresh handler
   const handleRefresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["topAnime"] });
+    await queryClient.invalidateQueries({ queryKey: ["infiniteTopAnime"] });
+    await queryClient.invalidateQueries({ queryKey: ["infiniteSearchAnime"] });
     await queryClient.invalidateQueries({ queryKey: ["seasonalAnime"] });
     await queryClient.invalidateQueries({ queryKey: ["classicAnime"] });
     await queryClient.invalidateQueries({ queryKey: ["allTimeTopAnime"] });
@@ -100,13 +103,27 @@ export default function AnimePage() {
     await queryClient.invalidateQueries({ queryKey: ["recentlyUpdatedAnime"] });
   }, [queryClient]);
 
-  // Only eagerly load the first 2 above-fold sections + search/filter data
-  const { data: topAnime, isLoading: topLoading } = useTopAnime(1, filter);
+  // Above-fold carousel data
   const { data: airingAnime, isLoading: airingLoading, isError: airingError, refetch: refetchAiring } = useTopAnime(1, 'airing');
   const { data: seasonalAnime, isLoading: seasonalLoading, isError: seasonalError, refetch: refetchSeasonal } = useSeasonalAnime();
-  const { data: searchResults, isLoading: searchLoading } = useSearchAnime(debouncedSearch, !!debouncedSearch);
   const { data: recentlyUpdatedAnime, isLoading: recentlyUpdatedLoading, isError: recentlyUpdatedError, refetch: refetchRecentlyUpdated } = useRecentlyUpdatedAnime(1);
-  
+
+  // Infinite scroll for main grid
+  const mappedFilter = initialFilter === 'seasonal' ? undefined : filter;
+  const infiniteTop = useInfiniteTopAnime(mappedFilter);
+  const infiniteSearch = useInfiniteSearchAnime(debouncedSearch, isSearching);
+
+  const activeInfinite = isSearching ? infiniteSearch : infiniteTop;
+  const allItems = activeInfinite.data?.pages.flat() ?? [];
+  const gridLoading = activeInfinite.isLoading;
+  const isFetchingNext = activeInfinite.isFetchingNextPage;
+  const hasNextPage = activeInfinite.hasNextPage;
+
+  const { ref: loadMoreRef, isInView: loadMoreInView } = useInView({ threshold: 0, rootMargin: "400px 0px" });
+  useEffect(() => {
+    if (loadMoreInView && hasNextPage && !isFetchingNext) activeInfinite.fetchNextPage();
+  }, [loadMoreInView, hasNextPage, isFetchingNext, activeInfinite]);
+
   const sortedSeasonalAnime = seasonalAnime?.slice().sort((a, b) => {
     const aIsAiring = a.status === "Currently Airing" ? 1 : 0;
     const bIsAiring = b.status === "Currently Airing" ? 1 : 0;
@@ -114,17 +131,9 @@ export default function AnimePage() {
     return (b.members || 0) - (a.members || 0);
   });
 
-  // Sort the display anime based on sortBy selection
-  const sortedDisplayAnime = useMemo(() => {
-    const baseData = isSearching 
-      ? searchResults 
-      : initialFilter === 'seasonal' 
-        ? seasonalAnime 
-        : topAnime;
-    
-    if (!baseData) return [];
-    
-    const list = [...baseData];
+  // Sort displayed items
+  const displayAnime = useMemo(() => {
+    const list = [...allItems];
     switch (sortBy) {
       case 'score':
         return list.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
@@ -132,12 +141,11 @@ export default function AnimePage() {
         return list.sort((a, b) => (b.favorites ?? 0) - (a.favorites ?? 0));
       case 'popularity':
       default:
-        return list.sort((a, b) => (b.members ?? 0) - (a.members ?? 0));
+        return list;
     }
-  }, [isSearching, searchResults, initialFilter, seasonalAnime, topAnime, sortBy]);
+  }, [allItems, sortBy]);
 
-  const displayAnime = sortedDisplayAnime;
-  const isLoading = isSearching ? searchLoading : (initialFilter === 'seasonal' ? seasonalLoading : topLoading);
+  const isLoading = gridLoading;
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
@@ -401,15 +409,26 @@ export default function AnimePage() {
               ))}
             </div>
           ) : (
+            <>
             <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
               {displayAnime?.map((anime, index) => (
                 viewMode === "grid" ? (
-                  <AnimeCard key={anime.anilist_id} anime={anime} index={index} />
+                  <AnimeCard key={`${anime.anilist_id}-${index}`} anime={anime} index={index} />
                 ) : (
-                  <AnimeCard key={anime.anilist_id} anime={anime} index={index} variant="compact" />
+                  <AnimeCard key={`${anime.anilist_id}-${index}`} anime={anime} index={index} variant="compact" />
                 )
               ))}
             </div>
+
+            <div ref={loadMoreRef} className="flex justify-center py-8">
+              {isFetchingNext && (
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              )}
+              {!hasNextPage && allItems.length > 0 && (
+                <p className="text-sm text-muted-foreground">You've seen it all!</p>
+              )}
+            </div>
+            </>
           )}
         </div>
       </section>

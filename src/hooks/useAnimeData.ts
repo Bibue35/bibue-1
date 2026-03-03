@@ -341,8 +341,40 @@ export function useRecentlyUpdatedManga(page = 1, enabled = true) {
   });
 }
 
-// Infinite scroll hooks for the manga grid
+// Infinite scroll hooks
 const PER_PAGE = 25;
+
+export function useInfiniteTopAnime(
+  filter?: 'airing' | 'upcoming' | 'bypopularity' | 'favorite' | 'new' | 'completed'
+) {
+  const { language } = useLanguage();
+  return useInfiniteQuery({
+    queryKey: ["infiniteTopAnime", filter, language],
+    queryFn: ({ pageParam = 1 }) => getTopAnime(pageParam, PER_PAGE, filter, language as SupportedLanguage),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length >= PER_PAGE ? allPages.length + 1 : undefined,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
+  });
+}
+
+export function useInfiniteSearchAnime(
+  query: string,
+  enabled = true
+) {
+  const { language } = useLanguage();
+  return useInfiniteQuery({
+    queryKey: ["infiniteSearchAnime", query, language],
+    queryFn: ({ pageParam = 1 }) => searchAnime(query.trim(), pageParam, PER_PAGE, language as SupportedLanguage),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length >= PER_PAGE ? allPages.length + 1 : undefined,
+    enabled: enabled && query.trim().length > 0,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
+  });
+}
 
 export function useInfiniteTopManga(
   type?: 'manga' | 'novels' | 'lightnovels' | 'oneshots' | 'doujin' | 'manhwa' | 'manhua',
