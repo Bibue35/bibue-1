@@ -410,11 +410,21 @@ export default function AnimePage() {
             <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
               {displayAnime?.map((anime, index) => (
                 viewMode === "grid" ? (
-                  <AnimeCard key={anime.anilist_id} anime={anime} index={index} />
+                  <AnimeCard key={`${anime.anilist_id}-${index}`} anime={anime} index={index} />
                 ) : (
-                  <AnimeCard key={anime.anilist_id} anime={anime} index={index} variant="compact" />
+                  <AnimeCard key={`${anime.anilist_id}-${index}`} anime={anime} index={index} variant="compact" />
                 )
               ))}
+            </div>
+
+            {/* Load more sentinel */}
+            <div ref={loadMoreRef} className="flex justify-center py-8">
+              {isFetchingNext && (
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              )}
+              {!hasNextPage && allItems.length > 0 && (
+                <p className="text-sm text-muted-foreground">You've seen it all!</p>
+              )}
             </div>
           )}
         </div>
