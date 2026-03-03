@@ -94,6 +94,8 @@ export default function AnimePage() {
   // Pull-to-refresh handler
   const handleRefresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["topAnime"] });
+    await queryClient.invalidateQueries({ queryKey: ["infiniteTopAnime"] });
+    await queryClient.invalidateQueries({ queryKey: ["infiniteSearchAnime"] });
     await queryClient.invalidateQueries({ queryKey: ["seasonalAnime"] });
     await queryClient.invalidateQueries({ queryKey: ["classicAnime"] });
     await queryClient.invalidateQueries({ queryKey: ["allTimeTopAnime"] });
