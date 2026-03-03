@@ -40,8 +40,8 @@ function stripHtml(html: string): string {
 
 export function CinematicHero() {
   const { data: mangaData, isLoading: ml } = useTopManga(1, undefined, "popularity");
-  const { data: manhwaData } = useTrendingManhwa();
-  const { data: manhuaData } = useTrendingManhua();
+  // Manhwa/manhua are NOT fetched here — they come from Index.tsx via deferred sections.
+  // Hero renders with manga-only data; no duplicate network requests.
   const isMobile = useIsMobile();
   const [idx, setIdx] = useState(0);
   // Only block on the primary manga data — manhwa/manhua enhance progressively
