@@ -30,8 +30,6 @@ export const SwipeNavigationWrapper = memo(function SwipeNavigationWrapper({
   });
   const isMobile = useIsMobile();
   const location = useLocation();
-  const queryClient = useQueryClient();
-  const { language } = useLanguage();
 
   const currentIndex = TAB_ROUTES.indexOf(location.pathname);
 
