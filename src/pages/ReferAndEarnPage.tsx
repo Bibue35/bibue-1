@@ -115,14 +115,6 @@ const ReferAndEarnPage = () => {
             </p>
 
             {/* Social proof */}
-            <div className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <div className="flex -space-x-2">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="w-7 h-7 rounded-full bg-gradient-to-br from-[hsl(270,70%,50%)] to-[hsl(45,80%,50%)] border-2 border-background" />
-                ))}
-              </div>
-              <span>Already <span className="text-foreground font-medium">2,347</span> creators & readers in the Crew</span>
-            </div>
 
             {user && referralCode ? (
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">

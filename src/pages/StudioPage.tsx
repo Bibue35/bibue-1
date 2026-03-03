@@ -136,13 +136,6 @@ const steps = [
   { num: "04", icon: Wallet, title: "Get Paid Monthly", desc: "Earnings hit your account every month. Reliable and transparent." },
 ];
 
-/* ── Testimonials ────────────────────────────────── */
-const testimonials = [
-  { name: "Yuki Tanaka", series: "Crimson Blade", avatar: "Y", quote: "I left Webtoon Canvas after 2 years. Bibue approved me in a day, and I've earned more in 3 months here than my entire time there.", earnings: "$4,200/mo" },
-  { name: "Aria Chen", series: "Moonlit Garden", avatar: "A", quote: "The weekly payouts changed everything for me. I can finally focus on creating full-time instead of waiting 30+ days.", earnings: "$2,800/mo" },
-  { name: "Marcus Webb", series: "Neon Requiem", avatar: "M", quote: "Bibue's promotion is real — I hit 10K readers in my first month. On other platforms it took me a year.", earnings: "$1,900/mo" },
-  { name: "Luna Park", series: "Spirit Weaver", avatar: "L", quote: "The Founder Bonus gave me an extra 5% on top. That's real money when your series takes off.", earnings: "$3,500/mo" },
-];
 
 export default function StudioPage() {
   const { user } = useAuth();
@@ -832,44 +825,11 @@ export default function StudioPage() {
         </section>
 
         {/* ══════════════════════════════════════════════
-            8. TESTIMONIALS
-        ══════════════════════════════════════════════ */}
-        <section className="py-16 sm:py-24 bg-card/30">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl font-bold mb-3">Creator Stories</h2>
-              <p className="text-muted-foreground text-lg">Real creators. Real earnings. Real growth.</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
-              {testimonials.map((t) => (
-                <div key={t.name} className="p-6 rounded-2xl bg-background border border-border/40 hover:border-primary/20 transition-all">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                      {t.avatar}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sm">{t.name}</p>
-                      <p className="text-xs text-muted-foreground">{t.series}</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">"{t.quote}"</p>
-                  <div className="flex items-center gap-1.5">
-                    <TrendingUp className="w-4 h-4 text-primary" />
-                    <span className="text-sm font-bold text-primary">{t.earnings}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════
-            9. FOOTER CTA
+            8. FOOTER CTA
         ══════════════════════════════════════════════ */}
         <section className="py-20 sm:py-28 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent" />
           <div className="container mx-auto px-4 relative z-10 text-center">
-            <p className="text-sm font-medium text-primary mb-3">Join 200+ creators already building their legacy on Bibue</p>
             <h2 className="text-3xl sm:text-4xl font-bold mb-6">Ready to publish your story?</h2>
             <Button
               size="lg"
