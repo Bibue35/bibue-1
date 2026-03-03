@@ -30,10 +30,10 @@
     <!-- Preconnect to critical origins - MUST be before any other resource hints -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://graphql.anilist.co" crossorigin />
+    <link rel="dns-prefetch" href="https://graphql.anilist.co" />
     <link rel="preconnect" href="https://s4.anilist.co" crossorigin />
-    <link rel="preconnect" href="https://cdn.myanimelist.net" crossorigin />
-    <link rel="preconnect" href="https://dsquhilpqcwqydsfhooi.supabase.co" crossorigin />
+    <link rel="dns-prefetch" href="https://cdn.myanimelist.net" />
+    <link rel="preconnect" href="https://dsquhilpqcwqydsfhooi.supabase.co" />
     <link rel="dns-prefetch" href="https://graphql.anilist.co" />
     <link rel="dns-prefetch" href="https://s4.anilist.co" />
     <link rel="dns-prefetch" href="https://cdn.myanimelist.net" />
@@ -78,18 +78,34 @@
     <!-- Inline critical CSS for instant first paint -->
     <style>
       #root { min-height: 100vh; }
-      body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-      .skeleton-shimmer-inline {
+      body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #0a0a0f; color: #e2e2e2; }
+      .app-shell { max-width: 100%; min-height: 100vh; }
+      .app-shell-nav { height: 56px; background: #0a0a0f; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; padding: 0 16px; }
+      .app-shell-nav .logo { font-size: 20px; font-weight: 700; color: #e2e2e2; }
+      .app-shell-hero { width: 100%; height: 70vh; position: relative; overflow: hidden; }
+      .sk {
         background: linear-gradient(90deg, #1a1a2e 25%, #2a2a3e 50%, #1a1a2e 75%);
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
+        border-radius: 8px;
       }
       @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- SSR-like shell for instant FCP – React replaces this on mount -->
+      <div class="app-shell" aria-hidden="true">
+        <nav class="app-shell-nav"><span class="logo">Bibue</span></nav>
+        <div class="app-shell-hero sk"></div>
+        <div style="padding:16px;display:flex;gap:12px;overflow:hidden;">
+          <div class="sk" style="width:128px;height:192px;flex-shrink:0;"></div>
+          <div class="sk" style="width:128px;height:192px;flex-shrink:0;"></div>
+          <div class="sk" style="width:128px;height:192px;flex-shrink:0;"></div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
