@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Menu, X, Users, LogIn } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -33,15 +33,12 @@ export function CollapsibleNavbar() {
     { href: "/community", label: t("nav.community") },
   ];
 
-  // Mobile menu only shows non-swipable pages
+  // Mobile menu replaces the bottom nav — single source of navigation
   const mobileMenuLinks = [
-    { href: "/news", label: t("nav.news") },
-    { href: "/recommendations", label: t("nav.forYou") },
-    { href: "/manga", label: "Browse by Genre" },
-    { href: "/rankings", label: "Rankings" },
+    { href: "/manga", label: "Browse" },
+    { href: "/originals", label: "Originals" },
+    { href: "/studio", label: "Studio" },
     { href: "/refer", label: "Refer & Earn" },
-    { href: "/for-creators", label: "For Creators" },
-    ...(user ? [{ href: "/support", label: "Support" }] : []),
   ];
 
   useEffect(() => {
@@ -207,10 +204,9 @@ export function CollapsibleNavbar() {
               </Link>
             ))}
 
-            {/* Theme toggle */}
             <ThemeSelector variant="text" />
 
-            {user && (
+            {user ? (
               <Link
                 to="/settings"
                 className={cn(
@@ -221,11 +217,9 @@ export function CollapsibleNavbar() {
                 )}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                {t("nav.settings")}
+                Me
               </Link>
-            )}
-
-            {!user && (
+            ) : (
               <button
                 onClick={() => {
                   setAuthModalOpen(true);
