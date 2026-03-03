@@ -47,8 +47,8 @@ const Index = () => {
   const { data: trendingManhwa, isLoading: trendingManhwaLoading, isError: trendingManhwaError, refetch: refetchTrendingManhwa } = useTrendingManhwa(1, manhwaSection.isVisible);
   const { data: trendingManhua, isLoading: trendingManhuaLoading, isError: trendingManhuaError, refetch: refetchTrendingManhua } = useTrendingManhua(1, manhuaSection.isVisible);
 
-  const { data: recentManga, isLoading: recentLoading, isError: recentError, refetch: refetchRecent } = useRecentlyUpdatedManga(recentSection.isVisible ? 1 : 0);
-  const { data: allTimeManga, isLoading: allTimeLoading, isError: allTimeError, refetch: refetchAllTime } = useAllTimeTopManga(allTimeSection.isVisible ? 1 : 0);
+  const { data: recentManga, isLoading: recentLoading, isError: recentError, refetch: refetchRecent } = useRecentlyUpdatedManga(1, recentSection.isVisible);
+  const { data: allTimeManga, isLoading: allTimeLoading, isError: allTimeError, refetch: refetchAllTime } = useAllTimeTopManga(1, allTimeSection.isVisible ? undefined : 'manga' as any);
 
   const { t, language } = useLanguage();
   const { user } = useAuth();
