@@ -84,25 +84,25 @@ export function CinematicHero() {
     return () => clearInterval(t);
   }, [rotation.length]);
 
-  // Preload adjacent images
-  const preloadRef = useRef<HTMLLinkElement[]>([]);
+  // Preload only the next slide image (current is already loading)
+  const preloadRef = useRef<HTMLLinkElement | null>(null);
   useEffect(() => {
-    preloadRef.current.forEach((l) => l.remove());
-    preloadRef.current = [];
+    preloadRef.current?.remove();
+    preloadRef.current = null;
     if (!rotation.length) return;
-    [0, 1, 2].forEach((offset) => {
-      const i = (idx + offset) % rotation.length;
-      const url = rotation[i]?.manga.images.webp.large_image_url;
-      if (!url || document.querySelector(`link[rel="preload"][href="${url}"]`)) return;
-      const link = document.createElement("link");
-      link.rel = "preload";
-      link.as = "image";
-      link.href = url;
-      document.head.appendChild(link);
-      preloadRef.current.push(link);
-    });
-    return () => { preloadRef.current.forEach((l) => l.remove()); preloadRef.current = []; };
-  }, [idx, rotation]);
+    const nextIdx = (idx + 1) % rotation.length;
+    const url = isMobile
+      ? rotation[nextIdx]?.manga.images.webp.image_url
+      : rotation[nextIdx]?.manga.images.webp.large_image_url;
+    if (!url || document.querySelector(`link[rel="preload"][href="${url}"]`)) return;
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.as = "image";
+    link.href = url;
+    document.head.appendChild(link);
+    preloadRef.current = link;
+    return () => { preloadRef.current?.remove(); preloadRef.current = null; };
+  }, [idx, rotation, isMobile]);
 
   if (isLoading || !rotation.length) return <HeroSkeleton variant="full" />;
 

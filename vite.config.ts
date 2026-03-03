@@ -30,12 +30,15 @@ export default defineConfig(({ mode }) => ({
           "vendor-router": ["react-router-dom"],
           "vendor-query": ["@tanstack/react-query"],
           "vendor-supabase": ["@supabase/supabase-js"],
-          "vendor-ui-core": [
+          "vendor-ui": [
             "@radix-ui/react-dialog",
+            "@radix-ui/react-tooltip",
+            "@radix-ui/react-slot",
+          ],
+          "vendor-ui-popover": [
             "@radix-ui/react-popover",
             "@radix-ui/react-dropdown-menu",
             "@radix-ui/react-tabs",
-            "@radix-ui/react-tooltip",
           ],
           "vendor-ui-extra": [
             "@radix-ui/react-accordion",

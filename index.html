@@ -51,25 +51,10 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" media="print" onload="this.media='all'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" /></noscript>
 
-    <!-- Google AdSense - deferred until after page is interactive -->
+    <!-- Google AdSense - deferred well after interactive -->
     <script>
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(function() {
-          var s = document.createElement('script');
-          s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2458670095989987';
-          s.crossOrigin = 'anonymous';
-          s.async = true;
-          document.head.appendChild(s);
-        }, { timeout: 5000 });
-      } else {
-        setTimeout(function() {
-          var s = document.createElement('script');
-          s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2458670095989987';
-          s.crossOrigin = 'anonymous';
-          s.async = true;
-          document.head.appendChild(s);
-        }, 5000);
-      }
+      function loadAds(){var s=document.createElement('script');s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2458670095989987';s.crossOrigin='anonymous';s.async=true;document.head.appendChild(s);}
+      if('requestIdleCallback' in window){requestIdleCallback(loadAds,{timeout:8000});}else{setTimeout(loadAds,8000);}
     </script>
 
     <!-- Inline critical CSS for instant first paint -->
