@@ -20,7 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 // Lazy load non-critical shell components
 const BackToTop = lazy(() => import("@/components/BackToTop").then(m => ({ default: m.BackToTop })));
 const OfflineBanner = lazy(() => import("@/components/OfflineBanner").then(m => ({ default: m.OfflineBanner })));
-const MobileBottomNav = lazy(() => import("@/components/MobileBottomNav").then(m => ({ default: m.MobileBottomNav })));
+
 
 // Lazy load non-critical global components
 const MiniPlayer = lazy(() => import("@/components/MiniPlayer").then(m => ({ default: m.MiniPlayer })));
@@ -175,7 +175,7 @@ const App = () => (
                       </AnimatedRoutes>
                     </SwipeNavigationWrapper>
                   </Suspense>
-                  <Suspense fallback={null}><MobileBottomNav /></Suspense>
+                  
                 </BrowserRouter>
               </TooltipProvider>
             </MiniPlayerProvider>
