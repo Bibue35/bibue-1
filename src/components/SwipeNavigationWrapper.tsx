@@ -2,13 +2,6 @@ import { memo, useEffect } from "react";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useQueryClient } from "@tanstack/react-query";
-import { useLanguage } from "@/contexts/LanguageContext";
-import {
-  getTopManga,
-  getRecentlyUpdatedManga,
-  SupportedLanguage,
-} from "@/lib/api";
 
 interface SwipeNavigationWrapperProps {
   children: React.ReactNode;
