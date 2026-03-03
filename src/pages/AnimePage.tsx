@@ -101,13 +101,27 @@ export default function AnimePage() {
     await queryClient.invalidateQueries({ queryKey: ["recentlyUpdatedAnime"] });
   }, [queryClient]);
 
-  // Only eagerly load the first 2 above-fold sections + search/filter data
-  const { data: topAnime, isLoading: topLoading } = useTopAnime(1, filter);
+  // Above-fold carousel data
   const { data: airingAnime, isLoading: airingLoading, isError: airingError, refetch: refetchAiring } = useTopAnime(1, 'airing');
   const { data: seasonalAnime, isLoading: seasonalLoading, isError: seasonalError, refetch: refetchSeasonal } = useSeasonalAnime();
-  const { data: searchResults, isLoading: searchLoading } = useSearchAnime(debouncedSearch, !!debouncedSearch);
   const { data: recentlyUpdatedAnime, isLoading: recentlyUpdatedLoading, isError: recentlyUpdatedError, refetch: refetchRecentlyUpdated } = useRecentlyUpdatedAnime(1);
-  
+
+  // Infinite scroll for main grid
+  const mappedFilter = initialFilter === 'seasonal' ? undefined : filter;
+  const infiniteTop = useInfiniteTopAnime(mappedFilter);
+  const infiniteSearch = useInfiniteSearchAnime(debouncedSearch, isSearching);
+
+  const activeInfinite = isSearching ? infiniteSearch : infiniteTop;
+  const allItems = activeInfinite.data?.pages.flat() ?? [];
+  const gridLoading = activeInfinite.isLoading;
+  const isFetchingNext = activeInfinite.isFetchingNextPage;
+  const hasNextPage = activeInfinite.hasNextPage;
+
+  const { ref: loadMoreRef, isInView: loadMoreInView } = useInView({ threshold: 0, rootMargin: "400px 0px" });
+  useEffect(() => {
+    if (loadMoreInView && hasNextPage && !isFetchingNext) activeInfinite.fetchNextPage();
+  }, [loadMoreInView, hasNextPage, isFetchingNext, activeInfinite]);
+
   const sortedSeasonalAnime = seasonalAnime?.slice().sort((a, b) => {
     const aIsAiring = a.status === "Currently Airing" ? 1 : 0;
     const bIsAiring = b.status === "Currently Airing" ? 1 : 0;
@@ -115,17 +129,9 @@ export default function AnimePage() {
     return (b.members || 0) - (a.members || 0);
   });
 
-  // Sort the display anime based on sortBy selection
-  const sortedDisplayAnime = useMemo(() => {
-    const baseData = isSearching 
-      ? searchResults 
-      : initialFilter === 'seasonal' 
-        ? seasonalAnime 
-        : topAnime;
-    
-    if (!baseData) return [];
-    
-    const list = [...baseData];
+  // Sort displayed items
+  const displayAnime = useMemo(() => {
+    const list = [...allItems];
     switch (sortBy) {
       case 'score':
         return list.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
@@ -133,12 +139,11 @@ export default function AnimePage() {
         return list.sort((a, b) => (b.favorites ?? 0) - (a.favorites ?? 0));
       case 'popularity':
       default:
-        return list.sort((a, b) => (b.members ?? 0) - (a.members ?? 0));
+        return list;
     }
-  }, [isSearching, searchResults, initialFilter, seasonalAnime, topAnime, sortBy]);
+  }, [allItems, sortBy]);
 
-  const displayAnime = sortedDisplayAnime;
-  const isLoading = isSearching ? searchLoading : (initialFilter === 'seasonal' ? seasonalLoading : topLoading);
+  const isLoading = gridLoading;
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
