@@ -116,12 +116,10 @@ export function CinematicHero() {
     <section aria-label="Featured manga" className="relative min-h-[80vh] sm:min-h-[85vh] md:min-h-[90vh] flex flex-col overflow-x-hidden">
       {/* Background crossfade — only render nearby slides to avoid downloading all images */}
       <div className="absolute inset-0 z-0">
-        {rotation.map((item, i) => {
-          // Only mount current, previous, and next slides to limit image downloads
-          const len = rotation.length;
-          const prev = (idx - 1 + len) % len;
-          const next = (idx + 1) % len;
-          const shouldMount = i === idx || i === prev || i === next;
+      {rotation.map((item, i) => {
+          // Only mount current and next slide to minimize image downloads
+          const next = (idx + 1) % rotation.length;
+          const shouldMount = i === idx || i === next;
           if (!shouldMount) return null;
           const isCurrent = i === idx;
           return (

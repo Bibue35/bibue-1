@@ -42,32 +42,16 @@ export const SwipeNavigationWrapper = memo(function SwipeNavigationWrapper({
 
   const currentIndex = TAB_ROUTES.indexOf(location.pathname);
 
-  // Preload adjacent page chunks AND prefetch their data
+  // Preload adjacent page JS chunks only (no data prefetch to reduce network contention)
   useEffect(() => {
     const preload = PRELOAD_MAP[location.pathname];
     if (!preload) return;
-
-    const prefetchData = () => {
-      preload(); // JS chunks
-
-      const lang = language as SupportedLanguage;
-      const staleTime = 1000 * 60 * 10;
-
-      // Only prefetch manga data for adjacent pages
-      if (location.pathname === "/") {
-        queryClient.prefetchQuery({ queryKey: ["topManga", 1, undefined, "popularity", lang], queryFn: () => getTopManga(1, 25, undefined, "popularity", lang), staleTime });
-        queryClient.prefetchQuery({ queryKey: ["recentlyUpdatedManga", 1, lang], queryFn: () => getRecentlyUpdatedManga(1, 25, lang), staleTime });
-      } else if (location.pathname === "/manga") {
-        queryClient.prefetchQuery({ queryKey: ["topManga", 1, undefined, "popularity", lang], queryFn: () => getTopManga(1, 25, undefined, "popularity", lang), staleTime });
-      }
-    };
-
     if ("requestIdleCallback" in window) {
-      (window as any).requestIdleCallback(prefetchData);
+      (window as any).requestIdleCallback(preload);
     } else {
-      setTimeout(prefetchData, 100);
+      setTimeout(preload, 200);
     }
-  }, [location.pathname, queryClient, language]);
+  }, [location.pathname]);
   const canSwipeRight = currentIndex > 0;
   const canSwipeLeft = currentIndex < TAB_ROUTES.length - 1 && currentIndex !== -1;
 
