@@ -171,7 +171,11 @@ const Index = () => {
         )}
       </ContentSection>
 
+      {/* Below-fold sections use content-visibility for paint deferral */}
+      <style>{`.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 400px; }`}</style>
+
       {/* Trending Manhwa */}
+      <div className="cv-auto">
       <ContentSection title={t("section.trendingManhwa") || "Trending Manhwa"} icon={Zap} linkTo="/manga?filter=manhwa">
         {trendingManhwaError ? (
           <SectionError onRetry={() => refetchTrendingManhwa()} />
@@ -185,18 +189,20 @@ const Index = () => {
                   <MangaCard manga={manga} index={index} />
                 </div>
               ))
-            )}
+        )}
           </HorizontalScroll>
         )}
       </ContentSection>
+      </div>
 
       <Suspense fallback={null}>
-        <div className="container mx-auto px-3 sm:px-4">
+        <div className="container mx-auto px-3 sm:px-4 cv-auto">
           <AdUnit slot="1234567890" format="horizontal" className="my-4 sm:my-6 md:my-8" />
         </div>
       </Suspense>
 
       {/* Trending Manhua */}
+      <div className="cv-auto">
       <ContentSection title={t("section.trendingManhua") || "Trending Manhua"} icon={Zap} linkTo="/manga?filter=manhua">
         {trendingManhuaError ? (
           <SectionError onRetry={() => refetchTrendingManhua()} />
@@ -210,13 +216,14 @@ const Index = () => {
                   <MangaCard manga={manga} index={index} />
                 </div>
               ))
-            )}
+        )}
           </HorizontalScroll>
         )}
       </ContentSection>
+      </div>
 
       {/* Recently Updated */}
-      <div ref={recentSection.ref}>
+      <div ref={recentSection.ref} className="cv-auto">
       {recentSection.isVisible ? (
       <ContentSection title="Recently Updated" icon={Sparkles} linkTo="/manga">
         {recentError ? (
@@ -239,7 +246,7 @@ const Index = () => {
       </div>
 
       {/* All-Time Top Manga */}
-      <div ref={allTimeSection.ref}>
+      <div ref={allTimeSection.ref} className="cv-auto">
       {allTimeSection.isVisible ? (
       <ContentSection title="All-Time Top Rated" icon={Trophy} linkTo="/rankings?type=manga">
         {allTimeError ? (
@@ -262,7 +269,7 @@ const Index = () => {
       </div>
 
       <Suspense fallback={null}>
-        <div className="container mx-auto px-3 sm:px-4">
+        <div className="container mx-auto px-3 sm:px-4 cv-auto">
           <AdUnit slot="2345678901" format="horizontal" className="my-4 sm:my-6 md:my-8" />
         </div>
       </Suspense>
