@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { Star, BookOpen, TrendingUp, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTopManga, useTrendingManhwa, useTrendingManhua } from "@/hooks/useAnimeData";
+import { useTopManga } from "@/hooks/useAnimeData";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
 import { MangaCard } from "@/components/MangaCard";
 import { cn } from "@/lib/utils";
