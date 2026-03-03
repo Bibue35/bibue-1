@@ -240,13 +240,14 @@ export function useMangaByYearRange(
   });
 }
 
-export function useAllTimeTopManga(page = 1, filter?: "manga" | "manhwa" | "manhua") {
+export function useAllTimeTopManga(page = 1, filter?: "manga" | "manhwa" | "manhua", enabled = true) {
   const { language } = useLanguage();
   return useQuery({
     queryKey: ["allTimeTopManga", page, filter, language],
     queryFn: () => getAllTimeTopManga(page, 25, filter, language as SupportedLanguage),
     staleTime: 1000 * 60 * 15,
     gcTime: 1000 * 60 * 60,
+    enabled,
   });
 }
 
