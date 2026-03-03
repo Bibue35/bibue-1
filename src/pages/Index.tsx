@@ -37,12 +37,15 @@ const Index = () => {
 
   // Above-fold hooks
   const { data: topManga, isLoading: topMangaLoading, isError: topMangaError, refetch: refetchTopManga } = useTopManga(1, undefined, 'popularity');
-  const { data: trendingManhwa, isLoading: trendingManhwaLoading, isError: trendingManhwaError, refetch: refetchTrendingManhwa } = useTrendingManhwa();
-  const { data: trendingManhua, isLoading: trendingManhuaLoading, isError: trendingManhuaError, refetch: refetchTrendingManhua } = useTrendingManhua();
 
-  // Below-fold deferred
+  // Below-fold deferred — only fetch when near viewport
+  const manhwaSection = useDeferredSection("400px");
+  const manhuaSection = useDeferredSection("400px");
   const recentSection = useDeferredSection("400px");
   const allTimeSection = useDeferredSection("400px");
+
+  const { data: trendingManhwa, isLoading: trendingManhwaLoading, isError: trendingManhwaError, refetch: refetchTrendingManhwa } = useTrendingManhwa(1, manhwaSection.isVisible);
+  const { data: trendingManhua, isLoading: trendingManhuaLoading, isError: trendingManhuaError, refetch: refetchTrendingManhua } = useTrendingManhua(1, manhuaSection.isVisible);
 
   const { data: recentManga, isLoading: recentLoading, isError: recentError, refetch: refetchRecent } = useRecentlyUpdatedManga(1);
   const { data: allTimeManga, isLoading: allTimeLoading, isError: allTimeError, refetch: refetchAllTime } = useAllTimeTopManga(1);
@@ -175,7 +178,7 @@ const Index = () => {
       <style>{`.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 400px; }`}</style>
 
       {/* Trending Manhwa */}
-      <div className="cv-auto">
+      <div ref={manhwaSection.ref} className="cv-auto">
       <ContentSection title={t("section.trendingManhwa") || "Trending Manhwa"} icon={Zap} linkTo="/manga?filter=manhwa">
         {trendingManhwaError ? (
           <SectionError onRetry={() => refetchTrendingManhwa()} />
@@ -202,7 +205,7 @@ const Index = () => {
       </Suspense>
 
       {/* Trending Manhua */}
-      <div className="cv-auto">
+      <div ref={manhuaSection.ref} className="cv-auto">
       <ContentSection title={t("section.trendingManhua") || "Trending Manhua"} icon={Zap} linkTo="/manga?filter=manhua">
         {trendingManhuaError ? (
           <SectionError onRetry={() => refetchTrendingManhua()} />
