@@ -125,24 +125,33 @@ export function CinematicHero() {
 
   return (
     <section aria-label="Featured manga" className="relative min-h-[80vh] sm:min-h-[85vh] md:min-h-[90vh] flex flex-col overflow-x-hidden">
-      {/* Background crossfade — LCP image gets high priority */}
+      {/* Background crossfade — only render nearby slides to avoid downloading all images */}
       <div className="absolute inset-0 z-0">
-        {rotation.map((item, i) => (
-          <img
-            key={item.manga.anilist_id}
-            src={item.manga.images.webp.large_image_url}
-            alt=""
-            aria-hidden="true"
-            className={cn(
-              "absolute inset-0 w-full h-full object-cover transition-opacity duration-700",
-              i === idx ? "opacity-100" : "opacity-0"
-            )}
-            loading={i === 0 ? "eager" : "lazy"}
-            decoding={i === 0 ? "sync" : "async"}
-            fetchPriority={i === 0 ? "high" : "low"}
-            sizes="100vw"
-          />
-        ))}
+        {rotation.map((item, i) => {
+          // Only mount current, previous, and next slides to limit image downloads
+          const len = rotation.length;
+          const prev = (idx - 1 + len) % len;
+          const next = (idx + 1) % len;
+          const shouldMount = i === idx || i === prev || i === next;
+          if (!shouldMount) return null;
+          const isCurrent = i === idx;
+          return (
+            <img
+              key={item.manga.anilist_id}
+              src={isMobile ? item.manga.images.webp.image_url : item.manga.images.webp.large_image_url}
+              alt=""
+              aria-hidden="true"
+              className={cn(
+                "absolute inset-0 w-full h-full object-cover transition-opacity duration-700",
+                isCurrent ? "opacity-100" : "opacity-0"
+              )}
+              loading={isCurrent ? "eager" : "lazy"}
+              decoding={isCurrent ? "sync" : "async"}
+              fetchPriority={isCurrent ? "high" : "low"}
+              sizes="100vw"
+            />
+          );
+        })}
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/30" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-background/50" />
         <div className="absolute inset-0 bg-background/15" />
