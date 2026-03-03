@@ -56,8 +56,6 @@ export function CinematicHero() {
       list.map((m) => ({ manga: m, type, viewsToday: mockViews(m.anilist_id) }));
 
     const ma = tag(mangaData, "manga");
-    const mh = manhwaData?.length ? tag(manhwaData, "manhwa") : [];
-    const mn = manhuaData?.length ? tag(manhuaData, "manhua") : [];
 
     // Phase 1: interleave available types
     const rot: HeroItem[] = [
