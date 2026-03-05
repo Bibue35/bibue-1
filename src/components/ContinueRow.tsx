@@ -18,7 +18,7 @@ function ContinueCard({ item }: { item: WatchlistItem }) {
 
   return (
     <div
-      className="flex-shrink-0 w-32 sm:w-40 md:w-44 group relative"
+      className="flex-shrink-0 w-32 sm:w-40 md:w-48 group relative"
       style={{ scrollSnapAlign: "start" }}
     >
       <Link to={`/${item.media_type}/${item.mal_id}`}>

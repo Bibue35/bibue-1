@@ -121,7 +121,7 @@ const Index = () => {
               <Link
                 key={entry.id}
                 to={`/${entry.media_type}/${entry.media_id}`}
-                className="flex-shrink-0 w-28 sm:w-36 md:w-44 group"
+                className="flex-shrink-0 w-32 sm:w-40 md:w-48 group"
                 style={{ scrollSnapAlign: "start" }}
               >
                 <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-muted mb-1.5">

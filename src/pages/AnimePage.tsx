@@ -296,7 +296,7 @@ export default function AnimePage() {
                 <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-48" />
               ) : (
                 sortedSeasonalAnime?.slice(0, 12).map((anime, index) => (
-                  <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+                  <div key={anime.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-48">
                     {isMobile ? (
                       <MobileAnimeCard anime={anime} index={index} />
                     ) : (

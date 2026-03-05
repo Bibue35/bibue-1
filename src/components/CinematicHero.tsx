@@ -280,7 +280,7 @@ export function CinematicHero() {
                 {trending.slice(0, 12).map((item, index) => (
                   <div
                     key={item.manga.anilist_id}
-                    className="flex-shrink-0 w-28 sm:w-36 md:w-44"
+                    className="flex-shrink-0 w-32 sm:w-40 md:w-48"
                     style={{ scrollSnapAlign: "start" }}
                   >
                     <MangaCard manga={item.manga} index={index} />

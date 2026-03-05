@@ -76,7 +76,7 @@ export const CardSkeletonRow = memo(function CardSkeletonRow({
 }: CardSkeletonGridProps) {
   const widthClass = variant === "compact" 
     ? "w-full" 
-    : "w-28 sm:w-36 md:w-44";
+    : "w-32 sm:w-40 md:w-48";
 
   return (
     <div className={cn("flex gap-3", className)}>

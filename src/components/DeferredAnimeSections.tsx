@@ -99,6 +99,6 @@ export function DeferredGenreSection({ genre, titleJp, icon, linkTo, isMobile }:
 function GenreContent({ genre, isMobile, enabled }: { genre: string; isMobile: boolean; enabled: boolean }) {
   const { data, isLoading, isError, refetch } = useAnimeByGenre(genre, 1, "POPULARITY_DESC");
   // Only fetch when enabled - useAnimeByGenre has `enabled: !!genre` but we also need visibility check
-  if (!enabled) return <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />;
+  if (!enabled) return <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-48" />;
   return <AnimeRow data={data} isLoading={isLoading} isError={isError} onRetry={() => refetch()} isMobile={isMobile} />;
 }
