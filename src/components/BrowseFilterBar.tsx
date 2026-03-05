@@ -25,18 +25,18 @@ interface CollectionItem {
 }
 
 const animeCollections: CollectionItem[] = [
-  { id: "trending", label: "🔥 Trending", param: "filter=airing" },
-  { id: "this-season", label: "📺 This Season", param: "filter=seasonal" },
-  { id: "new-this-week", label: "🆕 New This Week", param: "filter=new" },
-  { id: "completed", label: "✅ Completed", param: "filter=completed" },
-  { id: "upcoming", label: "⏳ Coming Soon", param: "filter=upcoming" },
-  { id: "popular", label: "⭐ Most Popular", param: "filter=bypopularity" },
-  { id: "classics", label: "🏛️ Classics", param: "classics", href: "/classics" },
+  { id: "trending", label: "Trending", param: "filter=airing" },
+  { id: "this-season", label: "This Season", param: "filter=seasonal" },
+  { id: "new-this-week", label: "New This Week", param: "filter=new" },
+  { id: "completed", label: "Completed", param: "filter=completed" },
+  { id: "upcoming", label: "Coming Soon", param: "filter=upcoming" },
+  { id: "popular", label: "Most Popular", param: "filter=bypopularity" },
+  { id: "classics", label: "Classics", param: "classics", href: "/classics" },
 ];
 
 const mangaCollections: CollectionItem[] = [
-  { id: "new-this-week", label: "🆕 New This Week", param: "collection=new" },
-  { id: "completed", label: "✅ Completed", param: "collection=completed" },
+  { id: "new-this-week", label: "New This Week", param: "collection=new" },
+  { id: "completed", label: "Completed", param: "collection=completed" },
 ];
 
 const animeGenres: GenreItem[] = [

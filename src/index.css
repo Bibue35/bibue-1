@@ -1777,6 +1777,142 @@
 }
 
 /* ============================================
+ * CONTRAST THEME (White bg, black boxes)
+ * ============================================ */
+
+.theme-contrast {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 97%;
+
+  --popover: 0 0% 5%;
+  --popover-foreground: 0 0% 97%;
+
+  --primary: 0 0% 0%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 0 0% 93%;
+  --secondary-foreground: 0 0% 7%;
+
+  --muted: 0 0% 95%;
+  --muted-foreground: 0 0% 40%;
+
+  --accent: 0 0% 93%;
+  --accent-foreground: 0 0% 7%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 0 0% 85%;
+  --input: 0 0% 85%;
+  --ring: 0 0% 0%;
+
+  --glass-bg: 0 0% 100% / 0.9;
+  --glass-border: 0 0% 80% / 0.3;
+  --glass-highlight: 0 0% 100% / 0.06;
+  --glass-shadow: 0 0% 0% / 0.06;
+  --glass-blur: 20px;
+  --glass-refraction: 0 0% 50% / 0.02;
+
+  --specular-color: 0 0% 85% / 0.1;
+  --specular-inner: 0 0% 70% / 0.05;
+
+  --reflection-start: 0 0% 95% / 0.05;
+  --reflection-mid: 0 0% 50% / 0.02;
+  --reflection-end: 0 0% 0% / 0.03;
+
+  --divine-glow: 0 0% 50% / 0;
+  --divine-radiance: 0 0% 50% / 0;
+  --divine-halo: 0 0% 50% / 0;
+
+  --moonbeam-glow: 0 0% 50% / 0;
+  --moonbeam-highlight: 0 0% 50% / 0;
+
+  --chart-1: 0 0% 15%;
+  --chart-2: 0 0% 35%;
+  --chart-3: 0 0% 50%;
+  --chart-4: 0 0% 65%;
+  --chart-5: 0 0% 80%;
+
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 0 0% 0%;
+  --sidebar-primary: 0 0% 0%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 0 0% 93%;
+  --sidebar-accent-foreground: 0 0% 7%;
+  --sidebar-border: 0 0% 85%;
+  --sidebar-ring: 0 0% 0%;
+}
+
+.dark.theme-contrast {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+
+  --card: 0 0% 12%;
+  --card-foreground: 0 0% 97%;
+
+  --popover: 0 0% 12%;
+  --popover-foreground: 0 0% 97%;
+
+  --primary: 0 0% 100%;
+  --primary-foreground: 0 0% 0%;
+
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 97%;
+
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 55%;
+
+  --accent: 0 0% 12%;
+  --accent-foreground: 0 0% 97%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 97%;
+
+  --border: 0 0% 22%;
+  --input: 0 0% 22%;
+  --ring: 0 0% 100%;
+
+  --glass-bg: 0 0% 6% / 0.92;
+  --glass-border: 0 0% 25% / 0.2;
+  --glass-highlight: 0 0% 100% / 0.03;
+  --glass-shadow: 0 0% 0% / 0.6;
+  --glass-blur: 20px;
+  --glass-refraction: 0 0% 50% / 0.02;
+
+  --specular-color: 0 0% 40% / 0.08;
+  --specular-inner: 0 0% 30% / 0.05;
+
+  --reflection-start: 0 0% 50% / 0.04;
+  --reflection-mid: 0 0% 25% / 0.02;
+  --reflection-end: 0 0% 0% / 0.5;
+
+  --divine-glow: 0 0% 50% / 0;
+  --divine-radiance: 0 0% 50% / 0;
+  --divine-halo: 0 0% 50% / 0;
+
+  --moonbeam-glow: 0 0% 50% / 0;
+  --moonbeam-highlight: 0 0% 50% / 0;
+
+  --chart-1: 0 0% 85%;
+  --chart-2: 0 0% 65%;
+  --chart-3: 0 0% 50%;
+  --chart-4: 0 0% 35%;
+  --chart-5: 0 0% 20%;
+
+  --sidebar-background: 0 0% 0%;
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-primary: 0 0% 100%;
+  --sidebar-primary-foreground: 0 0% 0%;
+  --sidebar-accent: 0 0% 12%;
+  --sidebar-accent-foreground: 0 0% 97%;
+  --sidebar-border: 0 0% 22%;
+  --sidebar-ring: 0 0% 100%;
+}
+
+/* ============================================
  * MICRO-ANIMATIONS & INTERACTION POLISH
  * ============================================ */
 

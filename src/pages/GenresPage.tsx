@@ -29,7 +29,6 @@ const GenresPage = () => {
               to={`/genre/${genre.slug}`}
               className="group block rounded-xl border border-border/50 bg-card p-4 hover:border-primary/30 transition-all duration-200 hover:shadow-lg"
             >
-              <div className="text-2xl mb-2">{genre.emoji}</div>
               <h2 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors mb-1">
                 {genre.name}
               </h2>

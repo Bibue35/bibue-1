@@ -236,7 +236,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
         >
           {/* Search Input */}
           <div className="relative flex-shrink-0">
-            <div className="flex items-center rounded-[9999px] border border-border/40 bg-card/60 backdrop-blur-md px-8 py-1.5 shadow-sm hover:shadow-md transition-all duration-300 focus-within:border-foreground/20 focus-within:ring-4 focus-within:ring-foreground/5 focus-within:shadow-lg">
+            <div className="flex items-center rounded-[9999px] border border-foreground/20 bg-card/60 backdrop-blur-md px-8 py-1.5 shadow-sm hover:shadow-md transition-all duration-300 focus-within:border-foreground/40 focus-within:ring-4 focus-within:ring-foreground/5 focus-within:shadow-lg">
               <Search className="w-6 h-6 text-muted-foreground/60 shrink-0" aria-hidden="true" />
               <input
                 type="text"
