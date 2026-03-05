@@ -3,160 +3,152 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Bibue Design System - Liquid Glass */
-/* Light Mode: Warm | Dark Mode: Cool */
+/* Bibue Design System — X.com 2026 Ultra-Minimal */
+/* Dark Mode First: Pure Black + Electric Blue */
 
 @layer base {
   :root {
-    /* ☀ Sunlight Mode — Rich Warm Gold */
-    --background: 40 30% 97%;
-    --foreground: 25 25% 10%;
+    /* ☀ Light Mode — Clean neutral whites */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
 
-    --card: 42 35% 98%;
-    --card-foreground: 25 25% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
 
-    --popover: 42 35% 98%;
-    --popover-foreground: 25 25% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
 
-    /* Deep burnished gold — richer than before */
-    --primary: 42 88% 38%;
-    --primary-foreground: 42 30% 98%;
+    /* Electric Blue accent */
+    --primary: 204 89% 53%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 38 30% 92%;
-    --secondary-foreground: 25 25% 10%;
+    --secondary: 207 24% 96%;
+    --secondary-foreground: 0 0% 0%;
 
-    --muted: 36 20% 89%;
-    --muted-foreground: 25 12% 38%;
+    --muted: 207 24% 95%;
+    --muted-foreground: 206 15% 42%;
 
-    --accent: 40 32% 91%;
-    --accent-foreground: 25 25% 10%;
+    --accent: 207 24% 94%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 78% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 38 25% 86%;
-    --input: 38 25% 86%;
-    --ring: 42 88% 38%;
+    --border: 207 24% 91%;
+    --input: 207 24% 91%;
+    --ring: 204 89% 53%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
 
-    /* Sunlight Liquid Glass — warm honey frosted glass */
-    --glass-bg: 40 40% 98% / 0.78;
-    --glass-border: 38 45% 88% / 0.65;
-    --glass-highlight: 44 100% 97% / 0.9;
-    --glass-shadow: 35 50% 18% / 0.1;
-    --glass-blur: 44px;
-    --glass-refraction: 46 70% 96% / 0.45;
+    /* Minimal glass — light */
+    --glass-bg: 0 0% 100% / 0.85;
+    --glass-border: 207 24% 91% / 0.5;
+    --glass-highlight: 0 0% 100% / 0.9;
+    --glass-shadow: 0 0% 0% / 0.04;
+    --glass-blur: 20px;
+    --glass-refraction: 0 0% 98% / 0.3;
 
-    /* Warm specular — deeper golden honey */
-    --specular-color: 44 85% 82% / 0.55;
-    --specular-inner: 42 50% 94% / 0.85;
+    --specular-color: 204 60% 80% / 0.3;
+    --specular-inner: 0 0% 97% / 0.6;
 
-    /* Sunlight reflection — richer cream warmth */
-    --reflection-start: 44 80% 98% / 0.85;
-    --reflection-mid: 40 55% 93% / 0.4;
-    --reflection-end: 36 25% 88% / 0.05;
+    --reflection-start: 0 0% 100% / 0.6;
+    --reflection-mid: 207 10% 95% / 0.2;
+    --reflection-end: 207 8% 90% / 0.02;
 
-    /* Divine radiance — deep golden sun */
-    --divine-glow: 42 90% 55% / 0.35;
-    --divine-radiance: 44 95% 65% / 0.55;
-    --divine-halo: 48 100% 80% / 0.4;
+    --divine-glow: 204 89% 53% / 0.12;
+    --divine-radiance: 204 80% 60% / 0.2;
+    --divine-halo: 204 60% 75% / 0.15;
 
-    /* Legacy sunbeam for compatibility */
-    --sunbeam-glow: 42 90% 55% / 0.35;
-    --sunbeam-highlight: 44 95% 65% / 0.55;
+    --sunbeam-glow: 204 89% 53% / 0.12;
+    --sunbeam-highlight: 204 80% 60% / 0.2;
 
-    /* Chart colors — warm earthy spectrum */
-    --chart-1: 42 75% 35%;
-    --chart-2: 28 65% 42%;
-    --chart-3: 52 60% 48%;
-    --chart-4: 18 70% 50%;
-    --chart-5: 8 72% 44%;
+    /* Chart colors */
+    --chart-1: 204 89% 53%;
+    --chart-2: 220 60% 50%;
+    --chart-3: 160 50% 45%;
+    --chart-4: 340 65% 47%;
+    --chart-5: 280 50% 50%;
 
     /* Sidebar */
-    --sidebar-background: 40 30% 97%;
-    --sidebar-foreground: 25 25% 10%;
-    --sidebar-primary: 42 88% 38%;
-    --sidebar-primary-foreground: 42 30% 98%;
-    --sidebar-accent: 38 30% 92%;
-    --sidebar-accent-foreground: 25 25% 10%;
-    --sidebar-border: 38 25% 86%;
-    --sidebar-ring: 42 88% 38%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 0%;
+    --sidebar-primary: 204 89% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 207 24% 94%;
+    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-border: 207 24% 91%;
+    --sidebar-ring: 204 89% 53%;
   }
 
   .dark {
-    /* 🌙 Midnight Mode — Deep Indigo-Blue */
-    --background: 225 20% 4%;
-    --foreground: 220 15% 92%;
+    /* 🌑 Dark Mode — Pure Black + Electric Blue (#1DA1F2) */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
 
-    --card: 225 18% 7%;
-    --card-foreground: 220 15% 92%;
+    --card: 210 11% 9%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 225 18% 7%;
-    --popover-foreground: 220 15% 92%;
+    --popover: 210 11% 9%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Vivid sapphire blue accent */
-    --primary: 218 80% 56%;
-    --primary-foreground: 0 0% 99%;
+    /* Electric Blue accent */
+    --primary: 204 89% 53%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 222 15% 12%;
-    --secondary-foreground: 220 15% 92%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 222 12% 10%;
-    --muted-foreground: 220 8% 42%;
+    --muted: 0 0% 8%;
+    --muted-foreground: 206 15% 70%;
 
-    --accent: 222 18% 13%;
-    --accent-foreground: 220 15% 92%;
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 50%;
-    --destructive-foreground: 0 0% 95%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 222 14% 14%;
-    --input: 222 14% 14%;
-    --ring: 218 80% 56%;
+    --border: 210 11% 9%;
+    --input: 210 11% 9%;
+    --ring: 204 89% 53%;
 
-    /* Dark Liquid Glass — inky black with sapphire refraction */
-    --glass-bg: 225 20% 5% / 0.9;
-    --glass-border: 218 30% 25% / 0.3;
-    --glass-highlight: 218 55% 88% / 0.08;
-    --glass-shadow: 225 40% 2% / 0.75;
-    --glass-blur: 52px;
-    --glass-refraction: 218 40% 80% / 0.05;
+    /* Minimal glass — dark */
+    --glass-bg: 0 0% 0% / 0.92;
+    --glass-border: 0 0% 15% / 0.3;
+    --glass-highlight: 0 0% 100% / 0.04;
+    --glass-shadow: 0 0% 0% / 0.5;
+    --glass-blur: 20px;
+    --glass-refraction: 0 0% 20% / 0.04;
 
-    /* Sapphire specular — cool blue edge light */
-    --specular-color: 218 50% 55% / 0.14;
-    --specular-inner: 218 30% 48% / 0.1;
+    --specular-color: 204 40% 50% / 0.08;
+    --specular-inner: 0 0% 30% / 0.06;
 
-    /* Deep shadow gradient — inky with blue tint */
-    --reflection-start: 218 40% 88% / 0.1;
-    --reflection-mid: 225 20% 45% / 0.04;
-    --reflection-end: 225 15% 2% / 0.6;
+    --reflection-start: 0 0% 100% / 0.04;
+    --reflection-mid: 0 0% 50% / 0.02;
+    --reflection-end: 0 0% 0% / 0.4;
 
-    /* Sapphire glow effects — vivid and luminous */
-    --divine-glow: 218 75% 52% / 0.25;
-    --divine-radiance: 218 70% 62% / 0.3;
-    --divine-halo: 215 55% 72% / 0.22;
+    --divine-glow: 204 89% 53% / 0.12;
+    --divine-radiance: 204 80% 60% / 0.15;
+    --divine-halo: 204 60% 70% / 0.1;
 
-    /* Legacy compatibility */
-    --moonbeam-glow: 218 75% 52% / 0.25;
-    --moonbeam-highlight: 218 70% 62% / 0.3;
+    --moonbeam-glow: 204 89% 53% / 0.12;
+    --moonbeam-highlight: 204 80% 60% / 0.15;
 
-    /* Chart colors — blue-indigo spectrum */
-    --chart-1: 218 78% 55%;
+    /* Chart colors — blue spectrum */
+    --chart-1: 204 89% 53%;
     --chart-2: 200 65% 48%;
     --chart-3: 45 90% 52%;
     --chart-4: 258 55% 55%;
     --chart-5: 190 60% 42%;
 
     /* Sidebar */
-    --sidebar-background: 225 20% 4%;
-    --sidebar-foreground: 220 15% 92%;
-    --sidebar-primary: 218 80% 56%;
-    --sidebar-primary-foreground: 0 0% 99%;
-    --sidebar-accent: 222 15% 12%;
-    --sidebar-accent-foreground: 220 15% 92%;
-    --sidebar-border: 222 14% 14%;
-    --sidebar-ring: 218 80% 56%;
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 204 89% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 210 11% 9%;
+    --sidebar-ring: 204 89% 53%;
   }
 }
 
