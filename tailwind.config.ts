@@ -70,7 +70,7 @@ export default {
         },
         neon: {
           gold: "hsl(45 97% 56%)",
-          blue: "hsl(204 89% 53%)",
+          blue: "hsl(218 80% 56%)",
           magenta: "hsl(320 100% 50%)",
           crimson: "hsl(0 73% 42%)",
         },
