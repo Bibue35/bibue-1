@@ -19,10 +19,10 @@ function AnimeRow({ data, isLoading, isError, onRetry, isMobile }: {
   return (
     <HorizontalScroll showArrows={!isMobile}>
       {isLoading ? (
-        <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />
+        <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-48" />
       ) : (
         data?.slice(0, 12).map((anime, index) => (
-          <div key={anime.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+          <div key={anime.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-48">
             {isMobile ? <MobileAnimeCard anime={anime} index={index} /> : <AnimeCard anime={anime} index={index} />}
           </div>
         ))
@@ -99,6 +99,6 @@ export function DeferredGenreSection({ genre, titleJp, icon, linkTo, isMobile }:
 function GenreContent({ genre, isMobile, enabled }: { genre: string; isMobile: boolean; enabled: boolean }) {
   const { data, isLoading, isError, refetch } = useAnimeByGenre(genre, 1, "POPULARITY_DESC");
   // Only fetch when enabled - useAnimeByGenre has `enabled: !!genre` but we also need visibility check
-  if (!enabled) return <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-44" />;
+  if (!enabled) return <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-32 sm:w-40 md:w-48" />;
   return <AnimeRow data={data} isLoading={isLoading} isError={isError} onRetry={() => refetch()} isMobile={isMobile} />;
 }

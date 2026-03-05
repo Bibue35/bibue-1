@@ -77,7 +77,7 @@ export function ScheduleSection() {
         {isLoading ? (
           <HorizontalScroll title="" titleJp="">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+              <div key={i} className="flex-shrink-0 w-32 sm:w-40 md:w-48">
                 <div className="mb-2">
                   <Skeleton className="h-4 sm:h-5 w-14 sm:w-16 rounded-full" />
                 </div>
@@ -88,7 +88,7 @@ export function ScheduleSection() {
         ) : scheduleData && scheduleData.length > 0 ? (
           <HorizontalScroll title="" titleJp="">
             {scheduleData.map((item, index) => (
-              <div key={item.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+              <div key={item.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-48">
                 <div className="mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2 flex-wrap">
                   <span className="text-[10px] sm:text-xs font-medium px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-primary/10 text-primary">
                     {item.airingTime}
