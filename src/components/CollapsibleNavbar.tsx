@@ -115,7 +115,7 @@ export function CollapsibleNavbar() {
                   decoding="sync"
                 />
               </div>
-              <span className="text-lg sm:text-xl font-sacred font-semibold tracking-wide">
+              <span className="text-lg sm:text-xl font-sacred font-semibold tracking-wide text-primary">
                 Bibue
               </span>
             </Link>
