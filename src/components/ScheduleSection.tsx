@@ -77,7 +77,7 @@ export function ScheduleSection() {
         {isLoading ? (
           <HorizontalScroll title="" titleJp="">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-28 sm:w-36 md:w-44">
+              <div key={i} className="flex-shrink-0 w-32 sm:w-40 md:w-48">
                 <div className="mb-2">
                   <Skeleton className="h-4 sm:h-5 w-14 sm:w-16 rounded-full" />
                 </div>
