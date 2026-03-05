@@ -29,10 +29,8 @@ const GenresPage = () => {
               to={`/genre/${genre.slug}`}
               className="group block rounded-xl border border-border/50 bg-card p-4 hover:border-primary/30 transition-all duration-200 hover:shadow-lg"
             >
-              <div className="text-sm font-medium text-muted-foreground mb-1">{genre.name}</div>
-              <h2 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">
-                {genre.description.slice(0, 60)}...
-              </h2>
+              <h2 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors mb-1">
+                {genre.name}
               </h2>
               <p className="text-[11px] text-muted-foreground line-clamp-2">
                 {genre.description.slice(0, 80)}...
