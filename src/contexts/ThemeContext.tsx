@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode, useCallback 
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 
-export type ThemeFlavor = "default" | "mocha" | "latte" | "frappe" | "macchiato" | "crimson-scroll" | "celestial";
+export type ThemeFlavor = "default" | "mocha" | "latte" | "frappe" | "macchiato" | "crimson-scroll" | "celestial" | "monochrome";
 
 interface ThemeContextType {
   mode: string;
