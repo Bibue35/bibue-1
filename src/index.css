@@ -1304,7 +1304,7 @@
  * Mocha | Latte | Frappé | Macchiato
  * ============================================ */
 
-/* Catppuccin Mocha (Dark) - warm amber palette */
+/* Catppuccin Mocha (Dark) */
 .theme-mocha {
   --background: 240 21% 12%;
   --foreground: 226 64% 88%;
@@ -1312,8 +1312,8 @@
   --card-foreground: 226 64% 88%;
   --popover: 240 21% 15%;
   --popover-foreground: 226 64% 88%;
-  --primary: 183 100% 50%;
-  --primary-foreground: 240 21% 12%;
+  --primary: 204 89% 53%;
+  --primary-foreground: 0 0% 100%;
   --secondary: 240 21% 20%;
   --secondary-foreground: 226 64% 88%;
   --muted: 240 21% 18%;
@@ -1324,19 +1324,19 @@
   --destructive-foreground: 240 21% 12%;
   --border: 240 21% 20%;
   --input: 240 21% 20%;
-  --ring: 183 100% 50%;
+  --ring: 204 89% 53%;
   --glass-bg: 240 21% 12% / 0.85;
-  --glass-border: 183 40% 30% / 0.3;
-  --glass-highlight: 183 60% 80% / 0.08;
+  --glass-border: 204 40% 30% / 0.3;
+  --glass-highlight: 204 60% 80% / 0.08;
   --glass-shadow: 240 21% 5% / 0.6;
-  --glass-blur: 48px;
-  --glass-refraction: 183 50% 70% / 0.06;
-  --divine-glow: 183 65% 50% / 0.2;
-  --divine-radiance: 183 60% 60% / 0.25;
-  --divine-halo: 183 55% 70% / 0.18;
+  --glass-blur: 20px;
+  --glass-refraction: 204 50% 70% / 0.06;
+  --divine-glow: 204 65% 50% / 0.2;
+  --divine-radiance: 204 60% 60% / 0.25;
+  --divine-halo: 204 55% 70% / 0.18;
 }
 
-/* Catppuccin Latte (Light) - updated */
+/* Catppuccin Latte (Light) */
 .theme-latte {
   --background: 220 23% 95%;
   --foreground: 234 16% 35%;
@@ -1344,8 +1344,8 @@
   --card-foreground: 234 16% 35%;
   --popover: 220 23% 98%;
   --popover-foreground: 234 16% 35%;
-  --primary: 183 100% 40%;
-  --primary-foreground: 220 23% 98%;
+  --primary: 204 89% 45%;
+  --primary-foreground: 0 0% 100%;
   --secondary: 220 22% 90%;
   --secondary-foreground: 234 16% 35%;
   --muted: 220 22% 87%;
@@ -1356,19 +1356,19 @@
   --destructive-foreground: 220 23% 98%;
   --border: 220 22% 85%;
   --input: 220 22% 85%;
-  --ring: 183 100% 40%;
+  --ring: 204 89% 45%;
   --glass-bg: 220 23% 98% / 0.82;
   --glass-border: 220 22% 85% / 0.75;
   --glass-highlight: 220 23% 100% / 0.95;
   --glass-shadow: 234 16% 35% / 0.08;
-  --glass-blur: 40px;
-  --glass-refraction: 183 50% 90% / 0.5;
-  --divine-glow: 183 60% 50% / 0.15;
-  --divine-radiance: 183 70% 60% / 0.3;
-  --divine-halo: 183 80% 70% / 0.2;
+  --glass-blur: 20px;
+  --glass-refraction: 204 50% 90% / 0.5;
+  --divine-glow: 204 60% 50% / 0.15;
+  --divine-radiance: 204 70% 60% / 0.3;
+  --divine-halo: 204 80% 70% / 0.2;
 }
 
-/* Catppuccin Frappé (Dark) - updated */
+/* Catppuccin Frappé (Dark) */
 .theme-frappe {
   --background: 229 19% 23%;
   --foreground: 227 70% 87%;
@@ -1376,8 +1376,8 @@
   --card-foreground: 227 70% 87%;
   --popover: 229 19% 26%;
   --popover-foreground: 227 70% 87%;
-  --primary: 183 100% 50%;
-  --primary-foreground: 229 19% 20%;
+  --primary: 204 89% 53%;
+  --primary-foreground: 0 0% 100%;
   --secondary: 229 19% 30%;
   --secondary-foreground: 227 70% 87%;
   --muted: 229 19% 28%;
@@ -1388,19 +1388,19 @@
   --destructive-foreground: 229 19% 20%;
   --border: 229 19% 28%;
   --input: 229 19% 28%;
-  --ring: 183 100% 50%;
+  --ring: 204 89% 53%;
   --glass-bg: 229 19% 23% / 0.85;
-  --glass-border: 183 40% 30% / 0.3;
-  --glass-highlight: 183 60% 70% / 0.08;
+  --glass-border: 204 40% 30% / 0.3;
+  --glass-highlight: 204 60% 70% / 0.08;
   --glass-shadow: 229 19% 10% / 0.6;
-  --glass-blur: 48px;
-  --glass-refraction: 183 45% 70% / 0.06;
-  --divine-glow: 183 50% 50% / 0.2;
-  --divine-radiance: 183 55% 60% / 0.25;
-  --divine-halo: 183 50% 70% / 0.18;
+  --glass-blur: 20px;
+  --glass-refraction: 204 45% 70% / 0.06;
+  --divine-glow: 204 50% 50% / 0.2;
+  --divine-radiance: 204 55% 60% / 0.25;
+  --divine-halo: 204 50% 70% / 0.18;
 }
 
-/* Catppuccin Macchiato (Dark) - updated */
+/* Catppuccin Macchiato (Dark) */
 .theme-macchiato {
   --background: 232 23% 18%;
   --foreground: 227 68% 88%;
@@ -1408,8 +1408,8 @@
   --card-foreground: 227 68% 88%;
   --popover: 232 23% 21%;
   --popover-foreground: 227 68% 88%;
-  --primary: 183 100% 50%;
-  --primary-foreground: 232 23% 15%;
+  --primary: 204 89% 53%;
+  --primary-foreground: 0 0% 100%;
   --secondary: 232 23% 25%;
   --secondary-foreground: 227 68% 88%;
   --muted: 232 23% 23%;
@@ -1420,25 +1420,23 @@
   --destructive-foreground: 232 23% 15%;
   --border: 232 23% 25%;
   --input: 232 23% 25%;
-  --ring: 183 100% 50%;
+  --ring: 204 89% 53%;
   --glass-bg: 232 23% 18% / 0.85;
-  --glass-border: 183 40% 30% / 0.3;
-  --glass-highlight: 183 60% 70% / 0.08;
+  --glass-border: 204 40% 30% / 0.3;
+  --glass-highlight: 204 60% 70% / 0.08;
   --glass-shadow: 232 23% 8% / 0.6;
-  --glass-blur: 48px;
-  --glass-refraction: 183 55% 70% / 0.06;
-  --divine-glow: 183 60% 50% / 0.2;
-  --divine-radiance: 183 65% 60% / 0.25;
-  --divine-halo: 183 60% 70% / 0.18;
+  --glass-blur: 20px;
+  --glass-refraction: 204 55% 70% / 0.06;
+  --divine-glow: 204 60% 50% / 0.2;
+  --divine-radiance: 204 65% 60% / 0.25;
+  --divine-halo: 204 60% 70% / 0.18;
 }
 
 /* ============================================
  * CRIMSON SCROLL THEME
  * Deep charcoal + crimson + warm gold
- * Traditional manga-inspired premium aesthetic
  * ============================================ */
 .theme-crimson-scroll {
-  /* Deep charcoal black background */
   --background: 0 0% 4%;
   --foreground: 40 9% 96%;
   --card: 0 0% 7%;
@@ -1462,7 +1460,7 @@
   --glass-border: 45 30% 30% / 0.18;
   --glass-highlight: 45 50% 80% / 0.06;
   --glass-shadow: 0 0% 2% / 0.7;
-  --glass-blur: 48px;
+  --glass-blur: 20px;
   --glass-refraction: 0 40% 50% / 0.04;
   --specular-color: 0 50% 45% / 0.12;
   --specular-inner: 45 30% 50% / 0.08;
@@ -1491,145 +1489,112 @@
 
 /* ============================================
  * CELESTIAL THEME — Sunlight & Moonlight
- * Day: Divine golden radiance on ancient scrolls
- * Night: Mysterious navy-purple with silver & crimson
  * ============================================ */
 
-/* ☀️ Sunlight — Divine / Heavenly / Golden */
+/* ☀️ Sunlight — Clean whites with electric blue */
 .light.theme-celestial,
 :root.theme-celestial:not(.dark) {
   --background: 0 0% 98%;
-  --foreground: 220 15% 15%;
-
+  --foreground: 0 0% 10%;
   --card: 0 0% 100%;
-  --card-foreground: 220 15% 15%;
-
+  --card-foreground: 0 0% 10%;
   --popover: 0 0% 100%;
-  --popover-foreground: 220 15% 15%;
-
-  --primary: 24 80% 50%;
+  --popover-foreground: 0 0% 10%;
+  --primary: 204 89% 53%;
   --primary-foreground: 0 0% 100%;
-
-  --secondary: 220 14% 94%;
-  --secondary-foreground: 220 15% 20%;
-
-  --muted: 220 14% 95%;
-  --muted-foreground: 220 10% 42%;
-
-  --accent: 220 14% 94%;
-  --accent-foreground: 220 15% 15%;
-
+  --secondary: 207 24% 96%;
+  --secondary-foreground: 0 0% 15%;
+  --muted: 207 14% 95%;
+  --muted-foreground: 206 10% 42%;
+  --accent: 207 14% 94%;
+  --accent-foreground: 0 0% 10%;
   --destructive: 0 78% 55%;
   --destructive-foreground: 0 0% 100%;
-
-  --border: 220 13% 88%;
-  --input: 220 13% 88%;
-  --ring: 24 80% 50%;
-
-  --radius: 1rem;
-
+  --border: 207 24% 90%;
+  --input: 207 24% 90%;
+  --ring: 204 89% 53%;
+  --radius: 0.75rem;
   --glass-bg: 0 0% 100% / 0.85;
-  --glass-border: 220 13% 85% / 0.5;
+  --glass-border: 207 13% 85% / 0.5;
   --glass-highlight: 0 0% 100% / 0.9;
-  --glass-shadow: 220 15% 20% / 0.06;
-  --glass-blur: 44px;
-  --glass-refraction: 0 0% 98% / 0.4;
-
-  --specular-color: 24 60% 80% / 0.4;
-  --specular-inner: 0 0% 97% / 0.8;
-
-  --reflection-start: 0 0% 100% / 0.8;
-  --reflection-mid: 220 10% 95% / 0.3;
-  --reflection-end: 220 8% 90% / 0.05;
-
-  --divine-glow: 24 80% 50% / 0.2;
-  --divine-radiance: 24 70% 60% / 0.3;
-  --divine-halo: 24 60% 75% / 0.25;
-
-  --sunbeam-glow: 24 80% 50% / 0.2;
-  --sunbeam-highlight: 24 70% 60% / 0.3;
-
-  --chart-1: 24 80% 50%;
+  --glass-shadow: 0 0% 0% / 0.04;
+  --glass-blur: 20px;
+  --glass-refraction: 0 0% 98% / 0.3;
+  --specular-color: 204 60% 80% / 0.3;
+  --specular-inner: 0 0% 97% / 0.6;
+  --reflection-start: 0 0% 100% / 0.6;
+  --reflection-mid: 207 10% 95% / 0.2;
+  --reflection-end: 207 8% 90% / 0.02;
+  --divine-glow: 204 89% 53% / 0.12;
+  --divine-radiance: 204 80% 60% / 0.2;
+  --divine-halo: 204 60% 75% / 0.15;
+  --sunbeam-glow: 204 89% 53% / 0.12;
+  --sunbeam-highlight: 204 80% 60% / 0.2;
+  --chart-1: 204 89% 53%;
   --chart-2: 220 60% 50%;
   --chart-3: 160 50% 45%;
   --chart-4: 340 65% 47%;
   --chart-5: 280 50% 50%;
-
   --sidebar-background: 0 0% 98%;
-  --sidebar-foreground: 220 15% 15%;
-  --sidebar-primary: 24 80% 50%;
+  --sidebar-foreground: 0 0% 10%;
+  --sidebar-primary: 204 89% 53%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 220 14% 94%;
-  --sidebar-accent-foreground: 24 80% 8%;
-  --sidebar-border: 40 40% 85%;
-  --sidebar-ring: 36 93% 50%;
+  --sidebar-accent: 207 14% 94%;
+  --sidebar-accent-foreground: 0 0% 10%;
+  --sidebar-border: 207 24% 90%;
+  --sidebar-ring: 204 89% 53%;
 }
 
-/* 🌙 Moonlight — Mysterious / Elegant / Deep */
+/* 🌙 Moonlight — Pure Black + Electric Blue */
 .dark.theme-celestial {
-  --background: 228 33% 10%;
-  --foreground: 210 20% 95%;
-
-  --card: 235 28% 13%;
-  --card-foreground: 210 20% 95%;
-
-  --popover: 235 28% 13%;
-  --popover-foreground: 210 20% 95%;
-
-  --primary: 214 32% 91%;
-  --primary-foreground: 228 33% 10%;
-
-  --secondary: 268 25% 16%;
-  --secondary-foreground: 210 20% 95%;
-
-  --muted: 235 22% 14%;
-  --muted-foreground: 225 15% 50%;
-
-  --accent: 258 22% 17%;
-  --accent-foreground: 210 20% 95%;
-
-  --destructive: 340 82% 38%;
-  --destructive-foreground: 210 20% 95%;
-
-  --border: 255 15% 18%;
-  --input: 255 15% 18%;
-  --ring: 340 82% 38%;
-
-  --glass-bg: 228 30% 8% / 0.92;
-  --glass-border: 255 22% 25% / 0.25;
-  --glass-highlight: 214 35% 85% / 0.06;
-  --glass-shadow: 235 40% 3% / 0.7;
-  --glass-blur: 52px;
-  --glass-refraction: 260 25% 50% / 0.04;
-
-  --specular-color: 214 30% 60% / 0.1;
-  --specular-inner: 255 22% 45% / 0.08;
-
-  --reflection-start: 214 25% 75% / 0.07;
-  --reflection-mid: 235 18% 35% / 0.03;
-  --reflection-end: 235 28% 3% / 0.55;
-
-  --divine-glow: 340 65% 42% / 0.18;
-  --divine-radiance: 258 45% 55% / 0.18;
-  --divine-halo: 214 35% 65% / 0.12;
-
-  --moonbeam-glow: 214 45% 65% / 0.2;
-  --moonbeam-highlight: 258 35% 55% / 0.22;
-
-  --chart-1: 340 82% 38%;
-  --chart-2: 214 32% 75%;
-  --chart-3: 258 45% 50%;
-  --chart-4: 200 55% 48%;
-  --chart-5: 45 70% 50%;
-
-  --sidebar-background: 228 33% 10%;
-  --sidebar-foreground: 210 20% 95%;
-  --sidebar-primary: 214 32% 91%;
-  --sidebar-primary-foreground: 228 33% 10%;
-  --sidebar-accent: 258 22% 17%;
-  --sidebar-accent-foreground: 210 20% 95%;
-  --sidebar-border: 255 15% 18%;
-  --sidebar-ring: 340 82% 38%;
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 210 11% 9%;
+  --card-foreground: 0 0% 100%;
+  --popover: 210 11% 9%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 204 89% 53%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 12%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 0 0% 8%;
+  --muted-foreground: 206 15% 70%;
+  --accent: 0 0% 12%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 72% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 210 11% 9%;
+  --input: 210 11% 9%;
+  --ring: 204 89% 53%;
+  --glass-bg: 0 0% 0% / 0.92;
+  --glass-border: 0 0% 15% / 0.3;
+  --glass-highlight: 0 0% 100% / 0.04;
+  --glass-shadow: 0 0% 0% / 0.5;
+  --glass-blur: 20px;
+  --glass-refraction: 0 0% 20% / 0.04;
+  --specular-color: 204 40% 50% / 0.06;
+  --specular-inner: 0 0% 25% / 0.05;
+  --reflection-start: 0 0% 100% / 0.03;
+  --reflection-mid: 0 0% 50% / 0.01;
+  --reflection-end: 0 0% 0% / 0.3;
+  --divine-glow: 204 89% 53% / 0.1;
+  --divine-radiance: 204 80% 60% / 0.12;
+  --divine-halo: 204 60% 70% / 0.08;
+  --moonbeam-glow: 204 89% 53% / 0.1;
+  --moonbeam-highlight: 204 80% 60% / 0.12;
+  --chart-1: 204 89% 53%;
+  --chart-2: 200 55% 48%;
+  --chart-3: 45 70% 50%;
+  --chart-4: 258 45% 50%;
+  --chart-5: 190 55% 42%;
+  --sidebar-background: 0 0% 0%;
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-primary: 204 89% 53%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 0 0% 12%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 210 11% 9%;
+  --sidebar-ring: 204 89% 53%;
 }
 
 /* ============================================
