@@ -1,52 +1,116 @@
 
 
-## Add "Monochrome" Theme (X.com-inspired)
+# "Seek" — AI-Powered Anime/Manga Discovery Tab
 
-A third theme option alongside Sunlight and Moonlight — pure black, white, and grey with zero color accents except on cover art.
+## Overview
 
-### Changes
+Add a new **Seek** page (`/seek`) — a natural language discovery tool where users describe a vibe, mood, or trope and get 5-8 AI-powered recommendations with personalized, spoiler-free match reasons. Uses the existing Lovable AI gateway (no new API keys needed).
 
-**1. `src/contexts/ThemeContext.tsx`**
-- Add `"monochrome"` to the `ThemeFlavor` union type
-- Update the `classList.remove` call to include `"theme-monochrome"`
+---
 
-**2. `src/index.css`** (append after celestial theme block, ~line 1641)
-- Add `.theme-monochrome` light variant: white (#FAFAFA) bg, near-black text, neutral grey accents, no color in primary/accent — pure grey scale
-- Add `.dark.theme-monochrome` dark variant: pure black (#000000) bg, white text, `#1F1F1F` card hover, `#71767B` muted text — matching X.com 2026 exactly
-- All glass/glow/divine vars set to neutral greys with zero hue — disabling colored effects site-wide when this theme is active
-
-**3. `src/components/ThemeSelector.tsx`**
-- Change from a 2-state toggle (light/dark) to a 3-state cycle: **Moonlight** → **Sunlight** → **Monochrome** → repeat
-- Moonlight = celestial + dark, Sunlight = celestial + light, Monochrome = monochrome + dark
-- Text variant shows the current theme name; icon variant cycles through Moon → Sun → Monitor icons
-
-**4. `src/main.tsx`**
-- Add `"theme-monochrome"` to the pre-hydration flavor list so it applies without flash
-
-### CSS Variable Design (Monochrome Dark)
+## Architecture
 
 ```text
-background:   0 0% 0%        (#000000)
-foreground:   0 0% 97%       (#F7F7F7)
-card:         0 0% 0%        (#000000)
-primary:      0 0% 97%       (white — pill buttons)
-muted-fg:     0 0% 44%       (#71767B — X grey)
-border:       0 0% 16%       (#2F3336 — X border)
-accent:       0 0% 8%        (#141414 — hover bg)
-divine-glow:  0 0% 50% / 0   (disabled — no colored glow)
+New files:
+  src/pages/SeekPage.tsx          — Main page component
+  supabase/functions/seek/index.ts — Edge function for AI calls
+
+Modified files:
+  src/App.tsx                      — Add /seek route
+  src/components/CollapsibleNavbar.tsx — Add Seek to nav
+  src/components/FloatingNav.tsx       — Add Seek to nav
+  src/components/ContextualBottomStrip.tsx — Add Seek pill
 ```
 
-Monochrome Light mirrors with inverted values: white bg, dark text, light grey borders.
+---
 
-### Theme Cycle Logic
+## Implementation Steps (First Prompt — Steps 1-8)
 
-```text
-Current         → Next
-─────────────────────────
-Moonlight       → Sunlight       (celestial light)
-Sunlight        → Monochrome     (monochrome dark)
-Monochrome      → Moonlight      (celestial dark)
-```
+### 1. Edge Function: `supabase/functions/seek/index.ts`
 
-No settings page changes needed — the existing navbar toggle handles it.
+- Accepts `{ prompt, watchlist, contentType, conversationHistory }` via POST
+- Calls the Lovable AI gateway (`ai.gateway.lovable.dev`) using `LOVABLE_API_KEY` with `google/gemini-2.5-flash` (fast, good reasoning, cost-effective)
+- Uses the full system prompt from the spec (opinionated recommendations, no spoilers, real titles only, JSON array output)
+- Appends user's watchlist as exclusion context and content type filter
+- Supports follow-up refinement by accepting conversation history
+- Returns parsed JSON array of recommendations
+- Error handling: rate limiting (429), credit exhaustion (402), JSON parse retry
+
+### 2. Edge Function: `supabase/functions/seek-convince/index.ts`
+
+- Separate endpoint for "Convince me" calls (lighter, 300 max tokens)
+- Accepts `{ title, watchedContext }`
+- Returns a 3-4 sentence spoiler-free pitch
+
+### 3. Route + Navigation
+
+- Add `/seek` route in `App.tsx` with lazy-loaded `SeekPage`
+- Add "Seek" link to `CollapsibleNavbar` desktop nav links (between Community and existing links)
+- Add "Seek" to `FloatingNav` desktop nav links
+- Add "Seek" pill to `ContextualBottomStrip`
+
+### 4. `SeekPage.tsx` — Layout
+
+**Top section:**
+- Large full-width text input styled as a prompt input (rounded, prominent, send arrow button on right)
+- Placeholder: `"cold blooded mc, dark fantasy with great art..."`
+- Input expands slightly on focus, sticky on mobile when scrolling results
+- Minimum 44px send button for mobile tap targets
+
+**Suggestion chips (two rows, horizontally scrollable):**
+- Row 1: Mood chips with emoji (larger) — randomly show 6-8 from the full set
+- Row 2: Trope chips (text only, smaller) — randomly show 6-8
+- Tapping a chip fills input and auto-submits
+
+**Recent searches:**
+- Stored in `localStorage` (last 5 searches with result count)
+- Tapping re-runs the search
+
+**Content type filter:**
+- Toggle pills: `[All] [Anime] [Manga] [Manhwa] [Manhua]`
+- When active, appended to the AI prompt
+
+**Empty state:**
+- "Tell me what you're in the mood for. I'll find it."
+
+### 5. Result Cards
+
+Each card shows:
+- Cover image fetched from existing AniList API (`searchAnime`/`searchManga` by title)
+- Gradient placeholder if no image found
+- Title, rating (star), year, episode/chapter count
+- Genre tags
+- Match reason (1-2 sentences, italic) — the core differentiator
+- Three action buttons:
+  - **"Convince me"** — calls `seek-convince` edge function, expands inline
+  - **"+ Save"** — uses existing `useWatchlist` hook's `addToWatchlist` mutation
+  - **"Details"** — navigates to `/anime/:id` or `/manga/:id`
+
+### 6. Cover Image Fetching
+
+After AI returns results, batch-fetch cover images by searching each title via `searchAnime(title)` or `searchManga(title)` from `src/lib/api.ts`. Match on the first result. If no match, show a gradient placeholder with the title text overlaid.
+
+### 7. Loading State
+
+- Skeleton card placeholders that pulse
+- Small "Seeking..." text below the input
+- Disable send button during loading
+
+### 8. Follow-up Refinement
+
+After results are displayed:
+- Change input placeholder to `"More like #3 but darker..." or "None of these — try something weird"`
+- Send full conversation history (original prompt + previous results + follow-up) to maintain context
+
+---
+
+## Technical Details
+
+- **AI Model**: `google/gemini-2.5-flash` via Lovable AI gateway — fast (2-3s), good reasoning, handles the structured JSON output well, no API key needed
+- **No Anthropic API**: The spec mentions Anthropic directly, but we'll use the Lovable AI gateway which is already configured and doesn't require additional setup
+- **No web search**: The Lovable AI gateway doesn't support Anthropic's `web_search` tool, but the model's training data covers anime/manga community knowledge extensively
+- **Cover images**: Reuse existing `searchAnime`/`searchManga` from `src/lib/api.ts` — no new API integration needed
+- **Save functionality**: Reuse existing `useWatchlist` hook
+- **Theme support**: Standard dark/light theme support using existing Tailwind classes (ink theme deferred to second prompt per spec)
+- **Mobile**: Input sticky at top, chip rows with horizontal scroll + momentum, full-width stacked cards, large tap targets
 
