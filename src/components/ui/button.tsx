@@ -9,16 +9,16 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-foreground text-background hover:bg-foreground/90 active:bg-foreground/80",
-        primary: "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80 shadow-lg hover:shadow-xl",
-        divine: "bg-gradient-to-r from-primary/90 via-primary to-primary/90 text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80",
+        primary: "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80 shadow-sm",
+        divine: "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80 shadow-sm hover:shadow-md",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-border bg-background hover:bg-accent hover:text-accent-foreground",
+        outline: "border border-border bg-transparent hover:bg-secondary hover:text-accent-foreground",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-foreground underline-offset-4 hover:underline",
-        amber: "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80 shadow-lg shadow-primary/25 hover:shadow-primary/40",
-        magenta: "bg-neon-magenta text-white hover:bg-neon-magenta/90 active:bg-neon-magenta/80 shadow-lg shadow-neon-magenta/25 hover:shadow-neon-magenta/40",
+        ghost: "hover:bg-secondary hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+        amber: "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80 shadow-sm",
+        magenta: "bg-neon-magenta text-primary-foreground hover:bg-neon-magenta/90 active:bg-neon-magenta/80 shadow-sm",
       },
       size: {
         default: "h-10 px-5 py-2 rounded-full",
