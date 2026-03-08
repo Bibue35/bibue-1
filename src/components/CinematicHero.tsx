@@ -171,7 +171,7 @@ export function CinematicHero() {
               </div>
 
               {/* Title */}
-              <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-sacred tracking-tight leading-[1.05] mb-3 sm:mb-4">
+              <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold font-sacred tracking-tight leading-[1.02] mb-4 sm:mb-6">
                 {current.manga.title}
               </h2>
 
