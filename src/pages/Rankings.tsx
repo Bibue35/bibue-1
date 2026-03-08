@@ -74,7 +74,7 @@ export default function RankingsPage() {
       <CollapsibleNavbar />
 
       {/* Hero - Clean text-only design */}
-      <section className="pt-28 sm:pt-32 pb-6 sm:pb-8">
+      <section className="pt-28 sm:pt-36 pb-8 sm:pb-12">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
