@@ -349,8 +349,8 @@ export default function MangaDetailPage() {
 
             {/* ═══ INFORMATION PANEL ═══ */}
             <div>
-              <h2 className="uppercase text-[10px] sm:text-xs tracking-widest text-muted-foreground mb-4 font-semibold">Information</h2>
-              <div className="rounded-2xl bg-muted/30 border border-border/30 divide-y divide-border/20">
+              <h2 className="uppercase text-[10px] sm:text-xs tracking-widest text-muted-foreground mb-5 font-semibold">Information</h2>
+              <div className="rounded-2xl glass-panel divide-y divide-border/20">
                 {[
                   { label: "Status", value: statusLabel },
                   { label: "Published", value: publishedRange },
