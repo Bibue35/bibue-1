@@ -174,7 +174,7 @@ export default function RankingsPage() {
           {error ? (
             <SectionError message="Failed to load rankings" onRetry={() => refetch()} />
           ) : isLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-8">
               {Array.from({ length: 25 }).map((_, i) => (
                 <div key={i} className="space-y-4">
                   <Skeleton className="aspect-[2/3] rounded-2xl" />
