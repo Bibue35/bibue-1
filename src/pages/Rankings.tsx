@@ -77,7 +77,7 @@ export default function RankingsPage() {
       <section className="pt-28 sm:pt-36 pb-8 sm:pb-12">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-4 sm:mb-6 font-sacred">
               Top Rankings
             </h1>
             <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-2">ランキング</p>
