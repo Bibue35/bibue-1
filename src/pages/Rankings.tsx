@@ -38,28 +38,28 @@ export default function RankingsPage() {
     if (index === 0) {
       return {
         className: "rank-gold",
-        icon: <Crown className="w-4 h-4" />,
-        size: "w-12 h-12 text-base"
+        icon: <Crown className="w-5 h-5" />,
+        size: "w-14 h-14 text-lg"
       };
     }
     if (index === 1) {
       return {
         className: "rank-silver",
-        icon: <Medal className="w-4 h-4" />,
-        size: "w-11 h-11 text-sm"
+        icon: <Medal className="w-5 h-5" />,
+        size: "w-13 h-13 text-base"
       };
     }
     if (index === 2) {
       return {
         className: "rank-bronze",
-        icon: <Award className="w-4 h-4" />,
-        size: "w-11 h-11 text-sm"
+        icon: <Award className="w-5 h-5" />,
+        size: "w-13 h-13 text-base"
       };
     }
     return {
       className: "rank-badge",
       icon: null,
-      size: "w-10 h-10 text-sm"
+      size: "w-11 h-11 text-sm"
     };
   };
 
