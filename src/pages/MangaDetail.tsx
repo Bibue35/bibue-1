@@ -311,7 +311,7 @@ export default function MangaDetailPage() {
 
                 {/* Members */}
                 {manga?.members && (
-                  <div className="rounded-2xl bg-muted/30 border border-border/30 p-4 sm:p-5">
+                  <div className="rounded-2xl glass-panel p-5 sm:p-6">
                     <div className="flex items-center gap-2 mb-2">
                       <Users className="w-4 h-4 text-primary" />
                       <span className="text-xs text-muted-foreground font-medium">Members</span>
