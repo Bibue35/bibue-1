@@ -181,7 +181,7 @@ export function CollapsibleNavbar() {
         {/* Mobile Menu */}
         <div
           className={cn(
-            "md:hidden fixed top-14 left-3 right-3 z-[55] bg-popover/95 backdrop-blur-md border border-border/50 rounded-2xl overflow-hidden transition-all duration-200 shadow-lg",
+            "md:hidden fixed top-14 left-3 right-3 z-[55] bg-[rgba(20,23,26,0.9)] backdrop-blur-[24px] border border-[rgba(192,192,192,0.2)] rounded-2xl overflow-hidden transition-all duration-200 shadow-lg",
             isMobileMenuOpen
               ? "opacity-100 translate-y-0"
               : "opacity-0 -translate-y-4 pointer-events-none"
