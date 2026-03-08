@@ -29,7 +29,7 @@ export function ContentSection({
   const { language, t } = useLanguage();
   const defaultLinkText = linkText || t("section.seeAll");
   return (
-    <section className={cn(compact ? "py-4 sm:py-6" : "py-6 sm:py-10", className)}>
+    <section className={cn(compact ? "py-6 sm:py-8" : "py-10 sm:py-16", className)}>
       <div className="container mx-auto px-3 sm:px-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-4 sm:mb-6">
