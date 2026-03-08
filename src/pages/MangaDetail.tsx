@@ -213,7 +213,7 @@ export default function MangaDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
 
           {/* Left: Main content — 8 cols */}
-          <div className="lg:col-span-8 space-y-8">
+          <div className="lg:col-span-8 space-y-12">
 
             {/* Synopsis */}
             <div>
