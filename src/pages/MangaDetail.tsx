@@ -266,8 +266,8 @@ export default function MangaDetailPage() {
 
             {/* ═══ PREMIUM STATISTICS PANEL ═══ */}
             <div>
-              <h2 className="uppercase text-[10px] sm:text-xs tracking-widest text-muted-foreground mb-4 font-semibold">Statistics</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <h2 className="uppercase text-[10px] sm:text-xs tracking-widest text-muted-foreground mb-5 font-semibold">Statistics</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {/* Score */}
                 {manga?.score && (
                   <div className="rounded-2xl bg-muted/30 border border-primary/20 p-4 sm:p-5 col-span-2 sm:col-span-1">
