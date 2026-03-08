@@ -270,7 +270,7 @@ export default function MangaDetailPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {/* Score */}
                 {manga?.score && (
-                  <div className="rounded-2xl bg-muted/30 border border-primary/20 p-4 sm:p-5 col-span-2 sm:col-span-1">
+                  <div className="rounded-2xl glass-panel p-5 sm:p-6 col-span-2 sm:col-span-1">
                     <div className="flex items-center gap-2 mb-2">
                       <Star className="w-5 h-5 fill-primary text-primary" />
                       <span className="text-xs text-muted-foreground font-medium">Score</span>
