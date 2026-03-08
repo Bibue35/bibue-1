@@ -169,7 +169,7 @@ export default function RankingsPage() {
       </section>
 
       {/* Rankings Grid with enhanced visibility */}
-      <section className="py-8 sm:py-16">
+      <section className="py-12 sm:py-20">
         <div className="container mx-auto px-3 sm:px-4">
           {error ? (
             <SectionError message="Failed to load rankings" onRetry={() => refetch()} />
