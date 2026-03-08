@@ -40,7 +40,7 @@ export function ContentSection({
               </div>
             )}
             <div>
-              <h2 className="text-base sm:text-lg md:text-xl font-bold tracking-tight">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight">
                 {title}
               </h2>
               {titleJp && language === "ja" && (
