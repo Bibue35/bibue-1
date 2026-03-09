@@ -131,7 +131,7 @@ function GenreSwipeBar({ onSelect, activeGenre }: { onSelect: (id: string | null
                 : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
             )}
           >
-            {g.emoji} {g.name}
+            {g.name}
           </button>
         ))}
       </div>
