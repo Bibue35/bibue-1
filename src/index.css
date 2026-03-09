@@ -2110,7 +2110,7 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: liquid-metal-shimmer 3s ease-in-out infinite;
+  animation: liquid-metal-shimmer 4s ease-in-out infinite;
 }
 
 :root .liquid-metal-text {
@@ -2126,7 +2126,7 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: liquid-metal-shimmer 3s ease-in-out infinite;
+  animation: liquid-metal-shimmer 4s ease-in-out infinite;
 }
 
 .dark .liquid-metal-text {
@@ -2142,11 +2142,149 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: liquid-metal-shimmer 3s ease-in-out infinite;
+  animation: liquid-metal-shimmer 4s ease-in-out infinite;
 }
 
 /* ============================================
- * FLOATING TOOLBAR — Golden Ring + Animations
+ * PREMIUM MICRO-ANIMATIONS & UTILITIES
+ * ============================================ */
+
+/* Section reveal — fade-up + scale on scroll */
+.section-reveal {
+  opacity: 0;
+  transform: translateY(12px) scale(0.97);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.section-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Subtle silver text gradient — no animation */
+.text-gradient-subtle {
+  background: linear-gradient(135deg, hsl(var(--muted-foreground)), hsl(var(--foreground) / 0.7));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Card tilt hover — 3D perspective */
+.card-tilt-hover {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.card-tilt-hover:hover {
+  transform: perspective(800px) rotateX(2deg) rotateY(-1deg);
+}
+
+/* Glow line top — 1px gradient on hover */
+.glow-line-top {
+  position: relative;
+}
+.glow-line-top::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.5), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+.glow-line-top:hover::before {
+  opacity: 1;
+}
+
+/* Hover grow utility */
+.hover-grow {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hover-grow:hover {
+  transform: scale(1.03);
+}
+
+/* Fade border utility */
+.fade-border {
+  border: 1px solid transparent;
+  transition: border-color 0.3s ease;
+}
+.fade-border:hover {
+  border-color: hsl(0 0% 75% / 0.2);
+}
+
+/* Entrance stagger for grid children */
+.entrance-stagger > * {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.entrance-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.entrance-stagger > *:nth-child(2) { animation-delay: 40ms; }
+.entrance-stagger > *:nth-child(3) { animation-delay: 80ms; }
+.entrance-stagger > *:nth-child(4) { animation-delay: 120ms; }
+.entrance-stagger > *:nth-child(5) { animation-delay: 160ms; }
+.entrance-stagger > *:nth-child(6) { animation-delay: 200ms; }
+.entrance-stagger > *:nth-child(7) { animation-delay: 240ms; }
+.entrance-stagger > *:nth-child(8) { animation-delay: 280ms; }
+.entrance-stagger > *:nth-child(9) { animation-delay: 320ms; }
+.entrance-stagger > *:nth-child(10) { animation-delay: 360ms; }
+.entrance-stagger > *:nth-child(11) { animation-delay: 400ms; }
+.entrance-stagger > *:nth-child(12) { animation-delay: 440ms; }
+
+/* Breathe animation for hero/featured elements */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+.animate-breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+/* Arrow slide-right on hover */
+.arrow-slide-right {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.group:hover .arrow-slide-right,
+.arrow-slide-right:hover {
+  transform: translateX(3px);
+}
+
+/* Navbar bottom shimmer line */
+.navbar-shimmer-line {
+  position: relative;
+}
+.navbar-shimmer-line::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(0 0% 75% / 0.3), transparent);
+  pointer-events: none;
+}
+
+/* Footer top glow line */
+.footer-glow-line {
+  position: relative;
+}
+.footer-glow-line::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.3), transparent);
+  pointer-events: none;
+}
+
+/* ============================================
+ * FLOATING TOOLBAR — Silver Ring + Animations
  * ============================================ */
 @keyframes spin-gold-ring {
   from { transform: rotate(0deg); }
@@ -2165,6 +2303,22 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .section-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .card-tilt-hover:hover {
+    transform: none;
+  }
+  .entrance-stagger > * {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
+  }
+  .animate-breathe {
+    animation: none;
+  }
   *,
   *::before,
   *::after {
