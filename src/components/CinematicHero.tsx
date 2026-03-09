@@ -274,7 +274,7 @@ export function CinematicHero() {
             <>
               <div className="flex items-center gap-2 mb-3 sm:mb-4">
                 <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                <span className="text-sm sm:text-base font-semibold">Trending Now</span>
+                <span className="text-sm sm:text-base font-semibold liquid-metal-text">Trending Now</span>
               </div>
               <HorizontalScroll showArrows={false}>
                 {trending.slice(0, 12).map((item, index) => (

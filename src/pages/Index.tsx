@@ -279,6 +279,7 @@ const Index = () => {
       </Suspense>
 
       </main>
+      <PremiumToolbar />
       <Suspense fallback={null}>
         <Footer />
       </Suspense>
