@@ -2061,22 +2061,6 @@
   animation: silver-pulse 2s ease-in-out infinite;
 }
 
-/* Logo breathing animation — 8s loop, very subtle */
-@keyframes logo-breathe {
-  0%, 100% { transform: scale(1); filter: brightness(1); }
-  50% { transform: scale(1.03); filter: brightness(1.08); }
-}
-.logo-breathe {
-  animation: logo-breathe 8s ease-in-out infinite;
-}
-@keyframes logo-breathe-glow-anim {
-  0%, 100% { opacity: 0.2; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.15); }
-}
-.logo-breathe-glow {
-  animation: logo-breathe-glow-anim 8s ease-in-out infinite;
-}
-
 /* Metallic progress bar */
 .progress-metallic {
   background: linear-gradient(90deg, 

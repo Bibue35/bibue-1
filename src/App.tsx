@@ -19,7 +19,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy load non-critical shell components
 const BackToTop = lazy(() => import("@/components/BackToTop").then(m => ({ default: m.BackToTop })));
-const GlassPillToolbar = lazy(() => import("@/components/GlassPillToolbar").then(m => ({ default: m.GlassPillToolbar })));
 const OfflineBanner = lazy(() => import("@/components/OfflineBanner").then(m => ({ default: m.OfflineBanner })));
 
 
@@ -122,7 +121,6 @@ const App = () => (
                     <MessageNotificationProvider>
                       <MiniPlayer />
                       <BackToTop />
-                      <GlassPillToolbar />
                       <ContextualBottomStrip />
                       <CreatorWelcomeModal />
                       <PWAInstallPrompt />
