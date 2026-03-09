@@ -29,7 +29,7 @@ export function GlassPillToolbar() {
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
-  const { data: watchlist } = useWatchlist();
+  const { watchlist } = useWatchlist();
   const seriesCount = watchlist?.length ?? 0;
 
   useEffect(() => {
