@@ -87,7 +87,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
         onClick={() => setModalOpen(true)}
         className="block group/card text-left w-full active:scale-[0.98] transition-transform duration-200 isolate"
       >
-        <div className="bg-card rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover/card:-translate-y-3 group-hover/card:scale-[1.02] will-change-transform transform-gpu border border-transparent group-hover/card:border-[rgba(192,192,192,0.2)] group-hover/card:shadow-[0_16px_48px_rgba(0,0,0,0.25),0_0_0_1px_rgba(192,192,192,0.08)]">
+        <div className="bg-card rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover/card:-translate-y-3 group-hover/card:scale-[1.02] will-change-transform transform-gpu border border-transparent group-hover/card:border-[rgba(192,192,192,0.15)] group-hover/card:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.35),0_8px_24px_-8px_rgba(0,0,0,0.2)]">
           {/* Image */}
           <div className="relative aspect-[3/4] overflow-hidden silver-hover-frame">
             <img
