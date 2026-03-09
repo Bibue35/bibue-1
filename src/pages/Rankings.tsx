@@ -20,7 +20,6 @@ export default function RankingsPage() {
   const [animeFilter, setAnimeFilter] = useState<'airing' | 'upcoming' | 'bypopularity' | 'favorite' | undefined>();
   const [mangaFilter, setMangaFilter] = useState<'manga' | 'manhwa' | 'manhua' | undefined>();
 
-  // Sync URL with state
   useEffect(() => {
     setSearchParams({ type: activeType });
   }, [activeType, setSearchParams]);
@@ -33,7 +32,6 @@ export default function RankingsPage() {
   const error = activeType === "anime" ? animeError : mangaError;
   const refetch = activeType === "anime" ? refetchAnime : refetchManga;
 
-  // Get rank badge styling
   const getRankBadge = (index: number) => {
     if (index === 0) {
       return {
@@ -73,24 +71,23 @@ export default function RankingsPage() {
       />
       <CollapsibleNavbar />
 
-      {/* Hero - Clean text-only design */}
+      {/* Hero */}
       <section className="pt-28 sm:pt-36 pb-8 sm:pb-12">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-4 sm:mb-6 font-sacred">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-4 sm:mb-6 font-sacred liquid-metal-text">
               Top Rankings
             </h1>
             <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-2">ランキング</p>
             <p className="text-sm sm:text-base text-muted-foreground">
               Discover the highest-rated anime and manga as voted by millions of fans worldwide.
             </p>
-            {/* Decorative underline */}
             <div className="mt-4 sm:mt-6 mx-auto w-24 h-1 rounded-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           </div>
         </div>
       </section>
 
-      {/* Type Toggle - Subtle, consistent styling */}
+      {/* Type Toggle */}
       <section className="pb-4 sm:pb-8">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex items-center justify-center gap-2">
@@ -168,7 +165,7 @@ export default function RankingsPage() {
         </div>
       </section>
 
-      {/* Rankings Grid with enhanced visibility */}
+      {/* Rankings Grid */}
       <section className="py-12 sm:py-20">
         <div className="container mx-auto px-3 sm:px-4">
           {error ? (
@@ -182,14 +179,14 @@ export default function RankingsPage() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-8 entrance-stagger">
               {data?.map((item, index) => {
                 const rankStyle = getRankBadge(index);
                 
                 return (
                   <div 
                     key={item.anilist_id}
-                    className="relative"
+                    className="relative card-tilt-hover"
                     style={{ zIndex: 25 - index }}
                   >
                     {/* Enhanced rank badge */}
@@ -201,7 +198,10 @@ export default function RankingsPage() {
                       {rankStyle.icon ? (
                         <div className="flex flex-col items-center">
                           {rankStyle.icon}
-                          <span className="text-[10px] mt-0.5">{index + 1}</span>
+                          <span className={cn(
+                            "text-[10px] mt-0.5",
+                            index < 3 && "liquid-metal-text"
+                          )}>{index + 1}</span>
                         </div>
                       ) : (
                         index + 1

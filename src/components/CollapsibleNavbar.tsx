@@ -92,7 +92,7 @@ export function CollapsibleNavbar() {
         aria-label="Main navigation"
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out transform-gpu",
-          isScrolled ? "bg-[rgba(20,23,26,0.75)] backdrop-blur-[24px] border-b border-[rgba(192,192,192,0.15)] py-2" : "bg-transparent py-3",
+          isScrolled ? "bg-[rgba(20,23,26,0.75)] backdrop-blur-[24px] border-b border-[rgba(192,192,192,0.15)] py-2 navbar-shimmer-line" : "bg-transparent py-3",
           !isVisible && "-translate-y-full pointer-events-none"
         )}
         style={{
@@ -127,9 +127,9 @@ export function CollapsibleNavbar() {
                   key={link.href}
                   to={link.href}
                   className={cn(
-                    "px-4 py-2 text-sm font-medium rounded-full transition-all duration-200",
+                    "px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 nav-underline",
                     location.pathname === link.href
-                      ? "text-foreground bg-foreground/10"
+                      ? "text-foreground bg-foreground/10 active"
                       : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
                   )}
                 >

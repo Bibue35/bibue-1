@@ -87,7 +87,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
         onClick={() => setModalOpen(true)}
         className="block group/card text-left w-full active:scale-[0.98] transition-transform duration-200 isolate"
       >
-        <div className="bg-card rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover/card:-translate-y-3 group-hover/card:scale-[1.02] will-change-transform transform-gpu border border-transparent group-hover/card:border-[rgba(192,192,192,0.2)] group-hover/card:shadow-[0_16px_48px_rgba(0,0,0,0.25),0_0_0_1px_rgba(192,192,192,0.08)]">
+        <div className="bg-card rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover/card:-translate-y-3 group-hover/card:scale-[1.02] will-change-transform transform-gpu border border-transparent group-hover/card:border-[rgba(192,192,192,0.2)] group-hover/card:shadow-[0_16px_48px_rgba(0,0,0,0.25),0_0_0_1px_rgba(192,192,192,0.08)] card-tilt-hover glow-line-top">
           {/* Image */}
           <div className="relative aspect-[3/4] overflow-hidden silver-hover-frame">
             <img
@@ -105,7 +105,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
             {/* Top-right badges */}
             <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex flex-col gap-1.5">
               {manga.score && (
-                <div className="bg-background/70 backdrop-blur-sm text-foreground text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-medium flex items-center gap-1 border border-border/20">
+                <div className="glass-panel bg-background/70 backdrop-blur-md text-foreground text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-medium flex items-center gap-1 border border-border/20">
                   <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-primary text-primary" />
                   {formatScore(manga.score)}
                 </div>
@@ -143,13 +143,17 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
             <h3 className="font-semibold text-[11px] sm:text-sm md:text-base leading-tight line-clamp-1 sm:line-clamp-2 text-card-foreground group-hover/card:text-primary transition-colors duration-300">
               {manga.title}
             </h3>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-1.5 truncate font-normal">
+            
+            {/* Soft divider */}
+            <div className="w-full h-px bg-border/20 my-1.5 sm:my-2" />
+            
+            <p className="text-[10px] sm:text-xs text-muted-foreground truncate font-normal">
               {manga.authors && manga.authors.length > 0 && <>{manga.authors[0].name} • </>}
               {typeLabel}
               {publishedYear && <> • {publishedYear}</>}
             </p>
 
-            <div className="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-3 text-[9px] sm:text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 sm:gap-3 mt-1.5 sm:mt-2 text-[9px] sm:text-xs text-muted-foreground">
               {chapterCount && <span>Chapter {chapterCount}</span>}
               {chapterCount && statusLabel && <span className="w-1 h-1 bg-muted-foreground/30 rounded-full" />}
               {statusLabel && <span>{statusLabel}</span>}

@@ -2,7 +2,7 @@
  * Bibue - Manga, Manhwa & Manhua Platform
  * Main landing page with Apple-style search design
  */
-import { lazy, Suspense, useCallback } from "react";
+import { lazy, Suspense, useCallback, useState } from "react";
 import { SEO, websiteJsonLd } from "@/components/SEO";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { SectionError } from "@/components/SectionError";
@@ -17,6 +17,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, TrendingUp, Sparkles, Flame, History, Trophy, Zap, Upload, BookOpen } from "lucide-react";
 import { ContinueReadingRow } from "@/components/ContinueRow";
 import { PremiumToolbar } from "@/components/PremiumToolbar";
+import { ViewToggle, ViewMode } from "@/components/ViewToggle";
 
 import { useNotificationGenerator } from "@/hooks/useNotificationGenerator";
 import { Button } from "@/components/ui/button";
@@ -26,20 +27,50 @@ import { useViewingHistory } from "@/hooks/useViewingHistory";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDeferredSection } from "@/hooks/useDeferredSection";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Manga } from "@/lib/api";
 
 // Lazy-load below-fold heavy components
 const Footer = lazy(() => import("@/components/Footer").then(m => ({ default: m.Footer })));
 const AdUnit = lazy(() => import("@/components/AdUnit").then(m => ({ default: m.AdUnit })));
-const BibuOriginalsSection = lazy(() => import("@/components/BibuOriginalsSection").then(m => ({ default: m.BibuOriginalsSection })));
 
+function MangaGrid({ items }: { items: Manga[] }) {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 entrance-stagger">
+      {items.slice(0, 12).map((manga, index) => (
+        <MangaCard key={manga.anilist_id} manga={manga} index={index} />
+      ))}
+    </div>
+  );
+}
+
+function MangaCarousel({ items, isMobile }: { items: Manga[]; isMobile: boolean }) {
+  return (
+    <HorizontalScroll showArrows={!isMobile}>
+      {items.slice(0, 12).map((manga, index) => (
+        <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-48" style={{ scrollSnapAlign: "start" }}>
+          <MangaCard manga={manga} index={index} />
+        </div>
+      ))}
+    </HorizontalScroll>
+  );
+}
 
 const Index = () => {
   const navigate = useNavigate();
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    try { return (localStorage.getItem("bibue-view-mode") as ViewMode) || "carousel"; }
+    catch { return "carousel"; }
+  });
+
+  const handleViewChange = (mode: ViewMode) => {
+    setViewMode(mode);
+    try { localStorage.setItem("bibue-view-mode", mode); } catch {}
+  };
 
   // Above-fold hooks
   const { data: topManga, isLoading: topMangaLoading, isError: topMangaError, refetch: refetchTopManga } = useTopManga(1, undefined, 'popularity');
 
-  // Below-fold deferred — only fetch when near viewport
+  // Below-fold deferred
   const manhwaSection = useDeferredSection("400px");
   const manhuaSection = useDeferredSection("400px");
   const recentSection = useDeferredSection("400px");
@@ -47,7 +78,6 @@ const Index = () => {
 
   const { data: trendingManhwa, isLoading: trendingManhwaLoading, isError: trendingManhwaError, refetch: refetchTrendingManhwa } = useTrendingManhwa(1, manhwaSection.isVisible);
   const { data: trendingManhua, isLoading: trendingManhuaLoading, isError: trendingManhuaError, refetch: refetchTrendingManhua } = useTrendingManhua(1, manhuaSection.isVisible);
-
   const { data: recentManga, isLoading: recentLoading, isError: recentError, refetch: refetchRecent } = useRecentlyUpdatedManga(1, recentSection.isVisible);
   const { data: allTimeManga, isLoading: allTimeLoading, isError: allTimeError, refetch: refetchAllTime } = useAllTimeTopManga(1, undefined, allTimeSection.isVisible);
 
@@ -68,6 +98,23 @@ const Index = () => {
     ]);
   }, [queryClient]);
 
+  const viewToggle = <ViewToggle mode={viewMode} onChange={handleViewChange} />;
+
+  const renderMangaSection = (data: Manga[] | undefined, isLoading: boolean) => {
+    if (isLoading) {
+      return viewMode === "grid" ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+          <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-full" />
+        </div>
+      ) : (
+        <HorizontalScroll showArrows={!isMobile}>
+          <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-48" />
+        </HorizontalScroll>
+      );
+    }
+    if (!data) return null;
+    return viewMode === "grid" ? <MangaGrid items={data} /> : <MangaCarousel items={data} isMobile={isMobile} />;
+  };
 
   return (
     <>
@@ -105,6 +152,17 @@ const Index = () => {
       </section>
       )}
 
+      {/* Welcome greeting for logged-in users */}
+      {user && (
+        <section className="container mx-auto px-3 sm:px-4 pt-6 sm:pt-8">
+          <div className="glass-panel px-5 py-4 sm:px-6 sm:py-5">
+            <p className="text-sm text-muted-foreground">Welcome back,</p>
+            <p className="text-lg sm:text-xl font-bold liquid-metal-text">
+              {user.email?.split("@")[0] || "Reader"}
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* Continue Reading */}
       <ContinueReadingRow />
@@ -157,45 +215,21 @@ const Index = () => {
       )}
 
       {/* Top Manga */}
-      <ContentSection title={t("section.topManga") || "Top Manga"} icon={Flame} linkTo="/manga">
+      <ContentSection title={t("section.topManga") || "Top Manga"} icon={Flame} linkTo="/manga" headerExtra={viewToggle}>
         {topMangaError ? (
           <SectionError onRetry={() => refetchTopManga()} />
-        ) : (
-          <HorizontalScroll showArrows={!isMobile}>
-            {topMangaLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-48" />
-            ) : (
-              topManga?.slice(0, 12).map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-48" style={{ scrollSnapAlign: "start" }}>
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
-        )}
+        ) : renderMangaSection(topManga, topMangaLoading)}
       </ContentSection>
 
-      {/* Below-fold sections use content-visibility for paint deferral */}
+      {/* Below-fold sections */}
       <style>{`.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 400px; }`}</style>
 
       {/* Trending Manhwa */}
       <div ref={manhwaSection.ref} className="cv-auto">
-      <ContentSection title={t("section.trendingManhwa") || "Trending Manhwa"} icon={Zap} linkTo="/manga?filter=manhwa">
+      <ContentSection title={t("section.trendingManhwa") || "Trending Manhwa"} icon={Zap} linkTo="/manga?filter=manhwa" headerExtra={viewToggle}>
         {trendingManhwaError ? (
           <SectionError onRetry={() => refetchTrendingManhwa()} />
-        ) : (
-          <HorizontalScroll showArrows={!isMobile}>
-            {trendingManhwaLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-48" />
-            ) : (
-              trendingManhwa?.slice(0, 12).map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-48" style={{ scrollSnapAlign: "start" }}>
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-        )}
-          </HorizontalScroll>
-        )}
+        ) : renderMangaSection(trendingManhwa, trendingManhwaLoading)}
       </ContentSection>
       </div>
 
@@ -207,44 +241,20 @@ const Index = () => {
 
       {/* Trending Manhua */}
       <div ref={manhuaSection.ref} className="cv-auto">
-      <ContentSection title={t("section.trendingManhua") || "Trending Manhua"} icon={Zap} linkTo="/manga?filter=manhua">
+      <ContentSection title={t("section.trendingManhua") || "Trending Manhua"} icon={Zap} linkTo="/manga?filter=manhua" headerExtra={viewToggle}>
         {trendingManhuaError ? (
           <SectionError onRetry={() => refetchTrendingManhua()} />
-        ) : (
-          <HorizontalScroll showArrows={!isMobile}>
-            {trendingManhuaLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-48" />
-            ) : (
-              trendingManhua?.slice(0, 12).map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-48" style={{ scrollSnapAlign: "start" }}>
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-        )}
-          </HorizontalScroll>
-        )}
+        ) : renderMangaSection(trendingManhua, trendingManhuaLoading)}
       </ContentSection>
       </div>
 
       {/* Recently Updated */}
       <div ref={recentSection.ref} className="cv-auto">
       {recentSection.isVisible ? (
-      <ContentSection title="Recently Updated" icon={Sparkles} linkTo="/manga">
+      <ContentSection title="Recently Updated" icon={Sparkles} linkTo="/manga" headerExtra={viewToggle}>
         {recentError ? (
           <SectionError onRetry={() => refetchRecent()} />
-        ) : (
-          <HorizontalScroll showArrows={!isMobile}>
-            {recentLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-48" />
-            ) : (
-              recentManga?.slice(0, 12).map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-48" style={{ scrollSnapAlign: "start" }}>
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
-        )}
+        ) : renderMangaSection(recentManga, recentLoading)}
       </ContentSection>
       ) : <div className="py-6 sm:py-10" />}
       </div>
@@ -252,22 +262,10 @@ const Index = () => {
       {/* All-Time Top Manga */}
       <div ref={allTimeSection.ref} className="cv-auto">
       {allTimeSection.isVisible ? (
-      <ContentSection title="All-Time Top Rated" icon={Trophy} linkTo="/rankings?type=manga">
+      <ContentSection title="All-Time Top Rated" icon={Trophy} linkTo="/rankings?type=manga" headerExtra={viewToggle}>
         {allTimeError ? (
           <SectionError onRetry={() => refetchAllTime()} />
-        ) : (
-          <HorizontalScroll showArrows={!isMobile}>
-            {allTimeLoading ? (
-              <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-48" />
-            ) : (
-              allTimeManga?.slice(0, 12).map((manga, index) => (
-                <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-48" style={{ scrollSnapAlign: "start" }}>
-                  <MangaCard manga={manga} index={index} />
-                </div>
-              ))
-            )}
-          </HorizontalScroll>
-        )}
+        ) : renderMangaSection(allTimeManga, allTimeLoading)}
       </ContentSection>
       ) : <div className="py-6 sm:py-10" />}
       </div>

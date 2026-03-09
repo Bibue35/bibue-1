@@ -18,14 +18,12 @@ export function PremiumToolbar() {
   const location = useLocation();
   const isDark = resolvedMode === "dark";
 
-  // Active index based on current route
   const activeIndex = NAV_ITEMS.findIndex((item) => {
     if (item.path === "/") return location.pathname === "/";
     return location.pathname.startsWith(item.path);
   });
   const currentActive = activeIndex === -1 ? 0 : activeIndex;
 
-  // Indicator position
   const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
@@ -48,7 +46,6 @@ export function PremiumToolbar() {
     return () => window.removeEventListener("resize", updateIndicator);
   }, [updateIndicator]);
 
-  // Theme toggle bounce
   const [themeBounce, setThemeBounce] = useState(false);
   const handleThemeToggle = () => {
     setThemeBounce(true);
@@ -58,7 +55,7 @@ export function PremiumToolbar() {
 
   if (isMobile) return null;
 
-  const indicatorSize = indicatorStyle.width + 8; // 4px padding each side
+  const indicatorSize = indicatorStyle.width + 8;
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
@@ -91,7 +88,7 @@ export function PremiumToolbar() {
           WebkitBackdropFilter: "blur(24px)",
         }}
       >
-        {/* Sliding golden indicator */}
+        {/* Sliding silver indicator */}
         <div
           className="absolute top-1/2 -translate-y-1/2 pointer-events-none"
           style={{
@@ -101,17 +98,17 @@ export function PremiumToolbar() {
             transition: "left 0.5s cubic-bezier(0.34, 1.2, 0.64, 1), width 0.3s ease",
           }}
         >
-          {/* Layer 1: Glow */}
+          {/* Layer 1: Silver Glow */}
           <div
             className="absolute inset-0 rounded-[18px]"
             style={{
-              background: "#e8af48",
+              background: "#C0C0C0",
               opacity: 0.15,
               filter: "blur(12px)",
             }}
           />
 
-          {/* Layer 2: Clip container with rotating conic gradient */}
+          {/* Layer 2: Clip container with rotating conic gradient — SILVER */}
           <div className="absolute inset-0 rounded-[18px] overflow-hidden">
             <div
               className="absolute inset-[-50%] w-[200%] h-[200%]"
@@ -119,33 +116,33 @@ export function PremiumToolbar() {
                 animation: "spin-gold-ring 4.5s linear infinite",
                 background: `conic-gradient(
                   from 0deg,
-                  #533517 0%,
-                  #c49746 12%,
-                  #feeaa5 22%,
+                  #4A4A4A 0%,
+                  #A8A8A8 12%,
+                  #E8E8E8 22%,
                   #ffffff 24%,
-                  #feeaa5 27%,
-                  #c49746 35%,
-                  #533517 42%,
-                  #c49746 48%,
-                  #ffc0cb 49.5%,
-                  #6495ed 51%,
-                  #c49746 52.5%,
-                  #feeaa5 58%,
-                  #533517 65%,
-                  #c49746 72%,
-                  #feeaa5 82%,
+                  #E8E8E8 27%,
+                  #A8A8A8 35%,
+                  #4A4A4A 42%,
+                  #A8A8A8 48%,
+                  #D4C4D0 49.5%,
+                  #8AAED0 51%,
+                  #A8A8A8 52.5%,
+                  #E8E8E8 58%,
+                  #4A4A4A 65%,
+                  #A8A8A8 72%,
+                  #E8E8E8 82%,
                   #ffffff 84%,
-                  #feeaa5 87%,
-                  #c49746 92%,
-                  #ffc0cb 96%,
-                  #6495ed 97.5%,
-                  #533517 100%
+                  #E8E8E8 87%,
+                  #A8A8A8 92%,
+                  #D4C4D0 96%,
+                  #8AAED0 97.5%,
+                  #4A4A4A 100%
                 )`,
               }}
             />
           </div>
 
-          {/* Layer 3: Inner plate (covers center, shows 2px ring) */}
+          {/* Layer 3: Inner plate */}
           <div
             className="absolute rounded-[16px]"
             style={{
@@ -175,7 +172,6 @@ export function PremiumToolbar() {
                 <Icon className="w-[18px] h-[18px]" strokeWidth={1.5} />
               </button>
 
-              {/* Divider (not after last nav item) */}
               {i < NAV_ITEMS.length - 1 && (
                 <div
                   className={cn(

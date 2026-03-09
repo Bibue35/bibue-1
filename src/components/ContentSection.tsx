@@ -4,6 +4,7 @@ import { ArrowRight, LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useInView } from "@/hooks/useInView";
 
 interface ContentSectionProps {
   title: string;
@@ -14,6 +15,7 @@ interface ContentSectionProps {
   children: ReactNode;
   className?: string;
   compact?: boolean;
+  headerExtra?: ReactNode;
 }
 
 export function ContentSection({
@@ -25,14 +27,23 @@ export function ContentSection({
   children,
   className,
   compact = false,
+  headerExtra,
 }: ContentSectionProps) {
   const { language, t } = useLanguage();
   const defaultLinkText = linkText || t("section.seeAll");
+  const { ref, isInView } = useInView({ threshold: 0.1, rootMargin: "0px 0px -20px 0px" });
+
   return (
     <section className={cn(compact ? "py-8 sm:py-10" : "py-12 sm:py-16 lg:py-20", className)}>
       <div className="container mx-auto px-3 sm:px-4">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6 sm:mb-8">
+        <div
+          ref={ref}
+          className={cn(
+            "flex items-center justify-between mb-6 sm:mb-8 section-reveal",
+            isInView && "revealed"
+          )}
+        >
           <div className="flex items-center gap-2.5 sm:gap-3">
             {Icon && (
               <div className="p-1.5 sm:p-2 rounded-xl bg-primary/10 icon-premium">
@@ -51,20 +62,23 @@ export function ContentSection({
             </div>
           </div>
 
-          {linkTo && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="gap-1 text-xs h-8 px-2 sm:px-3 rounded-full text-muted-foreground hover:text-foreground transition-colors duration-300" 
-              asChild
-            >
-              <Link to={linkTo}>
-                <span className="hidden xs:inline">{defaultLinkText}</span>
-                <span className="xs:hidden">{t("common.all")}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {headerExtra}
+            {linkTo && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="group gap-1 text-xs h-8 px-2 sm:px-3 rounded-full text-muted-foreground hover:text-foreground transition-colors duration-300" 
+                asChild
+              >
+                <Link to={linkTo}>
+                  <span className="hidden xs:inline">{defaultLinkText}</span>
+                  <span className="xs:hidden">{t("common.all")}</span>
+                  <ArrowRight className="w-3.5 h-3.5 arrow-slide-right" />
+                </Link>
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Content */}

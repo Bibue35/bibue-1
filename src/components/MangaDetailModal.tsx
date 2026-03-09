@@ -177,7 +177,7 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
               )}
             </div>
             <div className="pb-2 sm:pb-4 min-w-0 flex-1">
-              <h1 className="text-xl sm:text-3xl md:text-5xl font-bold tracking-tight text-foreground line-clamp-2">
+              <h1 className="text-xl sm:text-3xl md:text-5xl font-bold tracking-tight text-foreground line-clamp-2 liquid-metal-text">
                 {manga?.title}
               </h1>
               {manga?.title_japanese && (
@@ -276,8 +276,8 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    "px-4 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg font-medium transition-colors border-b-2 -mb-px",
-                    activeTab === tab.id ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
+                    "px-4 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg font-medium transition-colors border-b-2 -mb-px nav-underline",
+                    activeTab === tab.id ? "border-foreground text-foreground active" : "border-transparent text-muted-foreground hover:text-foreground"
                   )}
                 >
                   {tab.label}
