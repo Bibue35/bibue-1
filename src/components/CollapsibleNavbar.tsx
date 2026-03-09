@@ -127,9 +127,9 @@ export function CollapsibleNavbar() {
                   key={link.href}
                   to={link.href}
                   className={cn(
-                    "px-4 py-2 text-sm font-medium rounded-full transition-all duration-200",
+                    "px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 nav-underline",
                     location.pathname === link.href
-                      ? "text-foreground bg-foreground/10"
+                      ? "text-foreground bg-foreground/10 active"
                       : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
                   )}
                 >

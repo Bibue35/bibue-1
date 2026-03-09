@@ -276,8 +276,8 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    "px-4 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg font-medium transition-colors border-b-2 -mb-px",
-                    activeTab === tab.id ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
+                    "px-4 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg font-medium transition-colors border-b-2 -mb-px nav-underline",
+                    activeTab === tab.id ? "border-foreground text-foreground active" : "border-transparent text-muted-foreground hover:text-foreground"
                   )}
                 >
                   {tab.label}
