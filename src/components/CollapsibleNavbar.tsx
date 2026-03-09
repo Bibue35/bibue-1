@@ -104,13 +104,14 @@ export function CollapsibleNavbar() {
           <div className="flex items-center justify-between gap-2">
             {/* Left: Logo */}
             <Link to="/" className="flex items-center gap-1.5">
-              <div className="h-8 sm:h-10 w-auto flex items-center justify-center">
+              <div className="relative h-8 sm:h-10 w-auto flex items-center justify-center logo-breathe">
+                <div className="absolute -inset-2 rounded-full opacity-40 bg-[radial-gradient(circle,rgba(192,192,192,0.15)_0%,transparent_70%)] logo-breathe-glow" />
                 <img
                   src={bibueTower}
                   alt=""
                   width={40}
                   height={40}
-                  className="h-full w-auto object-contain dark:brightness-0 dark:invert logo-stable"
+                  className="relative h-full w-auto object-contain dark:brightness-0 dark:invert logo-stable"
                   loading="eager"
                   decoding="sync"
                 />
