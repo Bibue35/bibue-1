@@ -2223,17 +2223,42 @@
   animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 .entrance-stagger > *:nth-child(1) { animation-delay: 0ms; }
-.entrance-stagger > *:nth-child(2) { animation-delay: 40ms; }
-.entrance-stagger > *:nth-child(3) { animation-delay: 80ms; }
-.entrance-stagger > *:nth-child(4) { animation-delay: 120ms; }
-.entrance-stagger > *:nth-child(5) { animation-delay: 160ms; }
-.entrance-stagger > *:nth-child(6) { animation-delay: 200ms; }
-.entrance-stagger > *:nth-child(7) { animation-delay: 240ms; }
-.entrance-stagger > *:nth-child(8) { animation-delay: 280ms; }
-.entrance-stagger > *:nth-child(9) { animation-delay: 320ms; }
-.entrance-stagger > *:nth-child(10) { animation-delay: 360ms; }
-.entrance-stagger > *:nth-child(11) { animation-delay: 400ms; }
-.entrance-stagger > *:nth-child(12) { animation-delay: 440ms; }
+.entrance-stagger > *:nth-child(2) { animation-delay: 30ms; }
+.entrance-stagger > *:nth-child(3) { animation-delay: 60ms; }
+.entrance-stagger > *:nth-child(4) { animation-delay: 90ms; }
+.entrance-stagger > *:nth-child(5) { animation-delay: 120ms; }
+.entrance-stagger > *:nth-child(6) { animation-delay: 150ms; }
+.entrance-stagger > *:nth-child(7) { animation-delay: 180ms; }
+.entrance-stagger > *:nth-child(8) { animation-delay: 210ms; }
+.entrance-stagger > *:nth-child(9) { animation-delay: 240ms; }
+.entrance-stagger > *:nth-child(10) { animation-delay: 270ms; }
+.entrance-stagger > *:nth-child(11) { animation-delay: 300ms; }
+.entrance-stagger > *:nth-child(12) { animation-delay: 330ms; }
+
+/* Editorial font utility */
+.font-editorial {
+  font-family: 'Cinzel', Georgia, serif;
+  font-style: italic;
+}
+
+/* Masonry grid utility */
+.masonry-grid {
+  columns: 2;
+  gap: 1rem;
+}
+@media (min-width: 640px) {
+  .masonry-grid { columns: 3; }
+}
+@media (min-width: 1024px) {
+  .masonry-grid { columns: 4; }
+}
+@media (min-width: 1280px) {
+  .masonry-grid { columns: 5; }
+}
+.masonry-grid > * {
+  break-inside: avoid;
+  margin-bottom: 1rem;
+}
 
 /* Breathe animation for hero/featured elements */
 @keyframes breathe {

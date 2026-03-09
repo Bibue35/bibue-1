@@ -9,7 +9,7 @@ import { WatchlistButton } from "./WatchlistButton";
 interface MangaCardProps {
   manga: Manga;
   index?: number;
-  variant?: "default" | "compact";
+  variant?: "default" | "compact" | "masonry";
 }
 
 export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(function MangaCard({ manga, index = 0, variant = "default" }, ref) {
@@ -81,25 +81,38 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
     );
   }
 
+  const isMasonry = variant === "masonry";
+
   return (
     <>
       <button
         onClick={() => setModalOpen(true)}
         className="block group/card text-left w-full active:scale-[0.98] transition-transform duration-200 isolate"
       >
-        <div className="bg-card rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover/card:-translate-y-3 group-hover/card:scale-[1.02] will-change-transform transform-gpu border border-transparent group-hover/card:border-[rgba(192,192,192,0.2)] group-hover/card:shadow-[0_16px_48px_rgba(0,0,0,0.25),0_0_0_1px_rgba(192,192,192,0.08)] card-tilt-hover glow-line-top">
+        <div className={cn(
+          "bg-card rounded-2xl overflow-hidden transition-all duration-300 ease-out",
+          "group-hover/card:-translate-y-2 group-hover/card:shadow-lg",
+          "border border-border/10 group-hover/card:border-border/30",
+          "will-change-transform transform-gpu"
+        )}>
           {/* Image */}
-          <div className="relative aspect-[3/4] overflow-hidden silver-hover-frame">
+          <div className={cn(
+            "relative overflow-hidden",
+            isMasonry ? "" : "aspect-[3/4]"
+          )}>
             <img
               src={manga.images.webp.image_url}
               alt={`${manga.title} cover art`}
               width={300}
-              height={400}
+              height={isMasonry ? undefined : 400}
               loading="lazy"
               decoding="async"
               fetchPriority="auto"
               sizes="(max-width: 480px) 30vw, (max-width: 768px) 22vw, (max-width: 1024px) 18vw, 200px"
-              className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover/card:scale-105 will-change-transform transform-gpu"
+              className={cn(
+                "w-full object-cover transition-all duration-500 ease-out group-hover/card:scale-[1.03] group-hover/card:brightness-[1.02] will-change-transform transform-gpu",
+                isMasonry ? "h-auto" : "h-full"
+              )}
             />
 
             {/* Top-right badges */}

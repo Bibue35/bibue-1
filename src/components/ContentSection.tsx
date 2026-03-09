@@ -34,24 +34,22 @@ export function ContentSection({
   const { ref, isInView } = useInView({ threshold: 0.1, rootMargin: "0px 0px -20px 0px" });
 
   return (
-    <section className={cn(compact ? "py-8 sm:py-10" : "py-12 sm:py-16 lg:py-20", className)}>
+    <section className={cn(compact ? "py-8 sm:py-10" : "py-14 sm:py-18 lg:py-22", className)}>
       <div className="container mx-auto px-3 sm:px-4">
         {/* Header */}
         <div
           ref={ref}
           className={cn(
-            "flex items-center justify-between mb-6 sm:mb-8 section-reveal",
+            "flex items-center justify-between mb-8 sm:mb-10 section-reveal",
             isInView && "revealed"
           )}
         >
-          <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             {Icon && (
-              <div className="p-1.5 sm:p-2 rounded-xl bg-primary/10 icon-premium">
-                <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-              </div>
+              <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
             )}
             <div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight liquid-metal-text">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-sacred tracking-tight liquid-metal-text">
                 {title}
               </h2>
               {titleJp && language === "ja" && (
