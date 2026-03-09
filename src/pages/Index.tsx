@@ -16,6 +16,7 @@ import { CardSkeletonRow } from "@/components/skeletons";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, TrendingUp, Sparkles, Flame, History, Trophy, Zap, Upload, BookOpen } from "lucide-react";
 import { ContinueReadingRow } from "@/components/ContinueRow";
+import { PremiumToolbar } from "@/components/PremiumToolbar";
 
 import { useNotificationGenerator } from "@/hooks/useNotificationGenerator";
 import { Button } from "@/components/ui/button";
@@ -278,6 +279,7 @@ const Index = () => {
       </Suspense>
 
       </main>
+      <PremiumToolbar />
       <Suspense fallback={null}>
         <Footer />
       </Suspense>

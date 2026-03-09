@@ -2092,6 +2092,69 @@
  * REDUCED MOTION
  * Respect user preference for reduced motion
  * ============================================ */
+/* ============================================
+ * LIQUID METALLIC TEXT
+ * Chrome/silver shimmer animation for headings
+ * ============================================ */
+@keyframes liquid-metal-shimmer {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+.liquid-metal-text {
+  background: linear-gradient(
+    120deg,
+    hsl(0 0% 75%) 0%,
+    hsl(0 0% 91%) 25%,
+    hsl(0 0% 100%) 50%,
+    hsl(0 0% 63%) 75%,
+    hsl(0 0% 75%) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: liquid-metal-shimmer 3s ease-in-out infinite;
+}
+
+:root .liquid-metal-text {
+  background: linear-gradient(
+    120deg,
+    hsl(0 0% 40%) 0%,
+    hsl(0 0% 60%) 25%,
+    hsl(0 0% 73%) 50%,
+    hsl(0 0% 35%) 75%,
+    hsl(0 0% 40%) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: liquid-metal-shimmer 3s ease-in-out infinite;
+}
+
+.dark .liquid-metal-text {
+  background: linear-gradient(
+    120deg,
+    hsl(0 0% 75%) 0%,
+    hsl(0 0% 91%) 25%,
+    hsl(0 0% 100%) 50%,
+    hsl(0 0% 63%) 75%,
+    hsl(0 0% 75%) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: liquid-metal-shimmer 3s ease-in-out infinite;
+}
+
+/* Toolbar glass effect */
+.toolbar-glass {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
