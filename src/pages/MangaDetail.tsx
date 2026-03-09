@@ -209,11 +209,11 @@ export default function MangaDetailPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 pt-20 sm:pt-24 pb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 pt-24 sm:pt-28 pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
 
           {/* Left: Main content — 8 cols */}
-          <div className="lg:col-span-8 space-y-8">
+          <div className="lg:col-span-8 space-y-12">
 
             {/* Synopsis */}
             <div>
@@ -266,11 +266,11 @@ export default function MangaDetailPage() {
 
             {/* ═══ PREMIUM STATISTICS PANEL ═══ */}
             <div>
-              <h2 className="uppercase text-[10px] sm:text-xs tracking-widest text-muted-foreground mb-4 font-semibold">Statistics</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <h2 className="uppercase text-[10px] sm:text-xs tracking-widest text-muted-foreground mb-5 font-semibold">Statistics</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {/* Score */}
                 {manga?.score && (
-                  <div className="rounded-2xl bg-muted/30 border border-primary/20 p-4 sm:p-5 col-span-2 sm:col-span-1">
+                  <div className="rounded-2xl glass-panel p-5 sm:p-6 col-span-2 sm:col-span-1">
                     <div className="flex items-center gap-2 mb-2">
                       <Star className="w-5 h-5 fill-primary text-primary" />
                       <span className="text-xs text-muted-foreground font-medium">Score</span>
@@ -289,7 +289,7 @@ export default function MangaDetailPage() {
 
                 {/* Ranked */}
                 {manga?.rank && (
-                  <div className="rounded-2xl bg-muted/30 border border-border/30 p-4 sm:p-5">
+                  <div className="rounded-2xl glass-panel p-5 sm:p-6">
                     <div className="flex items-center gap-2 mb-2">
                       <Trophy className="w-4 h-4 text-primary" />
                       <span className="text-xs text-muted-foreground font-medium">Ranked</span>
@@ -300,7 +300,7 @@ export default function MangaDetailPage() {
 
                 {/* Popularity */}
                 {manga?.popularity && (
-                  <div className="rounded-2xl bg-muted/30 border border-border/30 p-4 sm:p-5">
+                  <div className="rounded-2xl glass-panel p-5 sm:p-6">
                     <div className="flex items-center gap-2 mb-2">
                       <Globe className="w-4 h-4 text-primary" />
                       <span className="text-xs text-muted-foreground font-medium">Popularity</span>
@@ -311,7 +311,7 @@ export default function MangaDetailPage() {
 
                 {/* Members */}
                 {manga?.members && (
-                  <div className="rounded-2xl bg-muted/30 border border-border/30 p-4 sm:p-5">
+                  <div className="rounded-2xl glass-panel p-5 sm:p-6">
                     <div className="flex items-center gap-2 mb-2">
                       <Users className="w-4 h-4 text-primary" />
                       <span className="text-xs text-muted-foreground font-medium">Members</span>
@@ -322,7 +322,7 @@ export default function MangaDetailPage() {
 
                 {/* Favorites */}
                 {manga?.favorites && (
-                  <div className="rounded-2xl bg-muted/30 border border-border/30 p-4 sm:p-5">
+                  <div className="rounded-2xl glass-panel p-5 sm:p-6">
                     <div className="flex items-center gap-2 mb-2">
                       <Heart className="w-4 h-4 text-destructive" />
                       <span className="text-xs text-muted-foreground font-medium">Favorites</span>
@@ -332,7 +332,7 @@ export default function MangaDetailPage() {
                 )}
 
                 {/* Total Chapters */}
-                <div className="rounded-2xl bg-muted/30 border border-border/30 p-4 sm:p-5">
+                <div className="rounded-2xl glass-panel p-5 sm:p-6">
                   <div className="flex items-center gap-2 mb-2">
                     <BookOpen className="w-4 h-4 text-primary" />
                     <span className="text-xs text-muted-foreground font-medium">Chapters</span>
@@ -349,8 +349,8 @@ export default function MangaDetailPage() {
 
             {/* ═══ INFORMATION PANEL ═══ */}
             <div>
-              <h2 className="uppercase text-[10px] sm:text-xs tracking-widest text-muted-foreground mb-4 font-semibold">Information</h2>
-              <div className="rounded-2xl bg-muted/30 border border-border/30 divide-y divide-border/20">
+              <h2 className="uppercase text-[10px] sm:text-xs tracking-widest text-muted-foreground mb-5 font-semibold">Information</h2>
+              <div className="rounded-2xl glass-panel divide-y divide-border/20">
                 {[
                   { label: "Status", value: statusLabel },
                   { label: "Published", value: publishedRange },

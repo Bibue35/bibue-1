@@ -171,7 +171,7 @@ export function CinematicHero() {
               </div>
 
               {/* Title */}
-              <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-sacred tracking-tight leading-[1.05] mb-3 sm:mb-4">
+              <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold font-sacred tracking-tight leading-[1.02] mb-4 sm:mb-6">
                 {current.manga.title}
               </h2>
 
@@ -252,7 +252,7 @@ export function CinematicHero() {
       </div>
 
       {/* Bottom section: progress + trending */}
-      <div className="relative z-10 pb-6 sm:pb-10 mt-auto pt-8 sm:pt-12">
+      <div className="relative z-10 pb-8 sm:pb-12 mt-auto pt-10 sm:pt-16">
         <div className="container mx-auto px-4 sm:px-6">
           {/* Progress dots */}
           <div className="flex items-center gap-1 mb-4 sm:mb-6">

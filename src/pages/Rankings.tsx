@@ -38,28 +38,28 @@ export default function RankingsPage() {
     if (index === 0) {
       return {
         className: "rank-gold",
-        icon: <Crown className="w-4 h-4" />,
-        size: "w-12 h-12 text-base"
+        icon: <Crown className="w-5 h-5" />,
+        size: "w-14 h-14 text-lg"
       };
     }
     if (index === 1) {
       return {
         className: "rank-silver",
-        icon: <Medal className="w-4 h-4" />,
-        size: "w-11 h-11 text-sm"
+        icon: <Medal className="w-5 h-5" />,
+        size: "w-13 h-13 text-base"
       };
     }
     if (index === 2) {
       return {
         className: "rank-bronze",
-        icon: <Award className="w-4 h-4" />,
-        size: "w-11 h-11 text-sm"
+        icon: <Award className="w-5 h-5" />,
+        size: "w-13 h-13 text-base"
       };
     }
     return {
       className: "rank-badge",
       icon: null,
-      size: "w-10 h-10 text-sm"
+      size: "w-11 h-11 text-sm"
     };
   };
 
@@ -74,10 +74,10 @@ export default function RankingsPage() {
       <CollapsibleNavbar />
 
       {/* Hero - Clean text-only design */}
-      <section className="pt-28 sm:pt-32 pb-6 sm:pb-8">
+      <section className="pt-28 sm:pt-36 pb-8 sm:pb-12">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 font-sacred">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-4 sm:mb-6 font-sacred">
               Top Rankings
             </h1>
             <p className="font-jp text-lg sm:text-xl text-muted-foreground mb-2">ランキング</p>
@@ -169,12 +169,12 @@ export default function RankingsPage() {
       </section>
 
       {/* Rankings Grid with enhanced visibility */}
-      <section className="py-8 sm:py-16">
+      <section className="py-12 sm:py-20">
         <div className="container mx-auto px-3 sm:px-4">
           {error ? (
             <SectionError message="Failed to load rankings" onRetry={() => refetch()} />
           ) : isLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-8">
               {Array.from({ length: 25 }).map((_, i) => (
                 <div key={i} className="space-y-4">
                   <Skeleton className="aspect-[2/3] rounded-2xl" />
@@ -182,7 +182,7 @@ export default function RankingsPage() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-8">
               {data?.map((item, index) => {
                 const rankStyle = getRankBadge(index);
                 
