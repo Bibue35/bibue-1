@@ -1,116 +1,85 @@
 
 
-# "Seek" — AI-Powered Anime/Manga Discovery Tab
+# Bibue Premium Redesign — Inspired by BestDesignsOnX
 
-## Overview
-
-Add a new **Seek** page (`/seek`) — a natural language discovery tool where users describe a vibe, mood, or trope and get 5-8 AI-powered recommendations with personalized, spoiler-free match reasons. Uses the existing Lovable AI gateway (no new API keys needed).
+The reference site showcases: large serif/italic hero typography with colorful accent word, clean masonry-style card grid, generous whitespace, minimal chrome, view toggles (list/grid/masonry), and a very refined floating toolbar. Here is the plan to bring those design patterns into Bibue.
 
 ---
 
-## Architecture
+## 1. Hero Typography Overhaul
 
-```text
-New files:
-  src/pages/SeekPage.tsx          — Main page component
-  supabase/functions/seek/index.ts — Edge function for AI calls
+**File:** `src/components/CinematicHero.tsx`
+- Replace the current `heading-premium` class on the manga title with a new split-word treatment: the title renders normally but a secondary tagline like *"Discover Peak"* uses a large serif italic style (Cinzel/serif italic) with the accent word in a gradient color — matching the BestDesignsOnX hero where "Designs" is italic and colored
+- Add a subtitle line: "Manga, Manhwa & Manhua" in muted foreground, spaced generously
+- Increase vertical padding and whitespace around the hero content area
 
-Modified files:
-  src/App.tsx                      — Add /seek route
-  src/components/CollapsibleNavbar.tsx — Add Seek to nav
-  src/components/FloatingNav.tsx       — Add Seek to nav
-  src/components/ContextualBottomStrip.tsx — Add Seek pill
-```
+## 2. Masonry-Style View Mode
 
----
+**File:** `src/components/ViewToggle.tsx`
+- Add a third view option: **masonry** (using a `Columns3` icon from lucide)
+- The three modes: carousel (rows), grid (uniform), masonry (variable height)
 
-## Implementation Steps (First Prompt — Steps 1-8)
+**File:** `src/pages/Index.tsx`
+- Masonry mode renders cards in a CSS `columns-2 sm:columns-3 lg:columns-4 xl:columns-6` layout with `break-inside-avoid` on each card — pure CSS masonry without JS
+- Each card in masonry mode uses natural aspect ratio instead of fixed 3:4
 
-### 1. Edge Function: `supabase/functions/seek/index.ts`
+**File:** `src/components/MangaCard.tsx`
+- Add a `masonry` variant that removes the fixed `aspect-[3/4]` constraint, letting the image use its natural height, and uses slightly different padding
 
-- Accepts `{ prompt, watchlist, contentType, conversationHistory }` via POST
-- Calls the Lovable AI gateway (`ai.gateway.lovable.dev`) using `LOVABLE_API_KEY` with `google/gemini-2.5-flash` (fast, good reasoning, cost-effective)
-- Uses the full system prompt from the spec (opinionated recommendations, no spoilers, real titles only, JSON array output)
-- Appends user's watchlist as exclusion context and content type filter
-- Supports follow-up refinement by accepting conversation history
-- Returns parsed JSON array of recommendations
-- Error handling: rate limiting (429), credit exhaustion (402), JSON parse retry
+## 3. Cleaner Card Design
 
-### 2. Edge Function: `supabase/functions/seek-convince/index.ts`
+**File:** `src/components/MangaCard.tsx`
+- Simplify the card: remove the `card-tilt-hover` class (too heavy for the clean aesthetic)
+- Use a cleaner border: `border border-border/10` default, `border-border/30` on hover
+- Softer shadow on hover: `shadow-lg` instead of the current complex box-shadow
+- Reduce border-radius from `rounded-3xl` to `rounded-2xl` for a crisper look
+- Remove the `glow-line-top` — replace with a simple `hover:brightness-[1.02]` on the image
 
-- Separate endpoint for "Convince me" calls (lighter, 300 max tokens)
-- Accepts `{ title, watchedContext }`
-- Returns a 3-4 sentence spoiler-free pitch
+## 4. Section Headers — Lighter Treatment
 
-### 3. Route + Navigation
+**File:** `src/components/ContentSection.tsx`
+- Remove the icon badge container (the colored rounded-xl box) — instead render the icon inline next to the text at the same size
+- Make titles use the serif font (`font-sacred`) for a more editorial feel, keep `liquid-metal-text`
+- Increase bottom margin between header and content for more breathing room
 
-- Add `/seek` route in `App.tsx` with lazy-loaded `SeekPage`
-- Add "Seek" link to `CollapsibleNavbar` desktop nav links (between Community and existing links)
-- Add "Seek" to `FloatingNav` desktop nav links
-- Add "Seek" pill to `ContextualBottomStrip`
+## 5. Homepage Spacing & Layout
 
-### 4. `SeekPage.tsx` — Layout
+**File:** `src/pages/Index.tsx`
+- Add more vertical spacing between sections: increase from `py-12 sm:py-16` to `py-16 sm:py-20 lg:py-24`
+- Welcome greeting: simplify to just the username in liquid-metal, no glass-panel wrapper
+- Creator banner: make it more minimal — reduce padding, use a thin top border instead of full border
 
-**Top section:**
-- Large full-width text input styled as a prompt input (rounded, prominent, send arrow button on right)
-- Placeholder: `"cold blooded mc, dark fantasy with great art..."`
-- Input expands slightly on focus, sticky on mobile when scrolling results
-- Minimum 44px send button for mobile tap targets
+## 6. Floating Toolbar Polish
 
-**Suggestion chips (two rows, horizontally scrollable):**
-- Row 1: Mood chips with emoji (larger) — randomly show 6-8 from the full set
-- Row 2: Trope chips (text only, smaller) — randomly show 6-8
-- Tapping a chip fills input and auto-submits
+**File:** `src/components/PremiumToolbar.tsx`
+- Already matches the BestDesignsOnX reference closely (the screenshot shows our exact toolbar in the top-left card). Keep as-is with silver ring.
 
-**Recent searches:**
-- Stored in `localStorage` (last 5 searches with result count)
-- Tapping re-runs the search
+## 7. Global CSS Refinements
 
-**Content type filter:**
-- Toggle pills: `[All] [Anime] [Manga] [Manhwa] [Manhua]`
-- When active, appended to the AI prompt
+**File:** `src/index.css`
+- Add `.font-editorial` utility: `font-family: 'Cinzel', Georgia, serif; font-style: italic;` for accent words
+- Reduce `entrance-stagger` delays to 30ms for faster cascade
+- Add `.masonry-grid` utility: `columns: 2; gap: 1rem;` with responsive variants
 
-**Empty state:**
-- "Tell me what you're in the mood for. I'll find it."
+## 8. Footer — More Editorial
 
-### 5. Result Cards
-
-Each card shows:
-- Cover image fetched from existing AniList API (`searchAnime`/`searchManga` by title)
-- Gradient placeholder if no image found
-- Title, rating (star), year, episode/chapter count
-- Genre tags
-- Match reason (1-2 sentences, italic) — the core differentiator
-- Three action buttons:
-  - **"Convince me"** — calls `seek-convince` edge function, expands inline
-  - **"+ Save"** — uses existing `useWatchlist` hook's `addToWatchlist` mutation
-  - **"Details"** — navigates to `/anime/:id` or `/manga/:id`
-
-### 6. Cover Image Fetching
-
-After AI returns results, batch-fetch cover images by searching each title via `searchAnime(title)` or `searchManga(title)` from `src/lib/api.ts`. Match on the first result. If no match, show a gradient placeholder with the title text overlaid.
-
-### 7. Loading State
-
-- Skeleton card placeholders that pulse
-- Small "Seeking..." text below the input
-- Disable send button during loading
-
-### 8. Follow-up Refinement
-
-After results are displayed:
-- Change input placeholder to `"More like #3 but darker..." or "None of these — try something weird"`
-- Send full conversation history (original prompt + previous results + follow-up) to maintain context
+**File:** `src/components/Footer.tsx`
+- Center-align everything with more whitespace
+- "Bibue" in the footer uses `font-editorial` + `liquid-metal-text` for the accent treatment
 
 ---
 
-## Technical Details
+## Files Summary
 
-- **AI Model**: `google/gemini-2.5-flash` via Lovable AI gateway — fast (2-3s), good reasoning, handles the structured JSON output well, no API key needed
-- **No Anthropic API**: The spec mentions Anthropic directly, but we'll use the Lovable AI gateway which is already configured and doesn't require additional setup
-- **No web search**: The Lovable AI gateway doesn't support Anthropic's `web_search` tool, but the model's training data covers anime/manga community knowledge extensively
-- **Cover images**: Reuse existing `searchAnime`/`searchManga` from `src/lib/api.ts` — no new API integration needed
-- **Save functionality**: Reuse existing `useWatchlist` hook
-- **Theme support**: Standard dark/light theme support using existing Tailwind classes (ink theme deferred to second prompt per spec)
-- **Mobile**: Input sticky at top, chip rows with horizontal scroll + momentum, full-width stacked cards, large tap targets
+| File | Change |
+|------|--------|
+| `src/components/CinematicHero.tsx` | Serif italic hero tagline, more whitespace |
+| `src/components/ViewToggle.tsx` | Add masonry view mode |
+| `src/components/MangaCard.tsx` | Cleaner card, masonry variant, simpler hover |
+| `src/components/ContentSection.tsx` | Inline icon, serif titles, more spacing |
+| `src/pages/Index.tsx` | Masonry mode, increased spacing, simpler greeting |
+| `src/index.css` | Editorial font, masonry utility, stagger timing |
+| `src/components/Footer.tsx` | Editorial brand treatment |
+
+No backend changes needed. All CSS/component-level.
 
