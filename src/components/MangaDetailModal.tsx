@@ -177,7 +177,7 @@ export function MangaDetailModal({ mangaId, open, onOpenChange }: MangaDetailMod
               )}
             </div>
             <div className="pb-2 sm:pb-4 min-w-0 flex-1">
-              <h1 className="text-xl sm:text-3xl md:text-5xl font-bold tracking-tight text-foreground line-clamp-2">
+              <h1 className="text-xl sm:text-3xl md:text-5xl font-bold tracking-tight text-foreground line-clamp-2 liquid-metal-text">
                 {manga?.title}
               </h1>
               {manga?.title_japanese && (
