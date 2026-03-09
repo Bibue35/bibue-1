@@ -113,7 +113,7 @@ export function CinematicHero() {
   })();
 
   return (
-    <section aria-label="Featured manga" className="relative min-h-[80vh] sm:min-h-[85vh] md:min-h-[90vh] flex flex-col overflow-x-hidden">
+    <section aria-label="Featured manga" className="relative min-h-[85vh] sm:min-h-[88vh] md:min-h-[92vh] flex flex-col overflow-x-hidden">
       {/* Background crossfade — only render nearby slides to avoid downloading all images */}
       <div className="absolute inset-0 z-0">
       {rotation.map((item, i) => {
@@ -129,7 +129,7 @@ export function CinematicHero() {
               alt=""
               aria-hidden="true"
               className={cn(
-                "absolute inset-0 w-full h-full object-cover transition-opacity duration-700",
+                "absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out",
                 isCurrent ? "opacity-100" : "opacity-0"
               )}
               loading={isCurrent ? "eager" : "lazy"}
@@ -139,9 +139,9 @@ export function CinematicHero() {
             />
           );
         })}
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/30" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-background/50" />
-        <div className="absolute inset-0 bg-background/15" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/5 to-background/40" />
+        <div className="absolute inset-0 bg-background/10" />
       </div>
 
       {/* Visually-hidden h1 for SEO */}
