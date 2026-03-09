@@ -122,6 +122,7 @@ const App = () => (
                     <MessageNotificationProvider>
                       <MiniPlayer />
                       <BackToTop />
+                      <GlassPillToolbar />
                       <ContextualBottomStrip />
                       <CreatorWelcomeModal />
                       <PWAInstallPrompt />
