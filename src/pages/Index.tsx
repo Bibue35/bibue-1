@@ -43,6 +43,16 @@ function MangaGrid({ items }: { items: Manga[] }) {
   );
 }
 
+function MangaMasonry({ items }: { items: Manga[] }) {
+  return (
+    <div className="masonry-grid entrance-stagger">
+      {items.slice(0, 12).map((manga, index) => (
+        <MangaCard key={manga.anilist_id} manga={manga} index={index} variant="masonry" />
+      ))}
+    </div>
+  );
+}
+
 function MangaCarousel({ items, isMobile }: { items: Manga[]; isMobile: boolean }) {
   return (
     <HorizontalScroll showArrows={!isMobile}>
@@ -102,18 +112,23 @@ const Index = () => {
 
   const renderMangaSection = (data: Manga[] | undefined, isLoading: boolean) => {
     if (isLoading) {
-      return viewMode === "grid" ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-          <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-full" />
-        </div>
-      ) : (
+      if (viewMode === "grid" || viewMode === "masonry") {
+        return (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+            <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-full" />
+          </div>
+        );
+      }
+      return (
         <HorizontalScroll showArrows={!isMobile}>
           <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-48" />
         </HorizontalScroll>
       );
     }
     if (!data) return null;
-    return viewMode === "grid" ? <MangaGrid items={data} /> : <MangaCarousel items={data} isMobile={isMobile} />;
+    if (viewMode === "masonry") return <MangaMasonry items={data} />;
+    if (viewMode === "grid") return <MangaGrid items={data} />;
+    return <MangaCarousel items={data} isMobile={isMobile} />;
   };
 
   return (
@@ -133,15 +148,13 @@ const Index = () => {
 
       {/* For Creators Banner — only for logged-in users */}
       {user && (
-      <section className="container mx-auto px-3 sm:px-4 pt-8 sm:pt-10">
+      <section className="container mx-auto px-3 sm:px-4 pt-10 sm:pt-12">
         <Link
           to="/studio"
-          className="group flex items-center justify-between gap-4 px-6 py-5 rounded-2xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all duration-200"
+          className="group flex items-center justify-between gap-4 px-6 py-4 rounded-2xl border-t border-border/20 hover:bg-accent/30 transition-all duration-200"
         >
           <div className="flex items-center gap-4">
-            <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-              <Upload className="w-5 h-5 text-primary" />
-            </div>
+            <Upload className="w-5 h-5 text-primary shrink-0" />
             <div>
               <p className="text-base font-semibold">Are you a creator?</p>
               <p className="text-sm text-muted-foreground">Upload your manga & earn up to 80% revenue</p>
@@ -155,12 +168,9 @@ const Index = () => {
       {/* Welcome greeting for logged-in users */}
       {user && (
         <section className="container mx-auto px-3 sm:px-4 pt-6 sm:pt-8">
-          <div className="glass-panel px-5 py-4 sm:px-6 sm:py-5">
-            <p className="text-sm text-muted-foreground">Welcome back,</p>
-            <p className="text-lg sm:text-xl font-bold liquid-metal-text">
-              {user.email?.split("@")[0] || "Reader"}
-            </p>
-          </div>
+          <p className="text-lg sm:text-xl font-bold liquid-metal-text">
+            Welcome back, {user.email?.split("@")[0] || "Reader"}
+          </p>
         </section>
       )}
 

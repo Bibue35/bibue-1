@@ -1,7 +1,7 @@
-import { LayoutGrid, Rows3 } from "lucide-react";
+import { LayoutGrid, Rows3, Columns3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type ViewMode = "carousel" | "grid";
+export type ViewMode = "carousel" | "grid" | "masonry";
 
 interface ViewToggleProps {
   mode: ViewMode;
@@ -34,6 +34,18 @@ export function ViewToggle({ mode, onChange }: ViewToggleProps) {
         aria-label="Grid view"
       >
         <LayoutGrid className="w-3.5 h-3.5" />
+      </button>
+      <button
+        onClick={() => onChange("masonry")}
+        className={cn(
+          "flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200",
+          mode === "masonry"
+            ? "bg-foreground/10 text-foreground"
+            : "text-muted-foreground hover:text-foreground"
+        )}
+        aria-label="Masonry view"
+      >
+        <Columns3 className="w-3.5 h-3.5" />
       </button>
     </div>
   );

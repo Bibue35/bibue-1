@@ -170,10 +170,20 @@ export function CinematicHero() {
                 </span>
               </div>
 
+              {/* Editorial tagline */}
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-editorial mb-2 sm:mb-3">
+                Discover <span className="text-primary">Peak</span> Reading
+              </p>
+
               {/* Title */}
-              <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold font-sacred tracking-tight leading-[0.98] mb-5 sm:mb-8 heading-premium">
+              <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold font-sacred tracking-tight leading-[0.98] mb-3 sm:mb-5">
                 {current.manga.title}
               </h2>
+
+              {/* Subtitle */}
+              <p className="text-xs sm:text-sm text-muted-foreground/70 mb-4 sm:mb-6 tracking-widest uppercase">
+                Manga · Manhwa · Manhua
+              </p>
 
               {/* Genre pills */}
               {current.manga.genres && current.manga.genres.length > 0 && (
