@@ -113,7 +113,7 @@ export function CinematicHero() {
   })();
 
   return (
-    <section aria-label="Featured manga" className="relative min-h-[80vh] sm:min-h-[85vh] md:min-h-[90vh] flex flex-col overflow-x-hidden">
+    <section aria-label="Featured manga" className="relative min-h-[85vh] sm:min-h-[88vh] md:min-h-[92vh] flex flex-col overflow-x-hidden">
       {/* Background crossfade — only render nearby slides to avoid downloading all images */}
       <div className="absolute inset-0 z-0">
       {rotation.map((item, i) => {
@@ -129,7 +129,7 @@ export function CinematicHero() {
               alt=""
               aria-hidden="true"
               className={cn(
-                "absolute inset-0 w-full h-full object-cover transition-opacity duration-700",
+                "absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out",
                 isCurrent ? "opacity-100" : "opacity-0"
               )}
               loading={isCurrent ? "eager" : "lazy"}
@@ -139,9 +139,9 @@ export function CinematicHero() {
             />
           );
         })}
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/30" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-background/50" />
-        <div className="absolute inset-0 bg-background/15" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/5 to-background/40" />
+        <div className="absolute inset-0 bg-background/10" />
       </div>
 
       {/* Visually-hidden h1 for SEO */}
@@ -171,7 +171,7 @@ export function CinematicHero() {
               </div>
 
               {/* Title */}
-              <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold font-sacred tracking-tight leading-[1.02] mb-4 sm:mb-6">
+              <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold font-sacred tracking-tight leading-[0.98] mb-5 sm:mb-8 heading-premium">
                 {current.manga.title}
               </h2>
 
@@ -252,7 +252,7 @@ export function CinematicHero() {
       </div>
 
       {/* Bottom section: progress + trending */}
-      <div className="relative z-10 pb-8 sm:pb-12 mt-auto pt-10 sm:pt-16">
+      <div className="relative z-10 pb-10 sm:pb-16 mt-auto pt-12 sm:pt-20">
         <div className="container mx-auto px-4 sm:px-6">
           {/* Progress dots */}
           <div className="flex items-center gap-1 mb-4 sm:mb-6">

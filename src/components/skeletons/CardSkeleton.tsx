@@ -1,5 +1,4 @@
 import { memo } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 interface CardSkeletonProps {
@@ -14,13 +13,13 @@ export const CardSkeleton = memo(function CardSkeleton({
   if (variant === "compact") {
     return (
       <div className={cn("flex gap-3 p-2 rounded-xl bg-card/50", className)}>
-        <Skeleton className="w-12 h-16 sm:w-14 sm:h-20 rounded-lg flex-shrink-0" />
+        <div className="w-12 h-16 sm:w-14 sm:h-20 rounded-lg flex-shrink-0 skeleton-shimmer" />
         <div className="flex-1 space-y-2 py-1">
-          <Skeleton className="h-3.5 w-3/4 rounded" />
-          <Skeleton className="h-3 w-1/2 rounded" />
+          <div className="h-3.5 w-3/4 rounded skeleton-shimmer" />
+          <div className="h-3 w-1/2 rounded skeleton-shimmer" />
           <div className="flex gap-2 pt-1">
-            <Skeleton className="h-4 w-10 rounded-full" />
-            <Skeleton className="h-4 w-12 rounded-full" />
+            <div className="h-4 w-10 rounded-full skeleton-shimmer" />
+            <div className="h-4 w-12 rounded-full skeleton-shimmer" />
           </div>
         </div>
       </div>
@@ -30,32 +29,32 @@ export const CardSkeleton = memo(function CardSkeleton({
   if (variant === "mobile") {
     return (
       <div className={cn("space-y-2", className)}>
-        <Skeleton className="aspect-[2/3] w-full rounded-xl" />
+        <div className="aspect-[2/3] w-full rounded-xl skeleton-shimmer" />
         <div className="space-y-1.5 px-0.5">
-          <Skeleton className="h-3 w-4/5 rounded" />
-          <Skeleton className="h-2.5 w-1/2 rounded" />
+          <div className="h-3 w-4/5 rounded skeleton-shimmer" />
+          <div className="h-2.5 w-1/2 rounded skeleton-shimmer" />
         </div>
       </div>
     );
   }
 
-  // Default card skeleton
+  // Default card skeleton with premium shimmer
   return (
     <div className={cn("space-y-2.5", className)}>
       <div className="relative aspect-[2/3] rounded-2xl overflow-hidden">
-        <Skeleton className="absolute inset-0" />
+        <div className="absolute inset-0 skeleton-shimmer" />
         {/* Score badge placeholder */}
         <div className="absolute top-2 left-2">
-          <Skeleton className="h-5 w-10 rounded-full" />
+          <div className="h-5 w-10 rounded-full skeleton-shimmer" />
         </div>
         {/* Bookmark button placeholder */}
         <div className="absolute bottom-2 right-2">
-          <Skeleton className="h-8 w-8 rounded-full" />
+          <div className="h-8 w-8 rounded-full skeleton-shimmer" />
         </div>
       </div>
       <div className="space-y-1.5 px-1">
-        <Skeleton className="h-3.5 w-[85%] rounded" />
-        <Skeleton className="h-3 w-[60%] rounded" />
+        <div className="h-3.5 w-[85%] rounded skeleton-shimmer" />
+        <div className="h-3 w-[60%] rounded skeleton-shimmer" />
       </div>
     </div>
   );
