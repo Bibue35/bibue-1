@@ -1914,12 +1914,13 @@
 
 /* ============================================
  * MICRO-ANIMATIONS & INTERACTION POLISH
+ * Premium Ali Grids–inspired effects
  * ============================================ */
 
 /* Card hover glow effect */
 .card-hover-glow {
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .card-hover-glow:hover {
   transform: translateY(-4px) scale(1.02);
@@ -1953,11 +1954,13 @@
   background: linear-gradient(
     90deg,
     hsl(var(--muted)) 0%,
-    hsl(0 0% 75% / 0.12) 50%,
+    hsl(0 0% 75% / 0.18) 40%,
+    hsl(0 0% 85% / 0.22) 50%,
+    hsl(0 0% 75% / 0.18) 60%,
     hsl(var(--muted)) 100%
   );
   background-size: 200% 100%;
-  animation: shimmer-silver 2s ease-in-out infinite;
+  animation: shimmer-silver 1.8s ease-in-out infinite;
 }
 
 /* Silver metallic glassmorphic panel */
@@ -1967,6 +1970,22 @@
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(192, 192, 192, 0.25);
   border-radius: 16px;
+}
+
+/* Premium glass card — Ali Grids inspired */
+.glass-card-premium {
+  background: rgba(20, 23, 26, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(192, 192, 192, 0.15);
+  border-radius: 16px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glass-card-premium:hover {
+  border-color: rgba(192, 192, 192, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(192, 192, 192, 0.1);
+  transform: translateY(-2px);
 }
 
 /* Silver icon hover glow */
@@ -1983,6 +2002,75 @@
   box-shadow: 0 0 0 2px rgba(209, 209, 209, 0.6),
               0 0 8px rgba(29, 161, 242, 0.15);
   background: conic-gradient(from 0deg, #D1D1D1, #A8A8A8, #F0F0F0, #D1D1D1);
+}
+
+/* Silver hover frame for thumbnails */
+.silver-hover-frame {
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.silver-hover-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid transparent;
+  transition: border-color 0.4s ease;
+  pointer-events: none;
+}
+.silver-hover-frame:hover::after {
+  border-color: rgba(192, 192, 192, 0.35);
+}
+
+/* Liquid fade transition */
+.liquid-fade {
+  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+}
+
+/* Premium section spacing */
+.section-premium {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+@media (min-width: 640px) {
+  .section-premium {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .section-premium {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+}
+
+/* Premium heading styles */
+.heading-premium {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* Subtle pulse for active nav */
+@keyframes silver-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192, 192, 192, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(192, 192, 192, 0.15); }
+}
+.animate-silver-pulse {
+  animation: silver-pulse 2s ease-in-out infinite;
+}
+
+/* Metallic progress bar */
+.progress-metallic {
+  background: linear-gradient(90deg, 
+    hsl(var(--primary)) 0%,
+    hsl(0 0% 80%) 40%,
+    hsl(var(--primary)) 80%,
+    hsl(0 0% 75%) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-silver 2s ease-in-out infinite;
 }
 
 /* Page enter animation */
