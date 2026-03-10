@@ -99,7 +99,7 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
   return (
     <>
       <button
-        onClick={() => setModalOpen(true)}
+        onClick={handleOpen}
         onMouseEnter={() => onHoverStart("anime", anime.anilist_id)}
         onMouseLeave={onHoverEnd}
         className="block group/card text-left w-full transition-transform duration-200 isolate spring-hover ring-pulse"
