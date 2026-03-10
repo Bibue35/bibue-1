@@ -5,7 +5,7 @@ const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ de
 import { WatchlistButton } from "./WatchlistButton";
 import { EpisodeCountdown } from "./EpisodeCountdown";
 import { usePrefetch } from "@/hooks/usePrefetch";
-import { useMediaViewCount, useRecordView } from "@/hooks/useMediaViews";
+import { formatViewCount } from "@/hooks/useMediaViews";
 import { Eye } from "lucide-react";
 
 interface AnimeCardProps {
@@ -18,12 +18,10 @@ interface AnimeCardProps {
 export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(function AnimeCard({ anime, index = 0, variant = "default", eager = false }, ref) {
   const [modalOpen, setModalOpen] = useState(false);
   const { onHoverStart, onHoverEnd } = usePrefetch();
-  const { formatted: viewCount } = useMediaViewCount(anime.anilist_id, "anime");
-  const recordView = useRecordView();
+  const viewCount = formatViewCount(anime.popularity || anime.members);
 
   const handleOpen = () => {
     setModalOpen(true);
-    recordView(anime.anilist_id, "anime");
   };
 
   const getAiredInfo = () => {

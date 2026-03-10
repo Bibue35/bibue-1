@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { getContentType, getContentLabel, getContentTypeBadgeClass } from "@/lib/contentType";
 const MangaDetailModal = lazy(() => import("./MangaDetailModal").then(m => ({ default: m.MangaDetailModal })));
 import { WatchlistButton } from "./WatchlistButton";
-import { useMediaViewCount, useRecordView } from "@/hooks/useMediaViews";
+import { formatViewCount } from "@/hooks/useMediaViews";
 import { Eye } from "lucide-react";
 
 interface MangaCardProps {
@@ -15,12 +15,10 @@ interface MangaCardProps {
 
 export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(function MangaCard({ manga, index = 0, variant = "default" }, ref) {
   const [modalOpen, setModalOpen] = useState(false);
-  const { formatted: viewCount } = useMediaViewCount(manga.anilist_id, "manga");
-  const recordView = useRecordView();
+  const viewCount = formatViewCount(manga.popularity || manga.members);
 
   const handleOpen = () => {
     setModalOpen(true);
-    recordView(manga.anilist_id, "manga");
   };
   const contentType = getContentType({ type: 'MANGA', countryOfOrigin: manga.countryOfOrigin });
   const typeLabel = getContentLabel(contentType);
