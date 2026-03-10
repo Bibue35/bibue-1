@@ -62,8 +62,8 @@ export default function RankingsPage() {
     const list = [...filteredData];
     switch (f.sort) {
       case "score": return list.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
-      case "newest": return list.sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
-      case "oldest": return list.sort((a, b) => (a.year ?? 0) - (b.year ?? 0));
+      case "newest": return list.sort((a, b) => ((b as any).year ?? 0) - ((a as any).year ?? 0));
+      case "oldest": return list.sort((a, b) => ((a as any).year ?? 0) - ((b as any).year ?? 0));
       case "alpha": return list.sort((a, b) => a.title.localeCompare(b.title));
       default: return list;
     }
