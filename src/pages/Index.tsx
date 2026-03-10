@@ -70,7 +70,7 @@ const Index = () => {
     try { localStorage.setItem("bibue-view-mode", mode); } catch {}
   };
 
-  const { data: topManga, isLoading: topMangaLoading, isError: topMangaError, refetch: refetchTopManga } = useTopManga(1, undefined, 'popularity');
+  const { data: topManga, isLoading: topMangaLoading, isError: topMangaError, refetch: refetchTopManga } = useTopManga(1, 'manga', 'popularity');
 
   const manhwaSection = useDeferredSection("400px");
   const manhuaSection = useDeferredSection("400px");
