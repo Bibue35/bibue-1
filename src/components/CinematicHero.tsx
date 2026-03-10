@@ -34,8 +34,8 @@ export function CinematicHero() {
     return mangaData.slice(0, 6);
   }, [mangaData]);
 
-  const mediaIds = useMemo(() => items.map(i => i.anilist_id), [items]);
-  const { getFormatted: getViewCount } = useBatchMediaViewCounts(mediaIds, "manga");
+
+
 
   // Reset index when filter changes
   const handleFilterChange = useCallback((filter: MediaFilter) => {

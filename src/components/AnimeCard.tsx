@@ -18,12 +18,10 @@ interface AnimeCardProps {
 export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(function AnimeCard({ anime, index = 0, variant = "default", eager = false }, ref) {
   const [modalOpen, setModalOpen] = useState(false);
   const { onHoverStart, onHoverEnd } = usePrefetch();
-  const { formatted: viewCount } = useMediaViewCount(anime.anilist_id, "anime");
-  const recordView = useRecordView();
+  const viewCount = formatViewCount(anime.popularity || anime.members);
 
   const handleOpen = () => {
     setModalOpen(true);
-    recordView(anime.anilist_id, "anime");
   };
 
   const getAiredInfo = () => {
