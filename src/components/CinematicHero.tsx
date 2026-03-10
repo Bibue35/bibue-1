@@ -25,7 +25,7 @@ export function CinematicHero() {
   const [scrollY, setScrollY] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
 
-  const { data: mangaData, isLoading } = useTopManga(1, activeFilter ?? undefined, "popularity");
+  const { data: mangaData, isLoading } = useTopManga(1, activeFilter, "popularity");
 
   const items = useMemo(() => {
     if (!mangaData?.length) return [];
