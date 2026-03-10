@@ -233,7 +233,7 @@ const Index = () => {
       {/* All-Time Top */}
       <div ref={allTimeSection.ref} className="cv-auto">
         {allTimeSection.isVisible ? (
-          <ContentSection title="All-Time Top Rated" linkTo="/rankings?type=manga" headerExtra={viewToggle}>
+          <ContentSection title="All-Time Top Rated" linkTo="/manga?sort=score" headerExtra={viewToggle}>
             {allTimeError ? (
               <SectionError onRetry={() => refetchAllTime()} />
             ) : renderMangaSection(allTimeManga, allTimeLoading)}
