@@ -20,7 +20,7 @@ const CATEGORIES: { label: string; filter: MediaFilter }[] = [
 
 export function CinematicHero() {
   const isMobile = useIsMobile();
-  const [activeFilter, setActiveFilter] = useState<MediaFilter>(undefined);
+  const [activeFilter, setActiveFilter] = useState<MediaFilter>("manga");
   const [idx, setIdx] = useState(0);
   const [scrollY, setScrollY] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
