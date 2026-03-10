@@ -222,7 +222,7 @@ const Index = () => {
       {/* Recently Updated */}
       <div ref={recentSection.ref} className="cv-auto">
         {recentSection.isVisible ? (
-          <ContentSection title="Recently Updated" linkTo="/manga" headerExtra={viewToggle}>
+          <ContentSection title="Recently Updated" linkTo="/manga?sort=updated" headerExtra={viewToggle}>
             {recentError ? (
               <SectionError onRetry={() => refetchRecent()} />
             ) : renderMangaSection(recentManga, recentLoading)}
