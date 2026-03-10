@@ -154,6 +154,8 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
               {chapterCount && <span>{chapterCount} ch</span>}
               {chapterCount && statusLabel && <span>·</span>}
               {statusLabel && <span>{statusLabel}</span>}
+              <span>·</span>
+              <span className="flex items-center gap-0.5"><Eye className="w-3 h-3" />{viewCount}</span>
             </div>
           </div>
         </div>
