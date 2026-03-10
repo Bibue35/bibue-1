@@ -193,7 +193,7 @@ const Index = () => {
       )}
 
       {/* Top Manga */}
-      <ContentSection title={t("section.topManga") || "Top Manga"} linkTo="/manga" headerExtra={viewToggle}>
+      <ContentSection title={t("section.topManga") || "Top Manga"} linkTo="/manga?sort=popularity" headerExtra={viewToggle}>
         {topMangaError ? (
           <SectionError onRetry={() => refetchTopManga()} />
         ) : renderMangaSection(topManga, topMangaLoading)}
