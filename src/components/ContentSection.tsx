@@ -31,13 +31,13 @@ export function ContentSection({
   const { ref, isInView } = useInView({ threshold: 0.1, rootMargin: "0px 0px -20px 0px" });
 
   return (
-    <section className={cn(compact ? "py-10 sm:py-12" : "py-16 sm:py-20 lg:py-24", className)}>
+    <section className={cn(compact ? "py-12 sm:py-14" : "py-16 sm:py-24 lg:py-28", className)}>
       <div className="container mx-auto px-4 sm:px-6">
         {/* Header */}
         <div
           ref={ref}
           className={cn(
-            "flex items-end justify-between mb-8 sm:mb-10 section-reveal",
+            "flex items-end justify-between mb-10 sm:mb-12 section-reveal",
             isInView && "revealed"
           )}
         >
@@ -57,7 +57,7 @@ export function ContentSection({
             {linkTo && (
               <Link
                 to={linkTo}
-                className="text-xs sm:text-sm font-medium tracking-wide uppercase text-muted-foreground hover:text-foreground transition-colors duration-300 group"
+                className="text-xs sm:text-sm font-medium tracking-wide uppercase text-muted-foreground hover:text-foreground transition-colors duration-300 group btn-press"
               >
                 {defaultLinkText}
                 <span className="inline-block ml-2 w-4 h-px bg-muted-foreground group-hover:w-6 group-hover:bg-foreground transition-all duration-300 align-middle" />

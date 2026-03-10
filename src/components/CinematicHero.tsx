@@ -14,6 +14,7 @@ export function CinematicHero() {
   const { data: mangaData, isLoading } = useTopManga(1, undefined, "popularity");
   const isMobile = useIsMobile();
   const [idx, setIdx] = useState(0);
+  const [scrollY, setScrollY] = useState(0);
 
   const items = useMemo(() => {
     if (!mangaData?.length) return [];
@@ -26,6 +27,21 @@ export function CinematicHero() {
     const t = setInterval(() => setIdx((p) => (p + 1) % items.length), 8000);
     return () => clearInterval(t);
   }, [items.length]);
+
+  // Parallax scroll tracking
+  useEffect(() => {
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        setScrollY(window.scrollY);
+        ticking = false;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Preload next image
   const preloadRef = useRef<HTMLLinkElement | null>(null);
@@ -50,11 +66,12 @@ export function CinematicHero() {
   if (isLoading || !items.length) return <HeroSkeleton variant="full" />;
 
   const current = items[idx];
+  const parallaxOffset = scrollY * 0.3;
 
   return (
     <section aria-label="Featured manga" className="relative min-h-[90vh] sm:min-h-[92vh] flex flex-col overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 z-0">
+      {/* Background with parallax */}
+      <div className="absolute inset-0 z-0" style={{ transform: `translateY(${parallaxOffset}px)`, willChange: 'transform' }}>
         {items.map((item, i) => {
           const next = (idx + 1) % items.length;
           if (i !== idx && i !== next) return null;
@@ -75,7 +92,7 @@ export function CinematicHero() {
             />
           );
         })}
-        {/* Heavy gradient overlay for text readability */}
+        {/* Gradient overlays */}
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/30" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/60" />
       </div>
@@ -96,7 +113,7 @@ export function CinematicHero() {
             <p className="font-editorial text-base sm:text-lg md:text-xl text-muted-foreground/80 mb-2">
               Discover
             </p>
-            <h2 className="text-[clamp(2.5rem,8vw,7rem)] font-sacred font-bold leading-[0.92] tracking-tight max-w-4xl">
+            <h2 className="text-[clamp(2.5rem,8vw,7rem)] font-sacred font-bold leading-[0.92] tracking-tight max-w-4xl liquid-metal-text">
               {current.title}
             </h2>
           </div>
@@ -122,7 +139,7 @@ export function CinematicHero() {
           {/* CTA — text link, not button */}
           <Link
             to={`/manga/${current.anilist_id}`}
-            className="group inline-flex items-center gap-3 text-sm sm:text-base font-medium tracking-wide uppercase text-foreground hover:text-primary transition-colors duration-300"
+            className="group inline-flex items-center gap-3 text-sm sm:text-base font-medium tracking-wide uppercase text-foreground hover:text-primary transition-colors duration-300 btn-press"
           >
             Start Reading
             <span className="inline-block w-8 h-px bg-foreground group-hover:w-12 group-hover:bg-primary transition-all duration-300" />

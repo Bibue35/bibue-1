@@ -67,7 +67,7 @@ export function CollapsibleNavbar() {
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out transform-gpu",
           isScrolled
-            ? "bg-background/80 backdrop-blur-xl border-b border-border/10 py-3"
+            ? "bg-background/80 backdrop-blur-2xl py-3 navbar-shimmer-line"
             : "bg-transparent py-5",
           !isVisible && "-translate-y-full pointer-events-none"
         )}
@@ -75,7 +75,7 @@ export function CollapsibleNavbar() {
       >
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between">
-            {/* Logo — text only */}
+            {/* Logo */}
             <Link to="/" className="group">
               <span className="text-xl sm:text-2xl font-sacred font-bold tracking-[0.15em] uppercase transition-opacity duration-300 group-hover:opacity-70">
                 Bibue
@@ -89,7 +89,7 @@ export function CollapsibleNavbar() {
                   key={link.href}
                   to={link.href}
                   className={cn(
-                    "relative px-4 py-2 text-[13px] font-medium tracking-wide uppercase transition-all duration-300",
+                    "relative px-4 py-2 text-[13px] font-medium tracking-wide uppercase transition-all duration-300 btn-press",
                     location.pathname === link.href
                       ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground"
@@ -107,7 +107,7 @@ export function CollapsibleNavbar() {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setIsSearchOpen(true)}
-                className="px-3 py-2 text-[13px] font-medium tracking-wide uppercase text-muted-foreground hover:text-foreground transition-colors duration-300"
+                className="px-3 py-2 text-[13px] font-medium tracking-wide uppercase text-muted-foreground hover:text-foreground transition-colors duration-300 btn-press"
               >
                 Search
               </button>
@@ -120,9 +120,9 @@ export function CollapsibleNavbar() {
                 <UserMenu />
               </div>
 
-              {/* Mobile menu toggle — text */}
+              {/* Mobile menu toggle */}
               <button
-                className="md:hidden px-3 py-2 text-[13px] font-medium tracking-wide uppercase text-muted-foreground hover:text-foreground transition-colors"
+                className="md:hidden px-3 py-2 text-[13px] font-medium tracking-wide uppercase text-muted-foreground hover:text-foreground transition-colors btn-press"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={isMobileMenuOpen}
@@ -133,7 +133,7 @@ export function CollapsibleNavbar() {
           </div>
         </div>
 
-        {/* Mobile Menu — full-width overlay */}
+        {/* Mobile Menu */}
         <div
           className={cn(
             "md:hidden fixed top-[60px] left-0 right-0 bottom-0 z-[55] bg-background/98 backdrop-blur-xl transition-all duration-400",
