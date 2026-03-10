@@ -32,6 +32,9 @@ import {
   Manga,
   ScheduleItem,
   SupportedLanguage,
+  getFilteredManga,
+  getFilteredAnime,
+  FilterParams,
 } from "@/lib/api";
 
 export function useTopAnime(page = 1, filter?: 'airing' | 'upcoming' | 'bypopularity' | 'favorite' | 'new' | 'completed', enabled = true) {
