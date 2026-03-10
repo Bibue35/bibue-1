@@ -36,6 +36,7 @@ export default function MangaDetailPage() {
   const { toast } = useToast();
   const translatedSynopsis = useTranslatedText(manga?.synopsis);
   const { logView } = useViewingHistory();
+  const { score: userScore, rate: rateMedia } = useUserScore(Number(id), "manga");
 
   // General comments
   const { data: comments, isLoading: commentsLoading } = useQuery({
