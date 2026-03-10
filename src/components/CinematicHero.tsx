@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { formatScore, type Manga } from "@/lib/api";
 import { HeroSkeleton } from "@/components/skeletons";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useBatchMediaViewCounts } from "@/hooks/useMediaViews";
+import { formatViewCount } from "@/hooks/useMediaViews";
 import { Eye } from "lucide-react";
 
 function stripHtml(html: string): string {
