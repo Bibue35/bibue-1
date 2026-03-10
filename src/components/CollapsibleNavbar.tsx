@@ -32,6 +32,18 @@ export function CollapsibleNavbar() {
     if (isMobileMenuOpen) setIsVisible(true);
   }, [isMobileMenuOpen]);
 
+  // Global Cmd/Ctrl+K shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   useEffect(() => {
     let ticking = false;
     const onScroll = () => {
