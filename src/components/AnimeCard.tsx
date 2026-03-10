@@ -5,6 +5,8 @@ const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ de
 import { WatchlistButton } from "./WatchlistButton";
 import { EpisodeCountdown } from "./EpisodeCountdown";
 import { usePrefetch } from "@/hooks/usePrefetch";
+import { useMediaViewCount, useRecordView } from "@/hooks/useMediaViews";
+import { Eye } from "lucide-react";
 
 interface AnimeCardProps {
   anime: Anime;
@@ -16,6 +18,13 @@ interface AnimeCardProps {
 export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(function AnimeCard({ anime, index = 0, variant = "default", eager = false }, ref) {
   const [modalOpen, setModalOpen] = useState(false);
   const { onHoverStart, onHoverEnd } = usePrefetch();
+  const { formatted: viewCount } = useMediaViewCount(anime.anilist_id, "anime");
+  const recordView = useRecordView();
+
+  const handleOpen = () => {
+    setModalOpen(true);
+    recordView(anime.anilist_id, "anime");
+  };
 
   const getAiredInfo = () => {
     if (anime.aired?.from) return new Date(anime.aired.from).getFullYear().toString();
@@ -44,7 +53,7 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
     return (
       <>
         <button
-          onClick={() => setModalOpen(true)}
+          onClick={handleOpen}
           className="flex items-center gap-3 sm:gap-4 p-3 rounded-xl transition-all duration-150 group text-left w-full hover:bg-accent/50 active:scale-[0.98]"
         >
           <img
@@ -69,6 +78,7 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
               )}
               {airedYear && <span className="text-xs text-muted-foreground">{airedYear}</span>}
               {episodeCount && <span className="text-xs text-muted-foreground">{episodeCount} ep</span>}
+              <span className="text-xs text-muted-foreground flex items-center gap-0.5"><Eye className="w-3 h-3" />{viewCount}</span>
             </div>
           </div>
         </button>
@@ -89,7 +99,7 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
   return (
     <>
       <button
-        onClick={() => setModalOpen(true)}
+        onClick={handleOpen}
         onMouseEnter={() => onHoverStart("anime", anime.anilist_id)}
         onMouseLeave={onHoverEnd}
         className="block group/card text-left w-full transition-transform duration-200 isolate spring-hover ring-pulse"
@@ -177,6 +187,8 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
                   <span className="truncate">{anime.genres.slice(0, 2).map(g => g.name).join(", ")}</span>
                 </>
               )}
+              <span className="w-1 h-1 bg-muted-foreground/40 rounded-full" />
+              <span className="flex items-center gap-0.5"><Eye className="w-3 h-3" />{viewCount}</span>
             </div>
           </div>
         </div>

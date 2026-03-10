@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import { getContentType, getContentLabel, getContentTypeBadgeClass } from "@/lib/contentType";
 const MangaDetailModal = lazy(() => import("./MangaDetailModal").then(m => ({ default: m.MangaDetailModal })));
 import { WatchlistButton } from "./WatchlistButton";
+import { useMediaViewCount, useRecordView } from "@/hooks/useMediaViews";
+import { Eye } from "lucide-react";
 
 interface MangaCardProps {
   manga: Manga;
@@ -13,6 +15,13 @@ interface MangaCardProps {
 
 export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(function MangaCard({ manga, index = 0, variant = "default" }, ref) {
   const [modalOpen, setModalOpen] = useState(false);
+  const { formatted: viewCount } = useMediaViewCount(manga.anilist_id, "manga");
+  const recordView = useRecordView();
+
+  const handleOpen = () => {
+    setModalOpen(true);
+    recordView(manga.anilist_id, "manga");
+  };
   const contentType = getContentType({ type: 'MANGA', countryOfOrigin: manga.countryOfOrigin });
   const typeLabel = getContentLabel(contentType);
 
@@ -24,7 +33,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
     return (
       <>
         <button
-          onClick={() => setModalOpen(true)}
+          onClick={handleOpen}
           className="flex items-center gap-4 p-3 rounded-xl transition-all duration-200 group text-left w-full hover:bg-accent/50 active:scale-[0.98]"
         >
           <img
@@ -49,6 +58,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
               )}
               {publishedYear && <span className="text-xs text-muted-foreground">{publishedYear}</span>}
               {chapterCount && <span className="text-xs text-muted-foreground">{chapterCount} ch</span>}
+              <span className="text-xs text-muted-foreground flex items-center gap-0.5"><Eye className="w-3 h-3" />{viewCount}</span>
             </div>
           </div>
         </button>
@@ -66,7 +76,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
   return (
     <>
       <button
-        onClick={() => setModalOpen(true)}
+        onClick={handleOpen}
         className="block group/card text-left w-full transition-transform duration-200 isolate spring-hover ring-pulse"
       >
         <div className={cn(
@@ -144,6 +154,8 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
               {chapterCount && <span>{chapterCount} ch</span>}
               {chapterCount && statusLabel && <span>·</span>}
               {statusLabel && <span>{statusLabel}</span>}
+              <span>·</span>
+              <span className="flex items-center gap-0.5"><Eye className="w-3 h-3" />{viewCount}</span>
             </div>
           </div>
         </div>

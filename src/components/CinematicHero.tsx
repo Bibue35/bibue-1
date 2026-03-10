@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import { formatScore, type Manga } from "@/lib/api";
 import { HeroSkeleton } from "@/components/skeletons";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useBatchMediaViewCounts } from "@/hooks/useMediaViews";
+import { Eye } from "lucide-react";
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").replace(/&[^;]+;/g, " ").trim();
@@ -31,6 +33,9 @@ export function CinematicHero() {
     if (!mangaData?.length) return [];
     return mangaData.slice(0, 6);
   }, [mangaData]);
+
+  const mediaIds = useMemo(() => items.map(i => i.anilist_id), [items]);
+  const { getFormatted: getViewCount } = useBatchMediaViewCounts(mediaIds, "manga");
 
   // Reset index when filter changes
   const handleFilterChange = useCallback((filter: MediaFilter) => {
@@ -174,6 +179,7 @@ export function CinematicHero() {
                 {current.score && (
                   <span className="font-medium text-foreground">{formatScore(current.score)}</span>
                 )}
+                <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" />{getViewCount(current.anilist_id)}</span>
                 {current.genres?.slice(0, 3).map((g) => (
                   <span key={g.mal_id}>{g.name}</span>
                 ))}
