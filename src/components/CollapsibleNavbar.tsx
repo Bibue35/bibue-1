@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
+import bibueTower from "@/assets/bibue-tower.png";
 const AuthModal = lazy(() => import("./AuthModal").then(m => ({ default: m.AuthModal })));
 
 export function CollapsibleNavbar() {
