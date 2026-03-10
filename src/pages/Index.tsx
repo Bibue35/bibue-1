@@ -3,6 +3,7 @@
  * Homepage with brutalist editorial layout
  */
 import { lazy, Suspense, useCallback, useState } from "react";
+import { TrendingTimePicker, type TrendingPeriod } from "@/components/TrendingTimePicker";
 import { SEO, websiteJsonLd } from "@/components/SEO";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { SectionError } from "@/components/SectionError";
