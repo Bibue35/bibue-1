@@ -87,6 +87,7 @@ export default {
         sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
         jp: ['"Hiragino Kaku Gothic Pro"', '"Yu Gothic"', '"Meiryo"', '"Noto Sans CJK JP"', "sans-serif"],
         sacred: ["Cinzel", "Georgia", "serif"],
+        editorial: ["Cinzel", "Georgia", "serif"],
       },
       keyframes: {
         "accordion-down": {
@@ -97,10 +98,30 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "spring-lift": {
+          "0%": { transform: "translateY(0) scale(1)" },
+          "40%": { transform: "translateY(-8px) scale(1.015)" },
+          "70%": { transform: "translateY(-5px) scale(1.008)" },
+          "100%": { transform: "translateY(-6px) scale(1.01)" },
+        },
+        "spring-press": {
+          "0%": { transform: "scale(1)" },
+          "30%": { transform: "scale(0.94)" },
+          "60%": { transform: "scale(1.02)" },
+          "100%": { transform: "scale(1)" },
+        },
+        "fade-up-spring": {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "60%": { opacity: "1", transform: "translateY(-3px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "spring-lift": "spring-lift 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
+        "spring-press": "spring-press 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "fade-up-spring": "fade-up-spring 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both",
       },
     },
   },

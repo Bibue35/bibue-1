@@ -42,7 +42,8 @@ export function MobileBottomNav() {
     <>
       <nav
         className={cn(
-          "md:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border/10 transition-transform duration-300",
+          "md:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-2xl border-t border-border/10",
+          "transition-transform duration-300 ease-out",
           isVisible ? "translate-y-0" : "translate-y-full"
         )}
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
@@ -55,7 +56,8 @@ export function MobileBottomNav() {
                 key={item.href}
                 to={item.href}
                 className={cn(
-                  "flex items-center justify-center py-3 px-2 min-h-[48px] text-[11px] font-medium tracking-widest uppercase transition-colors touch-manipulation active:scale-95",
+                  "flex items-center justify-center py-3 px-2 min-h-[48px] text-[11px] font-medium tracking-widest uppercase",
+                  "transition-all duration-200 touch-manipulation btn-press",
                   isActive ? "text-foreground" : "text-muted-foreground"
                 )}
               >
@@ -67,7 +69,8 @@ export function MobileBottomNav() {
             <Link
               to="/settings"
               className={cn(
-                "flex items-center justify-center py-3 px-2 min-h-[48px] text-[11px] font-medium tracking-widest uppercase transition-colors touch-manipulation active:scale-95",
+                "flex items-center justify-center py-3 px-2 min-h-[48px] text-[11px] font-medium tracking-widest uppercase",
+                "transition-all duration-200 touch-manipulation btn-press",
                 location.pathname === "/settings" ? "text-foreground" : "text-muted-foreground"
               )}
             >

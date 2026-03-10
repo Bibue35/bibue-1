@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import { SEO, itemListJsonLd } from "@/components/SEO";
 import { useSearchParams } from "react-router-dom";
-import { Filter, Crown, Medal, Award } from "lucide-react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { AnimeCard } from "@/components/AnimeCard";
 import { MangaCard } from "@/components/MangaCard";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SectionError } from "@/components/SectionError";
 import { useTopAnime, useTopManga } from "@/hooks/useAnimeData";
@@ -32,35 +30,6 @@ export default function RankingsPage() {
   const error = activeType === "anime" ? animeError : mangaError;
   const refetch = activeType === "anime" ? refetchAnime : refetchManga;
 
-  const getRankBadge = (index: number) => {
-    if (index === 0) {
-      return {
-        className: "rank-gold",
-        icon: <Crown className="w-5 h-5" />,
-        size: "w-14 h-14 text-lg"
-      };
-    }
-    if (index === 1) {
-      return {
-        className: "rank-silver",
-        icon: <Medal className="w-5 h-5" />,
-        size: "w-13 h-13 text-base"
-      };
-    }
-    if (index === 2) {
-      return {
-        className: "rank-bronze",
-        icon: <Award className="w-5 h-5" />,
-        size: "w-13 h-13 text-base"
-      };
-    }
-    return {
-      className: "rank-badge",
-      icon: null,
-      size: "w-11 h-11 text-sm"
-    };
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <SEO
@@ -72,8 +41,8 @@ export default function RankingsPage() {
       <CollapsibleNavbar />
 
       {/* Hero */}
-      <section className="pt-28 sm:pt-36 pb-8 sm:pb-12">
-        <div className="container mx-auto px-3 sm:px-4">
+      <section className="pt-32 sm:pt-40 pb-8 sm:pb-12">
+        <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-4 sm:mb-6 font-sacred liquid-metal-text">
               Top Rankings
@@ -82,82 +51,69 @@ export default function RankingsPage() {
             <p className="text-sm sm:text-base text-muted-foreground">
               Discover the highest-rated anime and manga as voted by millions of fans worldwide.
             </p>
-            <div className="mt-4 sm:mt-6 mx-auto w-24 h-1 rounded-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           </div>
         </div>
       </section>
 
       {/* Type Toggle */}
       <section className="pb-4 sm:pb-8">
-        <div className="container mx-auto px-3 sm:px-4">
+        <div className="container mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-center gap-2">
-            <button
-              onClick={() => setActiveType("anime")}
-              className={cn(
-                "px-6 py-2 rounded-full text-sm font-medium transition-all duration-200",
-                activeType === "anime"
-                  ? "bg-foreground/10 text-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
-              )}
-            >
-              Anime
-            </button>
-            <button
-              onClick={() => setActiveType("manga")}
-              className={cn(
-                "px-6 py-2 rounded-full text-sm font-medium transition-all duration-200",
-                activeType === "manga"
-                  ? "bg-foreground/10 text-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
-              )}
-            >
-              Manga
-            </button>
+            {(["anime", "manga"] as const).map(type => (
+              <button
+                key={type}
+                onClick={() => setActiveType(type)}
+                className={cn(
+                  "px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 btn-press capitalize",
+                  activeType === type
+                    ? "filter-pill-active"
+                    : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                )}
+              >
+                {type}
+              </button>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Filters */}
-      <section className="pb-4 sm:pb-8">
-        <div className="container mx-auto px-3 sm:px-4">
-          <div className="flex items-center justify-center gap-4 flex-wrap">
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Sort by:</span>
-            </div>
-            
+      {/* Sort filters */}
+      <section className="pb-6 sm:pb-10">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <span className="text-xs text-muted-foreground mr-2">Sort:</span>
             {activeType === "anime" ? (
               <>
                 {([undefined, 'airing', 'upcoming', 'bypopularity', 'favorite'] as const).map((filter) => (
-                  <Button
-                    key={filter || 'all'}
-                    variant={animeFilter === filter ? "default" : "ghost"}
-                    size="sm"
+                  <button
+                    key={filter || 'score'}
                     onClick={() => setAnimeFilter(filter)}
                     className={cn(
-                      "rounded-full capitalize",
-                      animeFilter !== filter && "glass-button"
+                      "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 btn-press",
+                      animeFilter === filter
+                        ? "filter-pill-active"
+                        : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
                     )}
                   >
-                    {filter === undefined ? "Score" : filter === 'bypopularity' ? "Popular" : filter}
-                  </Button>
+                    {filter === undefined ? "Score" : filter === 'bypopularity' ? "Popular" : filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  </button>
                 ))}
               </>
             ) : (
               <>
                 {([undefined, 'manga', 'manhwa', 'manhua'] as const).map((filter) => (
-                  <Button
+                  <button
                     key={filter || 'all'}
-                    variant={mangaFilter === filter ? "default" : "ghost"}
-                    size="sm"
                     onClick={() => setMangaFilter(filter)}
                     className={cn(
-                      "rounded-full capitalize",
-                      mangaFilter !== filter && "glass-button"
+                      "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 btn-press capitalize",
+                      mangaFilter === filter
+                        ? "filter-pill-active"
+                        : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
                     )}
                   >
                     {filter === undefined ? "All" : filter}
-                  </Button>
+                  </button>
                 ))}
               </>
             )}
@@ -167,56 +123,42 @@ export default function RankingsPage() {
 
       {/* Rankings Grid */}
       <section className="py-12 sm:py-20">
-        <div className="container mx-auto px-3 sm:px-4">
+        <div className="container mx-auto px-4 sm:px-6">
           {error ? (
             <SectionError message="Failed to load rankings" onRetry={() => refetch()} />
           ) : isLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
               {Array.from({ length: 25 }).map((_, i) => (
-                <div key={i} className="space-y-4">
-                  <Skeleton className="aspect-[2/3] rounded-2xl" />
-                </div>
+                <Skeleton key={i} className="aspect-[2/3] rounded-2xl" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-8 entrance-stagger">
-              {data?.map((item, index) => {
-                const rankStyle = getRankBadge(index);
-                
-                return (
-                  <div 
-                    key={item.anilist_id}
-                    className="relative card-tilt-hover"
-                    style={{ zIndex: 25 - index }}
-                  >
-                    {/* Enhanced rank badge */}
-                    <div className={cn(
-                      "absolute -top-3 -left-3 z-10 rounded-full flex items-center justify-center font-bold shadow-lg",
-                      rankStyle.size,
-                      rankStyle.className
-                    )}>
-                      {rankStyle.icon ? (
-                        <div className="flex flex-col items-center">
-                          {rankStyle.icon}
-                          <span className={cn(
-                            "text-[10px] mt-0.5",
-                            index < 3 && "liquid-metal-text"
-                          )}>{index + 1}</span>
-                        </div>
-                      ) : (
-                        index + 1
-                      )}
-                    </div>
-                    
-                    {/* Card */}
-                    {activeType === "anime" ? (
-                      <AnimeCard anime={item as any} index={index} />
-                    ) : (
-                      <MangaCard manga={item as any} index={index} />
-                    )}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 entrance-stagger">
+              {data?.map((item, index) => (
+                <div 
+                  key={item.anilist_id}
+                  className="relative"
+                  style={{ zIndex: 25 - index }}
+                >
+                  {/* Text-only rank number */}
+                  <div className={cn(
+                    "absolute -top-2 -left-1 z-10 text-xs sm:text-sm font-bold tabular-nums",
+                    "bg-background/80 backdrop-blur-sm rounded-full w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center",
+                    index === 0 && "rank-gold",
+                    index === 1 && "rank-silver",
+                    index === 2 && "rank-bronze",
+                    index > 2 && "rank-badge"
+                  )}>
+                    {index + 1}
                   </div>
-                );
-              })}
+                  
+                  {activeType === "anime" ? (
+                    <AnimeCard anime={item as any} index={index} />
+                  ) : (
+                    <MangaCard manga={item as any} index={index} />
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </div>

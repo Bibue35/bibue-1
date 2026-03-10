@@ -67,12 +67,13 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
     <>
       <button
         onClick={() => setModalOpen(true)}
-        className="block group/card text-left w-full active:scale-[0.98] transition-transform duration-200 isolate"
+        className="block group/card text-left w-full transition-transform duration-200 isolate spring-hover ring-pulse"
       >
         <div className={cn(
-          "bg-card rounded-2xl overflow-hidden transition-all duration-400 ease-out",
-          "group-hover/card:-translate-y-1 group-hover/card:shadow-lg",
-          "border border-border/10 group-hover/card:border-border/20",
+          "bg-card rounded-2xl overflow-hidden relative",
+          "transition-all duration-400 ease-out",
+          "border border-border/0 hover:border-border/10",
+          "divine-glow-hover glow-line-top",
           "will-change-transform transform-gpu"
         )}>
           {/* Image */}
@@ -87,14 +88,14 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
               fetchPriority="auto"
               sizes="(max-width: 480px) 45vw, (max-width: 768px) 30vw, (max-width: 1024px) 20vw, 200px"
               className={cn(
-                "w-full object-cover transition-all duration-500 ease-out group-hover/card:scale-[1.02] will-change-transform transform-gpu",
+                "w-full object-cover transition-transform duration-700 ease-out group-hover/card:scale-[1.03] will-change-transform transform-gpu",
                 isMasonry ? "h-auto" : "h-full"
               )}
             />
 
-            {/* Score badge — top right */}
+            {/* Score badge */}
             {manga.score && (
-              <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-background/70 backdrop-blur-md text-foreground text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium border border-border/20">
+              <div className="absolute top-2 right-2 sm:top-3 sm:right-3 glass-panel text-foreground text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium">
                 {formatScore(manga.score)}
               </div>
             )}
@@ -122,7 +123,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
                 image_url={manga.images.webp.image_url}
                 score={manga.score}
                 variant="icon"
-                className="bg-background/70 backdrop-blur-sm hover:bg-background h-7 w-7 sm:h-8 sm:w-8 border border-border/20"
+                className="glass-panel hover:bg-background h-7 w-7 sm:h-8 sm:w-8"
               />
             </div>
           </div>
