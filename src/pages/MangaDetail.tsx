@@ -463,6 +463,9 @@ export default function MangaDetailPage() {
                   <Bookmark className="w-4 h-4" />
                   {t("detail.bookmark")}
                 </Button>
+                {user && (
+                  <RatingPopover currentScore={userScore} onRate={rateMedia} />
+                )}
                 {manga && (
                   <NotificationToggle mediaId={Number(id)} mediaType="manga" title={manga.title} />
                 )}
