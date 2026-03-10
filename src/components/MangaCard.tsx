@@ -58,6 +58,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
               )}
               {publishedYear && <span className="text-xs text-muted-foreground">{publishedYear}</span>}
               {chapterCount && <span className="text-xs text-muted-foreground">{chapterCount} ch</span>}
+              <span className="text-xs text-muted-foreground flex items-center gap-0.5"><Eye className="w-3 h-3" />{viewCount}</span>
             </div>
           </div>
         </button>
