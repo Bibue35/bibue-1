@@ -23,6 +23,8 @@ import { NotificationToggle } from "@/components/NotificationToggle";
 import { WatchlistButton } from "@/components/WatchlistButton";
 import { useTranslatedText } from "@/hooks/useTranslatedText";
 import { useViewingHistory } from "@/hooks/useViewingHistory";
+import { useUserScore } from "@/hooks/useUserScore";
+import { RatingPopover } from "@/components/RatingPopover";
 
 export default function MangaDetailPage() {
   const { id } = useParams<{ id: string }>();
