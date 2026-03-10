@@ -1,7 +1,5 @@
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, LucideIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useInView } from "@/hooks/useInView";
@@ -9,7 +7,7 @@ import { useInView } from "@/hooks/useInView";
 interface ContentSectionProps {
   title: string;
   titleJp?: string;
-  icon?: LucideIcon;
+  icon?: any; // kept for backwards compat, but not rendered
   linkTo?: string;
   linkText?: string;
   children: ReactNode;
@@ -21,7 +19,6 @@ interface ContentSectionProps {
 export function ContentSection({
   title,
   titleJp,
-  icon: Icon,
   linkTo,
   linkText,
   children,
@@ -34,52 +31,41 @@ export function ContentSection({
   const { ref, isInView } = useInView({ threshold: 0.1, rootMargin: "0px 0px -20px 0px" });
 
   return (
-    <section className={cn(compact ? "py-8 sm:py-10" : "py-14 sm:py-18 lg:py-22", className)}>
-      <div className="container mx-auto px-3 sm:px-4">
+    <section className={cn(compact ? "py-10 sm:py-12" : "py-16 sm:py-20 lg:py-24", className)}>
+      <div className="container mx-auto px-4 sm:px-6">
         {/* Header */}
         <div
           ref={ref}
           className={cn(
-            "flex items-center justify-between mb-8 sm:mb-10 section-reveal",
+            "flex items-end justify-between mb-8 sm:mb-10 section-reveal",
             isInView && "revealed"
           )}
         >
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            {Icon && (
-              <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+          <div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sacred font-bold tracking-tight">
+              {title}
+            </h2>
+            {titleJp && language === "ja" && (
+              <p className="font-jp text-[10px] sm:text-xs text-muted-foreground mt-1">
+                {titleJp}
+              </p>
             )}
-            <div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-sacred tracking-tight liquid-metal-text">
-                {title}
-              </h2>
-              {titleJp && language === "ja" && (
-                <p className="font-jp text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                  {titleJp}
-                </p>
-              )}
-            </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {headerExtra}
             {linkTo && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="group gap-1 text-xs h-8 px-2 sm:px-3 rounded-full text-muted-foreground hover:text-foreground transition-colors duration-300" 
-                asChild
+              <Link
+                to={linkTo}
+                className="text-xs sm:text-sm font-medium tracking-wide uppercase text-muted-foreground hover:text-foreground transition-colors duration-300 group"
               >
-                <Link to={linkTo}>
-                  <span className="hidden xs:inline">{defaultLinkText}</span>
-                  <span className="xs:hidden">{t("common.all")}</span>
-                  <ArrowRight className="w-3.5 h-3.5 arrow-slide-right" />
-                </Link>
-              </Button>
+                {defaultLinkText}
+                <span className="inline-block ml-2 w-4 h-px bg-muted-foreground group-hover:w-6 group-hover:bg-foreground transition-all duration-300 align-middle" />
+              </Link>
             )}
           </div>
         </div>
 
-        {/* Content */}
         {children}
       </div>
     </section>

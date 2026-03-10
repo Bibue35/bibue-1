@@ -24,8 +24,8 @@ createRoot(document.getElementById("root")!).render(
     <NextThemesProvider
       attribute="class"
       defaultTheme="dark"
-      enableSystem={true}
-      disableTransitionOnChange
+      enableSystem={false}
+      disableTransitionOnChange={false}
       storageKey="bibue-theme"
     >
       <ThemeProvider>

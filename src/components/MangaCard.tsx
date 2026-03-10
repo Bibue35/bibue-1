@@ -1,5 +1,4 @@
 import { useState, memo, forwardRef, lazy, Suspense } from "react";
-import { Star, BookOpen, Calendar } from "lucide-react";
 import { Manga, formatScore } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { getContentType, getContentLabel, getContentTypeBadgeClass } from "@/lib/contentType";
@@ -17,14 +16,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
   const contentType = getContentType({ type: 'MANGA', countryOfOrigin: manga.countryOfOrigin });
   const typeLabel = getContentLabel(contentType);
 
-  const getPublishedInfo = () => {
-    if (manga.published?.from) {
-      return new Date(manga.published.from).getFullYear().toString();
-    }
-    return null;
-  };
-
-  const publishedYear = getPublishedInfo();
+  const publishedYear = manga.published?.from ? new Date(manga.published.from).getFullYear().toString() : null;
   const chapterCount = manga.chapters;
   const statusLabel = manga.status === "Finished" ? "Completed" : manga.status === "Publishing" ? "Ongoing" : manga.status || null;
 
@@ -33,7 +25,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
       <>
         <button
           onClick={() => setModalOpen(true)}
-          className="flex items-center gap-3 sm:gap-4 p-3 rounded-xl transition-all duration-150 group text-left w-full hover:bg-accent/50 active:scale-[0.98]"
+          className="flex items-center gap-4 p-3 rounded-xl transition-all duration-200 group text-left w-full hover:bg-accent/50 active:scale-[0.98]"
         >
           <img
             src={manga.images.webp.image_url}
@@ -45,36 +37,24 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
             className="w-14 sm:w-16 h-18 sm:h-20 object-cover rounded-lg bg-muted"
           />
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-sm sm:text-base truncate group-hover:text-primary transition-colors">
+            <h3 className="font-medium text-sm truncate group-hover:text-primary transition-colors">
               {manga.title}
             </h3>
-            <p className="text-xs sm:text-sm text-muted-foreground truncate">
+            <p className="text-xs text-muted-foreground truncate mt-0.5">
               {typeLabel} {manga.genres?.slice(0, 2).map(g => g.name).join(", ")}
             </p>
-            <div className="flex items-center gap-3 mt-1 flex-wrap">
+            <div className="flex items-center gap-3 mt-1.5">
               {manga.score && (
-                <div className="flex items-center gap-1">
-                  <Star className="w-3 h-3 fill-primary text-primary" />
-                  <span className="text-xs sm:text-sm font-medium">{formatScore(manga.score)}</span>
-                </div>
+                <span className="text-xs font-medium">{formatScore(manga.score)}</span>
               )}
-              {publishedYear && (
-                <span className="text-xs text-muted-foreground">{publishedYear}</span>
-              )}
-              {chapterCount && (
-                <span className="text-xs text-muted-foreground">{chapterCount} ch</span>
-              )}
+              {publishedYear && <span className="text-xs text-muted-foreground">{publishedYear}</span>}
+              {chapterCount && <span className="text-xs text-muted-foreground">{chapterCount} ch</span>}
             </div>
           </div>
         </button>
-        
         {modalOpen && (
           <Suspense fallback={null}>
-            <MangaDetailModal
-              mangaId={manga.anilist_id}
-              open={modalOpen}
-              onOpenChange={setModalOpen}
-            />
+            <MangaDetailModal mangaId={manga.anilist_id} open={modalOpen} onOpenChange={setModalOpen} />
           </Suspense>
         )}
       </>
@@ -90,16 +70,13 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
         className="block group/card text-left w-full active:scale-[0.98] transition-transform duration-200 isolate"
       >
         <div className={cn(
-          "bg-card rounded-2xl overflow-hidden transition-all duration-300 ease-out",
-          "group-hover/card:-translate-y-2 group-hover/card:shadow-lg",
-          "border border-border/10 group-hover/card:border-border/30",
+          "bg-card rounded-2xl overflow-hidden transition-all duration-400 ease-out",
+          "group-hover/card:-translate-y-1 group-hover/card:shadow-lg",
+          "border border-border/10 group-hover/card:border-border/20",
           "will-change-transform transform-gpu"
         )}>
           {/* Image */}
-          <div className={cn(
-            "relative overflow-hidden",
-            isMasonry ? "" : "aspect-[3/4]"
-          )}>
+          <div className={cn("relative overflow-hidden", isMasonry ? "" : "aspect-[3/4]")}>
             <img
               src={manga.images.webp.image_url}
               alt={`${manga.title} cover art`}
@@ -108,34 +85,33 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
               loading="lazy"
               decoding="async"
               fetchPriority="auto"
-              sizes="(max-width: 480px) 30vw, (max-width: 768px) 22vw, (max-width: 1024px) 18vw, 200px"
+              sizes="(max-width: 480px) 45vw, (max-width: 768px) 30vw, (max-width: 1024px) 20vw, 200px"
               className={cn(
-                "w-full object-cover transition-all duration-500 ease-out group-hover/card:scale-[1.03] group-hover/card:brightness-[1.02] will-change-transform transform-gpu",
+                "w-full object-cover transition-all duration-500 ease-out group-hover/card:scale-[1.02] will-change-transform transform-gpu",
                 isMasonry ? "h-auto" : "h-full"
               )}
             />
 
-            {/* Top-right badges */}
-            <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex flex-col gap-1.5">
-              {manga.score && (
-                <div className="glass-panel bg-background/70 backdrop-blur-md text-foreground text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-medium flex items-center gap-1 border border-border/20">
-                  <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-primary text-primary" />
-                  {formatScore(manga.score)}
-                </div>
-              )}
-              {typeLabel && typeLabel !== "Manga" && (
-                <div className={cn(
-                  "text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-medium text-center",
-                  getContentTypeBadgeClass(contentType)
-                )}>
-                  {typeLabel}
-                </div>
-              )}
-            </div>
+            {/* Score badge — top right */}
+            {manga.score && (
+              <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-background/70 backdrop-blur-md text-foreground text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium border border-border/20">
+                {formatScore(manga.score)}
+              </div>
+            )}
 
-            {/* Save button - top left on hover */}
+            {/* Type badge */}
+            {typeLabel && typeLabel !== "Manga" && (
+              <div className={cn(
+                "absolute top-2 left-2 sm:top-3 sm:left-3 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium",
+                getContentTypeBadgeClass(contentType)
+              )}>
+                {typeLabel}
+              </div>
+            )}
+
+            {/* Save — hover only */}
             <div
-              className="absolute top-2 left-2 sm:top-3 sm:left-3 opacity-0 group-hover/card:opacity-100 transition-all duration-300"
+              className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300"
               onClick={(e) => e.stopPropagation()}
             >
               <WatchlistButton
@@ -152,23 +128,20 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
           </div>
 
           {/* Content */}
-          <div className="p-3 sm:p-4 md:p-5">
-            <h3 className="font-semibold text-[11px] sm:text-sm md:text-base leading-tight line-clamp-1 sm:line-clamp-2 text-card-foreground group-hover/card:text-primary transition-colors duration-300">
+          <div className="p-3 sm:p-4">
+            <h3 className="font-medium text-[11px] sm:text-sm leading-tight line-clamp-2 text-card-foreground group-hover/card:text-primary transition-colors duration-300">
               {manga.title}
             </h3>
             
-            {/* Soft divider */}
-            <div className="w-full h-px bg-border/20 my-1.5 sm:my-2" />
-            
-            <p className="text-[10px] sm:text-xs text-muted-foreground truncate font-normal">
-              {manga.authors && manga.authors.length > 0 && <>{manga.authors[0].name} • </>}
+            <p className="text-[10px] sm:text-xs text-muted-foreground truncate mt-1.5">
+              {manga.authors && manga.authors.length > 0 && <>{manga.authors[0].name} · </>}
               {typeLabel}
-              {publishedYear && <> • {publishedYear}</>}
+              {publishedYear && <> · {publishedYear}</>}
             </p>
 
-            <div className="flex items-center gap-2 sm:gap-3 mt-1.5 sm:mt-2 text-[9px] sm:text-xs text-muted-foreground">
-              {chapterCount && <span>Chapter {chapterCount}</span>}
-              {chapterCount && statusLabel && <span className="w-1 h-1 bg-muted-foreground/30 rounded-full" />}
+            <div className="flex items-center gap-2 mt-1.5 text-[9px] sm:text-[11px] text-muted-foreground/70">
+              {chapterCount && <span>{chapterCount} ch</span>}
+              {chapterCount && statusLabel && <span>·</span>}
               {statusLabel && <span>{statusLabel}</span>}
             </div>
           </div>
@@ -177,11 +150,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
 
       {modalOpen && (
         <Suspense fallback={null}>
-          <MangaDetailModal
-            mangaId={manga.anilist_id}
-            open={modalOpen}
-            onOpenChange={setModalOpen}
-          />
+          <MangaDetailModal mangaId={manga.anilist_id} open={modalOpen} onOpenChange={setModalOpen} />
         </Suspense>
       )}
     </>
