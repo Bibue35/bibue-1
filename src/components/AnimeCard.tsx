@@ -78,6 +78,7 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
               )}
               {airedYear && <span className="text-xs text-muted-foreground">{airedYear}</span>}
               {episodeCount && <span className="text-xs text-muted-foreground">{episodeCount} ep</span>}
+              <span className="text-xs text-muted-foreground flex items-center gap-0.5"><Eye className="w-3 h-3" />{viewCount}</span>
             </div>
           </div>
         </button>
