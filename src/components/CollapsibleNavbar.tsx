@@ -32,6 +32,18 @@ export function CollapsibleNavbar() {
     if (isMobileMenuOpen) setIsVisible(true);
   }, [isMobileMenuOpen]);
 
+  // Global Cmd/Ctrl+K shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   useEffect(() => {
     let ticking = false;
     const onScroll = () => {
@@ -116,10 +128,13 @@ export function CollapsibleNavbar() {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setIsSearchOpen(true)}
-                className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-300 btn-press"
-                aria-label="Search"
+                className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-300 btn-press flex items-center gap-1.5"
+                aria-label="Search (⌘K)"
               >
                 <Search className="w-5 h-5" />
+                <kbd className="hidden md:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted/60 text-muted-foreground border border-border/40">
+                  ⌘K
+                </kbd>
               </button>
 
               <div className="hidden md:block">

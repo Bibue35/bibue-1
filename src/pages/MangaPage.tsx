@@ -20,13 +20,14 @@ import { ContentSection } from "@/components/ContentSection";
 import { SearchDropdown } from "@/components/SearchDropdown";
 import { ContinueReadingRow } from "@/components/ContinueRow";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { FilterBar } from "@/components/FilterBar";
 import { CardSkeletonRow } from "@/components/skeletons";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useTopManga, useRecentlyUpdatedManga, useInfiniteTopManga, useInfiniteMangaByGenre, useInfiniteSearchManga } from "@/hooks/useAnimeData";
+import { useTopManga, useRecentlyUpdatedManga, useInfiniteFilteredManga, useInfiniteMangaByGenre, useInfiniteSearchManga } from "@/hooks/useAnimeData";
 import { useHybridMangaByGenre } from "@/hooks/useHybridMangaData";
 import { isNicheTagGenre } from "@/lib/api";
+import { useFilterPreferences } from "@/hooks/useFilterPreferences";
 import { useInView } from "@/hooks/useInView";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
@@ -34,8 +35,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
-
-type SortOption = "popularity" | "score" | "newest";
 
 /* ── Genre Grid Data ─────────────────────────────── */
 const BROWSE_GENRES = [
@@ -61,7 +60,6 @@ const BROWSE_GENRES = [
   { id: "24", name: "Sci-Fi" },
   { id: "73", name: "School" },
   { id: "2", name: "Adventure" },
-  // Niche tag-based genres
   { id: "tag-xianxia", name: "Xianxia" },
   { id: "tag-wuxia", name: "Wuxia" },
   { id: "tag-cultivation", name: "Cultivation" },
@@ -75,13 +73,6 @@ const BROWSE_GENRES = [
 
 const GENRE_ID_TO_NAME: Record<string, string> = {};
 BROWSE_GENRES.forEach((g) => { GENRE_ID_TO_NAME[g.id] = g.name; });
-
-const FORMAT_TABS = [
-  { value: "all" as const, label: "All" },
-  { value: "manga" as const, label: "Manga" },
-  { value: "manhwa" as const, label: "Manhwa" },
-  { value: "manhua" as const, label: "Manhua" },
-];
 
 /* ── Genre usage tracking ── */
 const GENRE_USAGE_KEY = "bibue_genre_usage";
@@ -142,12 +133,9 @@ function GenreSwipeBar({ onSelect, activeGenre }: { onSelect: (id: string | null
 export default function MangaPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const genreId = searchParams.get("genre");
-  const filterParam = searchParams.get("filter") as "manga" | "manhwa" | "manhua" | null;
-  const sortParam = searchParams.get("sort") as SortOption | null;
 
   const [localSearch, setLocalSearch] = useState(searchParams.get("q") || "");
-  const [typeFilter, setTypeFilter] = useState<"all" | "manga" | "manhwa" | "manhua">(filterParam || "all");
-  const [sortBy, setSortBy] = useState<SortOption>(sortParam || "popularity");
+  const { filters, updateFilter, resetFilters, activeCount } = useFilterPreferences("manga");
   const resultsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
@@ -158,42 +146,40 @@ export default function MangaPage() {
   const debouncedSearch = useDebounce(localSearch.trim());
   const isSearching = debouncedSearch.length > 0;
 
-  // Sync state from URL
+  // Derive type filter for display
+  const typeFilter = (filters.type as "manga" | "manhwa" | "manhua" | null) || null;
+
+  // Sync state from URL on mount
   useEffect(() => {
-    const urlFilter = searchParams.get("filter") as typeof typeFilter | null;
-    const urlSort = searchParams.get("sort") as SortOption | null;
+    const urlFilter = searchParams.get("filter") as "manga" | "manhwa" | "manhua" | null;
+    const urlSort = searchParams.get("sort") as string | null;
     const urlQ = searchParams.get("q") || "";
-    setTypeFilter(urlFilter || "all");
-    setSortBy(urlSort || "popularity");
+    if (urlFilter) updateFilter("type", urlFilter);
+    if (urlSort) updateFilter("sort", urlSort);
     setLocalSearch(urlQ);
     if ((urlFilter || urlSort || searchParams.get("genre")) && !urlQ) {
       setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     }
   }, [searchParams]);
 
-  // Sync URL from state
+  // Sync search into filters
   useEffect(() => {
-    if (!isUserAction.current && !localSearch) return;
-    isUserAction.current = false;
-    const params = new URLSearchParams();
-    if (debouncedSearch) params.set("q", debouncedSearch);
-    if (typeFilter !== "all") params.set("filter", typeFilter);
-    if (sortBy !== "popularity") params.set("sort", sortBy);
-    if (genreId) params.set("genre", genreId);
-    setSearchParams(params, { replace: true });
-  }, [debouncedSearch, typeFilter, sortBy, genreId, setSearchParams]);
+    updateFilter("search", debouncedSearch);
+  }, [debouncedSearch]);
 
-  const handleTypeFilter = (f: typeof typeFilter) => { isUserAction.current = true; setTypeFilter(f); };
   const handleGenreSelect = (id: string | null) => {
     const params = new URLSearchParams(searchParams);
     if (id) { params.set("genre", id); } else { params.delete("genre"); }
-    if (typeFilter !== "all") params.set("filter", typeFilter);
+    if (filters.type) params.set("filter", filters.type);
     setSearchParams(params, { replace: true });
+    // Also set genre in filters for the FilterBar
+    const genreName = id ? GENRE_ID_TO_NAME[id] || null : null;
+    updateFilter("genre", genreName);
   };
 
   const handleRefresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["topManga"] });
-    await queryClient.invalidateQueries({ queryKey: ["infiniteTopManga"] });
+    await queryClient.invalidateQueries({ queryKey: ["infiniteFilteredManga"] });
     await queryClient.invalidateQueries({ queryKey: ["infiniteMangaByGenre"] });
     await queryClient.invalidateQueries({ queryKey: ["hybridMangaByGenre"] });
     await queryClient.invalidateQueries({ queryKey: ["infiniteSearchManga"] });
@@ -209,20 +195,24 @@ export default function MangaPage() {
   const { data: mangaOnly, isLoading: mangaLoading, isError: mangaError, refetch: refetchManga } = useTopManga(1, 'manga');
   const { data: recentlyUpdatedManga, isLoading: recentlyUpdatedMangaLoading, isError: recentlyUpdatedMangaError, refetch: refetchRecentlyUpdatedManga } = useRecentlyUpdatedManga(1);
 
-  const sortToAniList = (s: SortOption) => {
-    if (s === "score") return "SCORE_DESC" as const;
-    if (s === "newest") return "TRENDING_DESC" as const;
-    return "POPULARITY_DESC" as const;
-  };
   const genreName = genreId ? GENRE_ID_TO_NAME[genreId] || genreId : "";
   const isNicheGenre = !!genreName && isNicheTagGenre(genreName);
 
-  const infiniteTop = useInfiniteTopManga(typeFilter === "all" ? undefined : typeFilter, sortBy);
-  const infiniteGenre = useInfiniteMangaByGenre(genreName, typeFilter === "all" ? undefined : typeFilter, sortToAniList(sortBy));
-  const hybridGenre = useHybridMangaByGenre(isNicheGenre ? genreName : "", typeFilter === "all" ? undefined : typeFilter, sortToAniList(sortBy));
-  const infiniteSearch = useInfiniteSearchManga(debouncedSearch, isSearching, typeFilter === "all" ? undefined : typeFilter);
+  // Use unified filtered hook for the main grid when filters are active
+  const hasAdvancedFilters = !!(filters.genre || filters.year || filters.status || filters.scoreMin || filters.sort !== "popularity");
+  const infiniteFiltered = useInfiniteFilteredManga(filters);
+  const infiniteGenre = useInfiniteMangaByGenre(genreName, typeFilter || undefined, 
+    filters.sort === "score" ? "SCORE_DESC" : filters.sort === "trending" ? "TRENDING_DESC" : "POPULARITY_DESC");
+  const hybridGenre = useHybridMangaByGenre(isNicheGenre ? genreName : "", typeFilter || undefined,
+    filters.sort === "score" ? "SCORE_DESC" : filters.sort === "trending" ? "TRENDING_DESC" : "POPULARITY_DESC");
+  const infiniteSearch = useInfiniteSearchManga(debouncedSearch, isSearching, typeFilter || undefined);
 
-  const activeInfinite = isSearching ? infiniteSearch : genreId ? (isNicheGenre ? hybridGenre : infiniteGenre) : infiniteTop;
+  // Pick the right data source
+  const activeInfinite = isSearching 
+    ? infiniteSearch 
+    : genreId && !hasAdvancedFilters 
+      ? (isNicheGenre ? hybridGenre : infiniteGenre) 
+      : infiniteFiltered;
   const allItems = activeInfinite.data?.pages.flat() ?? [];
   const gridLoading = activeInfinite.isLoading;
   const isFetchingNext = activeInfinite.isFetchingNextPage;
@@ -238,7 +228,7 @@ export default function MangaPage() {
     [mangaOnly]
   );
 
-  const showCarousels = !isSearching && !genreId;
+  const showCarousels = !isSearching && !genreId && !hasAdvancedFilters;
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
@@ -268,61 +258,30 @@ export default function MangaPage() {
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mb-5 sm:mb-6">
             {genreId
-              ? `Top ${typeFilter !== "all" ? typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1) + " " : ""}${genreName} series`
+              ? `Top ${typeFilter ? typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1) + " " : ""}${genreName} series`
               : "Your discovery hub for manga, manhwa & manhua."
             }
           </p>
 
-          <div className="flex flex-wrap items-center gap-2">
-            {FORMAT_TABS.map((tab) => (
-              <button
-                key={tab.value}
-                onClick={() => handleTypeFilter(tab.value)}
-                className={cn(
-                  "px-4 sm:px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 active:scale-95",
-                  typeFilter === tab.value
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                    : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                {tab.label}
-              </button>
-            ))}
+          {/* FilterBar */}
+          <FilterBar
+            filters={filters}
+            onFilterChange={updateFilter}
+            onReset={resetFilters}
+            activeCount={activeCount}
+            mediaType="manga"
+            lockedGenre={genreId ? genreName : undefined}
+          />
 
-            <div className="w-px h-6 bg-border/40 mx-1 hidden sm:block" />
+          {/* Genre Swipe Bar */}
+          {!isSearching && (
+            <div className="mt-3">
+              <GenreSwipeBar onSelect={handleGenreSelect} activeGenre={genreId} />
+            </div>
+          )}
 
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium bg-muted/50 text-muted-foreground hover:bg-muted transition-colors">
-                  <SlidersHorizontal className="w-3.5 h-3.5" />
-                  {sortBy === "popularity" ? "Trending" : sortBy === "score" ? "Top Rated" : "Newest"}
-                  <ChevronDown className="w-3 h-3 opacity-50" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-44 p-2" align="start">
-                {(["popularity", "score", "newest"] as const).map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => { isUserAction.current = true; setSortBy(s); }}
-                    className={cn(
-                      "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
-                      sortBy === s ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
-                    )}
-                  >
-                    {s === "popularity" ? "Trending" : s === "score" ? "Top Rated" : "Newest"}
-                  </button>
-                ))}
-              </PopoverContent>
-            </Popover>
-
-            {!isSearching && (
-              <div className="w-full mt-3 order-last">
-                <GenreSwipeBar onSelect={handleGenreSelect} activeGenre={genreId} />
-              </div>
-            )}
-
+          <div className="flex items-center gap-2 mt-3">
             <div className="flex-1" />
-
             {user && (
               <Button variant="ghost" size="sm" className="rounded-full gap-1.5 text-xs" asChild>
                 <Link to="/recommendations"><Sparkles className="w-3.5 h-3.5" /> For You</Link>
@@ -338,9 +297,7 @@ export default function MangaPage() {
       {/* ── Carousel Sections (hidden when searching or genre-filtered) ── */}
       {showCarousels && (
         <>
-          {/* Continue Reading for logged-in users */}
           <ContinueReadingRow />
-          {/* Recently Updated — carousel on mobile, grid on desktop */}
           <ContentSection title={t("manga.recentlyUpdated")} titleJp={t("manga.recentlyUpdatedJp")} icon={RefreshCw} linkTo="/manga">
             {recentlyUpdatedMangaError ? (
               <SectionError onRetry={() => refetchRecentlyUpdatedManga()} />
@@ -351,7 +308,7 @@ export default function MangaPage() {
                 ) : (
                   recentlyUpdatedManga
                     ?.filter((m) => {
-                      if (typeFilter === "all") return true;
+                      if (!typeFilter) return true;
                       if (typeFilter === "manhwa") return m.countryOfOrigin === "KR";
                       if (typeFilter === "manhua") return m.countryOfOrigin === "CN";
                       return m.countryOfOrigin === "JP" || (!m.countryOfOrigin || (m.countryOfOrigin !== "KR" && m.countryOfOrigin !== "CN"));
@@ -375,7 +332,7 @@ export default function MangaPage() {
                 <div className="grid gap-4 grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                   {recentlyUpdatedManga
                     ?.filter((m) => {
-                      if (typeFilter === "all") return true;
+                      if (!typeFilter) return true;
                       if (typeFilter === "manhwa") return m.countryOfOrigin === "KR";
                       if (typeFilter === "manhua") return m.countryOfOrigin === "CN";
                       return m.countryOfOrigin === "JP" || (!m.countryOfOrigin || (m.countryOfOrigin !== "KR" && m.countryOfOrigin !== "CN"));
@@ -391,7 +348,7 @@ export default function MangaPage() {
           </ContentSection>
 
           {/* Most Popular Manga */}
-          {(typeFilter === "all" || typeFilter === "manga") && (
+          {(!typeFilter || typeFilter === "manga") && (
             <ContentSection title={t("manga.mostPopular")} titleJp={t("manga.mostPopularJp")} icon={TrendingUp} linkTo="/manga?filter=manga">
               {mangaError ? <SectionError onRetry={() => refetchManga()} /> : (
                 <HorizontalScroll showArrows={!isMobile}>
@@ -408,7 +365,7 @@ export default function MangaPage() {
           )}
 
           {/* Top Rated */}
-          {(typeFilter === "all" || typeFilter === "manga") && (
+          {(!typeFilter || typeFilter === "manga") && (
             <ContentSection title={t("manga.topRated")} titleJp={t("manga.topRatedJp")} icon={Trophy} linkTo="/manga?filter=manga&sort=score">
               {mangaError ? <SectionError onRetry={() => refetchManga()} /> : (
                 <HorizontalScroll showArrows={!isMobile}>
@@ -425,47 +382,17 @@ export default function MangaPage() {
           )}
 
           {/* Deferred sections */}
-          {(typeFilter === "all" || typeFilter === "manhwa") && <DeferredTrendingManhwaSection isMobile={isMobile} />}
-          {(typeFilter === "all" || typeFilter === "manhwa") && <DeferredTopManhwaSection isMobile={isMobile} />}
-          {(typeFilter === "all" || typeFilter === "manhua") && <DeferredTrendingManhuaSection isMobile={isMobile} />}
-          {(typeFilter === "all" || typeFilter === "manhua") && <DeferredTopManhuaSection isMobile={isMobile} />}
-          {typeFilter === "all" && <DeferredNewThisWeekSection isMobile={isMobile} />}
-          {typeFilter === "all" && <DeferredCompletedSection isMobile={isMobile} />}
+          {(!typeFilter || typeFilter === "manhwa") && <DeferredTrendingManhwaSection isMobile={isMobile} />}
+          {(!typeFilter || typeFilter === "manhwa") && <DeferredTopManhwaSection isMobile={isMobile} />}
+          {(!typeFilter || typeFilter === "manhua") && <DeferredTrendingManhuaSection isMobile={isMobile} />}
+          {(!typeFilter || typeFilter === "manhua") && <DeferredTopManhuaSection isMobile={isMobile} />}
+          {!typeFilter && <DeferredNewThisWeekSection isMobile={isMobile} />}
+          {!typeFilter && <DeferredCompletedSection isMobile={isMobile} />}
         </>
       )}
 
-
       {/* Results anchor */}
       <div ref={resultsRef} />
-
-      {/* Active Filters Chips */}
-      {(typeFilter !== "all" || sortBy !== "popularity" || genreId) && (
-        <section className="pb-2">
-          <div className="container mx-auto px-3 sm:px-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-muted-foreground">{t("browse.activeFilters")}:</span>
-              {typeFilter !== "all" && (
-                <button onClick={() => { isUserAction.current = true; setTypeFilter("all"); }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95">
-                  Type: {typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)} <span className="text-primary/60">×</span>
-                </button>
-              )}
-              {sortBy !== "popularity" && (
-                <button onClick={() => { isUserAction.current = true; setSortBy("popularity"); }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95">
-                  Sort: {sortBy === "score" ? "Top Rated" : "Newest"} <span className="text-primary/60">×</span>
-                </button>
-              )}
-              {genreId && (
-                <button onClick={() => handleGenreSelect(null)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors active:scale-95">
-                  Genre: {genreName} <span className="text-primary/60">×</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* ── Main Grid ── */}
       <section className="py-4 pb-24">
@@ -474,8 +401,8 @@ export default function MangaPage() {
             {isSearching
               ? `Results for "${debouncedSearch}"`
               : genreId
-                ? `Top ${typeFilter !== "all" ? typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1) + " " : ""}${genreName}`
-                : typeFilter !== "all"
+                ? `Top ${typeFilter ? typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1) + " " : ""}${genreName}`
+                : typeFilter
                   ? `Top ${typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}`
                   : t("manga.topManga")}
           </h2>

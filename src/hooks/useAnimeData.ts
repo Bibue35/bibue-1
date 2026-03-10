@@ -1,5 +1,6 @@
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { FilterState } from "@/hooks/useFilterPreferences";
 import {
   getTopAnime,
   getSeasonalAnime,
@@ -31,6 +32,9 @@ import {
   Manga,
   ScheduleItem,
   SupportedLanguage,
+  getFilteredManga,
+  getFilteredAnime,
+  FilterParams,
 } from "@/lib/api";
 
 export function useTopAnime(page = 1, filter?: 'airing' | 'upcoming' | 'bypopularity' | 'favorite' | 'new' | 'completed', enabled = true) {
@@ -423,6 +427,48 @@ export function useInfiniteSearchManga(
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length >= PER_PAGE ? allPages.length + 1 : undefined,
     enabled: enabled && query.trim().length > 0,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
+  });
+}
+
+// ── Unified filtered infinite hooks ──
+
+function filterStateToParams(filters: FilterState): FilterParams {
+  return {
+    genre: filters.genre,
+    year: filters.year,
+    status: filters.status,
+    type: filters.type,
+    sort: filters.sort,
+    scoreMin: filters.scoreMin,
+    search: filters.search,
+  };
+}
+
+export function useInfiniteFilteredManga(filters: FilterState) {
+  const { language } = useLanguage();
+  const params = filterStateToParams(filters);
+  return useInfiniteQuery({
+    queryKey: ["infiniteFilteredManga", params, language],
+    queryFn: ({ pageParam = 1 }) => getFilteredManga(params, pageParam, PER_PAGE, language as SupportedLanguage),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length >= PER_PAGE ? allPages.length + 1 : undefined,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
+  });
+}
+
+export function useInfiniteFilteredAnime(filters: FilterState) {
+  const { language } = useLanguage();
+  const params = filterStateToParams(filters);
+  return useInfiniteQuery({
+    queryKey: ["infiniteFilteredAnime", params, language],
+    queryFn: ({ pageParam = 1 }) => getFilteredAnime(params, pageParam, PER_PAGE, language as SupportedLanguage),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length >= PER_PAGE ? allPages.length + 1 : undefined,
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
   });

@@ -937,6 +937,107 @@ export async function searchManga(
   return data.Page.media.map(m => toManga(m, language));
 }
 
+// ── Unified filtered queries ──
+
+export interface FilterParams {
+  genre?: string | null;
+  year?: string | null;
+  status?: string | null;
+  type?: string | null;
+  sort?: string;
+  scoreMin?: number | null;
+  search?: string;
+}
+
+function buildYearVariables(year: string | null | undefined): { seasonYear?: number; startDateGreater?: number; startDateLesser?: number } {
+  if (!year) return {};
+  if (/^\d{4}$/.test(year)) return { seasonYear: parseInt(year) };
+  const decadeMap: Record<string, [number, number]> = {
+    "2020s": [2020, 2029],
+    "2010s": [2010, 2019],
+    "classic": [1950, 2009],
+  };
+  const range = decadeMap[year];
+  if (range) return { startDateGreater: range[0] * 10000 + 101, startDateLesser: range[1] * 10000 + 1231 };
+  return {};
+}
+
+function buildSortValue(sort?: string): string {
+  const map: Record<string, string> = {
+    popularity: "POPULARITY_DESC",
+    score: "SCORE_DESC",
+    trending: "TRENDING_DESC",
+    newest: "START_DATE_DESC",
+    oldest: "START_DATE",
+    alpha: "TITLE_ROMAJI",
+  };
+  return map[sort || "popularity"] || "POPULARITY_DESC";
+}
+
+export async function getFilteredManga(filters: FilterParams, page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Manga[]> {
+  let countryOfOrigin: string | undefined;
+  let format: string | undefined;
+  if (filters.type === "manhwa") countryOfOrigin = "KR";
+  else if (filters.type === "manhua") countryOfOrigin = "CN";
+  else if (filters.type === "manga") { format = "MANGA"; countryOfOrigin = "JP"; }
+
+  const yearVars = buildYearVariables(filters.year);
+  const sortValue = buildSortValue(filters.sort);
+
+  const query = `
+    query ($page: Int, $perPage: Int, $sort: [MediaSort], $genre: String, $status: MediaStatus, $format: MediaFormat, $countryOfOrigin: CountryCode, $search: String, $scoreMin: Int, $seasonYear: Int, $startDateGreater: FuzzyDateInt, $startDateLesser: FuzzyDateInt) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: MANGA, sort: $sort, genre: $genre, status: $status, format: $format, countryOfOrigin: $countryOfOrigin, search: $search, averageScore_greater: $scoreMin, seasonYear: $seasonYear, startDate_greater: $startDateGreater, startDate_lesser: $startDateLesser, isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, {
+    page, perPage: limit, sort: [sortValue],
+    genre: filters.genre || undefined,
+    status: filters.status || undefined,
+    format, countryOfOrigin,
+    search: filters.search?.trim() || undefined,
+    scoreMin: filters.scoreMin || undefined,
+    ...yearVars,
+  });
+  return data.Page.media.map(m => toManga(m, language));
+}
+
+export async function getFilteredAnime(filters: FilterParams, page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Anime[]> {
+  let format: string | undefined;
+  if (filters.type === "TV") format = "TV";
+  else if (filters.type === "MOVIE") format = "MOVIE";
+  else if (filters.type === "OVA") format = "OVA";
+  else if (filters.type === "ONA") format = "ONA";
+
+  const yearVars = buildYearVariables(filters.year);
+  const sortValue = buildSortValue(filters.sort);
+
+  const query = `
+    query ($page: Int, $perPage: Int, $sort: [MediaSort], $genre: String, $status: MediaStatus, $format: MediaFormat, $search: String, $scoreMin: Int, $seasonYear: Int, $startDateGreater: FuzzyDateInt, $startDateLesser: FuzzyDateInt) {
+      Page(page: $page, perPage: $perPage) {
+        media(type: ANIME, sort: $sort, genre: $genre, status: $status, format: $format, search: $search, averageScore_greater: $scoreMin, seasonYear: $seasonYear, startDate_greater: $startDateGreater, startDate_lesser: $startDateLesser, isAdult: false) {
+          ${MEDIA_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, {
+    page, perPage: limit, sort: [sortValue],
+    genre: filters.genre || undefined,
+    status: filters.status || undefined,
+    format,
+    search: filters.search?.trim() || undefined,
+    scoreMin: filters.scoreMin || undefined,
+    ...yearVars,
+  });
+  return data.Page.media.map(m => toAnime(m, language));
+}
+
 // News - AniList doesn't have news, return empty
 export async function getAnimeNews(): Promise<NewsItem[]> {
   return [];
