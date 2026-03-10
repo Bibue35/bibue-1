@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import { getContentType, getContentLabel, getContentTypeBadgeClass } from "@/lib/contentType";
 const MangaDetailModal = lazy(() => import("./MangaDetailModal").then(m => ({ default: m.MangaDetailModal })));
 import { WatchlistButton } from "./WatchlistButton";
+import { useMediaViewCount, useRecordView } from "@/hooks/useMediaViews";
+import { Eye } from "lucide-react";
 
 interface MangaCardProps {
   manga: Manga;
