@@ -5,6 +5,8 @@ const AnimeDetailModal = lazy(() => import("./AnimeDetailModal").then(m => ({ de
 import { WatchlistButton } from "./WatchlistButton";
 import { EpisodeCountdown } from "./EpisodeCountdown";
 import { usePrefetch } from "@/hooks/usePrefetch";
+import { useMediaViewCount, useRecordView } from "@/hooks/useMediaViews";
+import { Eye } from "lucide-react";
 
 interface AnimeCardProps {
   anime: Anime;
