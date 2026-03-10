@@ -10,10 +10,10 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").replace(/&[^;]+;/g, " ").trim();
 }
 
-type MediaFilter = undefined | "manhwa" | "manhua";
+type MediaFilter = "manga" | "manhwa" | "manhua";
 
 const CATEGORIES: { label: string; filter: MediaFilter }[] = [
-  { label: "Manga", filter: undefined },
+  { label: "Manga", filter: "manga" },
   { label: "Manhwa", filter: "manhwa" },
   { label: "Manhua", filter: "manhua" },
 ];
