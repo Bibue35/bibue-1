@@ -76,7 +76,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
   return (
     <>
       <button
-        onClick={() => setModalOpen(true)}
+        onClick={handleOpen}
         className="block group/card text-left w-full transition-transform duration-200 isolate spring-hover ring-pulse"
       >
         <div className={cn(
