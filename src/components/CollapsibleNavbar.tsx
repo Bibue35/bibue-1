@@ -78,7 +78,14 @@ export function CollapsibleNavbar() {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="group">
+            <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group">
+              <img
+                src={bibueTower}
+                alt="Bibue Tower"
+                className="h-6 sm:h-8 md:h-10 w-auto object-contain dark:brightness-0 dark:invert logo-stable"
+                loading="eager"
+                decoding="sync"
+              />
               <span className="text-xl sm:text-2xl font-sacred font-bold tracking-[0.15em] uppercase transition-opacity duration-300 group-hover:opacity-70">
                 Bibue
               </span>
