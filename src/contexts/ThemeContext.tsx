@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode, useCallback 
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 
-export type ThemeFlavor = "default" | "mocha" | "latte" | "frappe" | "macchiato" | "crimson-scroll" | "celestial" | "monochrome" | "contrast";
+export type ThemeFlavor = "default" | "celestial" | "monochrome" | "contrast";
 
 interface ThemeContextType {
   mode: string;
@@ -25,7 +25,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // Apply flavor classes to document (next-themes handles dark/light)
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove("theme-mocha", "theme-latte", "theme-frappe", "theme-macchiato", "theme-crimson-scroll", "theme-celestial", "theme-monochrome", "theme-contrast");
+    root.classList.remove("theme-celestial", "theme-monochrome", "theme-contrast");
     if (flavor !== "default") {
       root.classList.add(`theme-${flavor}`);
     }
