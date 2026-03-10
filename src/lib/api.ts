@@ -732,35 +732,60 @@ export async function getClassicManga(page = 1, limit = 25, language: SupportedL
   return getMangaByYearRange(1950, 2009, page, limit, undefined, "SCORE_DESC", language);
 }
 
+// Compute a fuzzy date int for AniList (YYYYMMDD) for N days ago
+function fuzzyDateDaysAgo(days: number): number {
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+}
+
+export type TrendingPeriod = "daily" | "weekly" | "monthly";
+
+function trendingPeriodToDays(period: TrendingPeriod): number {
+  switch (period) {
+    case "daily": return 1;
+    case "weekly": return 7;
+    case "monthly": return 30;
+  }
+}
+
 // Get trending manhwa specifically
-export async function getTrendingManhwa(page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Manga[]> {
+export async function getTrendingManhwa(page = 1, limit = 25, language: SupportedLanguage = "en", period: TrendingPeriod = "daily"): Promise<Manga[]> {
+  const startDateGreater = period === "daily" ? undefined : fuzzyDateDaysAgo(trendingPeriodToDays(period));
+  const dateFilter = startDateGreater ? `, startDate_greater: $startDate` : "";
   const query = `
-    query ($page: Int, $perPage: Int) {
+    query ($page: Int, $perPage: Int${startDateGreater ? ", $startDate: FuzzyDateInt" : ""}) {
       Page(page: $page, perPage: $perPage) {
-        media(type: MANGA, sort: [TRENDING_DESC], countryOfOrigin: KR, isAdult: false) {
+        media(type: MANGA, sort: [TRENDING_DESC], countryOfOrigin: KR, isAdult: false${dateFilter}) {
           ${MEDIA_FRAGMENT}
         }
       }
     }
   `;
 
-  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit });
+  const vars: Record<string, any> = { page, perPage: limit };
+  if (startDateGreater) vars.startDate = startDateGreater;
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, vars);
   return data.Page.media.map(m => toManga(m, language));
 }
 
 // Get trending manhua specifically
-export async function getTrendingManhua(page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Manga[]> {
+export async function getTrendingManhua(page = 1, limit = 25, language: SupportedLanguage = "en", period: TrendingPeriod = "daily"): Promise<Manga[]> {
+  const startDateGreater = period === "daily" ? undefined : fuzzyDateDaysAgo(trendingPeriodToDays(period));
+  const dateFilter = startDateGreater ? `, startDate_greater: $startDate` : "";
   const query = `
-    query ($page: Int, $perPage: Int) {
+    query ($page: Int, $perPage: Int${startDateGreater ? ", $startDate: FuzzyDateInt" : ""}) {
       Page(page: $page, perPage: $perPage) {
-        media(type: MANGA, sort: [TRENDING_DESC], countryOfOrigin: CN, isAdult: false) {
+        media(type: MANGA, sort: [TRENDING_DESC], countryOfOrigin: CN, isAdult: false${dateFilter}) {
           ${MEDIA_FRAGMENT}
         }
       }
     }
   `;
 
-  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit });
+  const vars: Record<string, any> = { page, perPage: limit };
+  if (startDateGreater) vars.startDate = startDateGreater;
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, vars);
   return data.Page.media.map(m => toManga(m, language));
 }
 

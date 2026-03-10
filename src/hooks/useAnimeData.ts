@@ -265,22 +265,22 @@ export function useClassicManga(page = 1) {
   });
 }
 
-export function useTrendingManhwa(page = 1, enabled = true) {
+export function useTrendingManhwa(page = 1, enabled = true, period: import("@/lib/api").TrendingPeriod = "daily") {
   const { language } = useLanguage();
   return useQuery({
-    queryKey: ["trendingManhwa", page, language],
-    queryFn: () => getTrendingManhwa(page, 25, language as SupportedLanguage),
+    queryKey: ["trendingManhwa", page, language, period],
+    queryFn: () => getTrendingManhwa(page, 25, language as SupportedLanguage, period),
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
     enabled,
   });
 }
 
-export function useTrendingManhua(page = 1, enabled = true) {
+export function useTrendingManhua(page = 1, enabled = true, period: import("@/lib/api").TrendingPeriod = "daily") {
   const { language } = useLanguage();
   return useQuery({
-    queryKey: ["trendingManhua", page, language],
-    queryFn: () => getTrendingManhua(page, 25, language as SupportedLanguage),
+    queryKey: ["trendingManhua", page, language, period],
+    queryFn: () => getTrendingManhua(page, 25, language as SupportedLanguage, period),
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
     enabled,
