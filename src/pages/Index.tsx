@@ -193,7 +193,7 @@ const Index = () => {
       )}
 
       {/* Top Manga */}
-      <ContentSection title={t("section.topManga") || "Top Manga"} linkTo="/manga" headerExtra={viewToggle}>
+      <ContentSection title={t("section.topManga") || "Top Manga"} linkTo="/manga?sort=popularity" headerExtra={viewToggle}>
         {topMangaError ? (
           <SectionError onRetry={() => refetchTopManga()} />
         ) : renderMangaSection(topManga, topMangaLoading)}
@@ -203,7 +203,7 @@ const Index = () => {
 
       {/* Trending Manhwa */}
       <div ref={manhwaSection.ref} className="cv-auto">
-        <ContentSection title={t("section.trendingManhwa") || "Trending Manhwa"} linkTo="/manga?filter=manhwa" headerExtra={viewToggle}>
+        <ContentSection title={t("section.trendingManhwa") || "Trending Manhwa"} linkTo="/manga?filter=manhwa&sort=popularity" headerExtra={viewToggle}>
           {trendingManhwaError ? (
             <SectionError onRetry={() => refetchTrendingManhwa()} />
           ) : renderMangaSection(trendingManhwa, trendingManhwaLoading)}
@@ -212,7 +212,7 @@ const Index = () => {
 
       {/* Trending Manhua */}
       <div ref={manhuaSection.ref} className="cv-auto">
-        <ContentSection title={t("section.trendingManhua") || "Trending Manhua"} linkTo="/manga?filter=manhua" headerExtra={viewToggle}>
+        <ContentSection title={t("section.trendingManhua") || "Trending Manhua"} linkTo="/manga?filter=manhua&sort=popularity" headerExtra={viewToggle}>
           {trendingManhuaError ? (
             <SectionError onRetry={() => refetchTrendingManhua()} />
           ) : renderMangaSection(trendingManhua, trendingManhuaLoading)}
@@ -222,7 +222,7 @@ const Index = () => {
       {/* Recently Updated */}
       <div ref={recentSection.ref} className="cv-auto">
         {recentSection.isVisible ? (
-          <ContentSection title="Recently Updated" linkTo="/manga" headerExtra={viewToggle}>
+          <ContentSection title="Recently Updated" linkTo="/manga?sort=updated" headerExtra={viewToggle}>
             {recentError ? (
               <SectionError onRetry={() => refetchRecent()} />
             ) : renderMangaSection(recentManga, recentLoading)}
@@ -233,7 +233,7 @@ const Index = () => {
       {/* All-Time Top */}
       <div ref={allTimeSection.ref} className="cv-auto">
         {allTimeSection.isVisible ? (
-          <ContentSection title="All-Time Top Rated" linkTo="/rankings?type=manga" headerExtra={viewToggle}>
+          <ContentSection title="All-Time Top Rated" linkTo="/manga?sort=score" headerExtra={viewToggle}>
             {allTimeError ? (
               <SectionError onRetry={() => refetchAllTime()} />
             ) : renderMangaSection(allTimeManga, allTimeLoading)}

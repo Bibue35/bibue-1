@@ -10,7 +10,6 @@ interface ViewToggleProps {
 const MODES: { key: ViewMode; label: string }[] = [
   { key: "carousel", label: "Row" },
   { key: "grid", label: "Grid" },
-  { key: "masonry", label: "Free" },
 ];
 
 export function ViewToggle({ mode, onChange }: ViewToggleProps) {
