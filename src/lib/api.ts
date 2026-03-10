@@ -601,7 +601,7 @@ export async function getTopManga(
   let format: string | undefined;
   let countryOfOrigin: string | undefined;
 
-  if (filter === "manga") format = "MANGA";
+  if (filter === "manga") { format = "MANGA"; countryOfOrigin = "JP"; }
   else if (filter === "novels" || filter === "lightnovels") format = "NOVEL";
   else if (filter === "oneshots") format = "ONE_SHOT";
   else if (filter === "manhwa") countryOfOrigin = "KR";

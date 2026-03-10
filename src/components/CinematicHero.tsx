@@ -10,22 +10,22 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").replace(/&[^;]+;/g, " ").trim();
 }
 
-type MediaFilter = undefined | "manhwa" | "manhua";
+type MediaFilter = "manga" | "manhwa" | "manhua";
 
 const CATEGORIES: { label: string; filter: MediaFilter }[] = [
-  { label: "Manga", filter: undefined },
+  { label: "Manga", filter: "manga" },
   { label: "Manhwa", filter: "manhwa" },
   { label: "Manhua", filter: "manhua" },
 ];
 
 export function CinematicHero() {
   const isMobile = useIsMobile();
-  const [activeFilter, setActiveFilter] = useState<MediaFilter>(undefined);
+  const [activeFilter, setActiveFilter] = useState<MediaFilter>("manga");
   const [idx, setIdx] = useState(0);
   const [scrollY, setScrollY] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
 
-  const { data: mangaData, isLoading } = useTopManga(1, activeFilter ?? undefined, "popularity");
+  const { data: mangaData, isLoading } = useTopManga(1, activeFilter, "popularity");
 
   const items = useMemo(() => {
     if (!mangaData?.length) return [];
