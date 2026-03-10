@@ -71,6 +71,8 @@ const Index = () => {
     try { localStorage.setItem("bibue-view-mode", mode); } catch {}
   };
 
+  const [trendingPeriod, setTrendingPeriod] = useState<TrendingPeriod>("daily");
+
   const { data: topManga, isLoading: topMangaLoading, isError: topMangaError, refetch: refetchTopManga } = useTopManga(1, 'manga', 'popularity');
 
   const manhwaSection = useDeferredSection("400px");
@@ -78,8 +80,8 @@ const Index = () => {
   const recentSection = useDeferredSection("400px");
   const allTimeSection = useDeferredSection("400px");
 
-  const { data: trendingManhwa, isLoading: trendingManhwaLoading, isError: trendingManhwaError, refetch: refetchTrendingManhwa } = useTrendingManhwa(1, manhwaSection.isVisible);
-  const { data: trendingManhua, isLoading: trendingManhuaLoading, isError: trendingManhuaError, refetch: refetchTrendingManhua } = useTrendingManhua(1, manhuaSection.isVisible);
+  const { data: trendingManhwa, isLoading: trendingManhwaLoading, isError: trendingManhwaError, refetch: refetchTrendingManhwa } = useTrendingManhwa(1, manhwaSection.isVisible, trendingPeriod);
+  const { data: trendingManhua, isLoading: trendingManhuaLoading, isError: trendingManhuaError, refetch: refetchTrendingManhua } = useTrendingManhua(1, manhuaSection.isVisible, trendingPeriod);
   const { data: recentManga, isLoading: recentLoading, isError: recentError, refetch: refetchRecent } = useRecentlyUpdatedManga(1, recentSection.isVisible);
   const { data: allTimeManga, isLoading: allTimeLoading, isError: allTimeError, refetch: refetchAllTime } = useAllTimeTopManga(1, undefined, allTimeSection.isVisible);
 
