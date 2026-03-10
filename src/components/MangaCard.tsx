@@ -33,7 +33,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
     return (
       <>
         <button
-          onClick={() => setModalOpen(true)}
+          onClick={handleOpen}
           className="flex items-center gap-4 p-3 rounded-xl transition-all duration-200 group text-left w-full hover:bg-accent/50 active:scale-[0.98]"
         >
           <img
