@@ -1,5 +1,6 @@
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { FilterState } from "@/hooks/useFilterPreferences";
 import {
   getTopAnime,
   getSeasonalAnime,
