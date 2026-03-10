@@ -53,7 +53,7 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
     return (
       <>
         <button
-          onClick={() => setModalOpen(true)}
+          onClick={handleOpen}
           className="flex items-center gap-3 sm:gap-4 p-3 rounded-xl transition-all duration-150 group text-left w-full hover:bg-accent/50 active:scale-[0.98]"
         >
           <img
