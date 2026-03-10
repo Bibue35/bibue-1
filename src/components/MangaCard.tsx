@@ -15,6 +15,13 @@ interface MangaCardProps {
 
 export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(function MangaCard({ manga, index = 0, variant = "default" }, ref) {
   const [modalOpen, setModalOpen] = useState(false);
+  const { formatted: viewCount } = useMediaViewCount(manga.anilist_id, "manga");
+  const recordView = useRecordView();
+
+  const handleOpen = () => {
+    setModalOpen(true);
+    recordView(manga.anilist_id, "manga");
+  };
   const contentType = getContentType({ type: 'MANGA', countryOfOrigin: manga.countryOfOrigin });
   const typeLabel = getContentLabel(contentType);
 
