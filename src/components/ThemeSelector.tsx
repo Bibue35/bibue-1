@@ -81,7 +81,7 @@ export function ThemeSelector({ variant = "icon" }: ThemeSelectorProps) {
 
 function ThemeGrid({ currentId, onSelect }: { currentId: string; onSelect: (t: ThemeOption) => void }) {
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid grid-cols-2 gap-2">
       {themes.map((t) => {
         const active = currentId === t.id;
         return (
