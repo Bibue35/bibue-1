@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
+import bibueTower from "@/assets/bibue-tower.png";
 const AuthModal = lazy(() => import("./AuthModal").then(m => ({ default: m.AuthModal })));
 
 export function CollapsibleNavbar() {
@@ -76,7 +78,14 @@ export function CollapsibleNavbar() {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="group">
+            <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group">
+              <img
+                src={bibueTower}
+                alt="Bibue Tower"
+                className="h-6 sm:h-8 md:h-10 w-auto object-contain dark:brightness-0 dark:invert logo-stable"
+                loading="eager"
+                decoding="sync"
+              />
               <span className="text-xl sm:text-2xl font-sacred font-bold tracking-[0.15em] uppercase transition-opacity duration-300 group-hover:opacity-70">
                 Bibue
               </span>
@@ -107,9 +116,10 @@ export function CollapsibleNavbar() {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setIsSearchOpen(true)}
-                className="px-3 py-2 text-[13px] font-medium tracking-wide uppercase text-muted-foreground hover:text-foreground transition-colors duration-300 btn-press"
+                className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-300 btn-press"
+                aria-label="Search"
               >
-                Search
+                <Search className="w-5 h-5" />
               </button>
 
               <div className="hidden md:block">
