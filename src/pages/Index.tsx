@@ -203,7 +203,7 @@ const Index = () => {
 
       {/* Trending Manhwa */}
       <div ref={manhwaSection.ref} className="cv-auto">
-        <ContentSection title={t("section.trendingManhwa") || "Trending Manhwa"} linkTo="/manga?filter=manhwa" headerExtra={viewToggle}>
+        <ContentSection title={t("section.trendingManhwa") || "Trending Manhwa"} linkTo="/manga?filter=manhwa&sort=popularity" headerExtra={viewToggle}>
           {trendingManhwaError ? (
             <SectionError onRetry={() => refetchTrendingManhwa()} />
           ) : renderMangaSection(trendingManhwa, trendingManhwaLoading)}
