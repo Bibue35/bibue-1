@@ -187,6 +187,8 @@ export const AnimeCard = memo(forwardRef<HTMLDivElement, AnimeCardProps>(functio
                   <span className="truncate">{anime.genres.slice(0, 2).map(g => g.name).join(", ")}</span>
                 </>
               )}
+              <span className="w-1 h-1 bg-muted-foreground/40 rounded-full" />
+              <span className="flex items-center gap-0.5"><Eye className="w-3 h-3" />{viewCount}</span>
             </div>
           </div>
         </div>
