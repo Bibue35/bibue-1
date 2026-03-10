@@ -1024,6 +1024,30 @@ export type Database = {
         }
         Relationships: []
       }
+      media_view_counts: {
+        Row: {
+          id: string
+          media_id: number
+          media_type: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          id?: string
+          media_id: number
+          media_type?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          id?: string
+          media_id?: number
+          media_type?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: []
+      }
       media_votes: {
         Row: {
           created_at: string
@@ -2119,6 +2143,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_view_count: {
+        Args: { p_media_id: number; p_media_type: string }
+        Returns: undefined
       }
     }
     Enums: {
