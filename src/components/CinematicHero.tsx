@@ -179,6 +179,7 @@ export function CinematicHero() {
                 {current.score && (
                   <span className="font-medium text-foreground">{formatScore(current.score)}</span>
                 )}
+                <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" />{getViewCount(current.anilist_id)}</span>
                 {current.genres?.slice(0, 3).map((g) => (
                   <span key={g.mal_id}>{g.name}</span>
                 ))}
