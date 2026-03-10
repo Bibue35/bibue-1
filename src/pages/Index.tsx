@@ -1,6 +1,6 @@
 /**
- * Bibue - Manga, Manhwa & Manhua Platform
- * Main landing page with Apple-style search design
+ * Bibue — Manga, Manhwa & Manhua Platform
+ * Homepage with brutalist editorial layout
  */
 import { lazy, Suspense, useCallback, useState } from "react";
 import { SEO, websiteJsonLd } from "@/components/SEO";
@@ -14,13 +14,9 @@ import { CinematicHero } from "@/components/CinematicHero";
 import { useTopManga, useTrendingManhwa, useTrendingManhua, useRecentlyUpdatedManga, useAllTimeTopManga } from "@/hooks/useAnimeData";
 import { CardSkeletonRow } from "@/components/skeletons";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, TrendingUp, Sparkles, Flame, History, Trophy, Zap, Upload, BookOpen } from "lucide-react";
 import { ContinueReadingRow } from "@/components/ContinueRow";
-import { PremiumToolbar } from "@/components/PremiumToolbar";
 import { ViewToggle, ViewMode } from "@/components/ViewToggle";
-
 import { useNotificationGenerator } from "@/hooks/useNotificationGenerator";
-import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useViewingHistory } from "@/hooks/useViewingHistory";
@@ -29,13 +25,11 @@ import { useDeferredSection } from "@/hooks/useDeferredSection";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Manga } from "@/lib/api";
 
-// Lazy-load below-fold heavy components
 const Footer = lazy(() => import("@/components/Footer").then(m => ({ default: m.Footer })));
-const AdUnit = lazy(() => import("@/components/AdUnit").then(m => ({ default: m.AdUnit })));
 
 function MangaGrid({ items }: { items: Manga[] }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 entrance-stagger">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5 entrance-stagger">
       {items.slice(0, 12).map((manga, index) => (
         <MangaCard key={manga.anilist_id} manga={manga} index={index} />
       ))}
@@ -57,7 +51,7 @@ function MangaCarousel({ items, isMobile }: { items: Manga[]; isMobile: boolean 
   return (
     <HorizontalScroll showArrows={!isMobile}>
       {items.slice(0, 12).map((manga, index) => (
-        <div key={manga.anilist_id} className="flex-shrink-0 w-28 sm:w-36 md:w-48" style={{ scrollSnapAlign: "start" }}>
+        <div key={manga.anilist_id} className="flex-shrink-0 w-32 sm:w-40 md:w-48" style={{ scrollSnapAlign: "start" }}>
           <MangaCard manga={manga} index={index} />
         </div>
       ))}
@@ -66,10 +60,9 @@ function MangaCarousel({ items, isMobile }: { items: Manga[]; isMobile: boolean 
 }
 
 const Index = () => {
-  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    try { return (localStorage.getItem("bibue-view-mode") as ViewMode) || "carousel"; }
-    catch { return "carousel"; }
+    try { return (localStorage.getItem("bibue-view-mode") as ViewMode) || "grid"; }
+    catch { return "grid"; }
   });
 
   const handleViewChange = (mode: ViewMode) => {
@@ -77,10 +70,8 @@ const Index = () => {
     try { localStorage.setItem("bibue-view-mode", mode); } catch {}
   };
 
-  // Above-fold hooks
   const { data: topManga, isLoading: topMangaLoading, isError: topMangaError, refetch: refetchTopManga } = useTopManga(1, undefined, 'popularity');
 
-  // Below-fold deferred
   const manhwaSection = useDeferredSection("400px");
   const manhuaSection = useDeferredSection("400px");
   const recentSection = useDeferredSection("400px");
@@ -91,7 +82,7 @@ const Index = () => {
   const { data: recentManga, isLoading: recentLoading, isError: recentError, refetch: refetchRecent } = useRecentlyUpdatedManga(1, recentSection.isVisible);
   const { data: allTimeManga, isLoading: allTimeLoading, isError: allTimeError, refetch: refetchAllTime } = useAllTimeTopManga(1, undefined, allTimeSection.isVisible);
 
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const { user } = useAuth();
   useNotificationGenerator();
   const { history: viewingHistory } = useViewingHistory(10);
@@ -112,17 +103,10 @@ const Index = () => {
 
   const renderMangaSection = (data: Manga[] | undefined, isLoading: boolean) => {
     if (isLoading) {
-      if (viewMode === "grid" || viewMode === "masonry") {
-        return (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-            <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-full" />
-          </div>
-        );
-      }
       return (
-        <HorizontalScroll showArrows={!isMobile}>
-          <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-28 sm:w-36 md:w-48" />
-        </HorizontalScroll>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5">
+          <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-full" />
+        </div>
       );
     }
     if (!data) return null;
@@ -143,34 +127,24 @@ const Index = () => {
       <PullToRefresh onRefresh={handleRefresh}>
       <main id="main-content">
 
-      {/* Cinematic Hero */}
       <CinematicHero />
 
-      {/* For Creators Banner — only for logged-in users */}
+      {/* For Creators — subtle text link for logged-in users */}
       {user && (
-      <section className="container mx-auto px-3 sm:px-4 pt-10 sm:pt-12">
-        <Link
-          to="/studio"
-          className="group flex items-center justify-between gap-4 px-6 py-4 rounded-2xl border-t border-border/20 hover:bg-accent/30 transition-all duration-200"
-        >
-          <div className="flex items-center gap-4">
-            <Upload className="w-5 h-5 text-primary shrink-0" />
+        <section className="container mx-auto px-4 sm:px-6 pt-12">
+          <Link
+            to="/studio"
+            className="group flex items-center justify-between py-4 border-b border-border/10 hover:border-border/30 transition-colors duration-300"
+          >
             <div>
-              <p className="text-base font-semibold">Are you a creator?</p>
-              <p className="text-sm text-muted-foreground">Upload your manga & earn up to 80% revenue</p>
+              <p className="text-sm font-medium">Are you a creator?</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Upload your manga & earn up to 80% revenue</p>
             </div>
-          </div>
-          <ArrowRight className="w-5 h-5 text-primary/60 group-hover:text-primary transition-colors shrink-0" />
-        </Link>
-      </section>
-      )}
-
-      {/* Welcome greeting for logged-in users */}
-      {user && (
-        <section className="container mx-auto px-3 sm:px-4 pt-6 sm:pt-8">
-          <p className="text-lg sm:text-xl font-bold liquid-metal-text">
-            Welcome back, {user.email?.split("@")[0] || "Reader"}
-          </p>
+            <span className="text-xs font-medium tracking-wide uppercase text-muted-foreground group-hover:text-foreground transition-colors">
+              Learn more
+              <span className="inline-block ml-2 w-4 h-px bg-muted-foreground group-hover:w-6 group-hover:bg-foreground transition-all duration-300 align-middle" />
+            </span>
+          </Link>
         </section>
       )}
 
@@ -181,33 +155,27 @@ const Index = () => {
       {user && viewingHistory.length > 0 && (
         <ContentSection
           title={t("history.recentlyViewed") || "Recently Viewed"}
-          icon={History}
           linkTo="/history"
           linkText={t("section.seeAll")}
         >
-          <HorizontalScroll showArrows={false}>
-            {viewingHistory.map((entry) => (
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4">
+            {viewingHistory.slice(0, 6).map((entry) => (
               <Link
                 key={entry.id}
                 to={`/${entry.media_type}/${entry.media_id}`}
-                className="flex-shrink-0 w-32 sm:w-40 md:w-48 group"
-                style={{ scrollSnapAlign: "start" }}
+                className="group"
               >
-                <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-muted mb-1.5">
-                  {entry.image_url ? (
+                <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-muted mb-2">
+                  {entry.image_url && (
                     <img
                       src={entry.image_url}
                       alt={`${entry.title} cover art`}
                       width={150}
                       height={225}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
                       loading="lazy"
                       decoding="async"
                     />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <BookOpen className="w-8 h-8 text-muted-foreground" />
-                    </div>
                   )}
                   {entry.last_chapter && (
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 to-transparent px-2 py-1.5">
@@ -215,79 +183,65 @@ const Index = () => {
                     </div>
                   )}
                 </div>
-                <p className="text-xs sm:text-sm font-medium truncate group-hover:text-primary transition-colors">
+                <p className="text-xs font-medium truncate group-hover:text-primary transition-colors duration-300">
                   {entry.title}
                 </p>
               </Link>
             ))}
-          </HorizontalScroll>
+          </div>
         </ContentSection>
       )}
 
       {/* Top Manga */}
-      <ContentSection title={t("section.topManga") || "Top Manga"} icon={Flame} linkTo="/manga" headerExtra={viewToggle}>
+      <ContentSection title={t("section.topManga") || "Top Manga"} linkTo="/manga" headerExtra={viewToggle}>
         {topMangaError ? (
           <SectionError onRetry={() => refetchTopManga()} />
         ) : renderMangaSection(topManga, topMangaLoading)}
       </ContentSection>
 
-      {/* Below-fold sections */}
       <style>{`.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 400px; }`}</style>
 
       {/* Trending Manhwa */}
       <div ref={manhwaSection.ref} className="cv-auto">
-      <ContentSection title={t("section.trendingManhwa") || "Trending Manhwa"} icon={Zap} linkTo="/manga?filter=manhwa" headerExtra={viewToggle}>
-        {trendingManhwaError ? (
-          <SectionError onRetry={() => refetchTrendingManhwa()} />
-        ) : renderMangaSection(trendingManhwa, trendingManhwaLoading)}
-      </ContentSection>
+        <ContentSection title={t("section.trendingManhwa") || "Trending Manhwa"} linkTo="/manga?filter=manhwa" headerExtra={viewToggle}>
+          {trendingManhwaError ? (
+            <SectionError onRetry={() => refetchTrendingManhwa()} />
+          ) : renderMangaSection(trendingManhwa, trendingManhwaLoading)}
+        </ContentSection>
       </div>
-
-      <Suspense fallback={null}>
-        <div className="container mx-auto px-3 sm:px-4 cv-auto">
-          <AdUnit slot="1234567890" format="horizontal" className="my-4 sm:my-6 md:my-8" />
-        </div>
-      </Suspense>
 
       {/* Trending Manhua */}
       <div ref={manhuaSection.ref} className="cv-auto">
-      <ContentSection title={t("section.trendingManhua") || "Trending Manhua"} icon={Zap} linkTo="/manga?filter=manhua" headerExtra={viewToggle}>
-        {trendingManhuaError ? (
-          <SectionError onRetry={() => refetchTrendingManhua()} />
-        ) : renderMangaSection(trendingManhua, trendingManhuaLoading)}
-      </ContentSection>
+        <ContentSection title={t("section.trendingManhua") || "Trending Manhua"} linkTo="/manga?filter=manhua" headerExtra={viewToggle}>
+          {trendingManhuaError ? (
+            <SectionError onRetry={() => refetchTrendingManhua()} />
+          ) : renderMangaSection(trendingManhua, trendingManhuaLoading)}
+        </ContentSection>
       </div>
 
       {/* Recently Updated */}
       <div ref={recentSection.ref} className="cv-auto">
-      {recentSection.isVisible ? (
-      <ContentSection title="Recently Updated" icon={Sparkles} linkTo="/manga" headerExtra={viewToggle}>
-        {recentError ? (
-          <SectionError onRetry={() => refetchRecent()} />
-        ) : renderMangaSection(recentManga, recentLoading)}
-      </ContentSection>
-      ) : <div className="py-6 sm:py-10" />}
+        {recentSection.isVisible ? (
+          <ContentSection title="Recently Updated" linkTo="/manga" headerExtra={viewToggle}>
+            {recentError ? (
+              <SectionError onRetry={() => refetchRecent()} />
+            ) : renderMangaSection(recentManga, recentLoading)}
+          </ContentSection>
+        ) : <div className="py-10" />}
       </div>
 
-      {/* All-Time Top Manga */}
+      {/* All-Time Top */}
       <div ref={allTimeSection.ref} className="cv-auto">
-      {allTimeSection.isVisible ? (
-      <ContentSection title="All-Time Top Rated" icon={Trophy} linkTo="/rankings?type=manga" headerExtra={viewToggle}>
-        {allTimeError ? (
-          <SectionError onRetry={() => refetchAllTime()} />
-        ) : renderMangaSection(allTimeManga, allTimeLoading)}
-      </ContentSection>
-      ) : <div className="py-6 sm:py-10" />}
+        {allTimeSection.isVisible ? (
+          <ContentSection title="All-Time Top Rated" linkTo="/rankings?type=manga" headerExtra={viewToggle}>
+            {allTimeError ? (
+              <SectionError onRetry={() => refetchAllTime()} />
+            ) : renderMangaSection(allTimeManga, allTimeLoading)}
+          </ContentSection>
+        ) : <div className="py-10" />}
       </div>
-
-      <Suspense fallback={null}>
-        <div className="container mx-auto px-3 sm:px-4 cv-auto">
-          <AdUnit slot="2345678901" format="horizontal" className="my-4 sm:my-6 md:my-8" />
-        </div>
-      </Suspense>
 
       </main>
-      <PremiumToolbar />
       <Suspense fallback={null}>
         <Footer />
       </Suspense>
