@@ -25,7 +25,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // Apply flavor classes to document (next-themes handles dark/light)
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove("theme-mocha", "theme-latte", "theme-frappe", "theme-macchiato", "theme-crimson-scroll", "theme-celestial", "theme-monochrome", "theme-contrast");
+    root.classList.remove("theme-celestial", "theme-monochrome", "theme-contrast");
     if (flavor !== "default") {
       root.classList.add(`theme-${flavor}`);
     }

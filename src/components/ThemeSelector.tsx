@@ -20,11 +20,6 @@ const themes: ThemeOption[] = [
   { id: "sunlight", label: "Sunlight", flavor: "celestial", mode: "light", preview: { bg: "#FAFAFA", fg: "#0A0A0A", accent: "#E5A100" } },
   { id: "monochrome", label: "Mono", flavor: "monochrome", mode: "dark", preview: { bg: "#000000", fg: "#E6E6E6", accent: "#E6E6E6" } },
   { id: "contrast", label: "Contrast", flavor: "contrast", mode: "light", preview: { bg: "#FFFFFF", fg: "#000000", accent: "#000000" } },
-  { id: "mocha", label: "Mocha", flavor: "mocha", mode: "dark", preview: { bg: "#1E1E2E", fg: "#CDD6F4", accent: "#CBA6F7" } },
-  { id: "latte", label: "Latte", flavor: "latte", mode: "light", preview: { bg: "#EFF1F5", fg: "#4C4F69", accent: "#8839EF" } },
-  { id: "frappe", label: "Frappé", flavor: "frappe", mode: "dark", preview: { bg: "#303446", fg: "#C6D0F5", accent: "#8CAAEE" } },
-  { id: "macchiato", label: "Macchiato", flavor: "macchiato", mode: "dark", preview: { bg: "#24273A", fg: "#CAD3F5", accent: "#8BD5CA" } },
-  { id: "crimson", label: "Crimson", flavor: "crimson-scroll", mode: "dark", preview: { bg: "#180808", fg: "#E8D5C4", accent: "#AD2831" } },
 ];
 
 function getCurrentThemeId(flavor: string, resolvedMode: string): string {
