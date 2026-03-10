@@ -23,6 +23,8 @@ import { NotificationToggle } from "@/components/NotificationToggle";
 import { WatchlistButton } from "@/components/WatchlistButton";
 import { useTranslatedText } from "@/hooks/useTranslatedText";
 import { useViewingHistory } from "@/hooks/useViewingHistory";
+import { useUserScore } from "@/hooks/useUserScore";
+import { RatingPopover } from "@/components/RatingPopover";
 
 export default function MangaDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -34,6 +36,7 @@ export default function MangaDetailPage() {
   const { toast } = useToast();
   const translatedSynopsis = useTranslatedText(manga?.synopsis);
   const { logView } = useViewingHistory();
+  const { score: userScore, rate: rateMedia } = useUserScore(Number(id), "manga");
 
   // General comments
   const { data: comments, isLoading: commentsLoading } = useQuery({
@@ -460,6 +463,9 @@ export default function MangaDetailPage() {
                   <Bookmark className="w-4 h-4" />
                   {t("detail.bookmark")}
                 </Button>
+                {user && (
+                  <RatingPopover currentScore={userScore} onRate={rateMedia} />
+                )}
                 {manga && (
                   <NotificationToggle mediaId={Number(id)} mediaType="manga" title={manga.title} />
                 )}

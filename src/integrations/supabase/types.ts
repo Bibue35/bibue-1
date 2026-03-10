@@ -1857,6 +1857,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_scores: {
+        Row: {
+          created_at: string
+          id: string
+          media_id: number
+          media_type: string
+          score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          media_id: number
+          media_type?: string
+          score: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          media_id?: number
+          media_type?: string
+          score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       viewing_history: {
         Row: {
           created_at: string
