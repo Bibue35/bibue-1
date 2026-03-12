@@ -363,29 +363,6 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       <div className="relative z-10 flex flex-col items-center pt-[8vh] px-4 animate-fade-up pointer-events-none h-full">
         <div className="w-full max-w-2xl pointer-events-auto flex flex-col max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
           
-          {/* Mode toggle */}
-          <div className="flex items-center justify-center gap-1 mb-3">
-            <button
-              onClick={() => setSearchMode("standard")}
-              className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200",
-                searchMode === "standard" ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Search
-            </button>
-            <button
-              onClick={() => setSearchMode("seek")}
-              className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200",
-                searchMode === "seek" ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Seek
-            </button>
-          </div>
-
-          {/* Search Input */}
           <div className="relative flex-shrink-0">
             <div className="flex items-center rounded-[9999px] border border-foreground/20 bg-card/60 backdrop-blur-md px-6 sm:px-8 py-1.5 shadow-sm hover:shadow-md transition-all duration-300 focus-within:border-foreground/40 focus-within:ring-4 focus-within:ring-foreground/5 focus-within:shadow-lg">
               <Search className="w-5 sm:w-6 h-5 sm:h-6 text-muted-foreground/60 shrink-0" aria-hidden="true" />
