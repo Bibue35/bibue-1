@@ -125,7 +125,7 @@ const App = () => (
                       <CreatorWelcomeModal />
                       <PWAInstallPrompt />
                       <FloatingUploadButton />
-                      <FloatingReferralButton />
+                      
                     </MessageNotificationProvider>
                   </Suspense>
                   <Suspense fallback={<PageLoader />}>
