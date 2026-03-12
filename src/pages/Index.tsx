@@ -239,7 +239,7 @@ const Index = () => {
       </div>
 
       {/* All-Time Top */}
-      <div ref={allTimeSection.ref} className="cv-auto">
+      <div ref={allTimeSection.ref}>
         {allTimeSection.isVisible ? (
           <ContentSection title="All-Time Top Rated" linkTo="/manga?sort=score" headerExtra={viewToggle}>
             {allTimeError ? (
