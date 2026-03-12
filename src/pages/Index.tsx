@@ -205,7 +205,7 @@ const Index = () => {
       
 
       {/* Trending Manhwa */}
-      <div ref={manhwaSection.ref} className="cv-auto">
+      <div ref={manhwaSection.ref}>
         <ContentSection title={t("section.trendingManhwa") || "Trending Manhwa"} linkTo="/manga?filter=manhwa&sort=popularity" headerExtra={
           <div className="flex items-center gap-2">
             <TrendingTimePicker value={trendingPeriod} onChange={setTrendingPeriod} />
