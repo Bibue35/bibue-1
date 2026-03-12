@@ -159,60 +159,60 @@ export function CollapsibleNavbar() {
         {/* Mobile Menu */}
         <div
           className={cn(
-            "md:hidden fixed top-[60px] left-0 right-0 bottom-0 z-[55] bg-background/85 backdrop-blur-2xl transition-all duration-400",
+            "md:hidden fixed inset-0 z-[55] bg-background/90 backdrop-blur-3xl transition-all duration-400",
             isMobileMenuOpen
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
           )}
         >
-          <div className="container mx-auto px-6 pt-12 space-y-1">
+          <div className="flex flex-col justify-center items-center h-full px-6">
             {[
               { href: "/manga", label: "Browse" },
               { href: "/originals", label: "Originals" },
               { href: "/studio", label: "Studio" },
               { href: "/community", label: "Community" },
               { href: "/seek", label: "Seek" },
+              ...(!user ? [{ href: "#signin", label: "Sign In" }] : []),
+              ...(user ? [{ href: "/settings", label: "Settings" }] : []),
             ].map((link, i) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className={cn(
-                  "block py-4 text-3xl font-sacred font-bold tracking-wide transition-all duration-300",
-                  "border-b border-border/10",
-                  location.pathname === link.href
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:pl-2"
-                )}
-                style={{ animationDelay: `${i * 50}ms` }}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
-
-            <div className="pt-8 flex items-center gap-6">
-              <ThemeSelector variant="text" />
-              {user ? (
-                <Link
-                  to="/settings"
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Settings
-                </Link>
-              ) : (
+              link.href === "#signin" ? (
                 <button
+                  key="signin"
                   onClick={() => {
                     setAuthModalOpen(true);
                     setIsMobileMenuOpen(false);
                   }}
-                  className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                  className="block py-3 text-3xl font-sacred font-bold tracking-wide transition-all duration-300 text-muted-foreground hover:text-foreground"
+                  style={{ animationDelay: `${i * 50}ms` }}
                 >
-                  Sign In
+                  {link.label}
                 </button>
-              )}
+              ) : (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={cn(
+                    "block py-3 text-3xl font-sacred font-bold tracking-wide transition-all duration-300",
+                    location.pathname === link.href
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                  style={{ animationDelay: `${i * 50}ms` }}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              )
+            ))}
+
+            <div className="pt-6">
+              <ThemeSelector variant="text" />
             </div>
           </div>
+
+          <p className="absolute bottom-8 left-0 right-0 text-center text-[10px] tracking-[0.3em] uppercase text-muted-foreground/40">
+            Scroll up to close
+          </p>
         </div>
       </nav>
 
