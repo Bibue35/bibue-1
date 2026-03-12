@@ -209,13 +209,6 @@ const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
 ];
 
-// Seek result type
-interface SeekResult {
-  title: string;
-  matchReason: string;
-  genres?: string[];
-  score?: number;
-}
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -226,7 +219,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [showAutocomplete, setShowAutocomplete] = useState(true);
-  const [searchMode, setSearchMode] = useState<"standard" | "seek">("standard");
+  
   const [showFilters, setShowFilters] = useState(false);
   const [filterGenre, setFilterGenre] = useState<string | null>(null);
   const [filterYear, setFilterYear] = useState<string | null>(null);
@@ -234,19 +227,17 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [filterType, setFilterType] = useState<string>("all");
   const [filterScore, setFilterScore] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("relevance");
-  const [seekResults, setSeekResults] = useState<SeekResult[]>([]);
-  const [seekLoading, setSeekLoading] = useState(false);
   const [savedSearches, setSavedSearches] = useState<string[]>([]);
   const [savedResults, setSavedResults] = useState<SavedResult[]>([]);
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { user } = useAuth();
-  const seekDebounceRef = useRef<ReturnType<typeof setTimeout>>();
+  
 
   const expandedQuery = expandSearchQuery(query);
   const autocompleteSuggestions = useMemo(() => getAutocompleteSuggestions(query), [query]);
 
-  const shouldSearch = expandedQuery.trim().length >= 2 && searchMode === "standard";
+  const shouldSearch = expandedQuery.trim().length >= 2;
   const { data: animeResults, isLoading: animeLoading } = useSearchAnime(expandedQuery, shouldSearch && (filterType === "all" || filterType === "anime"));
   const { data: mangaResults, isLoading: mangaLoading } = useSearchManga(expandedQuery, shouldSearch && filterType !== "anime");
   const isLoading = animeLoading || mangaLoading;
@@ -259,29 +250,6 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   }, []);
   const { isListening, startListening, stopListening, isSupported: voiceSupported } = useVoiceInput(handleVoiceResult);
 
-  // Seek search
-  useEffect(() => {
-    if (searchMode !== "seek" || query.trim().length < 3) {
-      setSeekResults([]);
-      return;
-    }
-    if (seekDebounceRef.current) clearTimeout(seekDebounceRef.current);
-    seekDebounceRef.current = setTimeout(async () => {
-      setSeekLoading(true);
-      try {
-        const { data, error } = await supabase.functions.invoke("seek", {
-          body: { prompt: query.trim(), contentType: "all", watchlist: [] },
-        });
-        if (error) throw error;
-        setSeekResults(Array.isArray(data?.recommendations) ? data.recommendations : []);
-      } catch {
-        setSeekResults([]);
-      } finally {
-        setSeekLoading(false);
-      }
-    }, 500);
-    return () => { if (seekDebounceRef.current) clearTimeout(seekDebounceRef.current); };
-  }, [query, searchMode]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === "Escape") onClose();
@@ -386,35 +354,12 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       <div className="relative z-10 flex flex-col items-center pt-[8vh] px-4 animate-fade-up pointer-events-none h-full">
         <div className="w-full max-w-2xl pointer-events-auto flex flex-col max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
           
-          {/* Mode toggle */}
-          <div className="flex items-center justify-center gap-1 mb-3">
-            <button
-              onClick={() => setSearchMode("standard")}
-              className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200",
-                searchMode === "standard" ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Search
-            </button>
-            <button
-              onClick={() => setSearchMode("seek")}
-              className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200",
-                searchMode === "seek" ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Seek
-            </button>
-          </div>
-
-          {/* Search Input */}
           <div className="relative flex-shrink-0">
             <div className="flex items-center rounded-[9999px] border border-foreground/20 bg-card/60 backdrop-blur-md px-6 sm:px-8 py-1.5 shadow-sm hover:shadow-md transition-all duration-300 focus-within:border-foreground/40 focus-within:ring-4 focus-within:ring-foreground/5 focus-within:shadow-lg">
               <Search className="w-5 sm:w-6 h-5 sm:h-6 text-muted-foreground/60 shrink-0" aria-hidden="true" />
               <input
                 type="text"
-                placeholder={searchMode === "seek" ? "Describe what you're looking for..." : t("search.placeholder")}
+                placeholder={t("search.placeholder")}
                 value={query}
                 onChange={(e) => { setQuery(e.target.value); setShowAutocomplete(true); }}
                 autoFocus
@@ -577,7 +522,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
           )}
 
           {/* Autocomplete Suggestions */}
-          {query.trim().length > 0 && query.trim().length < 3 && showAutocomplete && autocompleteSuggestions.length > 0 && searchMode === "standard" && (
+          {query.trim().length > 0 && query.trim().length < 3 && showAutocomplete && autocompleteSuggestions.length > 0 && (
             <div className="mt-2 liquid-glass-strong rounded-2xl p-2 flex-shrink-0">
               <div className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium text-muted-foreground">
                 <Zap className="w-3 h-3" />
@@ -601,57 +546,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           )}
 
-          {/* Seek Results */}
-          {searchMode === "seek" && query.trim().length >= 3 && (
-            <div className="mt-4 liquid-glass-strong rounded-2xl flex-1 min-h-0 overflow-hidden">
-              <ScrollArea className="h-full max-h-[calc(85vh-160px)]">
-                {seekLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="flex flex-col items-center gap-2">
-                      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">Seeking...</p>
-                    </div>
-                  </div>
-                ) : seekResults.length > 0 ? (
-                  <div className="p-3 space-y-2">
-                    <div className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-muted-foreground">
-                      <Search className="w-4 h-4" />
-                      <span>Results</span>
-                      <span className="text-xs opacity-60 ml-auto">({seekResults.length})</span>
-                    </div>
-                    {seekResults.map((result, idx) => (
-                      <div key={idx} className="px-3 py-3 rounded-xl hover:bg-muted/50 transition-all duration-200">
-                        <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-full bg-muted text-foreground flex items-center justify-center text-xs font-bold shrink-0">
-                            {idx + 1}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-sm">{result.title}</h4>
-                            {result.genres && (
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {result.genres.slice(0, 3).map(g => (
-                                  <span key={g} className="text-[10px] px-1.5 py-0.5 rounded-full bg-foreground/5 text-muted-foreground">{g}</span>
-                                ))}
-                              </div>
-                            )}
-                            <p className="text-xs text-muted-foreground/80 mt-1.5 leading-relaxed">{result.matchReason}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="py-12 text-center text-muted-foreground">
-                    <p className="text-sm">Describe what you're looking for in natural language.</p>
-                    <p className="text-xs mt-1 opacity-60">e.g. "dark fantasy with an overpowered MC"</p>
-                  </div>
-                )}
-              </ScrollArea>
-            </div>
-          )}
-
-          {/* Standard Search Results */}
-          {searchMode === "standard" && query.trim().length >= 2 && (
+          {query.trim().length >= 2 && (
             <div className="mt-4 liquid-glass-strong rounded-2xl flex-1 min-h-0 overflow-hidden">
               <ScrollArea className="h-full max-h-[calc(85vh-160px)]">
                 {isLoading && !hasResults ? (

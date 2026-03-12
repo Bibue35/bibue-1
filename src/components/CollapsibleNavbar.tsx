@@ -159,7 +159,7 @@ export function CollapsibleNavbar() {
         {/* Mobile Menu */}
         <div
           className={cn(
-            "md:hidden fixed top-[60px] left-0 right-0 bottom-0 z-[55] bg-background/98 backdrop-blur-xl transition-all duration-400",
+            "md:hidden fixed top-[60px] left-0 right-0 bottom-0 z-[55] bg-background/85 backdrop-blur-2xl transition-all duration-400",
             isMobileMenuOpen
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
@@ -171,6 +171,7 @@ export function CollapsibleNavbar() {
               { href: "/originals", label: "Originals" },
               { href: "/studio", label: "Studio" },
               { href: "/community", label: "Community" },
+              { href: "/seek", label: "Seek" },
             ].map((link, i) => (
               <Link
                 key={link.href}
