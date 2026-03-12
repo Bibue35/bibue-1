@@ -202,10 +202,10 @@ const Index = () => {
         ) : renderMangaSection(topManga, topMangaLoading)}
       </ContentSection>
 
-      <style>{`.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 400px; }`}</style>
+      
 
       {/* Trending Manhwa */}
-      <div ref={manhwaSection.ref} className="cv-auto">
+      <div ref={manhwaSection.ref}>
         <ContentSection title={t("section.trendingManhwa") || "Trending Manhwa"} linkTo="/manga?filter=manhwa&sort=popularity" headerExtra={
           <div className="flex items-center gap-2">
             <TrendingTimePicker value={trendingPeriod} onChange={setTrendingPeriod} />
@@ -219,7 +219,7 @@ const Index = () => {
       </div>
 
       {/* Trending Manhua */}
-      <div ref={manhuaSection.ref} className="cv-auto">
+      <div ref={manhuaSection.ref}>
         <ContentSection title={t("section.trendingManhua") || "Trending Manhua"} linkTo="/manga?filter=manhua&sort=popularity" headerExtra={viewToggle}>
           {trendingManhuaError ? (
             <SectionError onRetry={() => refetchTrendingManhua()} />
@@ -228,7 +228,7 @@ const Index = () => {
       </div>
 
       {/* Recently Updated */}
-      <div ref={recentSection.ref} className="cv-auto">
+      <div ref={recentSection.ref}>
         {recentSection.isVisible ? (
           <ContentSection title="Recently Updated" linkTo="/manga?sort=updated" headerExtra={viewToggle}>
             {recentError ? (
@@ -239,7 +239,7 @@ const Index = () => {
       </div>
 
       {/* All-Time Top */}
-      <div ref={allTimeSection.ref} className="cv-auto">
+      <div ref={allTimeSection.ref}>
         {allTimeSection.isVisible ? (
           <ContentSection title="All-Time Top Rated" linkTo="/manga?sort=score" headerExtra={viewToggle}>
             {allTimeError ? (
