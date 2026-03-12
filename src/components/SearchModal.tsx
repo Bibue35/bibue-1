@@ -555,56 +555,6 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           )}
 
-          {/* Seek Results */}
-          {searchMode === "seek" && query.trim().length >= 3 && (
-            <div className="mt-4 liquid-glass-strong rounded-2xl flex-1 min-h-0 overflow-hidden">
-              <ScrollArea className="h-full max-h-[calc(85vh-160px)]">
-                {seekLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="flex flex-col items-center gap-2">
-                      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">Seeking...</p>
-                    </div>
-                  </div>
-                ) : seekResults.length > 0 ? (
-                  <div className="p-3 space-y-2">
-                    <div className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-muted-foreground">
-                      <Search className="w-4 h-4" />
-                      <span>Results</span>
-                      <span className="text-xs opacity-60 ml-auto">({seekResults.length})</span>
-                    </div>
-                    {seekResults.map((result, idx) => (
-                      <div key={idx} className="px-3 py-3 rounded-xl hover:bg-muted/50 transition-all duration-200">
-                        <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-full bg-muted text-foreground flex items-center justify-center text-xs font-bold shrink-0">
-                            {idx + 1}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-sm">{result.title}</h4>
-                            {result.genres && (
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {result.genres.slice(0, 3).map(g => (
-                                  <span key={g} className="text-[10px] px-1.5 py-0.5 rounded-full bg-foreground/5 text-muted-foreground">{g}</span>
-                                ))}
-                              </div>
-                            )}
-                            <p className="text-xs text-muted-foreground/80 mt-1.5 leading-relaxed">{result.matchReason}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="py-12 text-center text-muted-foreground">
-                    <p className="text-sm">Describe what you're looking for in natural language.</p>
-                    <p className="text-xs mt-1 opacity-60">e.g. "dark fantasy with an overpowered MC"</p>
-                  </div>
-                )}
-              </ScrollArea>
-            </div>
-          )}
-
-          {/* Standard Search Results */}
           {searchMode === "standard" && query.trim().length >= 2 && (
             <div className="mt-4 liquid-glass-strong rounded-2xl flex-1 min-h-0 overflow-hidden">
               <ScrollArea className="h-full max-h-[calc(85vh-160px)]">
