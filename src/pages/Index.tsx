@@ -228,7 +228,7 @@ const Index = () => {
       </div>
 
       {/* Recently Updated */}
-      <div ref={recentSection.ref} className="cv-auto">
+      <div ref={recentSection.ref}>
         {recentSection.isVisible ? (
           <ContentSection title="Recently Updated" linkTo="/manga?sort=updated" headerExtra={viewToggle}>
             {recentError ? (
