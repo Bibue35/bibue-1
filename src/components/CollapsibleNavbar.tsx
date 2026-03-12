@@ -329,12 +329,6 @@ export function CollapsibleNavbar() {
                 </button>
               </li>
             )}
-                opacity: isMobileMenuOpen ? 1 : 0,
-                transition: "all 300ms ease-out",
-              }}
-            >
-              <ThemeSelector variant="text" />
-            </li>
           </ul>
         </nav>
 
