@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, X } from "lucide-react";
+import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
@@ -8,15 +8,6 @@ import { UserMenu } from "./UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
 import bibueTower from "@/assets/bibue-tower.png";
 const AuthModal = lazy(() => import("./AuthModal").then(m => ({ default: m.AuthModal })));
-
-const PRIMARY_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/manga", label: "Browse" },
-  { href: "/originals", label: "Originals" },
-  { href: "/studio", label: "Studio" },
-  { href: "/seek", label: "Seek" },
-  { href: "/community", label: "Community" },
-];
 
 export function CollapsibleNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -38,13 +29,7 @@ export function CollapsibleNavbar() {
   ];
 
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      setIsVisible(true);
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => { document.body.style.overflow = ""; };
+    if (isMobileMenuOpen) setIsVisible(true);
   }, [isMobileMenuOpen]);
 
   // Global Cmd/Ctrl+K shortcut
@@ -54,13 +39,10 @@ export function CollapsibleNavbar() {
         e.preventDefault();
         setIsSearchOpen(true);
       }
-      if (e.key === "Escape" && isMobileMenuOpen) {
-        setIsMobileMenuOpen(false);
-      }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isMobileMenuOpen]);
+  }, []);
 
   useEffect(() => {
     let ticking = false;
@@ -173,219 +155,66 @@ export function CollapsibleNavbar() {
             </div>
           </div>
         </div>
-      </nav>
 
-      {/* ── Mobile Sidebar ── */}
-      {/* Scrim — light so background shows through */}
-      <div
-        className={cn(
-          "md:hidden fixed inset-0 z-[60] transition-opacity duration-400",
-          isMobileMenuOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
-        )}
-        onClick={() => setIsMobileMenuOpen(false)}
-        aria-hidden="true"
-      >
-        <div className="absolute inset-0 bg-black/20" />
-      </div>
-
-      {/* Sidebar panel — true glassmorphic */}
-      <aside
-        role="dialog"
-        aria-modal="true"
-        aria-label="Mobile navigation"
-        className={cn(
-          "md:hidden fixed top-0 left-0 bottom-0 z-[61] w-[85vw] max-w-[340px] flex flex-col",
-          "transition-transform duration-[400ms]",
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        )}
-        style={{
-          transitionTimingFunction: "cubic-bezier(0.34, 1.2, 0.64, 1)",
-          background: "linear-gradient(170deg, rgba(12, 12, 18, 0.48) 0%, rgba(18, 18, 28, 0.52) 50%, rgba(10, 10, 15, 0.45) 100%)",
-          backdropFilter: "blur(40px) saturate(1.6) brightness(0.95)",
-          WebkitBackdropFilter: "blur(40px) saturate(1.6) brightness(0.95)",
-          borderRight: "1px solid rgba(192, 192, 192, 0.18)",
-          boxShadow: "inset -1px 0 0 rgba(255,255,255,0.04), 8px 0 32px rgba(0,0,0,0.3)",
-        }}
-      >
-        {/* Metallic top edge highlight */}
+        {/* Mobile Menu */}
         <div
-          className="absolute top-0 left-0 right-0 h-px"
-          style={{
-            background: "linear-gradient(90deg, transparent 0%, rgba(192,192,192,0.15) 30%, rgba(232,232,232,0.2) 50%, rgba(192,192,192,0.15) 70%, transparent 100%)",
-          }}
-        />
-
-        {/* ── Header: Logo + Close ── */}
-        <div className="flex items-center justify-between px-6 pt-7 pb-5">
-          <Link
-            to="/"
-            className="flex items-center gap-2 group"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            <img
-              src={bibueTower}
-              alt="Bibue Tower"
-              className="h-7 w-auto object-contain dark:brightness-0 dark:invert logo-stable transition-all duration-700 group-hover:drop-shadow-[0_0_12px_rgba(192,192,192,0.6)]"
-              style={{
-                filter: isMobileMenuOpen ? "drop-shadow(0 0 6px rgba(192,192,192,0.25))" : "none",
-                transition: "filter 0.8s ease-out",
-              }}
-              loading="eager"
-              decoding="sync"
-            />
-            <span
-              className="text-lg font-sacred font-bold tracking-[0.18em] uppercase transition-all duration-500 group-hover:drop-shadow-[0_0_8px_rgba(192,192,192,0.35)]"
-              style={{ color: "#FFFFFF" }}
-            >
-              Bibue
-            </span>
-          </Link>
-          <button
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 -mr-2 rounded-lg transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2]"
-            style={{ color: "#FFFFFF" }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(192,192,192,0.08)";
-              e.currentTarget.style.boxShadow = "0 0 8px rgba(29,161,242,0.15)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-              e.currentTarget.style.boxShadow = "none";
-            }}
-            aria-label="Close menu"
-          >
-            <X className="w-5 h-5" />
-            <span className="text-[11px] font-medium tracking-[0.15em] uppercase">Close</span>
-          </button>
-        </div>
-
-        {/* ── Primary Navigation ── */}
-        <nav className="flex-1 px-6 pt-2 overflow-y-auto" aria-label="Mobile menu">
-          <ul className="space-y-0.5">
-            {PRIMARY_LINKS.map((link, i) => {
-              const isActive = link.href === "/"
-                ? location.pathname === "/"
-                : location.pathname.startsWith(link.href);
-              return (
-                <li key={link.href}>
-                  <Link
-                    to={link.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="group relative block py-3.5 px-3 -mx-3 rounded-xl text-[1.4rem] font-sacred font-bold tracking-[0.06em] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-                    style={{
-                      color: isActive ? "#FFFFFF" : "rgba(255,255,255,0.75)",
-                      transitionDelay: isMobileMenuOpen ? `${60 + i * 40}ms` : "0ms",
-                      transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-16px)",
-                      opacity: isMobileMenuOpen ? 1 : 0,
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = "#FFFFFF";
-                      e.currentTarget.style.background = "rgba(192,192,192,0.06)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = isActive ? "#FFFFFF" : "rgba(255,255,255,0.75)";
-                      e.currentTarget.style.background = "transparent";
-                    }}
-                  >
-                    {link.label}
-                    {isActive && (
-                      <span
-                        className="absolute bottom-2 left-3 h-[2px] w-7 rounded-full"
-                        style={{
-                          background: "linear-gradient(90deg, #1DA1F2, #4BBCF7, #1DA1F2)",
-                          boxShadow: "0 0 8px rgba(29, 161, 242, 0.4)",
-                        }}
-                      />
-                    )}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-
-          {/* ── Divider ── */}
-          <div
-            className="my-6 mx-0"
-            style={{
-              height: "1px",
-              background: "linear-gradient(90deg, rgba(31,31,31,0.9) 0%, rgba(80,80,80,0.3) 50%, rgba(31,31,31,0.9) 100%)",
-            }}
-          />
-
-          {/* ── Secondary Actions ── */}
-          <ul className="space-y-1">
-            <li
-              style={{
-                transitionDelay: isMobileMenuOpen ? "300ms" : "0ms",
-                transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-16px)",
-                opacity: isMobileMenuOpen ? 1 : 0,
-                transition: "all 300ms ease-out",
-              }}
-            >
-              <ThemeSelector variant="text" />
-            </li>
-            {user ? (
-              <li>
-                <Link
-                  to="/settings"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="block py-2.5 px-3 -mx-3 rounded-xl text-sm font-medium tracking-[0.14em] uppercase transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2]"
-                  style={{
-                    color: "rgba(224, 224, 224, 0.7)",
-                    transitionDelay: isMobileMenuOpen ? "340ms" : "0ms",
-                    transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-16px)",
-                    opacity: isMobileMenuOpen ? 1 : 0,
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = "#FFFFFF"; e.currentTarget.style.background = "rgba(192,192,192,0.06)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(224, 224, 224, 0.7)"; e.currentTarget.style.background = "transparent"; }}
-                >
-                  Settings
-                </Link>
-              </li>
-            ) : (
-              <li>
-                <button
-                  onClick={() => { setAuthModalOpen(true); setIsMobileMenuOpen(false); }}
-                  className="block w-full text-left py-2.5 px-3 -mx-3 rounded-xl text-sm font-medium tracking-[0.14em] uppercase transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2]"
-                  style={{
-                    color: "rgba(224, 224, 224, 0.7)",
-                    transitionDelay: isMobileMenuOpen ? "340ms" : "0ms",
-                    transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-16px)",
-                    opacity: isMobileMenuOpen ? 1 : 0,
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = "#FFFFFF"; e.currentTarget.style.background = "rgba(192,192,192,0.06)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(224, 224, 224, 0.7)"; e.currentTarget.style.background = "transparent"; }}
-                >
-                  Sign In
-                </button>
-              </li>
-            )}
-          </ul>
-        </nav>
-
-        {/* ── Footer ── */}
-        <div
-          className="px-6 pb-6 pt-3 text-center"
-          style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1.5rem)" }}
+          className={cn(
+            "md:hidden fixed inset-0 z-[55] bg-background/90 backdrop-blur-3xl transition-all duration-400",
+            isMobileMenuOpen
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
+          )}
         >
-          <p
-            className="text-[8px] tracking-[0.3em] uppercase leading-relaxed"
-            style={{ color: "rgba(192, 192, 192, 0.25)" }}
-          >
-            Bibue — Unifying East Asian Stories
+          <div className="flex flex-col justify-center items-center h-full px-6">
+            {[
+              { href: "/manga", label: "Browse" },
+              { href: "/originals", label: "Originals" },
+              { href: "/studio", label: "Studio" },
+              { href: "/community", label: "Community" },
+              { href: "/seek", label: "Seek" },
+              ...(!user ? [{ href: "#signin", label: "Sign In" }] : []),
+              ...(user ? [{ href: "/settings", label: "Settings" }] : []),
+            ].map((link, i) => (
+              link.href === "#signin" ? (
+                <button
+                  key="signin"
+                  onClick={() => {
+                    setAuthModalOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block py-3 text-3xl font-sacred font-bold tracking-wide transition-all duration-300 text-muted-foreground hover:text-foreground"
+                  style={{ animationDelay: `${i * 50}ms` }}
+                >
+                  {link.label}
+                </button>
+              ) : (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={cn(
+                    "block py-3 text-3xl font-sacred font-bold tracking-wide transition-all duration-300",
+                    location.pathname === link.href
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                  style={{ animationDelay: `${i * 50}ms` }}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              )
+            ))}
+
+            <div className="pt-6">
+              <ThemeSelector variant="text" />
+            </div>
+          </div>
+
+          <p className="absolute bottom-8 left-0 right-0 text-center text-[10px] tracking-[0.3em] uppercase text-muted-foreground/40">
+            Scroll up to close
           </p>
         </div>
-
-        {/* Metallic bottom edge highlight */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-px"
-          style={{
-            background: "linear-gradient(90deg, transparent 0%, rgba(192,192,192,0.1) 30%, rgba(232,232,232,0.12) 50%, rgba(192,192,192,0.1) 70%, transparent 100%)",
-          }}
-        />
-      </aside>
+      </nav>
 
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       {authModalOpen && (
