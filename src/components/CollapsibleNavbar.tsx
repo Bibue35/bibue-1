@@ -252,7 +252,7 @@ export function CollapsibleNavbar() {
                       "transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2] focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                       isActive
                         ? "text-foreground"
-                        : "text-muted-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
+                        : "text-foreground/80 hover:text-foreground hover:bg-foreground/[0.04]"
                     )}
                     style={{
                       transitionDelay: isMobileMenuOpen ? `${60 + i * 35}ms` : "0ms",
