@@ -237,7 +237,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const expandedQuery = expandSearchQuery(query);
   const autocompleteSuggestions = useMemo(() => getAutocompleteSuggestions(query), [query]);
 
-  const shouldSearch = expandedQuery.trim().length >= 2 && searchMode === "standard";
+  const shouldSearch = expandedQuery.trim().length >= 2;
   const { data: animeResults, isLoading: animeLoading } = useSearchAnime(expandedQuery, shouldSearch && (filterType === "all" || filterType === "anime"));
   const { data: mangaResults, isLoading: mangaLoading } = useSearchManga(expandedQuery, shouldSearch && filterType !== "anime");
   const isLoading = animeLoading || mangaLoading;
