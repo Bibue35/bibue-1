@@ -259,29 +259,6 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   }, []);
   const { isListening, startListening, stopListening, isSupported: voiceSupported } = useVoiceInput(handleVoiceResult);
 
-  // Seek search
-  useEffect(() => {
-    if (searchMode !== "seek" || query.trim().length < 3) {
-      setSeekResults([]);
-      return;
-    }
-    if (seekDebounceRef.current) clearTimeout(seekDebounceRef.current);
-    seekDebounceRef.current = setTimeout(async () => {
-      setSeekLoading(true);
-      try {
-        const { data, error } = await supabase.functions.invoke("seek", {
-          body: { prompt: query.trim(), contentType: "all", watchlist: [] },
-        });
-        if (error) throw error;
-        setSeekResults(Array.isArray(data?.recommendations) ? data.recommendations : []);
-      } catch {
-        setSeekResults([]);
-      } finally {
-        setSeekLoading(false);
-      }
-    }, 500);
-    return () => { if (seekDebounceRef.current) clearTimeout(seekDebounceRef.current); };
-  }, [query, searchMode]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === "Escape") onClose();
