@@ -522,7 +522,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
           )}
 
           {/* Autocomplete Suggestions */}
-          {query.trim().length > 0 && query.trim().length < 3 && showAutocomplete && autocompleteSuggestions.length > 0 && searchMode === "standard" && (
+          {query.trim().length > 0 && query.trim().length < 3 && showAutocomplete && autocompleteSuggestions.length > 0 && (
             <div className="mt-2 liquid-glass-strong rounded-2xl p-2 flex-shrink-0">
               <div className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium text-muted-foreground">
                 <Zap className="w-3 h-3" />
