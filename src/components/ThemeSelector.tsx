@@ -47,11 +47,16 @@ export function ThemeSelector({ variant = "icon" }: ThemeSelectorProps) {
   const currentTheme = themes.find((t) => t.id === currentId);
   const currentLabel = currentTheme?.label ?? "Theme";
 
+  // Color the label based on current theme accent
+  const accentColor = currentTheme?.preview.accent ?? "#E5A100";
+
   if (variant === "text") {
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <button className="px-4 py-3 rounded-xl text-sm font-medium transition-colors w-full text-left hover:bg-foreground/5 text-muted-foreground">
+          <button className="px-4 py-3 rounded-xl text-sm font-medium transition-colors w-full text-left hover:bg-foreground/5"
+            style={{ color: accentColor }}
+          >
             {currentLabel}
           </button>
         </PopoverTrigger>

@@ -285,6 +285,17 @@ export function CollapsibleNavbar() {
 
           {/* ── Secondary Actions ── */}
           <ul className="space-y-1">
+            <li
+              className="px-3 -mx-3 py-1"
+              style={{
+                transitionDelay: isMobileMenuOpen ? "280ms" : "0ms",
+                transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-12px)",
+                opacity: isMobileMenuOpen ? 1 : 0,
+                transition: "all 300ms ease-out",
+              }}
+            >
+              <ThemeSelector variant="text" />
+            </li>
             {user ? (
               <li>
                 <Link
@@ -292,7 +303,7 @@ export function CollapsibleNavbar() {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block py-2.5 px-3 -mx-3 rounded-xl text-sm font-medium tracking-[0.12em] uppercase text-muted-foreground/60 hover:text-foreground hover:bg-foreground/[0.04] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2]"
                   style={{
-                    transitionDelay: isMobileMenuOpen ? "280ms" : "0ms",
+                    transitionDelay: isMobileMenuOpen ? "320ms" : "0ms",
                     transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-12px)",
                     opacity: isMobileMenuOpen ? 1 : 0,
                   }}
@@ -309,7 +320,7 @@ export function CollapsibleNavbar() {
                   }}
                   className="block w-full text-left py-2.5 px-3 -mx-3 rounded-xl text-sm font-medium tracking-[0.12em] uppercase text-muted-foreground/60 hover:text-foreground hover:bg-foreground/[0.04] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2]"
                   style={{
-                    transitionDelay: isMobileMenuOpen ? "280ms" : "0ms",
+                    transitionDelay: isMobileMenuOpen ? "320ms" : "0ms",
                     transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-12px)",
                     opacity: isMobileMenuOpen ? 1 : 0,
                   }}
@@ -318,17 +329,6 @@ export function CollapsibleNavbar() {
                 </button>
               </li>
             )}
-            <li
-              className="px-3 -mx-3 py-1"
-              style={{
-                transitionDelay: isMobileMenuOpen ? "320ms" : "0ms",
-                transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-12px)",
-                opacity: isMobileMenuOpen ? 1 : 0,
-                transition: "all 300ms ease-out",
-              }}
-            >
-              <ThemeSelector variant="text" />
-            </li>
           </ul>
         </nav>
 
