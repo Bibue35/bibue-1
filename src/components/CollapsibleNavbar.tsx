@@ -156,63 +156,111 @@ export function CollapsibleNavbar() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu — full-screen takeover */}
         <div
           className={cn(
-            "md:hidden fixed inset-0 z-[55] bg-background/90 backdrop-blur-3xl transition-all duration-400",
+            "md:hidden fixed inset-0 z-[55] transition-all duration-500",
             isMobileMenuOpen
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
           )}
         >
-          <div className="flex flex-col justify-center items-center h-full px-6">
-            {[
-              { href: "/manga", label: "Browse" },
-              { href: "/originals", label: "Originals" },
-              { href: "/studio", label: "Studio" },
-              { href: "/community", label: "Community" },
-              { href: "/seek", label: "Seek" },
-              ...(!user ? [{ href: "#signin", label: "Sign In" }] : []),
-              ...(user ? [{ href: "/settings", label: "Settings" }] : []),
-            ].map((link, i) => (
-              link.href === "#signin" ? (
-                <button
-                  key="signin"
-                  onClick={() => {
-                    setAuthModalOpen(true);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="block py-3 text-3xl font-sacred font-bold tracking-wide transition-all duration-300 text-muted-foreground hover:text-foreground"
-                  style={{ animationDelay: `${i * 50}ms` }}
-                >
-                  {link.label}
-                </button>
-              ) : (
+          {/* Blurred backdrop */}
+          <div className="absolute inset-0 bg-background/92 backdrop-blur-3xl" />
+
+          {/* Content layer */}
+          <div className="relative z-10 flex flex-col h-full">
+            {/* Top bar — logo + close, mirrors main nav */}
+            <div className="flex items-center justify-between px-4 py-5">
+              <Link
+                to="/"
+                className="flex items-center gap-1.5 group"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <img
+                  src={bibueTower}
+                  alt="Bibue Tower"
+                  className="h-6 w-auto object-contain dark:brightness-0 dark:invert logo-stable"
+                  loading="eager"
+                  decoding="sync"
+                />
+                <span className="text-xl font-sacred font-bold tracking-[0.15em] uppercase">
+                  Bibue
+                </span>
+              </Link>
+              <button
+                className="px-3 py-2 text-[13px] font-medium tracking-wide uppercase text-muted-foreground hover:text-foreground transition-colors btn-press"
+                onClick={() => setIsMobileMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                Close
+              </button>
+            </div>
+
+            {/* Nav links — left-aligned, stacked, large type */}
+            <div className="flex-1 flex flex-col justify-center px-8 -mt-16">
+              {[
+                { href: "/manga", label: "Browse" },
+                { href: "/originals", label: "Originals" },
+                { href: "/studio", label: "Studio" },
+                { href: "/community", label: "Community" },
+                { href: "/seek", label: "Seek" },
+              ].map((link, i) => (
                 <Link
                   key={link.href}
                   to={link.href}
                   className={cn(
-                    "block py-3 text-3xl font-sacred font-bold tracking-wide transition-all duration-300",
+                    "block py-3 text-[2rem] font-sacred font-bold tracking-wide leading-tight transition-all duration-300",
                     location.pathname === link.href
                       ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
+                      : "text-muted-foreground/60 hover:text-foreground hover:translate-x-2"
                   )}
-                  style={{ animationDelay: `${i * 50}ms` }}
+                  style={{
+                    transitionDelay: isMobileMenuOpen ? `${i * 40}ms` : "0ms",
+                  }}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {link.label}
                 </Link>
-              )
-            ))}
+              ))}
 
-            <div className="pt-6">
-              <ThemeSelector variant="text" />
+              {/* Divider */}
+              <div className="w-8 h-px bg-border/20 my-4" />
+
+              {/* Secondary actions — same alignment, smaller type */}
+              <div className="space-y-3">
+                {user ? (
+                  <Link
+                    to="/settings"
+                    className="block text-sm font-medium tracking-wide uppercase text-muted-foreground/50 hover:text-foreground transition-all duration-300 hover:translate-x-1"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Settings
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setAuthModalOpen(true);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="block text-sm font-medium tracking-wide uppercase text-muted-foreground/50 hover:text-foreground transition-all duration-300 hover:translate-x-1"
+                  >
+                    Sign In
+                  </button>
+                )}
+                <div className="inline-block">
+                  <ThemeSelector variant="text" />
+                </div>
+              </div>
             </div>
-          </div>
 
-          <p className="absolute bottom-8 left-0 right-0 text-center text-[10px] tracking-[0.3em] uppercase text-muted-foreground/40">
-            Scroll up to close
-          </p>
+            {/* Bottom hint */}
+            <p className="pb-8 text-center text-[9px] tracking-[0.35em] uppercase text-muted-foreground/30"
+               style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 2rem)" }}
+            >
+              Tap close or scroll to dismiss
+            </p>
+          </div>
         </div>
       </nav>
 
