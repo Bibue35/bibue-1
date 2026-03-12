@@ -220,7 +220,7 @@ export function CollapsibleNavbar() {
                   setAuthModalOpen(true);
                   setIsMobileMenuOpen(false);
                 }}
-                className="block py-4 text-3xl font-sacred font-bold tracking-wide text-primary hover:text-primary/80 transition-all duration-300 w-full text-left"
+                className="block py-4 text-3xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 w-full text-left"
               >
                 Sign In
               </button>
