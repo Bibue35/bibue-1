@@ -171,6 +171,7 @@ export function CollapsibleNavbar() {
               { href: "/originals", label: "Originals" },
               { href: "/studio", label: "Studio" },
               { href: "/community", label: "Community" },
+              { href: "/seek", label: "Seek" },
             ].map((link, i) => (
               <Link
                 key={link.href}
