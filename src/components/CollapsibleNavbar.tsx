@@ -79,15 +79,12 @@ export function CollapsibleNavbar() {
       <nav
         aria-label="Main navigation"
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transform-gpu",
-          isScrolled
-            ? "bg-background/80 backdrop-blur-2xl py-3 navbar-shimmer-line"
-            : "bg-transparent py-5",
-          !isVisible && "-translate-y-full pointer-events-none"
+          "fixed top-0 left-0 right-0 z-50 py-5",
+          !isVisible && "pointer-events-none"
         )}
         style={{
-          willChange: "transform, opacity",
-          transition: "transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease, padding 0.4s ease, background-color 0.4s ease, backdrop-filter 0.4s ease",
+          willChange: "opacity",
+          transition: "opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1)",
           opacity: isVisible ? 1 : 0,
         }}
       >
