@@ -176,7 +176,7 @@ export function CollapsibleNavbar() {
       </nav>
 
       {/* ── Mobile Sidebar ── */}
-      {/* Scrim overlay */}
+      {/* Scrim — light so background shows through */}
       <div
         className={cn(
           "md:hidden fixed inset-0 z-[60] transition-opacity duration-400",
@@ -187,10 +187,10 @@ export function CollapsibleNavbar() {
         onClick={() => setIsMobileMenuOpen(false)}
         aria-hidden="true"
       >
-        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 bg-black/20" />
       </div>
 
-      {/* Sidebar panel */}
+      {/* Sidebar panel — true glassmorphic */}
       <aside
         role="dialog"
         aria-modal="true"
@@ -202,14 +202,23 @@ export function CollapsibleNavbar() {
         )}
         style={{
           transitionTimingFunction: "cubic-bezier(0.34, 1.2, 0.64, 1)",
-          background: "rgba(8, 8, 8, 0.82)",
-          backdropFilter: "blur(32px) saturate(1.4)",
-          WebkitBackdropFilter: "blur(32px) saturate(1.4)",
-          borderRight: "1px solid rgba(192, 192, 192, 0.12)",
+          background: "linear-gradient(170deg, rgba(12, 12, 18, 0.48) 0%, rgba(18, 18, 28, 0.52) 50%, rgba(10, 10, 15, 0.45) 100%)",
+          backdropFilter: "blur(40px) saturate(1.6) brightness(0.95)",
+          WebkitBackdropFilter: "blur(40px) saturate(1.6) brightness(0.95)",
+          borderRight: "1px solid rgba(192, 192, 192, 0.18)",
+          boxShadow: "inset -1px 0 0 rgba(255,255,255,0.04), 8px 0 32px rgba(0,0,0,0.3)",
         }}
       >
+        {/* Metallic top edge highlight */}
+        <div
+          className="absolute top-0 left-0 right-0 h-px"
+          style={{
+            background: "linear-gradient(90deg, transparent 0%, rgba(192,192,192,0.15) 30%, rgba(232,232,232,0.2) 50%, rgba(192,192,192,0.15) 70%, transparent 100%)",
+          }}
+        />
+
         {/* ── Header: Logo + Close ── */}
-        <div className="flex items-center justify-between px-6 pt-6 pb-4">
+        <div className="flex items-center justify-between px-6 pt-7 pb-5">
           <Link
             to="/"
             className="flex items-center gap-2 group"
@@ -218,26 +227,43 @@ export function CollapsibleNavbar() {
             <img
               src={bibueTower}
               alt="Bibue Tower"
-              className="h-7 w-auto object-contain dark:brightness-0 dark:invert logo-stable transition-all duration-500 group-hover:drop-shadow-[0_0_8px_rgba(192,192,192,0.5)]"
+              className="h-7 w-auto object-contain dark:brightness-0 dark:invert logo-stable transition-all duration-700 group-hover:drop-shadow-[0_0_12px_rgba(192,192,192,0.6)]"
+              style={{
+                filter: isMobileMenuOpen ? "drop-shadow(0 0 6px rgba(192,192,192,0.25))" : "none",
+                transition: "filter 0.8s ease-out",
+              }}
               loading="eager"
               decoding="sync"
             />
-            <span className="text-lg font-sacred font-bold tracking-[0.18em] uppercase text-foreground transition-all duration-300 group-hover:drop-shadow-[0_0_6px_rgba(192,192,192,0.3)]">
+            <span
+              className="text-lg font-sacred font-bold tracking-[0.18em] uppercase transition-all duration-500 group-hover:drop-shadow-[0_0_8px_rgba(192,192,192,0.35)]"
+              style={{ color: "#FFFFFF" }}
+            >
               Bibue
             </span>
           </Link>
           <button
             onClick={() => setIsMobileMenuOpen(false)}
-            className="flex items-center gap-1.5 p-2 -mr-2 rounded-lg text-muted-foreground hover:text-foreground transition-all duration-300 hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2]"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 -mr-2 rounded-lg transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2]"
+            style={{ color: "#FFFFFF" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(192,192,192,0.08)";
+              e.currentTarget.style.boxShadow = "0 0 8px rgba(29,161,242,0.15)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.boxShadow = "none";
+            }}
             aria-label="Close menu"
           >
             <X className="w-5 h-5" />
+            <span className="text-[11px] font-medium tracking-[0.15em] uppercase">Close</span>
           </button>
         </div>
 
         {/* ── Primary Navigation ── */}
-        <nav className="flex-1 px-6 pt-4 overflow-y-auto" aria-label="Mobile menu">
-          <ul className="space-y-1">
+        <nav className="flex-1 px-6 pt-2 overflow-y-auto" aria-label="Mobile menu">
+          <ul className="space-y-0.5">
             {PRIMARY_LINKS.map((link, i) => {
               const isActive = link.href === "/"
                 ? location.pathname === "/"
@@ -247,27 +273,29 @@ export function CollapsibleNavbar() {
                   <Link
                     to={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={cn(
-                      "group relative block py-3 px-3 -mx-3 rounded-xl text-[1.35rem] font-sacred font-bold tracking-[0.06em]",
-                      "transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2] focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                      isActive
-                        ? "text-foreground"
-                        : "text-foreground/80 hover:text-foreground hover:bg-foreground/[0.04]"
-                    )}
+                    className="group relative block py-3.5 px-3 -mx-3 rounded-xl text-[1.4rem] font-sacred font-bold tracking-[0.06em] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                     style={{
-                      transitionDelay: isMobileMenuOpen ? `${60 + i * 35}ms` : "0ms",
-                      transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-12px)",
+                      color: isActive ? "#FFFFFF" : "rgba(255,255,255,0.75)",
+                      transitionDelay: isMobileMenuOpen ? `${60 + i * 40}ms` : "0ms",
+                      transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-16px)",
                       opacity: isMobileMenuOpen ? 1 : 0,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = "#FFFFFF";
+                      e.currentTarget.style.background = "rgba(192,192,192,0.06)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = isActive ? "#FFFFFF" : "rgba(255,255,255,0.75)";
+                      e.currentTarget.style.background = "transparent";
                     }}
                   >
                     {link.label}
-                    {/* Active indicator — metallic underline */}
                     {isActive && (
                       <span
-                        className="absolute bottom-1.5 left-3 h-[2px] w-6 rounded-full"
+                        className="absolute bottom-2 left-3 h-[2px] w-7 rounded-full"
                         style={{
-                          background: "linear-gradient(90deg, #C0C0C0, #E8E8E8, #A8A8A8)",
-                          boxShadow: "0 0 6px rgba(192, 192, 192, 0.4)",
+                          background: "linear-gradient(90deg, #1DA1F2, #4BBCF7, #1DA1F2)",
+                          boxShadow: "0 0 8px rgba(29, 161, 242, 0.4)",
                         }}
                       />
                     )}
@@ -279,17 +307,19 @@ export function CollapsibleNavbar() {
 
           {/* ── Divider ── */}
           <div
-            className="my-5 mx-0"
-            style={{ height: "1px", background: "rgba(31, 31, 31, 0.8)" }}
+            className="my-6 mx-0"
+            style={{
+              height: "1px",
+              background: "linear-gradient(90deg, rgba(31,31,31,0.9) 0%, rgba(80,80,80,0.3) 50%, rgba(31,31,31,0.9) 100%)",
+            }}
           />
 
           {/* ── Secondary Actions ── */}
           <ul className="space-y-1">
             <li
-              className="px-3 -mx-3 py-1"
               style={{
-                transitionDelay: isMobileMenuOpen ? "280ms" : "0ms",
-                transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-12px)",
+                transitionDelay: isMobileMenuOpen ? "300ms" : "0ms",
+                transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-16px)",
                 opacity: isMobileMenuOpen ? 1 : 0,
                 transition: "all 300ms ease-out",
               }}
@@ -301,12 +331,15 @@ export function CollapsibleNavbar() {
                 <Link
                   to="/settings"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block py-2.5 px-3 -mx-3 rounded-xl text-sm font-medium tracking-[0.12em] uppercase text-muted-foreground/60 hover:text-foreground hover:bg-foreground/[0.04] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2]"
+                  className="block py-2.5 px-3 -mx-3 rounded-xl text-sm font-medium tracking-[0.14em] uppercase transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2]"
                   style={{
-                    transitionDelay: isMobileMenuOpen ? "320ms" : "0ms",
-                    transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-12px)",
+                    color: "rgba(224, 224, 224, 0.7)",
+                    transitionDelay: isMobileMenuOpen ? "340ms" : "0ms",
+                    transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-16px)",
                     opacity: isMobileMenuOpen ? 1 : 0,
                   }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = "#FFFFFF"; e.currentTarget.style.background = "rgba(192,192,192,0.06)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(224, 224, 224, 0.7)"; e.currentTarget.style.background = "transparent"; }}
                 >
                   Settings
                 </Link>
@@ -314,16 +347,16 @@ export function CollapsibleNavbar() {
             ) : (
               <li>
                 <button
-                  onClick={() => {
-                    setAuthModalOpen(true);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="block w-full text-left py-2.5 px-3 -mx-3 rounded-xl text-sm font-medium tracking-[0.12em] uppercase text-muted-foreground/60 hover:text-foreground hover:bg-foreground/[0.04] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2]"
+                  onClick={() => { setAuthModalOpen(true); setIsMobileMenuOpen(false); }}
+                  className="block w-full text-left py-2.5 px-3 -mx-3 rounded-xl text-sm font-medium tracking-[0.14em] uppercase transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2]"
                   style={{
-                    transitionDelay: isMobileMenuOpen ? "320ms" : "0ms",
-                    transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-12px)",
+                    color: "rgba(224, 224, 224, 0.7)",
+                    transitionDelay: isMobileMenuOpen ? "340ms" : "0ms",
+                    transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-16px)",
                     opacity: isMobileMenuOpen ? 1 : 0,
                   }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = "#FFFFFF"; e.currentTarget.style.background = "rgba(192,192,192,0.06)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(224, 224, 224, 0.7)"; e.currentTarget.style.background = "transparent"; }}
                 >
                   Sign In
                 </button>
@@ -334,13 +367,24 @@ export function CollapsibleNavbar() {
 
         {/* ── Footer ── */}
         <div
-          className="px-6 pb-6 pt-3"
+          className="px-6 pb-6 pt-3 text-center"
           style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1.5rem)" }}
         >
-          <p className="text-[9px] tracking-[0.25em] uppercase text-muted-foreground/25 leading-relaxed">
+          <p
+            className="text-[8px] tracking-[0.3em] uppercase leading-relaxed"
+            style={{ color: "rgba(192, 192, 192, 0.25)" }}
+          >
             Bibue — Unifying East Asian Stories
           </p>
         </div>
+
+        {/* Metallic bottom edge highlight */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-px"
+          style={{
+            background: "linear-gradient(90deg, transparent 0%, rgba(192,192,192,0.1) 30%, rgba(232,232,232,0.12) 50%, rgba(192,192,192,0.1) 70%, transparent 100%)",
+          }}
+        />
       </aside>
 
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
