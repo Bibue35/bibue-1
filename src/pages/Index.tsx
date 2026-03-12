@@ -202,7 +202,7 @@ const Index = () => {
         ) : renderMangaSection(topManga, topMangaLoading)}
       </ContentSection>
 
-      <style>{`.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 400px; }`}</style>
+      
 
       {/* Trending Manhwa */}
       <div ref={manhwaSection.ref} className="cv-auto">
