@@ -232,7 +232,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { user } = useAuth();
-  const seekDebounceRef = useRef<ReturnType<typeof setTimeout>>();
+  
 
   const expandedQuery = expandSearchQuery(query);
   const autocompleteSuggestions = useMemo(() => getAutocompleteSuggestions(query), [query]);
