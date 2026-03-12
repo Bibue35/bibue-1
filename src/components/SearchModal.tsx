@@ -368,7 +368,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
               <Search className="w-5 sm:w-6 h-5 sm:h-6 text-muted-foreground/60 shrink-0" aria-hidden="true" />
               <input
                 type="text"
-                placeholder={searchMode === "seek" ? "Describe what you're looking for..." : t("search.placeholder")}
+                placeholder={t("search.placeholder")}
                 value={query}
                 onChange={(e) => { setQuery(e.target.value); setShowAutocomplete(true); }}
                 autoFocus
