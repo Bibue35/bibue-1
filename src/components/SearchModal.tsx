@@ -219,7 +219,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [showAutocomplete, setShowAutocomplete] = useState(true);
-  const searchMode = "standard";
+  
   const [showFilters, setShowFilters] = useState(false);
   const [filterGenre, setFilterGenre] = useState<string | null>(null);
   const [filterYear, setFilterYear] = useState<string | null>(null);
