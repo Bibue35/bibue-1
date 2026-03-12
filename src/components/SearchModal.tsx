@@ -227,8 +227,6 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [filterType, setFilterType] = useState<string>("all");
   const [filterScore, setFilterScore] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("relevance");
-  const [seekResults, setSeekResults] = useState<SeekResult[]>([]);
-  const [seekLoading, setSeekLoading] = useState(false);
   const [savedSearches, setSavedSearches] = useState<string[]>([]);
   const [savedResults, setSavedResults] = useState<SavedResult[]>([]);
   const navigate = useNavigate();
