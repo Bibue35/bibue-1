@@ -28,7 +28,7 @@ const MessageNotificationProvider = lazy(() => import("@/components/MessageNotif
 const CreatorWelcomeModal = lazy(() => import("@/components/CreatorWelcomeModal").then(m => ({ default: m.CreatorWelcomeModal })));
 const PWAInstallPrompt = lazy(() => import("@/components/PWAInstallPrompt").then(m => ({ default: m.PWAInstallPrompt })));
 const FloatingUploadButton = lazy(() => import("@/components/FloatingUploadButton").then(m => ({ default: m.FloatingUploadButton })));
-
+const FloatingReferralButton = lazy(() => import("@/components/FloatingReferralButton").then(m => ({ default: m.FloatingReferralButton })));
 const ContextualBottomStrip = lazy(() => import("@/components/ContextualBottomStrip").then(m => ({ default: m.ContextualBottomStrip })));
 
 // Lazy load all page components for code splitting
@@ -125,7 +125,7 @@ const App = () => (
                       <CreatorWelcomeModal />
                       <PWAInstallPrompt />
                       <FloatingUploadButton />
-                      
+                      <FloatingReferralButton />
                     </MessageNotificationProvider>
                   </Suspense>
                   <Suspense fallback={<PageLoader />}>

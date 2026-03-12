@@ -79,14 +79,13 @@ export function CollapsibleNavbar() {
       <nav
         aria-label="Main navigation"
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 py-5",
-          !isVisible && "pointer-events-none"
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out transform-gpu",
+          isScrolled
+            ? "bg-background/80 backdrop-blur-2xl py-3 navbar-shimmer-line"
+            : "bg-transparent py-5",
+          !isVisible && "-translate-y-full pointer-events-none"
         )}
-        style={{
-          willChange: "opacity",
-          transition: "opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1)",
-          opacity: isVisible ? 1 : 0,
-        }}
+        style={{ willChange: "transform" }}
       >
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between">
@@ -159,60 +158,59 @@ export function CollapsibleNavbar() {
         {/* Mobile Menu */}
         <div
           className={cn(
-            "md:hidden fixed inset-0 z-[55] bg-background/90 backdrop-blur-3xl transition-all duration-400",
+            "md:hidden fixed top-[60px] left-0 right-0 bottom-0 z-[55] bg-background/98 backdrop-blur-xl transition-all duration-400",
             isMobileMenuOpen
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
           )}
         >
-          <div className="flex flex-col justify-center items-center h-full px-6">
+          <div className="container mx-auto px-6 pt-12 space-y-1">
             {[
               { href: "/manga", label: "Browse" },
               { href: "/originals", label: "Originals" },
               { href: "/studio", label: "Studio" },
               { href: "/community", label: "Community" },
-              { href: "/seek", label: "Seek" },
-              ...(!user ? [{ href: "#signin", label: "Sign In" }] : []),
-              ...(user ? [{ href: "/settings", label: "Settings" }] : []),
             ].map((link, i) => (
-              link.href === "#signin" ? (
+              <Link
+                key={link.href}
+                to={link.href}
+                className={cn(
+                  "block py-4 text-3xl font-sacred font-bold tracking-wide transition-all duration-300",
+                  "border-b border-border/10",
+                  location.pathname === link.href
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:pl-2"
+                )}
+                style={{ animationDelay: `${i * 50}ms` }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            <div className="pt-8 flex items-center gap-6">
+              <ThemeSelector variant="text" />
+              {user ? (
+                <Link
+                  to="/settings"
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Settings
+                </Link>
+              ) : (
                 <button
-                  key="signin"
                   onClick={() => {
                     setAuthModalOpen(true);
                     setIsMobileMenuOpen(false);
                   }}
-                  className="block py-3 text-3xl font-sacred font-bold tracking-wide transition-all duration-300 text-muted-foreground hover:text-foreground"
-                  style={{ animationDelay: `${i * 50}ms` }}
+                  className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                 >
-                  {link.label}
+                  Sign In
                 </button>
-              ) : (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className={cn(
-                    "block py-3 text-3xl font-sacred font-bold tracking-wide transition-all duration-300",
-                    location.pathname === link.href
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                  style={{ animationDelay: `${i * 50}ms` }}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              )
-            ))}
-
-            <div className="pt-6">
-              <ThemeSelector variant="text" />
+              )}
             </div>
           </div>
-
-          <p className="absolute bottom-8 left-0 right-0 text-center text-[10px] tracking-[0.3em] uppercase text-muted-foreground/40">
-            Scroll up to close
-          </p>
         </div>
       </nav>
 

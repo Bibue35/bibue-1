@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { Search, X, Film, BookOpen, Loader2, Clock, Trash2, ArrowRight, Zap, Mic, MicOff, SlidersHorizontal, Star, Bookmark, BookmarkCheck, ChevronDown } from "lucide-react";
+import { Search, X, Film, BookOpen, Loader2, Clock, Trash2, Sparkles, ArrowRight, Zap, Mic, MicOff, SlidersHorizontal, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getContentType, getContentLabel, getContentTypeBadgeClass } from "@/lib/contentType";
 import { cn } from "@/lib/utils";
@@ -8,7 +8,6 @@ import { useSearchAnime, useSearchManga } from "@/hooks/useAnimeData";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
 const RECENT_SEARCHES_KEY = "recentSearches";
@@ -115,6 +114,7 @@ function saveRecentSearch(query: string) {
 }
 function clearRecentSearches() { localStorage.removeItem(RECENT_SEARCHES_KEY); }
 
+// Saved searches
 function getSavedSearches(): string[] {
   try { return JSON.parse(localStorage.getItem(SAVED_SEARCHES_KEY) || "[]"); } catch { return []; }
 }
@@ -124,21 +124,6 @@ function toggleSavedSearch(query: string) {
   if (idx >= 0) saved.splice(idx, 1);
   else saved.unshift(query.trim());
   localStorage.setItem(SAVED_SEARCHES_KEY, JSON.stringify(saved.slice(0, 20)));
-  return saved;
-}
-
-// Save for later (bookmarked results)
-const SAVED_RESULTS_KEY = "bibueSavedResults";
-interface SavedResult { id: number; type: "anime" | "manga"; title: string; image: string; savedAt: number; }
-function getSavedResults(): SavedResult[] {
-  try { return JSON.parse(localStorage.getItem(SAVED_RESULTS_KEY) || "[]"); } catch { return []; }
-}
-function toggleSavedResult(item: SavedResult): SavedResult[] {
-  const saved = getSavedResults();
-  const idx = saved.findIndex(s => s.id === item.id && s.type === item.type);
-  if (idx >= 0) saved.splice(idx, 1);
-  else saved.unshift(item);
-  localStorage.setItem(SAVED_RESULTS_KEY, JSON.stringify(saved.slice(0, 50)));
   return saved;
 }
 
@@ -176,39 +161,25 @@ function useVoiceInput(onResult: (text: string) => void) {
   return { isListening, startListening, stopListening, isSupported };
 }
 
-// Filter options
+// Advanced filter genres
 const FILTER_GENRES = [
   "Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror",
   "Mystery", "Romance", "Sci-Fi", "Slice of Life", "Thriller", "Supernatural",
-  "Sports", "Psychological", "Mecha", "Music",
 ];
-const FILTER_YEARS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020s", "2010s", "2000s", "classic"];
+const FILTER_YEARS = ["2026", "2025", "2024", "2023", "2020s", "2010s", "classic"];
 const FILTER_STATUSES = [
   { value: "RELEASING", label: "Ongoing" },
   { value: "FINISHED", label: "Completed" },
   { value: "NOT_YET_RELEASED", label: "Upcoming" },
-  { value: "HIATUS", label: "Hiatus" },
-];
-const FILTER_TYPES = [
-  { value: "all", label: "All" },
-  { value: "anime", label: "Anime" },
-  { value: "manga", label: "Manga" },
-  { value: "manhwa", label: "Manhwa" },
-  { value: "manhua", label: "Manhua" },
-];
-const FILTER_SCORES = [
-  { value: "9", label: "9+" },
-  { value: "8", label: "8+" },
-  { value: "7", label: "7+" },
-  { value: "6", label: "6+" },
-];
-const SORT_OPTIONS = [
-  { value: "relevance", label: "Relevance" },
-  { value: "score", label: "Highest Rated" },
-  { value: "popularity", label: "Most Popular" },
-  { value: "newest", label: "Newest" },
 ];
 
+// AI search result type
+interface AISearchResult {
+  title: string;
+  matchReason: string;
+  genres?: string[];
+  score?: number;
+}
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -219,27 +190,24 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [showAutocomplete, setShowAutocomplete] = useState(true);
-  
+  const [searchMode, setSearchMode] = useState<"standard" | "ai">("standard");
   const [showFilters, setShowFilters] = useState(false);
   const [filterGenre, setFilterGenre] = useState<string | null>(null);
   const [filterYear, setFilterYear] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
-  const [filterType, setFilterType] = useState<string>("all");
-  const [filterScore, setFilterScore] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<string>("relevance");
+  const [aiResults, setAiResults] = useState<AISearchResult[]>([]);
+  const [aiLoading, setAiLoading] = useState(false);
   const [savedSearches, setSavedSearches] = useState<string[]>([]);
-  const [savedResults, setSavedResults] = useState<SavedResult[]>([]);
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const { user } = useAuth();
-  
+  const aiDebounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   const expandedQuery = expandSearchQuery(query);
   const autocompleteSuggestions = useMemo(() => getAutocompleteSuggestions(query), [query]);
 
-  const shouldSearch = expandedQuery.trim().length >= 2;
-  const { data: animeResults, isLoading: animeLoading } = useSearchAnime(expandedQuery, shouldSearch && (filterType === "all" || filterType === "anime"));
-  const { data: mangaResults, isLoading: mangaLoading } = useSearchManga(expandedQuery, shouldSearch && filterType !== "anime");
+  const shouldSearch = expandedQuery.trim().length >= 2 && searchMode === "standard";
+  const { data: animeResults, isLoading: animeLoading } = useSearchAnime(expandedQuery, shouldSearch);
+  const { data: mangaResults, isLoading: mangaLoading } = useSearchManga(expandedQuery, shouldSearch);
   const isLoading = animeLoading || mangaLoading;
   const hasResults = (animeResults && animeResults.length > 0) || (mangaResults && mangaResults.length > 0);
 
@@ -250,6 +218,29 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   }, []);
   const { isListening, startListening, stopListening, isSupported: voiceSupported } = useVoiceInput(handleVoiceResult);
 
+  // AI Search
+  useEffect(() => {
+    if (searchMode !== "ai" || query.trim().length < 3) {
+      setAiResults([]);
+      return;
+    }
+    if (aiDebounceRef.current) clearTimeout(aiDebounceRef.current);
+    aiDebounceRef.current = setTimeout(async () => {
+      setAiLoading(true);
+      try {
+        const { data, error } = await supabase.functions.invoke("seek", {
+          body: { prompt: query.trim(), contentType: "all", watchlist: [] },
+        });
+        if (error) throw error;
+        setAiResults(Array.isArray(data?.recommendations) ? data.recommendations : []);
+      } catch {
+        setAiResults([]);
+      } finally {
+        setAiLoading(false);
+      }
+    }, 500);
+    return () => { if (aiDebounceRef.current) clearTimeout(aiDebounceRef.current); };
+  }, [query, searchMode]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === "Escape") onClose();
@@ -261,7 +252,6 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       document.body.style.overflow = "hidden";
       setRecentSearches(getRecentSearches());
       setSavedSearches(getSavedSearches());
-      setSavedResults(getSavedResults());
     }
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
@@ -296,15 +286,6 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     setSavedSearches([...updated]);
   };
 
-  const handleSaveResult = (id: number, type: "anime" | "manga", title: string, image: string) => {
-    const updated = toggleSavedResult({ id, type, title, image, savedAt: Date.now() });
-    setSavedResults([...updated]);
-  };
-
-  const isResultSaved = (id: number, type: "anime" | "manga") => {
-    return savedResults.some(s => s.id === id && s.type === type);
-  };
-
   // Highlight matching text
   const highlightMatch = (text: string, searchTerm: string) => {
     if (!searchTerm.trim()) return text;
@@ -315,35 +296,23 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     );
   };
 
-  // Filter + sort results
-  const filterAndSort = <T extends { genres?: Array<{ name: string }>; score?: number; status?: string; year?: number; countryOfOrigin?: string }>(items: T[] | undefined): T[] | undefined => {
+  // Filter results client-side by advanced filters
+  const filterResults = <T extends { genres?: Array<{ name: string }>; score?: number; status?: string; year?: number }>(items: T[] | undefined): T[] | undefined => {
     if (!items) return items;
     let filtered = items;
     if (filterGenre) filtered = filtered.filter(i => i.genres?.some(g => g.name === filterGenre));
     if (filterStatus) filtered = filtered.filter(i => i.status === filterStatus);
-    if (filterScore) filtered = filtered.filter(i => (i.score ?? 0) >= parseInt(filterScore));
     if (filterYear) {
       const y = filterYear;
       if (/^\d{4}$/.test(y)) filtered = filtered.filter(i => i.year === parseInt(y));
-      else if (y === "2020s") filtered = filtered.filter(i => i.year && i.year >= 2020 && i.year <= 2029);
-      else if (y === "2010s") filtered = filtered.filter(i => i.year && i.year >= 2010 && i.year <= 2019);
-      else if (y === "2000s") filtered = filtered.filter(i => i.year && i.year >= 2000 && i.year <= 2009);
-      else if (y === "classic") filtered = filtered.filter(i => i.year && i.year < 2000);
     }
-    if (filterType === "manhwa") filtered = filtered.filter(i => i.countryOfOrigin === "KR");
-    else if (filterType === "manhua") filtered = filtered.filter(i => i.countryOfOrigin === "CN");
-    
-    // Sort
-    if (sortBy === "score") filtered = [...filtered].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
-    else if (sortBy === "newest") filtered = [...filtered].sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
-    
     return filtered;
   };
 
-  const filteredAnime = filterType !== "manga" && filterType !== "manhwa" && filterType !== "manhua" ? filterAndSort(animeResults) : undefined;
-  const filteredManga = filterType !== "anime" ? filterAndSort(mangaResults) : undefined;
+  const filteredAnime = filterResults(animeResults);
+  const filteredManga = filterResults(mangaResults);
   const hasFilteredResults = (filteredAnime && filteredAnime.length > 0) || (filteredManga && filteredManga.length > 0);
-  const activeFilterCount = [filterGenre, filterYear, filterStatus, filterScore, filterType !== "all" ? filterType : null, sortBy !== "relevance" ? sortBy : null].filter(Boolean).length;
+  const activeFilterCount = [filterGenre, filterYear, filterStatus].filter(Boolean).length;
 
   if (!isOpen) return null;
 
@@ -354,12 +323,36 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       <div className="relative z-10 flex flex-col items-center pt-[8vh] px-4 animate-fade-up pointer-events-none h-full">
         <div className="w-full max-w-2xl pointer-events-auto flex flex-col max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
           
+          {/* Mode toggle */}
+          <div className="flex items-center justify-center gap-1 mb-3">
+            <button
+              onClick={() => setSearchMode("standard")}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200",
+                searchMode === "standard" ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Standard
+            </button>
+            <button
+              onClick={() => setSearchMode("ai")}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-1",
+                searchMode === "ai" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Sparkles className="w-3 h-3" />
+              AI Search
+            </button>
+          </div>
+
+          {/* Search Input */}
           <div className="relative flex-shrink-0">
             <div className="flex items-center rounded-[9999px] border border-foreground/20 bg-card/60 backdrop-blur-md px-6 sm:px-8 py-1.5 shadow-sm hover:shadow-md transition-all duration-300 focus-within:border-foreground/40 focus-within:ring-4 focus-within:ring-foreground/5 focus-within:shadow-lg">
               <Search className="w-5 sm:w-6 h-5 sm:h-6 text-muted-foreground/60 shrink-0" aria-hidden="true" />
               <input
                 type="text"
-                placeholder={t("search.placeholder")}
+                placeholder={searchMode === "ai" ? "Describe what you're looking for..." : t("search.placeholder")}
                 value={query}
                 onChange={(e) => { setQuery(e.target.value); setShowAutocomplete(true); }}
                 autoFocus
@@ -382,14 +375,14 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 <button
                   onClick={() => setShowFilters(!showFilters)}
                   className={cn(
-                    "p-1.5 rounded-full transition-all duration-200 relative",
-                    showFilters || activeFilterCount > 0 ? "bg-foreground/10 text-foreground" : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/60"
+                    "p-1.5 rounded-full transition-all duration-200",
+                    showFilters || activeFilterCount > 0 ? "bg-primary/15 text-primary" : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/60"
                   )}
                   aria-label="Toggle filters"
                 >
                   <SlidersHorizontal className="w-4 h-4" />
                   {activeFilterCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-foreground text-background text-[8px] font-bold flex items-center justify-center">
+                    <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-primary text-primary-foreground text-[8px] font-bold flex items-center justify-center">
                       {activeFilterCount}
                     </span>
                   )}
@@ -406,24 +399,6 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
           {/* Advanced Filters Panel */}
           {showFilters && (
             <div className="mt-2 liquid-glass-strong rounded-2xl p-4 flex-shrink-0 animate-fade-up space-y-3">
-              {/* Type */}
-              <div>
-                <span className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground/60 mb-1.5 block">Type</span>
-                <div className="flex flex-wrap gap-1">
-                  {FILTER_TYPES.map(t => (
-                    <button
-                      key={t.value}
-                      onClick={() => setFilterType(t.value)}
-                      className={cn(
-                        "px-2.5 py-1 rounded-full text-[11px] font-medium transition-all duration-200",
-                        filterType === t.value ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
-                      )}
-                    >{t.label}</button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Genre */}
               <div>
                 <span className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground/60 mb-1.5 block">Genre</span>
                 <div className="flex flex-wrap gap-1">
@@ -433,16 +408,14 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       onClick={() => setFilterGenre(filterGenre === g ? null : g)}
                       className={cn(
                         "px-2.5 py-1 rounded-full text-[11px] font-medium transition-all duration-200",
-                        filterGenre === g ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                        filterGenre === g ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
                       )}
                     >{g}</button>
                   ))}
                 </div>
               </div>
-
-              <div className="flex gap-4 flex-wrap">
-                {/* Year */}
-                <div className="flex-1 min-w-[140px]">
+              <div className="flex gap-4">
+                <div className="flex-1">
                   <span className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground/60 mb-1.5 block">Year</span>
                   <div className="flex flex-wrap gap-1">
                     {FILTER_YEARS.map(y => (
@@ -451,15 +424,13 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         onClick={() => setFilterYear(filterYear === y ? null : y)}
                         className={cn(
                           "px-2.5 py-1 rounded-full text-[11px] font-medium transition-all duration-200",
-                          filterYear === y ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                          filterYear === y ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
                         )}
                       >{y}</button>
                     ))}
                   </div>
                 </div>
-
-                {/* Status */}
-                <div className="flex-1 min-w-[140px]">
+                <div className="flex-1">
                   <span className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground/60 mb-1.5 block">Status</span>
                   <div className="flex flex-wrap gap-1">
                     {FILTER_STATUSES.map(s => (
@@ -468,61 +439,24 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         onClick={() => setFilterStatus(filterStatus === s.value ? null : s.value)}
                         className={cn(
                           "px-2.5 py-1 rounded-full text-[11px] font-medium transition-all duration-200",
-                          filterStatus === s.value ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                          filterStatus === s.value ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
                         )}
                       >{s.label}</button>
                     ))}
                   </div>
                 </div>
               </div>
-
-              <div className="flex gap-4 flex-wrap">
-                {/* Min Score */}
-                <div className="flex-1 min-w-[120px]">
-                  <span className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground/60 mb-1.5 block">Min Score</span>
-                  <div className="flex flex-wrap gap-1">
-                    {FILTER_SCORES.map(s => (
-                      <button
-                        key={s.value}
-                        onClick={() => setFilterScore(filterScore === s.value ? null : s.value)}
-                        className={cn(
-                          "px-2.5 py-1 rounded-full text-[11px] font-medium transition-all duration-200",
-                          filterScore === s.value ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
-                        )}
-                      >{s.label}</button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Sort */}
-                <div className="flex-1 min-w-[120px]">
-                  <span className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground/60 mb-1.5 block">Sort By</span>
-                  <div className="flex flex-wrap gap-1">
-                    {SORT_OPTIONS.map(s => (
-                      <button
-                        key={s.value}
-                        onClick={() => setSortBy(s.value)}
-                        className={cn(
-                          "px-2.5 py-1 rounded-full text-[11px] font-medium transition-all duration-200",
-                          sortBy === s.value ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
-                        )}
-                      >{s.label}</button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
               {activeFilterCount > 0 && (
                 <button
-                  onClick={() => { setFilterGenre(null); setFilterYear(null); setFilterStatus(null); setFilterType("all"); setFilterScore(null); setSortBy("relevance"); }}
+                  onClick={() => { setFilterGenre(null); setFilterYear(null); setFilterStatus(null); }}
                   className="text-xs text-destructive hover:text-destructive/80 font-medium"
-                >Clear all filters</button>
+                >Clear filters</button>
               )}
             </div>
           )}
 
           {/* Autocomplete Suggestions */}
-          {query.trim().length > 0 && query.trim().length < 3 && showAutocomplete && autocompleteSuggestions.length > 0 && (
+          {query.trim().length > 0 && query.trim().length < 3 && showAutocomplete && autocompleteSuggestions.length > 0 && searchMode === "standard" && (
             <div className="mt-2 liquid-glass-strong rounded-2xl p-2 flex-shrink-0">
               <div className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium text-muted-foreground">
                 <Zap className="w-3 h-3" />
@@ -546,12 +480,61 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           )}
 
-          {query.trim().length >= 2 && (
+          {/* AI Search Results */}
+          {searchMode === "ai" && query.trim().length >= 3 && (
+            <div className="mt-4 liquid-glass-strong rounded-2xl flex-1 min-h-0 overflow-hidden">
+              <ScrollArea className="h-full max-h-[calc(85vh-160px)]">
+                {aiLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="flex flex-col items-center gap-2">
+                      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                      <p className="text-sm text-muted-foreground">Seeking...</p>
+                    </div>
+                  </div>
+                ) : aiResults.length > 0 ? (
+                  <div className="p-3 space-y-2">
+                    <div className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-muted-foreground">
+                      <Sparkles className="w-4 h-4 text-primary" />
+                      <span>AI Recommendations</span>
+                      <span className="text-xs opacity-60 ml-auto">({aiResults.length})</span>
+                    </div>
+                    {aiResults.map((result, idx) => (
+                      <div key={idx} className="px-3 py-3 rounded-xl hover:bg-muted/50 transition-all duration-200">
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">
+                            {idx + 1}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-sm">{result.title}</h4>
+                            {result.genres && (
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {result.genres.slice(0, 3).map(g => (
+                                  <span key={g} className="text-[10px] px-1.5 py-0.5 rounded-full bg-foreground/5 text-muted-foreground">{g}</span>
+                                ))}
+                              </div>
+                            )}
+                            <p className="text-xs text-muted-foreground/80 mt-1.5 italic leading-relaxed">{result.matchReason}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-12 text-center text-muted-foreground">
+                    <p className="text-sm">No AI results yet. Try describing what you're looking for.</p>
+                  </div>
+                )}
+              </ScrollArea>
+            </div>
+          )}
+
+          {/* Standard Search Results */}
+          {searchMode === "standard" && query.trim().length >= 2 && (
             <div className="mt-4 liquid-glass-strong rounded-2xl flex-1 min-h-0 overflow-hidden">
               <ScrollArea className="h-full max-h-[calc(85vh-160px)]">
                 {isLoading && !hasResults ? (
                   <div className="flex items-center justify-center py-12">
-                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
                   </div>
                 ) : hasFilteredResults ? (
                   <div className="p-3 space-y-4">
@@ -561,42 +544,32 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground sticky top-0 bg-card/80 backdrop-blur-sm rounded-lg">
                           <Film className="w-4 h-4" />
                           <span>Anime</span>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 flex items-center gap-1">
+                            <Sparkles className="w-2.5 h-2.5" />{t("browse.newest")}
+                          </Badge>
                           <span className="text-xs opacity-60 ml-auto">({filteredAnime.length})</span>
                         </div>
                         <div className="space-y-1">
                           {filteredAnime.slice(0, 8).map((item) => (
-                            <div key={`anime-${item.anilist_id}`} className="flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-all duration-300 group">
-                              <button
-                                onClick={() => handleSelectResult("anime", item)}
-                                className="flex items-center gap-4 flex-1 min-w-0 text-left"
-                              >
-                                <img src={item.images.webp.image_url} alt={`${item.title} cover art`} width={48} height={64} loading="lazy" className="w-12 h-16 object-cover rounded-lg flex-shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                  <h3 className="font-medium truncate group-hover:text-foreground/80 transition-colors">
-                                    {highlightMatch(item.title, query)}
-                                  </h3>
-                                  <p className="text-sm text-muted-foreground truncate">{item.title_japanese}</p>
-                                  <div className="flex items-center gap-2 mt-1">
-                                    {item.score && (
-                                      <span className="text-xs px-2 py-0.5 rounded-full bg-foreground/10 text-foreground">★ {item.score}</span>
-                                    )}
-                                    {item.episodes && <span className="text-xs text-muted-foreground">{item.episodes} eps</span>}
-                                  </div>
+                            <button
+                              key={`anime-${item.anilist_id}`}
+                              onClick={() => handleSelectResult("anime", item)}
+                              className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-all duration-300 text-left group"
+                            >
+                              <img src={item.images.webp.image_url} alt={`${item.title} cover art`} width={48} height={64} loading="lazy" className="w-12 h-16 object-cover rounded-lg flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-medium truncate group-hover:text-foreground/80 transition-colors">
+                                  {highlightMatch(item.title, query)}
+                                </h3>
+                                <p className="text-sm text-muted-foreground truncate">{item.title_japanese}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  {item.score && (
+                                    <span className="text-xs px-2 py-0.5 rounded-full bg-foreground/10 text-foreground">★ {item.score}</span>
+                                  )}
+                                  {item.episodes && <span className="text-xs text-muted-foreground">{item.episodes} eps</span>}
                                 </div>
-                              </button>
-                              <button
-                                onClick={() => handleSaveResult(item.anilist_id, "anime", item.title, item.images.webp.image_url)}
-                                className={cn(
-                                  "p-1.5 rounded-full shrink-0 transition-all duration-200",
-                                  isResultSaved(item.anilist_id, "anime")
-                                    ? "text-foreground"
-                                    : "text-muted-foreground/40 opacity-0 group-hover:opacity-100 hover:text-foreground"
-                                )}
-                                aria-label={isResultSaved(item.anilist_id, "anime") ? "Remove from saved" : "Save for later"}
-                              >
-                                {isResultSaved(item.anilist_id, "anime") ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
-                              </button>
-                            </div>
+                              </div>
+                            </button>
                           ))}
                         </div>
                       </div>
@@ -608,48 +581,38 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground sticky top-0 bg-card/80 backdrop-blur-sm rounded-lg border-t border-border/50 mt-2">
                           <BookOpen className="w-4 h-4" />
                           <span>Manga / Manhwa / Manhua</span>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 flex items-center gap-1">
+                            <Sparkles className="w-2.5 h-2.5" />{t("browse.newest")}
+                          </Badge>
                           <span className="text-xs opacity-60 ml-auto">({filteredManga.length})</span>
                         </div>
                         <div className="space-y-1">
                           {filteredManga.slice(0, 8).map((item) => (
-                            <div key={`manga-${item.anilist_id}`} className="flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-all duration-300 group">
-                              <button
-                                onClick={() => handleSelectResult("manga", item)}
-                                className="flex items-center gap-4 flex-1 min-w-0 text-left"
-                              >
-                                <img src={item.images.webp.image_url} alt={`${item.title} cover art`} width={48} height={64} loading="lazy" className="w-12 h-16 object-cover rounded-lg flex-shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                  <h3 className="font-medium truncate group-hover:text-foreground/80 transition-colors">
-                                    {highlightMatch(item.title, query)}
-                                  </h3>
-                                  <p className="text-sm text-muted-foreground truncate">{item.title_japanese}</p>
-                                  <div className="flex items-center gap-2 mt-1">
-                                    {item.score && (
-                                      <span className="text-xs px-2 py-0.5 rounded-full bg-foreground/10 text-foreground">★ {item.score}</span>
-                                    )}
-                                    {item.chapters && <span className="text-xs text-muted-foreground">{item.chapters} ch</span>}
-                                    <span className={cn(
-                                      "text-[10px] font-medium px-1.5 py-0.5 rounded-full",
-                                      getContentTypeBadgeClass(getContentType({ type: 'MANGA', countryOfOrigin: item.countryOfOrigin }))
-                                    )}>
-                                      {getContentLabel(getContentType({ type: 'MANGA', countryOfOrigin: item.countryOfOrigin }))}
-                                    </span>
-                                  </div>
+                            <button
+                              key={`manga-${item.anilist_id}`}
+                              onClick={() => handleSelectResult("manga", item)}
+                              className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-all duration-300 text-left group"
+                            >
+                              <img src={item.images.webp.image_url} alt={`${item.title} cover art`} width={48} height={64} loading="lazy" className="w-12 h-16 object-cover rounded-lg flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-medium truncate group-hover:text-foreground/80 transition-colors">
+                                  {highlightMatch(item.title, query)}
+                                </h3>
+                                <p className="text-sm text-muted-foreground truncate">{item.title_japanese}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  {item.score && (
+                                    <span className="text-xs px-2 py-0.5 rounded-full bg-foreground/10 text-foreground">★ {item.score}</span>
+                                  )}
+                                  {item.chapters && <span className="text-xs text-muted-foreground">{item.chapters} ch</span>}
+                                  <span className={cn(
+                                    "text-[10px] font-medium px-1.5 py-0.5 rounded-full",
+                                    getContentTypeBadgeClass(getContentType({ type: 'MANGA', countryOfOrigin: item.countryOfOrigin }))
+                                  )}>
+                                    {getContentLabel(getContentType({ type: 'MANGA', countryOfOrigin: item.countryOfOrigin }))}
+                                  </span>
                                 </div>
-                              </button>
-                              <button
-                                onClick={() => handleSaveResult(item.anilist_id, "manga", item.title, item.images.webp.image_url)}
-                                className={cn(
-                                  "p-1.5 rounded-full shrink-0 transition-all duration-200",
-                                  isResultSaved(item.anilist_id, "manga")
-                                    ? "text-foreground"
-                                    : "text-muted-foreground/40 opacity-0 group-hover:opacity-100 hover:text-foreground"
-                                )}
-                                aria-label={isResultSaved(item.anilist_id, "manga") ? "Remove from saved" : "Save for later"}
-                              >
-                                {isResultSaved(item.anilist_id, "manga") ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
-                              </button>
-                            </div>
+                              </div>
+                            </button>
                           ))}
                         </div>
                       </div>
@@ -668,41 +631,9 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           )}
 
-          {/* Empty state: Recent, Saved searches, Saved results */}
+          {/* Recent & Saved searches when empty */}
           {query.trim().length === 0 && (
             <div className="mt-4 flex-shrink-0 space-y-3">
-              {/* Saved Results */}
-              {savedResults.length > 0 && (
-                <div className="liquid-glass-strong rounded-2xl p-4">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                    <Bookmark className="w-4 h-4" />
-                    <span>Saved for Later</span>
-                    <span className="text-xs opacity-60 ml-auto">({savedResults.length})</span>
-                  </div>
-                  <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-1">
-                    {savedResults.slice(0, 10).map((item) => (
-                      <button
-                        key={`${item.type}-${item.id}`}
-                        onClick={() => { navigate(`/${item.type}/${item.id}`); onClose(); }}
-                        className="flex-shrink-0 group"
-                      >
-                        <div className="w-16 h-22 rounded-lg overflow-hidden bg-muted mb-1 relative">
-                          <img src={item.image} alt={item.title} className="w-full h-full object-cover" loading="lazy" />
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleSaveResult(item.id, item.type, item.title, item.image); }}
-                            className="absolute top-0.5 right-0.5 p-0.5 rounded-full bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity"
-                            aria-label="Remove"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                        <p className="text-[10px] text-muted-foreground truncate max-w-[64px]">{item.title}</p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Saved Searches */}
               {savedSearches.length > 0 && (
                 <div className="liquid-glass-strong rounded-2xl p-4">
@@ -757,11 +688,11 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 className={cn(
                   "text-xs font-medium px-3 py-1.5 rounded-full transition-all duration-200",
                   savedSearches.includes(query.trim())
-                    ? "bg-foreground/10 text-foreground"
+                    ? "bg-primary/15 text-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 )}
               >
-                <Star className={cn("w-3 h-3 inline mr-1", savedSearches.includes(query.trim()) && "fill-foreground")} />
+                <Star className={cn("w-3 h-3 inline mr-1", savedSearches.includes(query.trim()) && "fill-primary")} />
                 {savedSearches.includes(query.trim()) ? "Saved" : "Save search"}
               </button>
             </div>

@@ -105,21 +105,17 @@ const Index = () => {
   const viewToggle = <ViewToggle mode={viewMode} onChange={handleViewChange} />;
 
   const renderMangaSection = (data: Manga[] | undefined, isLoading: boolean) => {
-    const hasData = (data?.length ?? 0) > 0;
-
-    if (isLoading && !hasData) {
+    if (isLoading) {
       return (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5">
           <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-full" />
         </div>
       );
     }
-
-    if (!hasData) return null;
-
-    if (viewMode === "masonry") return <MangaMasonry items={data!} />;
-    if (viewMode === "grid") return <MangaGrid items={data!} />;
-    return <MangaCarousel items={data!} isMobile={isMobile} />;
+    if (!data) return null;
+    if (viewMode === "masonry") return <MangaMasonry items={data} />;
+    if (viewMode === "grid") return <MangaGrid items={data} />;
+    return <MangaCarousel items={data} isMobile={isMobile} />;
   };
 
   return (
@@ -206,10 +202,10 @@ const Index = () => {
         ) : renderMangaSection(topManga, topMangaLoading)}
       </ContentSection>
 
-      
+      <style>{`.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 400px; }`}</style>
 
       {/* Trending Manhwa */}
-      <div ref={manhwaSection.ref}>
+      <div ref={manhwaSection.ref} className="cv-auto">
         <ContentSection title={t("section.trendingManhwa") || "Trending Manhwa"} linkTo="/manga?filter=manhwa&sort=popularity" headerExtra={
           <div className="flex items-center gap-2">
             <TrendingTimePicker value={trendingPeriod} onChange={setTrendingPeriod} />
@@ -223,7 +219,7 @@ const Index = () => {
       </div>
 
       {/* Trending Manhua */}
-      <div ref={manhuaSection.ref}>
+      <div ref={manhuaSection.ref} className="cv-auto">
         <ContentSection title={t("section.trendingManhua") || "Trending Manhua"} linkTo="/manga?filter=manhua&sort=popularity" headerExtra={viewToggle}>
           {trendingManhuaError ? (
             <SectionError onRetry={() => refetchTrendingManhua()} />
@@ -232,7 +228,7 @@ const Index = () => {
       </div>
 
       {/* Recently Updated */}
-      <div ref={recentSection.ref}>
+      <div ref={recentSection.ref} className="cv-auto">
         {recentSection.isVisible ? (
           <ContentSection title="Recently Updated" linkTo="/manga?sort=updated" headerExtra={viewToggle}>
             {recentError ? (
@@ -243,7 +239,7 @@ const Index = () => {
       </div>
 
       {/* All-Time Top */}
-      <div ref={allTimeSection.ref}>
+      <div ref={allTimeSection.ref} className="cv-auto">
         {allTimeSection.isVisible ? (
           <ContentSection title="All-Time Top Rated" linkTo="/manga?sort=score" headerExtra={viewToggle}>
             {allTimeError ? (

@@ -81,7 +81,8 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
           "bg-card rounded-2xl overflow-hidden relative",
           "transition-all duration-400 ease-out",
           "border border-border/0 hover:border-border/10",
-          "divine-glow-hover glow-line-top"
+          "divine-glow-hover glow-line-top",
+          "will-change-transform transform-gpu"
         )}>
           {/* Image */}
           <div className={cn("relative overflow-hidden", isMasonry ? "" : "aspect-[3/4]")}>
@@ -95,7 +96,7 @@ export const MangaCard = memo(forwardRef<HTMLDivElement, MangaCardProps>(functio
               fetchPriority="auto"
               sizes="(max-width: 480px) 45vw, (max-width: 768px) 30vw, (max-width: 1024px) 20vw, 200px"
               className={cn(
-                "w-full object-cover transition-transform duration-700 ease-out group-hover/card:scale-[1.03]",
+                "w-full object-cover transition-transform duration-700 ease-out group-hover/card:scale-[1.03] will-change-transform transform-gpu",
                 isMasonry ? "h-auto" : "h-full"
               )}
             />
