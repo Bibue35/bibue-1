@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
@@ -8,6 +8,15 @@ import { UserMenu } from "./UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
 import bibueTower from "@/assets/bibue-tower.png";
 const AuthModal = lazy(() => import("./AuthModal").then(m => ({ default: m.AuthModal })));
+
+const PRIMARY_LINKS = [
+  { href: "/", label: "Home" },
+  { href: "/manga", label: "Browse" },
+  { href: "/originals", label: "Originals" },
+  { href: "/studio", label: "Studio" },
+  { href: "/seek", label: "Seek" },
+  { href: "/community", label: "Community" },
+];
 
 export function CollapsibleNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -29,7 +38,13 @@ export function CollapsibleNavbar() {
   ];
 
   useEffect(() => {
-    if (isMobileMenuOpen) setIsVisible(true);
+    if (isMobileMenuOpen) {
+      setIsVisible(true);
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
   }, [isMobileMenuOpen]);
 
   // Global Cmd/Ctrl+K shortcut
@@ -39,10 +54,13 @@ export function CollapsibleNavbar() {
         e.preventDefault();
         setIsSearchOpen(true);
       }
+      if (e.key === "Escape" && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [isMobileMenuOpen]);
 
   useEffect(() => {
     let ticking = false;
@@ -155,114 +173,175 @@ export function CollapsibleNavbar() {
             </div>
           </div>
         </div>
-
-        {/* Mobile Menu — full-screen takeover */}
-        <div
-          className={cn(
-            "md:hidden fixed inset-0 z-[55] transition-all duration-500",
-            isMobileMenuOpen
-              ? "opacity-100 pointer-events-auto"
-              : "opacity-0 pointer-events-none"
-          )}
-        >
-          {/* Blurred backdrop */}
-          <div className="absolute inset-0 bg-background/92 backdrop-blur-3xl" />
-
-          {/* Content layer */}
-          <div className="relative z-10 flex flex-col h-full">
-            {/* Top bar — logo + close, mirrors main nav */}
-            <div className="flex items-center justify-between px-4 py-5">
-              <Link
-                to="/"
-                className="flex items-center gap-1.5 group"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <img
-                  src={bibueTower}
-                  alt="Bibue Tower"
-                  className="h-6 w-auto object-contain dark:brightness-0 dark:invert logo-stable"
-                  loading="eager"
-                  decoding="sync"
-                />
-                <span className="text-xl font-sacred font-bold tracking-[0.15em] uppercase">
-                  Bibue
-                </span>
-              </Link>
-              <button
-                className="px-3 py-2 text-[13px] font-medium tracking-wide uppercase text-muted-foreground hover:text-foreground transition-colors btn-press"
-                onClick={() => setIsMobileMenuOpen(false)}
-                aria-label="Close menu"
-              >
-                Close
-              </button>
-            </div>
-
-            {/* Nav links — left-aligned, stacked, large type */}
-            <div className="flex-1 flex flex-col justify-center px-8 -mt-16">
-              {[
-                { href: "/manga", label: "Browse" },
-                { href: "/originals", label: "Originals" },
-                { href: "/studio", label: "Studio" },
-                { href: "/community", label: "Community" },
-                { href: "/seek", label: "Seek" },
-              ].map((link, i) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className={cn(
-                    "block py-3 text-[2rem] font-sacred font-bold tracking-wide leading-tight transition-all duration-300",
-                    location.pathname === link.href
-                      ? "text-foreground"
-                      : "text-muted-foreground/60 hover:text-foreground hover:translate-x-2"
-                  )}
-                  style={{
-                    transitionDelay: isMobileMenuOpen ? `${i * 40}ms` : "0ms",
-                  }}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
-
-              {/* Divider */}
-              <div className="w-8 h-px bg-border/20 my-4" />
-
-              {/* Secondary actions — same alignment, smaller type */}
-              <div className="space-y-3">
-                {user ? (
-                  <Link
-                    to="/settings"
-                    className="block text-sm font-medium tracking-wide uppercase text-muted-foreground/50 hover:text-foreground transition-all duration-300 hover:translate-x-1"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Settings
-                  </Link>
-                ) : (
-                  <button
-                    onClick={() => {
-                      setAuthModalOpen(true);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="block text-sm font-medium tracking-wide uppercase text-muted-foreground/50 hover:text-foreground transition-all duration-300 hover:translate-x-1"
-                  >
-                    Sign In
-                  </button>
-                )}
-                <div className="inline-block">
-                  <ThemeSelector variant="text" />
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom hint */}
-            <p className="pb-8 text-center text-[9px] tracking-[0.35em] uppercase text-muted-foreground/30"
-               style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 2rem)" }}
-            >
-              Tap close or scroll to dismiss
-            </p>
-          </div>
-        </div>
       </nav>
+
+      {/* ── Mobile Sidebar ── */}
+      {/* Scrim overlay */}
+      <div
+        className={cn(
+          "md:hidden fixed inset-0 z-[60] transition-opacity duration-400",
+          isMobileMenuOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        )}
+        onClick={() => setIsMobileMenuOpen(false)}
+        aria-hidden="true"
+      >
+        <div className="absolute inset-0 bg-black/50" />
+      </div>
+
+      {/* Sidebar panel */}
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile navigation"
+        className={cn(
+          "md:hidden fixed top-0 left-0 bottom-0 z-[61] w-[85vw] max-w-[340px] flex flex-col",
+          "transition-transform duration-[400ms]",
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+        style={{
+          transitionTimingFunction: "cubic-bezier(0.34, 1.2, 0.64, 1)",
+          background: "rgba(8, 8, 8, 0.82)",
+          backdropFilter: "blur(32px) saturate(1.4)",
+          WebkitBackdropFilter: "blur(32px) saturate(1.4)",
+          borderRight: "1px solid rgba(192, 192, 192, 0.12)",
+        }}
+      >
+        {/* ── Header: Logo + Close ── */}
+        <div className="flex items-center justify-between px-6 pt-6 pb-4">
+          <Link
+            to="/"
+            className="flex items-center gap-2 group"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <img
+              src={bibueTower}
+              alt="Bibue Tower"
+              className="h-7 w-auto object-contain dark:brightness-0 dark:invert logo-stable transition-all duration-500 group-hover:drop-shadow-[0_0_8px_rgba(192,192,192,0.5)]"
+              loading="eager"
+              decoding="sync"
+            />
+            <span className="text-lg font-sacred font-bold tracking-[0.18em] uppercase text-foreground transition-all duration-300 group-hover:drop-shadow-[0_0_6px_rgba(192,192,192,0.3)]">
+              Bibue
+            </span>
+          </Link>
+          <button
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="flex items-center gap-1.5 p-2 -mr-2 rounded-lg text-muted-foreground hover:text-foreground transition-all duration-300 hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2]"
+            aria-label="Close menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* ── Primary Navigation ── */}
+        <nav className="flex-1 px-6 pt-4 overflow-y-auto" aria-label="Mobile menu">
+          <ul className="space-y-1">
+            {PRIMARY_LINKS.map((link, i) => {
+              const isActive = link.href === "/"
+                ? location.pathname === "/"
+                : location.pathname.startsWith(link.href);
+              return (
+                <li key={link.href}>
+                  <Link
+                    to={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={cn(
+                      "group relative block py-3 px-3 -mx-3 rounded-xl text-[1.35rem] font-sacred font-bold tracking-[0.06em]",
+                      "transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2] focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                      isActive
+                        ? "text-foreground"
+                        : "text-muted-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
+                    )}
+                    style={{
+                      transitionDelay: isMobileMenuOpen ? `${60 + i * 35}ms` : "0ms",
+                      transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-12px)",
+                      opacity: isMobileMenuOpen ? 1 : 0,
+                    }}
+                  >
+                    {link.label}
+                    {/* Active indicator — metallic underline */}
+                    {isActive && (
+                      <span
+                        className="absolute bottom-1.5 left-3 h-[2px] w-6 rounded-full"
+                        style={{
+                          background: "linear-gradient(90deg, #C0C0C0, #E8E8E8, #A8A8A8)",
+                          boxShadow: "0 0 6px rgba(192, 192, 192, 0.4)",
+                        }}
+                      />
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* ── Divider ── */}
+          <div
+            className="my-5 mx-0"
+            style={{ height: "1px", background: "rgba(31, 31, 31, 0.8)" }}
+          />
+
+          {/* ── Secondary Actions ── */}
+          <ul className="space-y-1">
+            {user ? (
+              <li>
+                <Link
+                  to="/settings"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block py-2.5 px-3 -mx-3 rounded-xl text-sm font-medium tracking-[0.12em] uppercase text-muted-foreground/60 hover:text-foreground hover:bg-foreground/[0.04] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2]"
+                  style={{
+                    transitionDelay: isMobileMenuOpen ? "280ms" : "0ms",
+                    transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-12px)",
+                    opacity: isMobileMenuOpen ? 1 : 0,
+                  }}
+                >
+                  Settings
+                </Link>
+              </li>
+            ) : (
+              <li>
+                <button
+                  onClick={() => {
+                    setAuthModalOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left py-2.5 px-3 -mx-3 rounded-xl text-sm font-medium tracking-[0.12em] uppercase text-muted-foreground/60 hover:text-foreground hover:bg-foreground/[0.04] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1DA1F2]"
+                  style={{
+                    transitionDelay: isMobileMenuOpen ? "280ms" : "0ms",
+                    transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-12px)",
+                    opacity: isMobileMenuOpen ? 1 : 0,
+                  }}
+                >
+                  Sign In
+                </button>
+              </li>
+            )}
+            <li
+              className="px-3 -mx-3 py-1"
+              style={{
+                transitionDelay: isMobileMenuOpen ? "320ms" : "0ms",
+                transform: isMobileMenuOpen ? "translateX(0)" : "translateX(-12px)",
+                opacity: isMobileMenuOpen ? 1 : 0,
+                transition: "all 300ms ease-out",
+              }}
+            >
+              <ThemeSelector variant="text" />
+            </li>
+          </ul>
+        </nav>
+
+        {/* ── Footer ── */}
+        <div
+          className="px-6 pb-6 pt-3"
+          style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1.5rem)" }}
+        >
+          <p className="text-[9px] tracking-[0.25em] uppercase text-muted-foreground/25 leading-relaxed">
+            Bibue — Unifying East Asian Stories
+          </p>
+        </div>
+      </aside>
 
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       {authModalOpen && (
