@@ -220,6 +220,8 @@ export function CinematicHero() {
           )}
         </div>
       </div>
+      {/* Soft bottom fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 sm:h-48 bg-gradient-to-t from-background via-background/80 to-transparent z-10 pointer-events-none" />
     </section>
   );
 }
