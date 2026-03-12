@@ -546,7 +546,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           )}
 
-          {searchMode === "standard" && query.trim().length >= 2 && (
+          {query.trim().length >= 2 && (
             <div className="mt-4 liquid-glass-strong rounded-2xl flex-1 min-h-0 overflow-hidden">
               <ScrollArea className="h-full max-h-[calc(85vh-160px)]">
                 {isLoading && !hasResults ? (
