@@ -209,13 +209,6 @@ const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
 ];
 
-// Seek result type
-interface SeekResult {
-  title: string;
-  matchReason: string;
-  genres?: string[];
-  score?: number;
-}
 
 interface SearchModalProps {
   isOpen: boolean;
