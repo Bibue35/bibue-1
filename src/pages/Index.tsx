@@ -105,17 +105,21 @@ const Index = () => {
   const viewToggle = <ViewToggle mode={viewMode} onChange={handleViewChange} />;
 
   const renderMangaSection = (data: Manga[] | undefined, isLoading: boolean) => {
-    if (isLoading) {
+    const hasData = (data?.length ?? 0) > 0;
+
+    if (isLoading && !hasData) {
       return (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5">
           <CardSkeletonRow count={6} variant={isMobile ? "mobile" : "default"} itemClassName="w-full" />
         </div>
       );
     }
-    if (!data) return null;
-    if (viewMode === "masonry") return <MangaMasonry items={data} />;
-    if (viewMode === "grid") return <MangaGrid items={data} />;
-    return <MangaCarousel items={data} isMobile={isMobile} />;
+
+    if (!hasData) return null;
+
+    if (viewMode === "masonry") return <MangaMasonry items={data!} />;
+    if (viewMode === "grid") return <MangaGrid items={data!} />;
+    return <MangaCarousel items={data!} isMobile={isMobile} />;
   };
 
   return (
