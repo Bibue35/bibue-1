@@ -163,8 +163,24 @@ export function CollapsibleNavbar() {
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
           )}
+          onTouchStart={(e) => {
+            (e.currentTarget as any)._swipeStartX = e.touches[0].clientX;
+            (e.currentTarget as any)._swipeStartY = e.touches[0].clientY;
+          }}
+          onTouchEnd={(e) => {
+            const startX = (e.currentTarget as any)._swipeStartX;
+            const startY = (e.currentTarget as any)._swipeStartY;
+            if (startX == null) return;
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            const diffX = endX - startX;
+            const diffY = Math.abs(endY - startY);
+            if (diffX > 80 && diffY < 100) {
+              setIsMobileMenuOpen(false);
+            }
+          }}
         >
-          <div className="container mx-auto px-6 pt-12 space-y-1">
+          <div className="container mx-auto px-6 pt-12 space-y-0">
             {[
               { href: "/manga", label: "Browse" },
               { href: "/originals", label: "Originals" },
@@ -188,28 +204,27 @@ export function CollapsibleNavbar() {
               </Link>
             ))}
 
-            <div className="pt-8 flex items-center gap-6">
-              <ThemeSelector variant="text" />
-              {user ? (
-                <Link
-                  to="/settings"
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Settings
-                </Link>
-              ) : (
-                <button
-                  onClick={() => {
-                    setAuthModalOpen(true);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-                >
-                  Sign In
-                </button>
-              )}
-            </div>
+            <ThemeSelector variant="text" />
+
+            {user ? (
+              <Link
+                to="/settings"
+                className="block py-4 text-3xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 border-b border-border/10"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Settings
+              </Link>
+            ) : (
+              <button
+                onClick={() => {
+                  setAuthModalOpen(true);
+                  setIsMobileMenuOpen(false);
+                }}
+                className="block py-4 text-3xl font-sacred font-bold tracking-wide text-primary hover:text-primary/80 transition-all duration-300 w-full text-left"
+              >
+                Sign In
+              </button>
+            )}
           </div>
         </div>
       </nav>

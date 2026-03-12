@@ -51,7 +51,11 @@ export function ThemeSelector({ variant = "icon" }: ThemeSelectorProps) {
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <button className="px-4 py-3 rounded-xl text-sm font-medium transition-colors w-full text-left hover:bg-foreground/5 text-muted-foreground">
+          <button className="flex items-center gap-3 py-4 text-3xl font-sacred font-bold tracking-wide transition-all duration-300 w-full text-left border-b border-border/10 text-muted-foreground hover:text-foreground hover:pl-2">
+            <span
+              className="w-3 h-3 rounded-full shrink-0 ring-1 ring-foreground/10"
+              style={{ background: currentTheme?.preview.accent }}
+            />
             {currentLabel}
           </button>
         </PopoverTrigger>
