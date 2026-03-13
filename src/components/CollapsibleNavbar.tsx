@@ -168,7 +168,7 @@ export function CollapsibleNavbar() {
         <div
           className={cn(
             "md:hidden fixed top-0 left-0 bottom-0 z-[55] w-[85%] max-w-[340px]",
-            "bg-background/30 backdrop-blur-[40px] border-r border-border/10",
+            "bg-[#0A0A0F] border-r border-border/10",
             "transition-transform duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
             isMobileMenuOpen
               ? "translate-x-0"
