@@ -162,6 +162,7 @@ export function CollapsibleNavbar() {
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
           )}
+          style={{ backgroundColor: '#0A0A0F' }}
           onClick={() => setIsMobileMenuOpen(false)}
         />
         {/* Slide-in panel */}
