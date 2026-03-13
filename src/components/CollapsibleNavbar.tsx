@@ -157,7 +157,7 @@ export function CollapsibleNavbar() {
         {/* Backdrop scrim */}
         <div
           className={cn(
-            "md:hidden fixed inset-0 z-[54] bg-black/80 transition-opacity duration-300",
+            "md:hidden fixed inset-0 z-[54] transition-opacity duration-300",
             isMobileMenuOpen
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
