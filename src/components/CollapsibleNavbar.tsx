@@ -210,7 +210,10 @@ export function CollapsibleNavbar() {
       >
         <div className="px-6 pt-6 pb-8 h-full flex flex-col">
           {/* Header — logo + close */}
-          <div className="flex items-center justify-between mb-10">
+          <div className={cn(
+            "flex items-center justify-between mb-10 transition-all duration-300",
+            isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+          )} style={{ transitionDelay: isMobileMenuOpen ? "150ms" : "0ms" }}>
             <Link to="/" className="flex items-center gap-1.5 group" onClick={() => setIsMobileMenuOpen(false)}>
               <img
                 src={bibueTower}
@@ -245,25 +248,35 @@ export function CollapsibleNavbar() {
                 key={link.href}
                 to={link.href}
                 className={cn(
-                  "block py-4 text-2xl font-sacred font-bold tracking-wide transition-all duration-300",
-                  "border-b border-border/10",
+                  "block py-4 text-2xl font-sacred font-bold tracking-wide border-b border-border/10",
+                  "transition-all duration-300 ease-out",
+                  isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4",
                   location.pathname === link.href
                     ? "text-foreground"
                     : "text-muted-foreground hover:text-foreground hover:pl-2"
                 )}
-                style={{ animationDelay: `${i * 50}ms` }}
+                style={{ transitionDelay: isMobileMenuOpen ? `${200 + i * 60}ms` : "0ms" }}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {link.label}
               </Link>
             ))}
 
-            <ThemeSelector variant="text" />
+            <div className={cn(
+              "transition-all duration-300 ease-out",
+              isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+            )} style={{ transitionDelay: isMobileMenuOpen ? "440ms" : "0ms" }}>
+              <ThemeSelector variant="text" />
+            </div>
 
             {user ? (
               <Link
                 to="/settings"
-                className="block py-4 text-2xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 border-b border-border/10"
+                className={cn(
+                  "block py-4 text-2xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 ease-out border-b border-border/10",
+                  isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+                )}
+                style={{ transitionDelay: isMobileMenuOpen ? "500ms" : "0ms" }}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Settings
@@ -274,7 +287,11 @@ export function CollapsibleNavbar() {
                   setAuthModalOpen(true);
                   setIsMobileMenuOpen(false);
                 }}
-                className="block py-4 text-2xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 w-full text-left"
+                className={cn(
+                  "block py-4 text-2xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 ease-out w-full text-left",
+                  isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+                )}
+                style={{ transitionDelay: isMobileMenuOpen ? "500ms" : "0ms" }}
               >
                 Sign In
               </button>
