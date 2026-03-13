@@ -79,7 +79,8 @@ export function CollapsibleNavbar() {
       <nav
         aria-label="Main navigation"
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out transform-gpu",
+          "fixed top-0 left-0 right-0 transition-all duration-500 ease-out transform-gpu",
+          isMobileMenuOpen ? "z-[120]" : "z-50",
           isScrolled
             ? "bg-background/80 backdrop-blur-2xl py-3 navbar-shimmer-line"
             : "bg-transparent py-5",
