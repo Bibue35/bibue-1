@@ -118,9 +118,6 @@ export function CollapsibleNavbar() {
                   )}
                 >
                   {link.label}
-                  {location.pathname === link.href && (
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-foreground" />
-                  )}
                 </Link>
               ))}
             </div>
@@ -159,7 +156,7 @@ export function CollapsibleNavbar() {
         {/* Mobile Menu */}
         <div
           className={cn(
-            "md:hidden fixed top-[60px] left-0 right-0 bottom-0 z-[55] bg-background backdrop-blur-3xl transition-all duration-400",
+            "md:hidden fixed top-[60px] left-0 right-0 bottom-0 z-[55] bg-background/85 backdrop-blur-2xl transition-all duration-400",
             isMobileMenuOpen
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
