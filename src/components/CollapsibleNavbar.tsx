@@ -153,13 +153,26 @@ export function CollapsibleNavbar() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu — X.com-style frosted glass overlay */}
+        {/* Backdrop scrim */}
         <div
           className={cn(
-            "md:hidden fixed top-[60px] left-0 right-0 bottom-0 z-[55] bg-background transition-all duration-400",
+            "md:hidden fixed inset-0 z-[54] bg-black/20 transition-opacity duration-300",
             isMobileMenuOpen
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
+          )}
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+        {/* Slide-in panel */}
+        <div
+          className={cn(
+            "md:hidden fixed top-0 left-0 bottom-0 z-[55] w-[85%] max-w-[340px]",
+            "bg-background/30 backdrop-blur-[40px] border-r border-border/10",
+            "transition-transform duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+            isMobileMenuOpen
+              ? "translate-x-0"
+              : "-translate-x-full"
           )}
           onTouchStart={(e) => {
             (e.currentTarget as any)._swipeStartX = e.touches[0].clientX;
@@ -171,58 +184,60 @@ export function CollapsibleNavbar() {
             if (startX == null) return;
             const endX = e.changedTouches[0].clientX;
             const endY = e.changedTouches[0].clientY;
-            const diffX = endX - startX;
+            const diffX = startX - endX;
             const diffY = Math.abs(endY - startY);
             if (diffX > 80 && diffY < 100) {
               setIsMobileMenuOpen(false);
             }
           }}
         >
-          <div className="container mx-auto px-6 pt-12 space-y-0">
-            {[
-              { href: "/manga", label: "Browse" },
-              { href: "/originals", label: "Originals" },
-              { href: "/studio", label: "Studio" },
-              { href: "/community", label: "Community" },
-            ].map((link, i) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className={cn(
-                  "block py-4 text-3xl font-sacred font-bold tracking-wide transition-all duration-300",
-                  "border-b border-border/10",
-                  location.pathname === link.href
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:pl-2"
-                )}
-                style={{ animationDelay: `${i * 50}ms` }}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="px-6 pt-20 pb-8 h-full flex flex-col">
+            <div className="space-y-0 flex-1">
+              {[
+                { href: "/manga", label: "Browse" },
+                { href: "/originals", label: "Originals" },
+                { href: "/studio", label: "Studio" },
+                { href: "/community", label: "Community" },
+              ].map((link, i) => (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={cn(
+                    "block py-4 text-3xl font-sacred font-bold tracking-wide transition-all duration-300",
+                    "border-b border-border/10",
+                    location.pathname === link.href
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:pl-2"
+                  )}
+                  style={{ animationDelay: `${i * 50}ms` }}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
 
-            <ThemeSelector variant="text" />
+              <ThemeSelector variant="text" />
 
-            {user ? (
-              <Link
-                to="/settings"
-                className="block py-4 text-3xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 border-b border-border/10"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Settings
-              </Link>
-            ) : (
-              <button
-                onClick={() => {
-                  setAuthModalOpen(true);
-                  setIsMobileMenuOpen(false);
-                }}
-                className="block py-4 text-3xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 w-full text-left"
-              >
-                Sign In
-              </button>
-            )}
+              {user ? (
+                <Link
+                  to="/settings"
+                  className="block py-4 text-3xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 border-b border-border/10"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Settings
+                </Link>
+              ) : (
+                <button
+                  onClick={() => {
+                    setAuthModalOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block py-4 text-3xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 w-full text-left"
+                >
+                  Sign In
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </nav>
