@@ -168,12 +168,13 @@ export function CollapsibleNavbar() {
         <div
           className={cn(
             "md:hidden fixed top-0 left-0 bottom-0 z-[55] w-[85%] max-w-[340px]",
-            "bg-[#0A0A0F] border-r border-border/10",
+            "border-r border-border/10",
             "transition-transform duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
             isMobileMenuOpen
               ? "translate-x-0"
               : "-translate-x-full"
           )}
+          style={{ backgroundColor: '#0A0A0F' }}
           onTouchStart={(e) => {
             (e.currentTarget as any)._swipeStartX = e.touches[0].clientX;
             (e.currentTarget as any)._swipeStartY = e.touches[0].clientY;
