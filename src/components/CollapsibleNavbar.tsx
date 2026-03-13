@@ -262,12 +262,21 @@ export function CollapsibleNavbar() {
               </Link>
             ))}
 
-            <ThemeSelector variant="text" />
+            <div className={cn(
+              "transition-all duration-300 ease-out",
+              isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+            )} style={{ transitionDelay: isMobileMenuOpen ? "440ms" : "0ms" }}>
+              <ThemeSelector variant="text" />
+            </div>
 
             {user ? (
               <Link
                 to="/settings"
-                className="block py-4 text-2xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 border-b border-border/10"
+                className={cn(
+                  "block py-4 text-2xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 ease-out border-b border-border/10",
+                  isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+                )}
+                style={{ transitionDelay: isMobileMenuOpen ? "500ms" : "0ms" }}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Settings
@@ -278,7 +287,11 @@ export function CollapsibleNavbar() {
                   setAuthModalOpen(true);
                   setIsMobileMenuOpen(false);
                 }}
-                className="block py-4 text-2xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 w-full text-left"
+                className={cn(
+                  "block py-4 text-2xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 ease-out w-full text-left",
+                  isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+                )}
+                style={{ transitionDelay: isMobileMenuOpen ? "500ms" : "0ms" }}
               >
                 Sign In
               </button>
