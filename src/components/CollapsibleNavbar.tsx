@@ -118,9 +118,6 @@ export function CollapsibleNavbar() {
                   )}
                 >
                   {link.label}
-                  {location.pathname === link.href && (
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-foreground" />
-                  )}
                 </Link>
               ))}
             </div>
