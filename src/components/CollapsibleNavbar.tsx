@@ -154,29 +154,43 @@ export function CollapsibleNavbar() {
         </div>
       </nav>
 
-      {/* Mobile Menu — fully opaque overlay (outside nav for correct z-stacking) */}
-      {/* Backdrop scrim */}
+      {/* Mobile Menu — frosted glass overlay */}
+      {/* Backdrop scrim — dark tint + captures taps to close */}
       <div
         className={cn(
-          "md:hidden fixed inset-0 z-[200] transition-opacity duration-300",
+          "md:hidden fixed inset-0 z-[200] bg-background/60 backdrop-blur-sm transition-opacity duration-300",
           isMobileMenuOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
         )}
-        style={{ backgroundColor: '#0A0A0F' }}
         onClick={() => setIsMobileMenuOpen(false)}
+        onTouchStart={(e) => {
+          (e.currentTarget as any)._swipeStartX = e.touches[0].clientX;
+          (e.currentTarget as any)._swipeStartY = e.touches[0].clientY;
+        }}
+        onTouchEnd={(e) => {
+          const startX = (e.currentTarget as any)._swipeStartX;
+          const startY = (e.currentTarget as any)._swipeStartY;
+          if (startX == null) return;
+          const endX = e.changedTouches[0].clientX;
+          const diffX = startX - endX;
+          const diffY = Math.abs(e.changedTouches[0].clientY - startY);
+          if (diffX > 60 && diffY < 100) {
+            setIsMobileMenuOpen(false);
+          }
+        }}
       />
-      {/* Slide-in panel */}
+      {/* Slide-in panel — heavy frosted glass (colors bleed, text unreadable) */}
       <div
         className={cn(
           "md:hidden fixed top-0 left-0 bottom-0 z-[201] w-[85%] max-w-[340px]",
+          "bg-background/85 backdrop-blur-[80px] backdrop-saturate-150",
           "border-r border-border/10",
           "transition-transform duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
           isMobileMenuOpen
             ? "translate-x-0"
             : "-translate-x-full"
         )}
-        style={{ backgroundColor: '#0A0A0F' }}
         onTouchStart={(e) => {
           (e.currentTarget as any)._swipeStartX = e.touches[0].clientX;
           (e.currentTarget as any)._swipeStartY = e.touches[0].clientY;
@@ -189,12 +203,37 @@ export function CollapsibleNavbar() {
           const endY = e.changedTouches[0].clientY;
           const diffX = startX - endX;
           const diffY = Math.abs(endY - startY);
-          if (diffX > 80 && diffY < 100) {
+          if (diffX > 60 && diffY < 100) {
             setIsMobileMenuOpen(false);
           }
         }}
       >
-        <div className="px-6 pt-20 pb-8 h-full flex flex-col">
+        <div className="px-6 pt-6 pb-8 h-full flex flex-col">
+          {/* Header — logo + close */}
+          <div className="flex items-center justify-between mb-10">
+            <Link to="/" className="flex items-center gap-1.5 group" onClick={() => setIsMobileMenuOpen(false)}>
+              <img
+                src={bibueTower}
+                alt="Bibue"
+                className="h-7 w-auto object-contain dark:brightness-0 dark:invert logo-stable"
+              />
+              <span className="text-lg font-sacred font-bold tracking-[0.15em] uppercase text-foreground">
+                Bibue
+              </span>
+            </Link>
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="p-2 -mr-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-200 btn-press"
+              aria-label="Close menu"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Nav links */}
           <div className="space-y-0 flex-1">
             {[
               { href: "/manga", label: "Browse" },
@@ -206,7 +245,7 @@ export function CollapsibleNavbar() {
                 key={link.href}
                 to={link.href}
                 className={cn(
-                  "block py-4 text-3xl font-sacred font-bold tracking-wide transition-all duration-300",
+                  "block py-4 text-2xl font-sacred font-bold tracking-wide transition-all duration-300",
                   "border-b border-border/10",
                   location.pathname === link.href
                     ? "text-foreground"
@@ -224,7 +263,7 @@ export function CollapsibleNavbar() {
             {user ? (
               <Link
                 to="/settings"
-                className="block py-4 text-3xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 border-b border-border/10"
+                className="block py-4 text-2xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 border-b border-border/10"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Settings
@@ -235,7 +274,7 @@ export function CollapsibleNavbar() {
                   setAuthModalOpen(true);
                   setIsMobileMenuOpen(false);
                 }}
-                className="block py-4 text-3xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 w-full text-left"
+                className="block py-4 text-2xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 w-full text-left"
               >
                 Sign In
               </button>
