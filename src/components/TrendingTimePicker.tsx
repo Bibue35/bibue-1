@@ -15,16 +15,16 @@ interface TrendingTimePickerProps {
 
 export function TrendingTimePicker({ value, onChange }: TrendingTimePickerProps) {
   return (
-    <div className="flex items-center gap-1 bg-muted/50 rounded-full p-0.5">
+    <div className="flex items-center gap-0.5">
       {PERIODS.map((p) => (
         <button
           key={p.key}
           onClick={() => onChange(p.key)}
           className={cn(
-            "text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 rounded-full transition-all duration-200 font-medium",
+            "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 btn-press",
             value === p.key
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
+              ? "filter-pill-active"
+              : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
           )}
         >
           {p.label}

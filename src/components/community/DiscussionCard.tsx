@@ -39,7 +39,7 @@ export function DiscussionCard({ discussion }: DiscussionCardProps) {
   const profile = discussion.profiles;
 
   return (
-    <article className="liquid-glass rounded-2xl p-6 hover-lift transition-all cursor-pointer group">
+    <article className="bg-card rounded-2xl p-6 border border-border/5 transition-all cursor-pointer group hover:border-border/15">
       <Link to={`/community/discussion/${discussion.id}`} className="block">
         {/* Header */}
         <div className="flex items-start gap-4">

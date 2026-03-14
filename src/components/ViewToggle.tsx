@@ -14,16 +14,16 @@ const MODES: { key: ViewMode; label: string }[] = [
 
 export function ViewToggle({ mode, onChange }: ViewToggleProps) {
   return (
-    <div className="flex items-center gap-0.5 text-[11px] font-medium tracking-wide uppercase">
+    <div className="flex items-center gap-0.5">
       {MODES.map((m) => (
         <button
           key={m.key}
           onClick={() => onChange(m.key)}
           className={cn(
-            "px-2.5 py-1 rounded-full transition-all duration-200",
+            "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 btn-press",
             mode === m.key
-              ? "bg-foreground/10 text-foreground"
-              : "text-muted-foreground hover:text-foreground"
+              ? "filter-pill-active"
+              : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
           )}
           aria-label={`${m.label} view`}
         >
