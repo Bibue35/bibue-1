@@ -1065,7 +1065,11 @@ export async function getFilteredAnime(filters: FilterParams, page = 1, limit = 
     scoreMin: filters.scoreMin || undefined,
     ...yearVars,
   });
-  return data.Page.media.map(m => toAnime(m, language));
+  let results = data.Page.media.map(m => toAnime(m, language));
+  if (filters.chaptersMin) {
+    results = results.filter(a => (a.episodes || 0) >= filters.chaptersMin!);
+  }
+  return results;
 }
 
 // News - AniList doesn't have news, return empty
