@@ -117,8 +117,12 @@ export function FilterBar({
       if (statusLabel) parts.push(statusLabel);
     }
     if (filters.scoreMin) parts.push(`${filters.scoreMin / 10}+`);
+    if (filters.chaptersMin) {
+      const label = mediaType === "manga" ? `${filters.chaptersMin}+ ch` : `${filters.chaptersMin}+ ep`;
+      parts.push(label);
+    }
     return parts;
-  }, [filters, defaultTypeOptions]);
+  }, [filters, defaultTypeOptions, mediaType]);
 
   const filterContent = (
     <div className={cn("space-y-6", className)}>
