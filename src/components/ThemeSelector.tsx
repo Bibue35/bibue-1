@@ -16,7 +16,7 @@ interface ThemeOption {
 }
 
 const themes: ThemeOption[] = [
-  { id: "moonlight", label: "Moonlight", flavor: "celestial", mode: "dark", preview: { bg: "#050505", fg: "#F7F7F7", accent: "#E5A100" } },
+  { id: "moonlight", label: "Moonlight", flavor: "celestial", mode: "dark", preview: { bg: "#050505", fg: "#F7F7F7", accent: "#3B82F6" } },
   { id: "sunlight", label: "Sunlight", flavor: "celestial", mode: "light", preview: { bg: "#F5EDDF", fg: "#1A1610", accent: "#E5A100" } },
   { id: "monochrome", label: "Mono", flavor: "monochrome", mode: "dark", preview: { bg: "#000000", fg: "#E6E6E6", accent: "#E6E6E6" } },
   { id: "contrast", label: "Contrast", flavor: "contrast", mode: "light", preview: { bg: "#FFFFFF", fg: "#000000", accent: "#000000" } },
