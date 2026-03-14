@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 
 const CATEGORIES = [
+  { value: "bug", label: "🐛 Bug Report" },
   { value: "upload", label: "Upload Issues" },
   { value: "payment", label: "Revenue & Payouts" },
   { value: "technical", label: "Technical" },
