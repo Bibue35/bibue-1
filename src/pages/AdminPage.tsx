@@ -143,6 +143,7 @@ export default function AdminPage() {
           {activeTab === "analytics" && <AnalyticsTab />}
           {activeTab === "payouts" && <PayoutsTab />}
           {activeTab === "support" && <SupportTicketsTab />}
+          {activeTab === "bugs" && <BugRoadmapTab />}
         </div>
       </main>
     </div>

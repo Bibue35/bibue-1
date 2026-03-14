@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Bug } from "lucide-react";
+import { ReportBugDialog } from "@/components/ReportBugDialog";
 
 const FOOTER_LINKS = [
   { to: "/manga", label: "Browse" },
@@ -11,6 +14,8 @@ const FOOTER_LINKS = [
 ];
 
 export function Footer() {
+  const [bugOpen, setBugOpen] = useState(false);
+
   return (
     <footer role="contentinfo" className="border-t border-border/10 bg-background">
       <div className="container mx-auto px-4 sm:px-6 py-16 sm:py-20">
@@ -35,6 +40,13 @@ export function Footer() {
               {link.label}
             </Link>
           ))}
+          <button
+            onClick={() => setBugOpen(true)}
+            className="text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors duration-300 tracking-wide uppercase flex items-center gap-1.5"
+          >
+            <Bug className="w-3.5 h-3.5" />
+            Report Bug
+          </button>
         </nav>
 
         {/* Copyright */}
@@ -42,6 +54,8 @@ export function Footer() {
           &copy; {new Date().getFullYear()} Bibue. All rights reserved.
         </p>
       </div>
+
+      <ReportBugDialog open={bugOpen} onOpenChange={setBugOpen} />
     </footer>
   );
 }
