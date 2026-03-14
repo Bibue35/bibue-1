@@ -249,20 +249,15 @@ export function CollapsibleNavbar() {
                   key={link.href}
                   to={link.href}
                   className={cn(
-                    "block py-4 border-b border-border/10",
+                    "block py-4 border-b border-foreground/10",
                     "transition-all duration-300 ease-out",
                     isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4",
-                    location.pathname === link.href
-                      ? "[&_.nav-label]:text-foreground"
-                      : "hover:pl-2"
+                    location.pathname !== link.href && "hover:pl-2"
                   )}
                   style={{ transitionDelay: isMobileMenuOpen ? `${200 + i * 60}ms` : "0ms" }}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <span className={cn(
-                    "nav-label block text-2xl font-sacred font-bold tracking-wide",
-                    location.pathname === link.href ? "text-foreground" : "text-muted-foreground"
-                  )}>
+                  <span className="nav-label block text-2xl font-sacred font-bold tracking-wide text-foreground">
                     {link.label}
                   </span>
                   <span className="block text-[11px] text-muted-foreground/50 tracking-wide mt-0.5">
@@ -271,7 +266,7 @@ export function CollapsibleNavbar() {
                 </Link>
               ))}
 
-              <div className="my-2 h-px bg-border/15" />
+              <div className="my-2 h-px bg-foreground/10" />
 
               <div className={cn(
                 "transition-all duration-300 ease-out",
@@ -280,7 +275,7 @@ export function CollapsibleNavbar() {
                 <ThemeSelector variant="text" />
               </div>
 
-              <div className="my-2 h-px bg-border/15" />
+              <div className="my-2 h-px bg-foreground/10" />
 
               {user ? (
                 <Link
