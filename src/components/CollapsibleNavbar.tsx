@@ -237,65 +237,72 @@ export function CollapsibleNavbar() {
           </div>
 
           {/* Nav links */}
-          <div className="space-y-0 flex-1">
-            {[
-              { href: "/manga", label: "Browse" },
-              { href: "/originals", label: "Originals" },
-              { href: "/studio", label: "Studio" },
-              { href: "/community", label: "Community" },
-            ].map((link, i) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className={cn(
-                  "block py-4 text-2xl font-sacred font-bold tracking-wide border-b border-border/10",
-                  "transition-all duration-300 ease-out",
-                  isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4",
-                  location.pathname === link.href
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:pl-2"
-                )}
-                style={{ transitionDelay: isMobileMenuOpen ? `${200 + i * 60}ms` : "0ms" }}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="flex-1 flex flex-col">
+            <div className="flex-1">
+              {[
+                { href: "/manga", label: "Browse" },
+                { href: "/originals", label: "Originals" },
+                { href: "/studio", label: "Studio" },
+                { href: "/community", label: "Community" },
+              ].map((link, i) => (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={cn(
+                    "block py-4 text-2xl font-sacred font-bold tracking-wide",
+                    "transition-all duration-300 ease-out",
+                    isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4",
+                    location.pathname === link.href
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:pl-2"
+                  )}
+                  style={{ transitionDelay: isMobileMenuOpen ? `${200 + i * 60}ms` : "0ms" }}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
 
-            <div className={cn(
-              "transition-all duration-300 ease-out",
-              isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
-            )} style={{ transitionDelay: isMobileMenuOpen ? "440ms" : "0ms" }}>
-              <ThemeSelector variant="text" />
+              <div className="my-2 h-px bg-border/15" />
+
+              <div className={cn(
+                "transition-all duration-300 ease-out",
+                isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+              )} style={{ transitionDelay: isMobileMenuOpen ? "440ms" : "0ms" }}>
+                <ThemeSelector variant="text" />
+              </div>
+
+              <div className="my-2 h-px bg-border/15" />
+
+              {user ? (
+                <Link
+                  to="/settings"
+                  className={cn(
+                    "block py-4 text-2xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 ease-out",
+                    isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+                  )}
+                  style={{ transitionDelay: isMobileMenuOpen ? "500ms" : "0ms" }}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Settings
+                </Link>
+              ) : (
+                <div className={cn(
+                  "pt-6 transition-all duration-300 ease-out",
+                  isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+                )} style={{ transitionDelay: isMobileMenuOpen ? "500ms" : "0ms" }}>
+                  <button
+                    onClick={() => {
+                      setAuthModalOpen(true);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="w-full py-3 px-6 rounded-full border border-border/30 text-sm font-medium tracking-widest uppercase text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all duration-300 btn-press"
+                  >
+                    Sign In
+                  </button>
+                </div>
+              )}
             </div>
-
-            {user ? (
-              <Link
-                to="/settings"
-                className={cn(
-                  "block py-4 text-2xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 ease-out border-b border-border/10",
-                  isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
-                )}
-                style={{ transitionDelay: isMobileMenuOpen ? "500ms" : "0ms" }}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Settings
-              </Link>
-            ) : (
-              <button
-                onClick={() => {
-                  setAuthModalOpen(true);
-                  setIsMobileMenuOpen(false);
-                }}
-                className={cn(
-                  "block py-4 text-2xl font-sacred font-bold tracking-wide text-muted-foreground hover:text-foreground hover:pl-2 transition-all duration-300 ease-out w-full text-left",
-                  isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
-                )}
-                style={{ transitionDelay: isMobileMenuOpen ? "500ms" : "0ms" }}
-              >
-                Sign In
-              </button>
-            )}
           </div>
         </div>
       </div>
