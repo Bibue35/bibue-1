@@ -218,6 +218,21 @@ export function FilterBar({
         </div>
       </FilterSection>
 
+      {/* Chapters / Episodes */}
+      <FilterSection label={mediaType === "manga" ? "Min Chapters" : "Min Episodes"}>
+        <div className="flex flex-wrap gap-1.5">
+          {CHAPTER_RANGES.map(c => (
+            <Pill
+              key={c.value}
+              active={filters.chaptersMin === c.value}
+              onClick={() => onFilterChange("chaptersMin", filters.chaptersMin === c.value ? null : c.value)}
+            >
+              {c.label}
+            </Pill>
+          ))}
+        </div>
+      </FilterSection>
+
       {/* Reset */}
       {activeCount > 0 && (
         <button
