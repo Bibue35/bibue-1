@@ -40,9 +40,9 @@ export function getContentUnit(type: ContentType): string {
  */
 export function getContentTypeBadgeClass(type: ContentType): string {
   switch (type) {
-    case 'anime': return 'bg-primary/15 text-primary';
-    case 'manga': return 'bg-destructive/15 text-destructive';
-    case 'manhwa': return 'bg-blue-500/15 text-blue-400';
-    case 'manhua': return 'bg-yellow-500/15 text-yellow-400';
+    case 'anime': return 'bg-foreground/10 text-foreground';
+    case 'manga': return 'bg-foreground/10 text-foreground';
+    case 'manhwa': return 'bg-foreground/10 text-foreground';
+    case 'manhua': return 'bg-foreground/10 text-foreground';
   }
 }

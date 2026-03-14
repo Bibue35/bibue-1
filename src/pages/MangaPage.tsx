@@ -102,11 +102,11 @@ function GenreSwipeBar({ onSelect, activeGenre }: { onSelect: (id: string | null
 
   return (
     <div className="relative -mx-4 px-4 overflow-x-auto hide-scrollbar">
-      <div className="flex items-center gap-1.5 sm:gap-2 py-1 w-max">
+      <div className="flex items-center gap-1.5 py-1 w-max">
         {activeGenre && (
           <button
             onClick={() => handleSelect(null)}
-            className="flex-shrink-0 inline-flex items-center gap-1 px-3 py-2.5 min-h-[36px] rounded-full text-xs font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors active:scale-95"
+            className="flex-shrink-0 inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors btn-press"
           >
             <X className="w-3 h-3" /> Clear
           </button>
@@ -116,10 +116,10 @@ function GenreSwipeBar({ onSelect, activeGenre }: { onSelect: (id: string | null
             key={g.id}
             onClick={() => handleSelect(activeGenre === g.id ? null : g.id)}
             className={cn(
-              "flex-shrink-0 px-3 sm:px-3.5 py-2 sm:py-2 min-h-[36px] rounded-full text-[11px] sm:text-sm font-medium transition-all duration-200 whitespace-nowrap active:scale-95",
+              "flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 whitespace-nowrap btn-press",
               activeGenre === g.id
-                ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                ? "filter-pill-active"
+                : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
             )}
           >
             {g.name}
@@ -253,8 +253,8 @@ export default function MangaPage() {
             />
           </div>
 
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-1 line-clamp-1">
-            {genreId ? `${genreName}` : isSearching ? `"${debouncedSearch}"` : "Browse Manga"}
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-sacred font-bold tracking-tight mb-1 line-clamp-1">
+            {genreId ? genreName : isSearching ? `"${debouncedSearch}"` : "Browse"}
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mb-5 sm:mb-6">
             {genreId
@@ -280,16 +280,22 @@ export default function MangaPage() {
             </div>
           )}
 
-          <div className="flex items-center gap-2 mt-3">
+          <div className="flex items-center gap-1.5 mt-3">
             <div className="flex-1" />
             {user && (
-              <Button variant="ghost" size="sm" className="rounded-full gap-1.5 text-xs" asChild>
-                <Link to="/recommendations"><Sparkles className="w-3.5 h-3.5" /> For You</Link>
-              </Button>
+              <Link
+                to="/recommendations"
+                className="px-3.5 py-1.5 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all duration-200 btn-press"
+              >
+                For You
+              </Link>
             )}
-            <Button variant="ghost" size="sm" className="rounded-full gap-1.5 text-xs" asChild>
-              <Link to="/watchlist?type=manga"><Bookmark className="w-3.5 h-3.5" /> Saved</Link>
-            </Button>
+            <Link
+              to="/watchlist?type=manga"
+              className="px-3.5 py-1.5 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all duration-200 btn-press"
+            >
+              Saved
+            </Link>
           </div>
         </div>
       </section>
