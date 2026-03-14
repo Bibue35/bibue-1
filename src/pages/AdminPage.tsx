@@ -25,8 +25,10 @@ import {
 import { SupportTicketsTab } from "@/components/admin/SupportTicketsTab";
 import { AdminChapterComments } from "@/components/admin/AdminChapterComments";
 import { StudioSubmissionsTab } from "@/components/admin/StudioSubmissionsTab";
+import { BugRoadmapTab } from "@/components/admin/BugRoadmapTab";
+import { Bug } from "lucide-react";
 
-type Tab = "overview" | "creators" | "series" | "moderation" | "comments" | "analytics" | "payouts" | "support" | "studio";
+type Tab = "overview" | "creators" | "series" | "moderation" | "comments" | "analytics" | "payouts" | "support" | "studio" | "bugs";
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -35,6 +37,7 @@ const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "series", label: "All Series", icon: BookOpen },
   { id: "moderation", label: "Moderation", icon: AlertTriangle },
   { id: "comments", label: "Comments", icon: MessageCircle },
+  { id: "bugs", label: "Bug Roadmap", icon: Bug },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "payouts", label: "Payouts", icon: DollarSign },
   { id: "support", label: "Support Tickets", icon: Headphones },
