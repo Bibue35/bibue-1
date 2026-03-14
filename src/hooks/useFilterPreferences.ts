@@ -8,6 +8,7 @@ export interface FilterState {
   sort: string;
   scoreMin: number | null;
   search: string;
+  chaptersMin: number | null;
 }
 
 const DEFAULT_FILTERS: FilterState = {
@@ -18,6 +19,7 @@ const DEFAULT_FILTERS: FilterState = {
   sort: "popularity",
   scoreMin: null,
   search: "",
+  chaptersMin: null,
 };
 
 const STORAGE_KEY = "bibue_filter_prefs";
@@ -64,6 +66,7 @@ export function useFilterPreferences(context: string) {
     filters.type,
     filters.sort !== "popularity" ? filters.sort : null,
     filters.scoreMin,
+    filters.chaptersMin,
   ].filter(Boolean).length;
 
   return { filters, updateFilter, resetFilters, setFilters, activeCount };

@@ -29,7 +29,8 @@ const STATUSES = [
   { value: "RELEASING", label: "Ongoing" },
   { value: "FINISHED", label: "Completed" },
   { value: "NOT_YET_RELEASED", label: "Upcoming" },
-  { value: "HIATUS", label: "Hiatus" },
+  { value: "HIATUS", label: "On Hiatus" },
+  { value: "CANCELLED", label: "Cancelled" },
 ];
 
 const SORTS = [
@@ -46,6 +47,14 @@ const SCORE_RANGES = [
   { value: 80, label: "8+" },
   { value: 70, label: "7+" },
   { value: 60, label: "6+" },
+];
+
+const CHAPTER_RANGES = [
+  { value: 10, label: "10+" },
+  { value: 50, label: "50+" },
+  { value: 100, label: "100+" },
+  { value: 200, label: "200+" },
+  { value: 500, label: "500+" },
 ];
 
 interface FilterBarProps {
