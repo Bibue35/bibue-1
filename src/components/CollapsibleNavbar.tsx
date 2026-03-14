@@ -275,7 +275,7 @@ export function CollapsibleNavbar() {
                 <ThemeSelector variant="text" />
               </div>
 
-              <div className="my-2 h-px bg-border/15" />
+              <div className="my-2 h-px bg-foreground/10" />
 
               {user ? (
                 <Link
