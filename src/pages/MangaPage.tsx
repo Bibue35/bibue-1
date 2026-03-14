@@ -280,16 +280,22 @@ export default function MangaPage() {
             </div>
           )}
 
-          <div className="flex items-center gap-2 mt-3">
+          <div className="flex items-center gap-1.5 mt-3">
             <div className="flex-1" />
             {user && (
-              <Button variant="ghost" size="sm" className="rounded-full gap-1.5 text-xs" asChild>
-                <Link to="/recommendations"><Sparkles className="w-3.5 h-3.5" /> For You</Link>
-              </Button>
+              <Link
+                to="/recommendations"
+                className="px-3.5 py-1.5 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all duration-200 btn-press"
+              >
+                For You
+              </Link>
             )}
-            <Button variant="ghost" size="sm" className="rounded-full gap-1.5 text-xs" asChild>
-              <Link to="/watchlist?type=manga"><Bookmark className="w-3.5 h-3.5" /> Saved</Link>
-            </Button>
+            <Link
+              to="/watchlist?type=manga"
+              className="px-3.5 py-1.5 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all duration-200 btn-press"
+            >
+              Saved
+            </Link>
           </div>
         </div>
       </section>
