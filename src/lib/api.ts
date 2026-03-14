@@ -972,6 +972,7 @@ export interface FilterParams {
   sort?: string;
   scoreMin?: number | null;
   search?: string;
+  chaptersMin?: number | null;
 }
 
 function buildYearVariables(year: string | null | undefined): { seasonYear?: number; startDateGreater?: number; startDateLesser?: number } {
