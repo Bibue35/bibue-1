@@ -242,9 +242,9 @@ export function CollapsibleNavbar() {
               {[
                 { href: "/manga", label: "Browse", sub: "Discover manga" },
                 { href: "/originals", label: "Originals", sub: "Bibue exclusives" },
-                { href: "/studio", label: "Studio", sub: "Create & publish" },
+                { href: "/watchlist", label: "Library", sub: "Your bookmarks", requiresAuth: true },
                 { href: "/community", label: "Community", sub: "Discuss & connect" },
-              ].map((link, i) => (
+              ].filter(l => !('requiresAuth' in l && l.requiresAuth) || user).map((link, i) => (
                 <Link
                   key={link.href}
                   to={link.href}

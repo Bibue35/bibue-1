@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 const NAV_ITEMS = [
   { href: "/manga", label: "Browse" },
   { href: "/originals", label: "Originals" },
-  { href: "/studio", label: "Studio" },
+  { href: "/watchlist", label: "Library", requiresAuth: true },
 ];
 
 export function MobileBottomNav() {
@@ -49,7 +49,7 @@ export function MobileBottomNav() {
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         <div className="flex items-stretch justify-around">
-          {NAV_ITEMS.map((item) => {
+          {NAV_ITEMS.filter(item => !('requiresAuth' in item && item.requiresAuth) || user).map((item) => {
             const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/");
             return (
               <Link
