@@ -253,8 +253,8 @@ export default function MangaPage() {
             />
           </div>
 
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-1 line-clamp-1">
-            {genreId ? `${genreName}` : isSearching ? `"${debouncedSearch}"` : "Browse Manga"}
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-sacred font-bold tracking-tight mb-1 line-clamp-1">
+            {genreId ? genreName : isSearching ? `"${debouncedSearch}"` : "Browse"}
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mb-5 sm:mb-6">
             {genreId
