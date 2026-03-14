@@ -29,7 +29,8 @@ const STATUSES = [
   { value: "RELEASING", label: "Ongoing" },
   { value: "FINISHED", label: "Completed" },
   { value: "NOT_YET_RELEASED", label: "Upcoming" },
-  { value: "HIATUS", label: "Hiatus" },
+  { value: "HIATUS", label: "On Hiatus" },
+  { value: "CANCELLED", label: "Cancelled" },
 ];
 
 const SORTS = [
@@ -46,6 +47,14 @@ const SCORE_RANGES = [
   { value: 80, label: "8+" },
   { value: 70, label: "7+" },
   { value: 60, label: "6+" },
+];
+
+const CHAPTER_RANGES = [
+  { value: 10, label: "10+" },
+  { value: 50, label: "50+" },
+  { value: 100, label: "100+" },
+  { value: 200, label: "200+" },
+  { value: 500, label: "500+" },
 ];
 
 interface FilterBarProps {
@@ -108,8 +117,12 @@ export function FilterBar({
       if (statusLabel) parts.push(statusLabel);
     }
     if (filters.scoreMin) parts.push(`${filters.scoreMin / 10}+`);
+    if (filters.chaptersMin) {
+      const label = mediaType === "manga" ? `${filters.chaptersMin}+ ch` : `${filters.chaptersMin}+ ep`;
+      parts.push(label);
+    }
     return parts;
-  }, [filters, defaultTypeOptions]);
+  }, [filters, defaultTypeOptions, mediaType]);
 
   const filterContent = (
     <div className={cn("space-y-6", className)}>
@@ -200,6 +213,21 @@ export function FilterBar({
               onClick={() => onFilterChange("scoreMin", filters.scoreMin === s.value ? null : s.value)}
             >
               {s.label}
+            </Pill>
+          ))}
+        </div>
+      </FilterSection>
+
+      {/* Chapters / Episodes */}
+      <FilterSection label={mediaType === "manga" ? "Min Chapters" : "Min Episodes"}>
+        <div className="flex flex-wrap gap-1.5">
+          {CHAPTER_RANGES.map(c => (
+            <Pill
+              key={c.value}
+              active={filters.chaptersMin === c.value}
+              onClick={() => onFilterChange("chaptersMin", filters.chaptersMin === c.value ? null : c.value)}
+            >
+              {c.label}
             </Pill>
           ))}
         </div>
@@ -342,6 +370,9 @@ export function FilterBar({
           )}
           {filters.scoreMin && (
             <ActiveChip label={`Score: ${filters.scoreMin / 10}+`} onRemove={() => onFilterChange("scoreMin", null)} />
+          )}
+          {filters.chaptersMin && (
+            <ActiveChip label={`${mediaType === "manga" ? "Chapters" : "Episodes"}: ${filters.chaptersMin}+`} onRemove={() => onFilterChange("chaptersMin", null)} />
           )}
         </div>
       )}

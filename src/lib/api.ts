@@ -972,6 +972,7 @@ export interface FilterParams {
   sort?: string;
   scoreMin?: number | null;
   search?: string;
+  chaptersMin?: number | null;
 }
 
 function buildYearVariables(year: string | null | undefined): { seasonYear?: number; startDateGreater?: number; startDateLesser?: number } {
@@ -1028,7 +1029,11 @@ export async function getFilteredManga(filters: FilterParams, page = 1, limit = 
     scoreMin: filters.scoreMin || undefined,
     ...yearVars,
   });
-  return data.Page.media.map(m => toManga(m, language));
+  let results = data.Page.media.map(m => toManga(m, language));
+  if (filters.chaptersMin) {
+    results = results.filter(m => (m.chapters || 0) >= filters.chaptersMin!);
+  }
+  return results;
 }
 
 export async function getFilteredAnime(filters: FilterParams, page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Anime[]> {
@@ -1060,7 +1065,11 @@ export async function getFilteredAnime(filters: FilterParams, page = 1, limit = 
     scoreMin: filters.scoreMin || undefined,
     ...yearVars,
   });
-  return data.Page.media.map(m => toAnime(m, language));
+  let results = data.Page.media.map(m => toAnime(m, language));
+  if (filters.chaptersMin) {
+    results = results.filter(a => (a.episodes || 0) >= filters.chaptersMin!);
+  }
+  return results;
 }
 
 // News - AniList doesn't have news, return empty

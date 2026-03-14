@@ -443,6 +443,7 @@ function filterStateToParams(filters: FilterState): FilterParams {
     sort: filters.sort,
     scoreMin: filters.scoreMin,
     search: filters.search,
+    chaptersMin: filters.chaptersMin,
   };
 }
 
