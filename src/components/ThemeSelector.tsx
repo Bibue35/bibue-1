@@ -33,6 +33,7 @@ function getCurrentThemeId(flavor: string, resolvedMode: string): string {
 export function ThemeSelector({ variant = "icon" }: ThemeSelectorProps) {
   const { flavor, resolvedMode, setMode, setFlavor } = useThemeContext();
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const currentId = getCurrentThemeId(flavor, resolvedMode);
 
   const applyTheme = useCallback(
@@ -40,6 +41,7 @@ export function ThemeSelector({ variant = "icon" }: ThemeSelectorProps) {
       setFlavor(t.flavor);
       setMode(t.mode);
       setOpen(false);
+      setExpanded(false);
     },
     [setMode, setFlavor]
   );
@@ -47,22 +49,71 @@ export function ThemeSelector({ variant = "icon" }: ThemeSelectorProps) {
   const currentTheme = themes.find((t) => t.id === currentId);
   const currentLabel = currentTheme?.label ?? "Theme";
 
+  // Mobile: inline expand (no Popover — avoids transform/z-index issues)
   if (variant === "text") {
     return (
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <button className="flex items-center gap-3 py-4 text-3xl font-sacred font-bold tracking-wide transition-all duration-300 w-full text-left border-b border-border/10 text-muted-foreground hover:text-foreground hover:pl-2">
-            <span
-              className="w-3 h-3 rounded-full shrink-0 ring-1 ring-foreground/10"
-              style={{ background: currentTheme?.preview.accent }}
-            />
-            {currentLabel}
-          </button>
-        </PopoverTrigger>
-        <PopoverContent align="start" className="w-72 p-3" sideOffset={4}>
-          <ThemeGrid currentId={currentId} onSelect={applyTheme} />
-        </PopoverContent>
-      </Popover>
+      <div className="border-b border-border/10">
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="flex items-center justify-between py-4 text-2xl font-sacred font-bold tracking-wide transition-all duration-300 w-full text-left text-muted-foreground hover:text-foreground hover:pl-2"
+        >
+          <span>
+            Theme{" "}
+            <span className="text-foreground/60 text-lg">· {currentLabel}</span>
+          </span>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={cn(
+              "transition-transform duration-200 text-muted-foreground/50",
+              expanded && "rotate-180"
+            )}
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+        <div
+          className={cn(
+            "overflow-hidden transition-all duration-300 ease-out",
+            expanded ? "max-h-48 opacity-100 pb-3" : "max-h-0 opacity-0"
+          )}
+        >
+          <div className="grid grid-cols-2 gap-2">
+            {themes.map((t) => {
+              const active = currentId === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => applyTheme(t)}
+                  className={cn(
+                    "flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all duration-200",
+                    active
+                      ? "ring-2 ring-foreground/30 bg-foreground/5"
+                      : "hover:bg-foreground/5"
+                  )}
+                >
+                  <div
+                    className="w-full aspect-[3/2] rounded-lg overflow-hidden flex items-end p-1.5"
+                    style={{ background: t.preview.bg }}
+                  >
+                    <div className="flex gap-1">
+                      <div className="w-3 h-1 rounded-full" style={{ background: t.preview.accent }} />
+                      <div className="w-5 h-1 rounded-full" style={{ background: t.preview.fg, opacity: 0.3 }} />
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-medium text-foreground/70">{t.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -99,7 +150,6 @@ function ThemeGrid({ currentId, onSelect }: { currentId: string; onSelect: (t: T
                 : "hover:bg-foreground/5"
             )}
           >
-            {/* Color swatch */}
             <div
               className="w-full aspect-[3/2] rounded-lg overflow-hidden flex items-end p-1.5"
               style={{ background: t.preview.bg }}
