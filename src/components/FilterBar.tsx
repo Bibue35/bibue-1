@@ -371,6 +371,9 @@ export function FilterBar({
           {filters.scoreMin && (
             <ActiveChip label={`Score: ${filters.scoreMin / 10}+`} onRemove={() => onFilterChange("scoreMin", null)} />
           )}
+          {filters.chaptersMin && (
+            <ActiveChip label={`${mediaType === "manga" ? "Chapters" : "Episodes"}: ${filters.chaptersMin}+`} onRemove={() => onFilterChange("chaptersMin", null)} />
+          )}
         </div>
       )}
     </div>
