@@ -27,12 +27,12 @@ interface DiscussionCardProps {
 }
 
 const categoryColors: Record<string, string> = {
-  general: "bg-foreground/10 text-foreground",
-  anime: "bg-pink-500/20 text-pink-400",
-  manga: "bg-blue-500/20 text-blue-400",
-  recommendations: "bg-green-500/20 text-green-400",
-  news: "bg-yellow-500/20 text-yellow-400",
-  spoilers: "bg-red-500/20 text-red-400",
+  general: "bg-foreground/8 text-foreground/80",
+  anime: "bg-foreground/8 text-foreground/80",
+  manga: "bg-foreground/8 text-foreground/80",
+  recommendations: "bg-foreground/8 text-foreground/80",
+  news: "bg-foreground/8 text-foreground/80",
+  spoilers: "bg-destructive/10 text-destructive",
 };
 
 export function DiscussionCard({ discussion }: DiscussionCardProps) {
