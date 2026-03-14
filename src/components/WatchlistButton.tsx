@@ -4,6 +4,9 @@ import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import { useState, lazy, Suspense } from "react";
+
+const AuthModal = lazy(() => import("./AuthModal").then(m => ({ default: m.AuthModal })));
 
 interface WatchlistButtonProps {
   mal_id: number;
@@ -29,8 +32,9 @@ export function WatchlistButton({
   const { user } = useAuth();
   const { t } = useLanguage();
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
-  const inWatchlist = isInWatchlist(mal_id, media_type);
+  const inWatchlist = user ? isInWatchlist(mal_id, media_type) : false;
   const isLoading = addToWatchlist.isPending || removeFromWatchlist.isPending;
 
   const handleClick = (e: React.MouseEvent) => {
@@ -38,6 +42,7 @@ export function WatchlistButton({
     e.preventDefault();
 
     if (!user) {
+      setAuthModalOpen(true);
       return;
     }
 
@@ -55,47 +60,57 @@ export function WatchlistButton({
     }
   };
 
-  if (!user) {
-    return null;
-  }
-
   if (variant === "full") {
     return (
+      <>
+        <Button
+          variant={inWatchlist ? "secondary" : "outline"}
+          size="sm"
+          onClick={handleClick}
+          disabled={isLoading}
+          className={cn("gap-2", className)}
+        >
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Heart className={cn("w-4 h-4", inWatchlist && "fill-current")} />
+          )}
+          {inWatchlist ? t("status.inWatchlist") : t("status.addToWatchlist")}
+        </Button>
+        {authModalOpen && (
+          <Suspense fallback={null}>
+            <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+          </Suspense>
+        )}
+      </>
+    );
+  }
+
+  return (
+    <>
       <Button
-        variant={inWatchlist ? "secondary" : "outline"}
-        size="sm"
+        variant="ghost"
+        size="icon"
         onClick={handleClick}
         disabled={isLoading}
-        className={cn("gap-2", className)}
+        aria-label={inWatchlist ? `Remove ${title} from watchlist` : `Add ${title} to watchlist`}
+        className={cn(
+          "rounded-full h-8 w-8",
+          inWatchlist && "text-destructive hover:text-destructive/80",
+          className
+        )}
       >
         {isLoading ? (
           <Loader2 className="w-4 h-4 animate-spin" />
         ) : (
           <Heart className={cn("w-4 h-4", inWatchlist && "fill-current")} />
         )}
-        {inWatchlist ? t("status.inWatchlist") : t("status.addToWatchlist")}
       </Button>
-    );
-  }
-
-  return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={handleClick}
-      disabled={isLoading}
-      aria-label={inWatchlist ? `Remove ${title} from watchlist` : `Add ${title} to watchlist`}
-      className={cn(
-        "rounded-full h-8 w-8",
-        inWatchlist && "text-destructive hover:text-destructive/80",
-        className
+      {authModalOpen && (
+        <Suspense fallback={null}>
+          <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+        </Suspense>
       )}
-    >
-      {isLoading ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
-      ) : (
-        <Heart className={cn("w-4 h-4", inWatchlist && "fill-current")} />
-      )}
-    </Button>
+    </>
   );
 }
