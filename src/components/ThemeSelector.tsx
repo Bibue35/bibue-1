@@ -52,66 +52,39 @@ export function ThemeSelector({ variant = "icon" }: ThemeSelectorProps) {
   // Mobile: inline expand (no Popover — avoids transform/z-index issues)
   if (variant === "text") {
     return (
-      <div className="border-b border-border/10">
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="flex items-center justify-between py-4 text-2xl font-sacred font-bold tracking-wide transition-all duration-300 w-full text-left text-muted-foreground hover:text-foreground hover:pl-2"
-        >
-          <span>
-            Theme{" "}
-            <span className="text-foreground/60 text-lg">· {currentLabel}</span>
-          </span>
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={cn(
-              "transition-transform duration-200 text-muted-foreground/50",
-              expanded && "rotate-180"
-            )}
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </button>
-        <div
-          className={cn(
-            "overflow-hidden transition-all duration-300 ease-out",
-            expanded ? "max-h-48 opacity-100 pb-3" : "max-h-0 opacity-0"
-          )}
-        >
-          <div className="grid grid-cols-2 gap-2">
-            {themes.map((t) => {
-              const active = currentId === t.id;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => applyTheme(t)}
-                  className={cn(
-                    "flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all duration-200",
-                    active
-                      ? "ring-2 ring-foreground/30 bg-foreground/5"
-                      : "hover:bg-foreground/5"
-                  )}
+      <div className="py-4 border-b border-border/10">
+        <div className="flex gap-2">
+          {themes.map((t) => {
+            const active = currentId === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => applyTheme(t)}
+                className={cn(
+                  "flex-1 flex flex-col items-center gap-1.5 py-2.5 px-1 rounded-xl transition-all duration-200",
+                  active
+                    ? "bg-foreground/10 ring-1 ring-foreground/20"
+                    : "hover:bg-foreground/5"
+                )}
+              >
+                <div
+                  className="w-full aspect-[3/2] rounded-lg overflow-hidden flex items-end p-1"
+                  style={{ background: t.preview.bg }}
                 >
-                  <div
-                    className="w-full aspect-[3/2] rounded-lg overflow-hidden flex items-end p-1.5"
-                    style={{ background: t.preview.bg }}
-                  >
-                    <div className="flex gap-1">
-                      <div className="w-3 h-1 rounded-full" style={{ background: t.preview.accent }} />
-                      <div className="w-5 h-1 rounded-full" style={{ background: t.preview.fg, opacity: 0.3 }} />
-                    </div>
+                  <div className="flex gap-0.5">
+                    <div className="w-2 h-0.5 rounded-full" style={{ background: t.preview.accent }} />
+                    <div className="w-3 h-0.5 rounded-full" style={{ background: t.preview.fg, opacity: 0.3 }} />
                   </div>
-                  <span className="text-[10px] font-medium text-foreground/70">{t.label}</span>
-                </button>
-              );
-            })}
-          </div>
+                </div>
+                <span className={cn(
+                  "text-[9px] font-medium tracking-wide",
+                  active ? "text-foreground" : "text-muted-foreground"
+                )}>
+                  {t.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
     );
