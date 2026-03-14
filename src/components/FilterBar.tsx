@@ -1,8 +1,9 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { FilterState } from "@/hooks/useFilterPreferences";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { SlidersHorizontal } from "lucide-react";
 
 /* ── Genre & Filter Data ─────────────────────── */
 
@@ -87,6 +88,28 @@ export function FilterBar({
           { value: "OVA", label: "OVA" },
         ];
   }, [typeOptions, mediaType]);
+
+  // Build summary of active filters for display
+  const activeFilterSummary = useMemo(() => {
+    const parts: string[] = [];
+    const currentSort = SORTS.find(s => s.value === filters.sort);
+    if (currentSort && filters.sort !== "popularity") parts.push(currentSort.label);
+    if (filters.type) {
+      const typeLabel = defaultTypeOptions.find(t => t.value === filters.type)?.label;
+      if (typeLabel) parts.push(typeLabel);
+    }
+    if (filters.genre) parts.push(filters.genre);
+    if (filters.year) {
+      const yearLabel = YEARS.find(y => y.value === filters.year)?.label;
+      if (yearLabel) parts.push(yearLabel);
+    }
+    if (filters.status) {
+      const statusLabel = STATUSES.find(s => s.value === filters.status)?.label;
+      if (statusLabel) parts.push(statusLabel);
+    }
+    if (filters.scoreMin) parts.push(`${filters.scoreMin / 10}+`);
+    return parts;
+  }, [filters, defaultTypeOptions]);
 
   const filterContent = (
     <div className={cn("space-y-6", className)}>
@@ -196,39 +219,82 @@ export function FilterBar({
 
   if (isMobile) {
     return (
-      <Drawer>
-        <DrawerTrigger asChild>
-          <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-medium tracking-wide uppercase bg-muted/50 text-muted-foreground hover:text-foreground transition-colors btn-press">
-            Filters
-            {activeCount > 0 && (
-              <span className="text-[10px] font-bold bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center">
-                {activeCount}
-              </span>
-            )}
-          </button>
-        </DrawerTrigger>
-        <DrawerContent className="px-6 pb-8 pt-4 max-h-[85vh] overflow-y-auto">
-          <div className="mx-auto w-12 h-1 rounded-full bg-muted mb-6" />
-          <h3 className="text-lg font-sacred font-bold tracking-wide mb-6">Filters</h3>
-          {filterContent}
-        </DrawerContent>
-      </Drawer>
+      <div className={className}>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Drawer>
+            <DrawerTrigger asChild>
+              <button className={cn(
+                "inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-medium tracking-wide uppercase transition-all btn-press",
+                activeCount > 0
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-foreground/10 text-foreground hover:bg-foreground/15"
+              )}>
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                Filters
+                {activeCount > 0 && (
+                  <span className="text-[10px] font-bold bg-primary-foreground text-primary rounded-full w-5 h-5 flex items-center justify-center">
+                    {activeCount}
+                  </span>
+                )}
+              </button>
+            </DrawerTrigger>
+            <DrawerContent className="px-6 pb-8 pt-4 max-h-[85vh] overflow-y-auto">
+              <div className="mx-auto w-12 h-1 rounded-full bg-muted mb-6" />
+              <h3 className="text-lg font-sacred font-bold tracking-wide mb-6">Filters</h3>
+              {filterContent}
+            </DrawerContent>
+          </Drawer>
+
+          {/* Show active filter chips inline on mobile */}
+          {activeFilterSummary.map((label) => (
+            <span key={label} className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-primary/10 text-primary">
+              {label}
+            </span>
+          ))}
+        </div>
+      </div>
     );
   }
 
   return (
     <div className={className}>
+      {/* Top bar: Filter toggle + quick sort + type pills + active chips */}
       <div className="flex items-center gap-3 mb-4">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground hover:text-foreground transition-colors btn-press"
+          className={cn(
+            "inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium tracking-wide uppercase transition-all btn-press",
+            activeCount > 0 || expanded
+              ? "bg-primary text-primary-foreground"
+              : "bg-foreground/10 text-foreground hover:bg-foreground/15"
+          )}
         >
+          <SlidersHorizontal className="w-3.5 h-3.5" />
           {expanded ? "Hide Filters" : "Filters"}
+          {activeCount > 0 && (
+            <span className={cn(
+              "text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center",
+              expanded ? "bg-primary-foreground text-primary" : "bg-primary-foreground text-primary"
+            )}>
+              {activeCount}
+            </span>
+          )}
         </button>
-        {activeCount > 0 && (
-          <span className="text-[10px] font-bold bg-primary/10 text-primary rounded-full px-2 py-0.5">
-            {activeCount} active
+
+        {/* Active filter summary chips shown inline */}
+        {activeFilterSummary.map((label) => (
+          <span key={label} className="inline-flex items-center px-2.5 py-1.5 rounded-full text-[11px] font-medium bg-primary/10 text-primary">
+            {label}
           </span>
+        ))}
+
+        {activeCount > 0 && (
+          <button
+            onClick={onReset}
+            className="text-[11px] font-medium text-destructive hover:text-destructive/80 transition-colors btn-press ml-auto"
+          >
+            Clear
+          </button>
         )}
       </div>
 
@@ -243,6 +309,7 @@ export function FilterBar({
             {s.label}
           </Pill>
         ))}
+        <span className="w-px h-6 bg-border/20 mx-1 self-center" />
         {defaultTypeOptions.map(t => (
           <Pill
             key={t.value}
@@ -261,8 +328,8 @@ export function FilterBar({
         </div>
       )}
 
-      {/* Active filter chips */}
-      {activeCount > 0 && (
+      {/* Active filter removable chips */}
+      {activeCount > 0 && !expanded && (
         <div className="flex flex-wrap gap-1.5 mt-3">
           {filters.genre && (
             <ActiveChip label={`Genre: ${filters.genre}`} onRemove={() => onFilterChange("genre", null)} />
@@ -271,7 +338,7 @@ export function FilterBar({
             <ActiveChip label={`Year: ${filters.year}`} onRemove={() => onFilterChange("year", null)} />
           )}
           {filters.status && (
-            <ActiveChip label={`Status: ${filters.status}`} onRemove={() => onFilterChange("status", null)} />
+            <ActiveChip label={`Status: ${STATUSES.find(s => s.value === filters.status)?.label || filters.status}`} onRemove={() => onFilterChange("status", null)} />
           )}
           {filters.scoreMin && (
             <ActiveChip label={`Score: ${filters.scoreMin / 10}+`} onRemove={() => onFilterChange("scoreMin", null)} />

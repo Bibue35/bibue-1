@@ -8,7 +8,7 @@ import { MangaCard } from "@/components/MangaCard";
 import { FilterBar } from "@/components/FilterBar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SectionError } from "@/components/SectionError";
-import { useTopAnime, useTopManga } from "@/hooks/useAnimeData";
+import { useInfiniteFilteredAnime, useInfiniteFilteredManga } from "@/hooks/useAnimeData";
 import { useFilterPreferences } from "@/hooks/useFilterPreferences";
 import { cn } from "@/lib/utils";
 
@@ -31,43 +31,17 @@ export default function RankingsPage() {
     setSearchParams({ type: activeType });
   }, [activeType, setSearchParams]);
 
-  // Map FilterBar sort to existing hook params
-  const animeFilter = animeFilters.status === "RELEASING" ? "airing" as const
-    : animeFilters.status === "NOT_YET_RELEASED" ? "upcoming" as const
-    : animeFilters.sort === "score" ? "favorite" as const
-    : undefined;
-  
-  const mangaType = mangaFilters.type as "manga" | "manhwa" | "manhua" | undefined || undefined;
+  const filters = activeType === "anime" ? animeFilters : mangaFilters;
 
-  const { data: animeData, isLoading: animeLoading, error: animeError, refetch: refetchAnime } = useTopAnime(1, animeFilter);
-  const { data: mangaData, isLoading: mangaLoading, error: mangaError, refetch: refetchManga } = useTopManga(1, mangaType);
+  // Use the unified filtered queries that pass ALL filters to the AniList API
+  const animeQuery = useInfiniteFilteredAnime(animeFilters);
+  const mangaQuery = useInfiniteFilteredManga(mangaFilters);
 
-  const data = activeType === "anime" ? animeData : mangaData;
-  const isLoading = activeType === "anime" ? animeLoading : mangaLoading;
-  const error = activeType === "anime" ? animeError : mangaError;
-  const refetch = activeType === "anime" ? refetchAnime : refetchManga;
-
-  // Client-side filtering for genre and score
-  const filteredData = data?.filter(item => {
-    const f = activeType === "anime" ? animeFilters : mangaFilters;
-    if (f.genre && !item.genres?.some(g => g.name === f.genre)) return false;
-    if (f.scoreMin && item.score && item.score * 10 < f.scoreMin) return false;
-    return true;
-  });
-
-  // Client-side sorting
-  const sortedData = (() => {
-    const f = activeType === "anime" ? animeFilters : mangaFilters;
-    if (!filteredData) return filteredData;
-    const list = [...filteredData];
-    switch (f.sort) {
-      case "score": return list.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
-      case "newest": return list.sort((a, b) => ((b as any).year ?? 0) - ((a as any).year ?? 0));
-      case "oldest": return list.sort((a, b) => ((a as any).year ?? 0) - ((b as any).year ?? 0));
-      case "alpha": return list.sort((a, b) => a.title.localeCompare(b.title));
-      default: return list;
-    }
-  })();
+  const query = activeType === "anime" ? animeQuery : mangaQuery;
+  const data = query.data?.pages.flat() || [];
+  const isLoading = query.isLoading;
+  const error = query.error;
+  const refetch = query.refetch;
 
   return (
     <div className="min-h-screen bg-background">
@@ -143,7 +117,7 @@ export default function RankingsPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 entrance-stagger">
-              {sortedData?.map((item, index) => (
+              {data?.map((item, index) => (
                 <div 
                   key={item.anilist_id}
                   className="relative"
@@ -167,6 +141,25 @@ export default function RankingsPage() {
                   )}
                 </div>
               ))}
+
+              {data.length === 0 && (
+                <div className="col-span-full text-center py-16">
+                  <p className="text-muted-foreground">No results found for these filters. Try adjusting your criteria.</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Load More */}
+          {query.hasNextPage && (
+            <div className="flex justify-center mt-12">
+              <button
+                onClick={() => query.fetchNextPage()}
+                disabled={query.isFetchingNextPage}
+                className="px-8 py-3 rounded-full text-sm font-medium tracking-wide uppercase bg-foreground/5 hover:bg-foreground/10 text-foreground transition-colors btn-press"
+              >
+                {query.isFetchingNextPage ? "Loading..." : "Load More"}
+              </button>
             </div>
           )}
         </div>
