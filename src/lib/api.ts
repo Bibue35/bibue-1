@@ -1029,7 +1029,11 @@ export async function getFilteredManga(filters: FilterParams, page = 1, limit = 
     scoreMin: filters.scoreMin || undefined,
     ...yearVars,
   });
-  return data.Page.media.map(m => toManga(m, language));
+  let results = data.Page.media.map(m => toManga(m, language));
+  if (filters.chaptersMin) {
+    results = results.filter(m => (m.chapters || 0) >= filters.chaptersMin!);
+  }
+  return results;
 }
 
 export async function getFilteredAnime(filters: FilterParams, page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Anime[]> {
