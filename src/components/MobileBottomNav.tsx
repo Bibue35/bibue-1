@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 const NAV_ITEMS = [
   { href: "/manga", label: "Browse" },
   { href: "/originals", label: "Originals" },
-  { href: "/studio", label: "Studio" },
+  { href: "/watchlist", label: "Library", requiresAuth: true },
 ];
 
 export function MobileBottomNav() {
