@@ -240,26 +240,34 @@ export function CollapsibleNavbar() {
           <div className="flex-1 flex flex-col">
             <div className="flex-1">
               {[
-                { href: "/manga", label: "Browse" },
-                { href: "/originals", label: "Originals" },
-                { href: "/studio", label: "Studio" },
-                { href: "/community", label: "Community" },
+                { href: "/manga", label: "Browse", sub: "Discover manga" },
+                { href: "/originals", label: "Originals", sub: "Bibue exclusives" },
+                { href: "/studio", label: "Studio", sub: "Create & publish" },
+                { href: "/community", label: "Community", sub: "Discuss & connect" },
               ].map((link, i) => (
                 <Link
                   key={link.href}
                   to={link.href}
                   className={cn(
-                    "block py-4 text-2xl font-sacred font-bold tracking-wide",
+                    "block py-4 border-b border-border/10",
                     "transition-all duration-300 ease-out",
                     isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4",
                     location.pathname === link.href
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:pl-2"
+                      ? "[&_.nav-label]:text-foreground"
+                      : "hover:pl-2"
                   )}
                   style={{ transitionDelay: isMobileMenuOpen ? `${200 + i * 60}ms` : "0ms" }}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  {link.label}
+                  <span className={cn(
+                    "nav-label block text-2xl font-sacred font-bold tracking-wide",
+                    location.pathname === link.href ? "text-foreground" : "text-muted-foreground"
+                  )}>
+                    {link.label}
+                  </span>
+                  <span className="block text-[11px] text-muted-foreground/50 tracking-wide mt-0.5">
+                    {link.sub}
+                  </span>
                 </Link>
               ))}
 
