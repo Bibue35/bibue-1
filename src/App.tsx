@@ -66,6 +66,8 @@ const CreatorProfile = lazy(() => import("./pages/CreatorProfile"));
 const SupportPage = lazy(() => import("./pages/SupportPage"));
 const StudioPage = lazy(() => import("./pages/StudioPage"));
 const ReferAndEarnPage = lazy(() => import("./pages/ReferAndEarnPage"));
+const SubscribePage = lazy(() => import("./pages/SubscribePage"));
+const BridgePage = lazy(() => import("./pages/BridgePage"));
 
 // Minimal loading fallback for route transitions
 const PageLoader = () => (
