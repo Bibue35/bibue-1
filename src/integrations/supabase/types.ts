@@ -86,6 +86,116 @@ export type Database = {
         }
         Relationships: []
       }
+      bridge_credits: {
+        Row: {
+          created_at: string
+          credits_remaining: number
+          credits_total: number
+          id: string
+          period_end: string
+          period_start: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits_remaining?: number
+          credits_total?: number
+          id?: string
+          period_end?: string
+          period_start?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits_remaining?: number
+          credits_total?: number
+          id?: string
+          period_end?: string
+          period_start?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      bridge_titles: {
+        Row: {
+          author: string | null
+          bridged_at: string | null
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          original_language: string
+          status: string
+          title: string
+          total_credits: number
+          unique_voters: number
+          updated_at: string
+        }
+        Insert: {
+          author?: string | null
+          bridged_at?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          original_language?: string
+          status?: string
+          title: string
+          total_credits?: number
+          unique_voters?: number
+          updated_at?: string
+        }
+        Update: {
+          author?: string | null
+          bridged_at?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          original_language?: string
+          status?: string
+          title?: string
+          total_credits?: number
+          unique_voters?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      bridge_votes: {
+        Row: {
+          created_at: string
+          credits_spent: number
+          id: string
+          title_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits_spent?: number
+          id?: string
+          title_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits_spent?: number
+          id?: string
+          title_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bridge_votes_title_id_fkey"
+            columns: ["title_id"]
+            isOneToOne: false
+            referencedRelation: "bridge_titles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chapter_comment_likes: {
         Row: {
           comment_id: string
@@ -1490,6 +1600,45 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          canceled_at: string | null
+          created_at: string
+          current_period_end: string
+          current_period_start: string
+          id: string
+          price_cents: number
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          price_cents?: number
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          price_cents?: number
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       support_tickets: {
         Row: {
           attachment_urls: string[] | null
@@ -2148,6 +2297,7 @@ export type Database = {
         Args: { p_media_id: number; p_media_type: string }
         Returns: undefined
       }
+      spend_bridge_credit: { Args: { p_title_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
