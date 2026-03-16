@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { SEO } from "@/components/SEO";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Library, Grid, List, Film, BookOpen, Trash2, Tag, BarChart3, Search, ArrowUpDown, BookmarkPlus } from "lucide-react";
+import { Library, Grid, List, Film, BookOpen, Trash2, Tag, BarChart3, Search, ArrowUpDown, BookmarkPlus, ChevronDown } from "lucide-react";
 import { QuickProgressButton } from "@/components/QuickProgressButton";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
