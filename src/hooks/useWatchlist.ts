@@ -84,7 +84,7 @@ export function useWatchlist() {
     }) => {
       if (!user) throw new Error("Must be logged in");
       
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("watchlist")
         .insert({
           user_id: user.id,
@@ -94,13 +94,10 @@ export function useWatchlist() {
           title_japanese: item.title_japanese || null,
           image_url: item.image_url || null,
           score: item.score || null,
-        })
-        .select("id, user_id, mal_id, media_type, title, title_japanese, image_url, score, status, category, notes, episodes_watched, chapters_read, last_episode_watched, last_chapter_read, created_at, updated_at")
-        .single();
+        });
 
       if (error) throw error;
-      await logActivity("added", item.mal_id, item.media_type, item.title, item.image_url);
-      return data;
+      void logActivity("added", item.mal_id, item.media_type, item.title, item.image_url);
     },
     // Optimistic update: immediately add to local cache
     onMutate: async (item) => {
