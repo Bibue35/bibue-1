@@ -56,7 +56,7 @@ export function CollapsibleNavbar() {
           if (scrollDelta > 10 && currentScrollY > 150) setIsVisible(false);
           else if (scrollDelta < -5 || currentScrollY < 50) setIsVisible(true);
         }
-        setIsScrolled(currentScrollY > 30);
+        setScrollOpacity(Math.min(1, currentScrollY / 150));
         scrollRef.current = currentScrollY;
         ticking = false;
       });
