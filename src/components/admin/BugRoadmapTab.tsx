@@ -193,6 +193,8 @@ export function BugRoadmapTab() {
           <Plus className="w-4 h-4" /> Add Bug
         </Button>
       </div>
+
+      {bugs.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
           <Bug className="w-12 h-12 mx-auto mb-3 opacity-30" />
           <p>No bug reports yet</p>
@@ -240,6 +242,41 @@ export function BugRoadmapTab() {
           })}
         </div>
       )}
+
+      <Dialog open={showAdd} onOpenChange={setShowAdd}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Bug className="w-5 h-5 text-primary" /> Add Bug
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={(e) => { e.preventDefault(); addBug.mutate(); }} className="space-y-4">
+            <div>
+              <Label>Summary</Label>
+              <Input value={newSubject} onChange={(e) => setNewSubject(e.target.value)} placeholder="Brief summary" maxLength={150} />
+            </div>
+            <div>
+              <Label>Severity</Label>
+              <Select value={newSeverity} onValueChange={setNewSeverity}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="minor">Minor</SelectItem>
+                  <SelectItem value="major">Major</SelectItem>
+                  <SelectItem value="critical">Critical</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Textarea value={newDescription} onChange={(e) => setNewDescription(e.target.value)} placeholder="Steps to reproduce, expected vs actual..." rows={4} maxLength={5000} />
+            </div>
+            <Button type="submit" className="w-full gap-2" disabled={addBug.isPending || !newSubject.trim() || !newDescription.trim()}>
+              {addBug.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+              Add Bug
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
