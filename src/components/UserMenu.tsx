@@ -175,8 +175,14 @@ export function UserMenu() {
           </Link>
         </DropdownMenuItem>
 
+        <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
+          <Link to="/subscribe">
+            <CreditCard className="w-4 h-4" />
+            <span>Subscribe</span>
+          </Link>
+        </DropdownMenuItem>
 
-        
+
         <DropdownMenuSeparator />
         
         <DropdownMenuLabel className="text-xs text-muted-foreground font-normal px-3">
