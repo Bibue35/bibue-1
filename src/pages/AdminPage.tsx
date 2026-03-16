@@ -28,12 +28,14 @@ import { SupportTicketsTab } from "@/components/admin/SupportTicketsTab";
 import { AdminChapterComments } from "@/components/admin/AdminChapterComments";
 import { StudioSubmissionsTab } from "@/components/admin/StudioSubmissionsTab";
 import { BugRoadmapTab } from "@/components/admin/BugRoadmapTab";
-import { Bug } from "lucide-react";
+import { UserManagement } from "@/components/admin/UserManagement";
+import { Bug, UserCog } from "lucide-react";
 
-type Tab = "overview" | "creators" | "series" | "moderation" | "comments" | "analytics" | "payouts" | "support" | "studio" | "bugs";
+type Tab = "overview" | "creators" | "series" | "moderation" | "comments" | "analytics" | "payouts" | "support" | "studio" | "bugs" | "users";
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "users", label: "User Management", icon: UserCog },
   { id: "studio", label: "Studio Submissions", icon: FileText },
   { id: "creators", label: "Creators", icon: Users },
   { id: "series", label: "All Series", icon: BookOpen },
@@ -154,6 +156,7 @@ export default function AdminPage() {
           {activeTab === "payouts" && <PayoutsTab />}
           {activeTab === "support" && <SupportTicketsTab />}
           {activeTab === "bugs" && <BugRoadmapTab />}
+          {activeTab === "users" && <UserManagement />}
         </div>
       </main>
     </div>
