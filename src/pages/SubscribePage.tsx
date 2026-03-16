@@ -26,18 +26,20 @@ const PLANS = [
   {
     key: "quarterly",
     label: "Quarterly",
-    price: 23.99,
+    price: 21.99,
     period: "/ 3 months",
     tagline: "Follow a full season of weekly releases.",
-    monthly: 7.99,
+    perMonth: 7.33,
+    save: 4.98,
   },
   {
     key: "annual",
     label: "Annual",
-    price: 85.99,
+    price: 74.99,
     period: "/ year",
     tagline: "Four seasons, one price — the best way to stay current.",
-    monthly: 7.16,
+    perMonth: 6.25,
+    save: 32.89,
   },
 ] as const;
 
@@ -93,9 +95,9 @@ export default function SubscribePage() {
             <p className="text-muted-foreground text-sm tracking-wide">
               {plan.period}
             </p>
-            {"monthly" in plan && (
+            {"perMonth" in plan && (
               <p className="text-xs text-primary mt-1.5 font-medium">
-                ${(plan as any).monthly.toFixed(2)}/mo — save vs monthly
+                ${plan.perMonth.toFixed(2)}/mo — save ${plan.save.toFixed(2)} vs monthly
               </p>
             )}
           </div>
