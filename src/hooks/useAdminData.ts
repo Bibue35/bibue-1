@@ -33,12 +33,13 @@ export function useAdminOverview() {
   return useQuery({
     queryKey: ["admin-overview"],
     queryFn: async () => {
-      const [creators, series, chapters, reports, payouts] = await Promise.all([
+      const [creators, series, chapters, reports, payouts, wishlist] = await Promise.all([
         supabase.from("creator_profiles").select("id", { count: "exact", head: true }),
         supabase.from("series").select("id", { count: "exact", head: true }),
         supabase.from("chapters").select("id", { count: "exact", head: true }),
         supabase.from("content_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("payouts").select("amount, status"),
+        supabase.from("subscription_wishlist").select("id", { count: "exact", head: true }),
       ]);
 
       const pendingPayouts = payouts.data?.filter(p => p.status === "pending") || [];
@@ -52,6 +53,7 @@ export function useAdminOverview() {
         pendingReports: reports.count || 0,
         pendingPayoutAmount: totalPending,
         totalPaid,
+        subscriptionWishlist: wishlist.count || 0,
       };
     },
   });

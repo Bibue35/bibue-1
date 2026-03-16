@@ -6,9 +6,12 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useBridgeCredits";
-import { Check } from "lucide-react";
+import { Check, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const FEATURES = [
   "Unlimited access to all licensed and bridged titles",
@@ -45,11 +48,52 @@ const PLANS = [
   },
 ] as const;
 
+function useSubscriptionWishlist(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["subscription-wishlist", userId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("subscription_wishlist")
+        .select("*")
+        .eq("user_id", userId!)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!userId,
+  });
+}
+
 export default function SubscribePage() {
   const { user } = useAuth();
   const { data: subscription } = useSubscription();
   const isSubscribed = !!subscription;
   const [selected, setSelected] = useState<string>("monthly");
+  const queryClient = useQueryClient();
+
+  const { data: wishlistEntry, isLoading: wishlistLoading } = useSubscriptionWishlist(user?.id);
+  const isWishlisted = !!wishlistEntry;
+
+  const toggleWishlist = useMutation({
+    mutationFn: async () => {
+      if (isWishlisted) {
+        const { error } = await supabase
+          .from("subscription_wishlist")
+          .delete()
+          .eq("user_id", user!.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("subscription_wishlist")
+          .insert({ user_id: user!.id, preferred_plan: selected });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["subscription-wishlist"] });
+      toast.success(isWishlisted ? "Removed from wishlist" : "Added to wishlist — we'll notify you at launch!");
+    },
+    onError: () => toast.error("Something went wrong"),
+  });
 
   const plan = PLANS.find((p) => p.key === selected)!;
 
@@ -135,11 +179,20 @@ export default function SubscribePage() {
             <div className="text-center">
               {!user ? (
                 <p className="text-sm text-muted-foreground">
-                  Sign in to subscribe.
+                  Sign in to add to your wishlist.
                 </p>
               ) : (
-                <Button className="w-full h-12 text-base font-medium" disabled>
-                  Subscribe — Coming Soon
+                <Button
+                  className={cn(
+                    "w-full h-12 text-base font-medium gap-2 transition-all",
+                    isWishlisted && "bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20"
+                  )}
+                  variant={isWishlisted ? "outline" : "default"}
+                  onClick={() => toggleWishlist.mutate()}
+                  disabled={toggleWishlist.isPending || wishlistLoading}
+                >
+                  <Heart className={cn("w-5 h-5", isWishlisted && "fill-primary")} />
+                  {isWishlisted ? "Wishlisted — We'll Notify You" : "Add to Wishlist"}
                 </Button>
               )}
             </div>
@@ -147,7 +200,7 @@ export default function SubscribePage() {
 
           {/* Fine print */}
           <p className="text-center text-[11px] text-muted-foreground/60 mt-6">
-            Cancel anytime. No hidden fees.
+            Subscriptions launching soon. Cancel anytime. No hidden fees.
           </p>
         </div>
       </main>

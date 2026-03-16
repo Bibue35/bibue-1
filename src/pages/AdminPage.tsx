@@ -159,6 +159,7 @@ function OverviewTab() {
     { label: "Total Series", value: stats?.totalSeries || 0, icon: BookOpen, color: "text-blue-500" },
     { label: "Total Chapters", value: stats?.totalChapters || 0, icon: FileText, color: "text-green-500" },
     { label: "Pending Reports", value: stats?.pendingReports || 0, icon: AlertTriangle, color: "text-yellow-500" },
+    { label: "Sub Wishlist", value: stats?.subscriptionWishlist || 0, icon: Heart, color: "text-pink-500" },
     { label: "Pending Payouts", value: `$${(stats?.pendingPayoutAmount || 0).toFixed(2)}`, icon: Clock, color: "text-orange-500" },
     { label: "Total Paid", value: `$${(stats?.totalPaid || 0).toFixed(2)}`, icon: DollarSign, color: "text-emerald-500" },
   ];
