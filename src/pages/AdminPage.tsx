@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -21,6 +22,7 @@ import {
   Shield, LayoutDashboard, Users, BookOpen, AlertTriangle, BarChart3, DollarSign,
   Search, Loader2, CheckCircle, XCircle, Download, Eye, Heart, ChevronRight,
   TrendingUp, FileText, Clock, CreditCard, Headphones, MessageCircle, EyeOff,
+  Activity, UserPlus, Globe, Bookmark, Star, ArrowUpRight, Zap,
 } from "lucide-react";
 import { SupportTicketsTab } from "@/components/admin/SupportTicketsTab";
 import { AdminChapterComments } from "@/components/admin/AdminChapterComments";
@@ -91,7 +93,7 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-background flex">
-      <SEO title="Owner Dashboard | bibue.net" description="Admin dashboard" noIndex />
+      <SEO title="Bibue Admin Panel" description="Admin dashboard" noIndex />
 
       {/* Sidebar */}
       <aside className={cn(
@@ -100,10 +102,10 @@ export default function AdminPage() {
       )}>
         <div className="p-4 border-b border-border/50 flex items-center gap-2">
           <Shield className="w-6 h-6 text-primary shrink-0" />
-          {sidebarOpen && <span className="font-bold font-sacred text-sm">Admin Panel</span>}
+          {sidebarOpen && <span className="font-bold font-sacred text-sm">Bibue Admin Panel</span>}
         </div>
 
-        <nav className="flex-1 p-2 space-y-0.5">
+        <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
           {TABS.map((tab) => (
             <button
               key={tab.id}
@@ -121,7 +123,15 @@ export default function AdminPage() {
           ))}
         </nav>
 
-        <div className="p-3 border-t border-border/50">
+        <div className="p-3 border-t border-border/50 space-y-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full text-xs justify-start gap-2"
+            onClick={() => navigate("/")}
+          >
+            <Globe className="w-3.5 h-3.5" /> {sidebarOpen ? "Back to Site" : ""}
+          </Button>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="w-full text-xs text-muted-foreground hover:text-foreground py-1"
@@ -134,7 +144,7 @@ export default function AdminPage() {
       {/* Main content */}
       <main className={cn("flex-1 min-h-screen", sidebarOpen ? "md:ml-0 ml-16" : "ml-16")}>
         <div className="p-4 sm:p-6 lg:p-8 max-w-7xl">
-          {activeTab === "overview" && <OverviewTab />}
+          {activeTab === "overview" && <OverviewTab onNavigate={setActiveTab} />}
           {activeTab === "studio" && <StudioSubmissionsTab />}
           {activeTab === "creators" && <CreatorsTab />}
           {activeTab === "series" && <SeriesTab />}
@@ -150,46 +160,328 @@ export default function AdminPage() {
   );
 }
 
-// ─── Overview Tab ───
-function OverviewTab() {
+// ─── Overview Tab (Enhanced) ───
+function OverviewTab({ onNavigate }: { onNavigate: (tab: Tab) => void }) {
   const { data: stats, isLoading } = useAdminOverview();
 
-  const cards = [
-    { label: "Total Creators", value: stats?.totalCreators || 0, icon: Users, color: "text-primary" },
-    { label: "Total Series", value: stats?.totalSeries || 0, icon: BookOpen, color: "text-blue-500" },
-    { label: "Total Chapters", value: stats?.totalChapters || 0, icon: FileText, color: "text-green-500" },
-    { label: "Pending Reports", value: stats?.pendingReports || 0, icon: AlertTriangle, color: "text-yellow-500" },
-    { label: "Sub Wishlist", value: stats?.subscriptionWishlist || 0, icon: Heart, color: "text-pink-500" },
-    { label: "Pending Payouts", value: `$${(stats?.pendingPayoutAmount || 0).toFixed(2)}`, icon: Clock, color: "text-orange-500" },
-    { label: "Total Paid", value: `$${(stats?.totalPaid || 0).toFixed(2)}`, icon: DollarSign, color: "text-emerald-500" },
-  ];
-
-  return (
-    <div>
-      <h1 className="text-2xl font-bold font-sacred mb-6 flex items-center gap-2">
-        <LayoutDashboard className="w-6 h-6 text-primary" />
-        Dashboard Overview
-      </h1>
-
-      {isLoading ? (
-        <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
-      ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          {cards.map((card) => (
-            <Card key={card.label} className="border-border/50">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">{card.label}</p>
-                    <p className="text-2xl font-bold">{card.value}</p>
-                  </div>
-                  <card.icon className={cn("w-8 h-8 opacity-50", card.color)} />
-                </div>
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3 mb-2">
+          <h1 className="text-2xl font-bold font-sacred">Bibue Admin Panel</h1>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Card key={i} className="border-border/30">
+              <CardContent className="p-4">
+                <div className="skeleton-shimmer h-3 w-20 rounded mb-3" />
+                <div className="skeleton-shimmer h-7 w-16 rounded" />
               </CardContent>
             </Card>
           ))}
         </div>
-      )}
+      </div>
+    );
+  }
+
+  const primaryCards = [
+    { label: "Total Users", value: stats?.totalUsers || 0, icon: Users, color: "text-primary", bg: "bg-primary/8" },
+    { label: "Total Creators", value: stats?.totalCreators || 0, icon: UserPlus, color: "text-blue-500", bg: "bg-blue-500/8" },
+    { label: "Total Series", value: stats?.totalSeries || 0, icon: BookOpen, color: "text-violet-500", bg: "bg-violet-500/8" },
+    { label: "Total Chapters", value: stats?.totalChapters || 0, icon: FileText, color: "text-cyan-500", bg: "bg-cyan-500/8" },
+  ];
+
+  const engagementCards = [
+    { label: "Discussions", value: stats?.totalDiscussions || 0, icon: MessageCircle, color: "text-emerald-500" },
+    { label: "User Follows", value: stats?.totalFollows || 0, icon: Heart, color: "text-pink-500" },
+    { label: "Library Items", value: stats?.totalWatchlistItems || 0, icon: Bookmark, color: "text-amber-500" },
+    { label: "Sub Wishlist", value: stats?.subscriptionWishlist || 0, icon: Star, color: "text-yellow-500" },
+  ];
+
+  const alertCards = [
+    { label: "Pending Reports", value: stats?.pendingReports || 0, icon: AlertTriangle, color: "text-yellow-500", urgent: (stats?.pendingReports || 0) > 0 },
+    { label: "Open Tickets", value: stats?.openTickets || 0, icon: Headphones, color: "text-orange-500", urgent: (stats?.openTickets || 0) > 0, action: () => onNavigate("support") },
+    { label: "Pending DMCA", value: stats?.pendingDMCA || 0, icon: Shield, color: "text-red-500", urgent: (stats?.pendingDMCA || 0) > 0 },
+    { label: "Pending Payouts", value: `$${(stats?.pendingPayoutAmount || 0).toFixed(2)}`, icon: Clock, color: "text-orange-500", action: () => onNavigate("payouts") },
+  ];
+
+  const STATUS_COLORS: Record<string, string> = {
+    open: "bg-primary/15 text-primary",
+    "in-progress": "bg-amber-500/15 text-amber-500",
+    resolved: "bg-emerald-500/15 text-emerald-500",
+    closed: "bg-muted text-muted-foreground",
+    pending: "bg-amber-500/15 text-amber-500",
+    approved: "bg-emerald-500/15 text-emerald-500",
+    published: "bg-emerald-500/15 text-emerald-500",
+    rejected: "bg-destructive/15 text-destructive",
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold font-sacred tracking-wide">Bibue Admin Panel</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Platform overview & management</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="gap-1.5 text-xs py-1">
+            <Activity className="w-3 h-3 text-emerald-500" />
+            Live
+          </Badge>
+        </div>
+      </div>
+
+      {/* Primary Stats — large cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {primaryCards.map((card) => (
+          <Card key={card.label} className="border-border/30 hover:border-border/60 transition-colors">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className={cn("p-2 rounded-lg", card.bg)}>
+                  <card.icon className={cn("w-4 h-4", card.color)} />
+                </div>
+              </div>
+              <p className="text-2xl font-bold tracking-tight">{typeof card.value === "number" ? card.value.toLocaleString() : card.value}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{card.label}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Alerts / Action Required */}
+      <div>
+        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+          <Zap className="w-3.5 h-3.5" /> Requires Attention
+        </h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {alertCards.map((card) => (
+            <button
+              key={card.label}
+              onClick={card.action}
+              className={cn(
+                "text-left p-4 rounded-xl border transition-all",
+                card.urgent
+                  ? "border-destructive/20 bg-destructive/5 hover:bg-destructive/10"
+                  : "border-border/30 bg-card hover:bg-muted/30"
+              )}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <card.icon className={cn("w-4 h-4", card.color)} />
+                {card.urgent && <span className="w-2 h-2 rounded-full bg-destructive animate-pulse" />}
+              </div>
+              <p className="text-xl font-bold">{card.value}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{card.label}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Two-column: Engagement + Revenue */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Engagement Metrics */}
+        <Card className="border-border/30">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-primary" />
+              Engagement
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 space-y-4">
+            {engagementCards.map((card) => (
+              <div key={card.label} className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <card.icon className={cn("w-4 h-4", card.color)} />
+                  <span className="text-sm">{card.label}</span>
+                </div>
+                <span className="font-bold text-sm">{typeof card.value === "number" ? card.value.toLocaleString() : card.value}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Revenue Overview */}
+        <Card className="border-border/30">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-emerald-500" />
+              Revenue
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Total Paid Out</span>
+              <span className="font-bold text-emerald-500">${(stats?.totalPaid || 0).toFixed(2)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Pending Payouts</span>
+              <span className="font-bold text-orange-500">${(stats?.pendingPayoutAmount || 0).toFixed(2)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Total Tickets</span>
+              <span className="font-bold">{stats?.totalTickets || 0}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Sub Wishlist Signups</span>
+              <span className="font-bold">{stats?.subscriptionWishlist || 0}</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Three-column: Recent Users, Recent Series, Recent Tickets */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Recent Users */}
+        <Card className="border-border/30">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <UserPlus className="w-4 h-4 text-primary" />
+                Recent Signups
+              </CardTitle>
+              <span className="text-xs text-muted-foreground">{stats?.totalUsers} total</span>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-2.5">
+              {(stats?.recentUsers || []).slice(0, 6).map((u: any) => (
+                <div key={u.user_id} className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary shrink-0 overflow-hidden">
+                    {u.avatar_url ? (
+                      <img src={u.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      (u.display_name || u.username || "?")[0]?.toUpperCase()
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium truncate">{u.display_name || u.username || "User"}</p>
+                    <p className="text-[10px] text-muted-foreground">{formatDistanceToNow(new Date(u.created_at), { addSuffix: true })}</p>
+                  </div>
+                </div>
+              ))}
+              {(!stats?.recentUsers || stats.recentUsers.length === 0) && (
+                <p className="text-xs text-muted-foreground text-center py-4">No users yet</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Series */}
+        <Card className="border-border/30">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-violet-500" />
+                Recent Series
+              </CardTitle>
+              <button onClick={() => onNavigate("series")} className="text-xs text-primary hover:underline flex items-center gap-0.5">
+                View all <ArrowUpRight className="w-3 h-3" />
+              </button>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-2.5">
+              {(stats?.recentSeries || []).map((s: any) => (
+                <div key={s.id} className="flex items-center gap-2.5">
+                  {s.cover_image_url ? (
+                    <img src={s.cover_image_url} alt="" className="w-8 h-10 rounded object-cover shrink-0 bg-muted" />
+                  ) : (
+                    <div className="w-8 h-10 rounded bg-muted shrink-0" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium truncate">{s.title}</p>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <Badge className={cn("text-[9px] px-1.5 py-0", STATUS_COLORS[s.status] || "bg-muted text-muted-foreground")}>
+                        {s.status}
+                      </Badge>
+                      <span className="text-[10px] text-muted-foreground">
+                        {(s as any).creator_profiles?.display_name}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {(!stats?.recentSeries || stats.recentSeries.length === 0) && (
+                <p className="text-xs text-muted-foreground text-center py-4">No series yet</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Tickets */}
+        <Card className="border-border/30">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Headphones className="w-4 h-4 text-orange-500" />
+                Recent Tickets
+              </CardTitle>
+              <button onClick={() => onNavigate("support")} className="text-xs text-primary hover:underline flex items-center gap-0.5">
+                View all <ArrowUpRight className="w-3 h-3" />
+              </button>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-2.5">
+              {(stats?.recentTickets || []).map((t: any) => (
+                <div key={t.id} className="flex items-center gap-2.5">
+                  <div className={cn(
+                    "w-2 h-2 rounded-full shrink-0",
+                    t.status === "open" ? "bg-primary" : t.status === "in-progress" ? "bg-amber-500" : "bg-muted-foreground/30"
+                  )} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium truncate">{t.subject}</p>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <Badge className={cn("text-[9px] px-1.5 py-0", STATUS_COLORS[t.status] || "bg-muted text-muted-foreground")}>
+                        {t.status}
+                      </Badge>
+                      {t.is_creator_priority && (
+                        <Star className="w-2.5 h-2.5 text-amber-400" />
+                      )}
+                      <span className="text-[10px] text-muted-foreground">
+                        {formatDistanceToNow(new Date(t.created_at), { addSuffix: true })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {(!stats?.recentTickets || stats.recentTickets.length === 0) && (
+                <p className="text-xs text-muted-foreground text-center py-4">No tickets yet</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Actions */}
+      <Card className="border-border/30">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: "Review Moderation", icon: AlertTriangle, tab: "moderation" as Tab },
+              { label: "Manage Creators", icon: Users, tab: "creators" as Tab },
+              { label: "Support Tickets", icon: Headphones, tab: "support" as Tab },
+              { label: "Process Payouts", icon: CreditCard, tab: "payouts" as Tab },
+              { label: "Bug Roadmap", icon: Bug, tab: "bugs" as Tab },
+              { label: "Studio Submissions", icon: FileText, tab: "studio" as Tab },
+            ].map((action) => (
+              <Button
+                key={action.label}
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={() => onNavigate(action.tab)}
+              >
+                <action.icon className="w-3.5 h-3.5" />
+                {action.label}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -399,7 +691,6 @@ function ModerationTab() {
           Moderation Queue
         </h1>
         <div className="flex items-center gap-2">
-          {/* Status filter pills */}
           <div className="flex gap-1 p-1 rounded-xl bg-muted/30">
             {STATUS_FILTERS.map((f) => (
               <button
@@ -422,37 +713,17 @@ function ModerationTab() {
         </div>
       </div>
 
-      {/* Bulk actions bar */}
       {selected.size > 0 && (
         <div className="flex items-center gap-3 p-3 mb-4 rounded-xl bg-primary/5 border border-primary/20">
           <span className="text-sm font-medium">{selected.size} selected</span>
           <div className="flex gap-2 ml-auto">
-            <Button
-              size="sm"
-              variant="primary"
-              className="gap-1 text-xs"
-              disabled={bulkAction.isPending}
-              onClick={() => handleBulk("approved")}
-            >
+            <Button size="sm" variant="default" className="gap-1 text-xs" disabled={bulkAction.isPending} onClick={() => handleBulk("approved")}>
               <CheckCircle className="w-3.5 h-3.5" /> Approve All
             </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-1 text-xs"
-              disabled={bulkAction.isPending}
-              onClick={() => handleBulk("rejected")}
-            >
+            <Button size="sm" variant="outline" className="gap-1 text-xs" disabled={bulkAction.isPending} onClick={() => handleBulk("rejected")}>
               <XCircle className="w-3.5 h-3.5" /> Reject All
             </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-xs"
-              onClick={() => setSelected(new Set())}
-            >
-              Clear
-            </Button>
+            <Button size="sm" variant="ghost" className="text-xs" onClick={() => setSelected(new Set())}>Clear</Button>
           </div>
         </div>
       )}
@@ -473,10 +744,7 @@ function ModerationTab() {
               <thead>
                 <tr className="border-b border-border bg-muted/30">
                   <th className="py-3 px-3 text-left w-10">
-                    <Checkbox
-                      checked={selected.size === queue.length && queue.length > 0}
-                      onCheckedChange={toggleAll}
-                    />
+                    <Checkbox checked={selected.size === queue.length && queue.length > 0} onCheckedChange={toggleAll} />
                   </th>
                   <th className="py-3 px-3 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider">Title</th>
                   <th className="py-3 px-3 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider">Creator</th>
@@ -498,91 +766,41 @@ function ModerationTab() {
                   const contentType = getContentType(item);
 
                   return (
-                    <tr
-                      key={item.id}
-                      className={cn(
-                        "border-b border-border/20 transition-colors",
-                        isSelected ? "bg-primary/5" : "hover:bg-muted/20"
-                      )}
-                    >
-                      <td className="py-3 px-3">
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => toggleSelect(item.id)}
-                        />
-                      </td>
+                    <tr key={item.id} className={cn("border-b border-border/20 transition-colors", isSelected ? "bg-primary/5" : "hover:bg-muted/20")}>
+                      <td className="py-3 px-3"><Checkbox checked={isSelected} onCheckedChange={() => toggleSelect(item.id)} /></td>
                       <td className="py-3 px-3">
                         <div className="flex items-center gap-3">
                           {item.series?.cover_image_url && (
-                            <img
-                              src={item.series.cover_image_url}
-                              alt=""
-                              className="w-9 h-12 rounded object-cover shrink-0 bg-muted"
-                            />
+                            <img src={item.series.cover_image_url} alt="" className="w-9 h-12 rounded object-cover shrink-0 bg-muted" />
                           )}
                           <div className="min-w-0">
                             <p className="font-medium text-sm truncate max-w-[200px]">{title}</p>
-                            {seriesTitle && (
-                              <p className="text-xs text-muted-foreground truncate max-w-[200px]">{seriesTitle}</p>
-                            )}
-                            {item.flagged_reason && (
-                              <p className="text-[10px] text-destructive mt-0.5">{item.flagged_reason}</p>
-                            )}
+                            {seriesTitle && <p className="text-xs text-muted-foreground truncate max-w-[200px]">{seriesTitle}</p>}
+                            {item.flagged_reason && <p className="text-[10px] text-destructive mt-0.5">{item.flagged_reason}</p>}
                           </div>
                         </div>
                       </td>
                       <td className="py-3 px-3 text-sm text-muted-foreground">{item.creatorName}</td>
+                      <td className="py-3 px-3 text-center"><Badge variant="outline" className="text-[10px]">{contentType}</Badge></td>
+                      <td className="py-3 px-3 text-center"><Badge variant="secondary" className="text-[10px]">{item.content_type}</Badge></td>
+                      <td className="py-3 px-3 text-center"><Badge variant="secondary" className="text-[10px]">{item.series?.content_rating || "—"}</Badge></td>
+                      <td className="py-3 px-3 text-center text-xs text-muted-foreground whitespace-nowrap">{format(new Date(item.created_at), "MMM d, yyyy")}</td>
                       <td className="py-3 px-3 text-center">
-                        <Badge variant="outline" className="text-[10px]">{contentType}</Badge>
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <Badge variant="secondary" className="text-[10px]">{item.content_type}</Badge>
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <Badge variant="secondary" className="text-[10px]">{item.series?.content_rating || "—"}</Badge>
-                      </td>
-                      <td className="py-3 px-3 text-center text-xs text-muted-foreground whitespace-nowrap">
-                        {format(new Date(item.created_at), "MMM d, yyyy")}
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <Badge
-                          variant={item.status === "approved" ? "default" : item.status === "rejected" ? "destructive" : "secondary"}
-                          className="text-[10px]"
-                        >
-                          {item.status}
-                        </Badge>
+                        <Badge variant={item.status === "approved" ? "default" : item.status === "rejected" ? "destructive" : "secondary"} className="text-[10px]">{item.status}</Badge>
                       </td>
                       <td className="py-3 px-3">
                         <div className="flex items-center gap-1.5 justify-end">
                           {item.series?.title && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              title="Preview"
-                              onClick={() => window.open(`/originals/${item.series_id}`, "_blank")}
-                            >
+                            <Button variant="ghost" size="icon" className="h-7 w-7" title="Preview" onClick={() => window.open(`/originals/${item.series_id}`, "_blank")}>
                               <Eye className="w-3.5 h-3.5" />
                             </Button>
                           )}
                           {item.status === "pending" && (
                             <>
-                              <Button
-                                size="sm"
-                                variant="primary"
-                                className="h-7 px-2.5 text-xs gap-1"
-                                disabled={approve.isPending}
-                                onClick={() => approve.mutate({ itemId: item.id, chapterId: item.chapter_id })}
-                              >
+                              <Button size="sm" className="h-7 px-2.5 text-xs gap-1" disabled={approve.isPending} onClick={() => approve.mutate({ itemId: item.id, chapterId: item.chapter_id })}>
                                 <CheckCircle className="w-3 h-3" /> Approve
                               </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-7 px-2.5 text-xs gap-1"
-                                disabled={reject.isPending}
-                                onClick={() => reject.mutate({ itemId: item.id, reason: "Rejected by admin" })}
-                              >
+                              <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs gap-1" disabled={reject.isPending} onClick={() => reject.mutate({ itemId: item.id, reason: "Rejected by admin" })}>
                                 <XCircle className="w-3 h-3" /> Reject
                               </Button>
                             </>
@@ -626,6 +844,10 @@ function AnalyticsTab() {
           <CardContent>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Total Users</span>
+                <span className="font-bold">{(stats?.totalUsers || 0).toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Total Creators</span>
                 <span className="font-bold">{stats?.totalCreators || 0}</span>
               </div>
@@ -636,6 +858,10 @@ function AnalyticsTab() {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Total Chapters</span>
                 <span className="font-bold">{stats?.totalChapters || 0}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Discussions</span>
+                <span className="font-bold">{stats?.totalDiscussions || 0}</span>
               </div>
             </div>
           </CardContent>
@@ -661,6 +887,10 @@ function AnalyticsTab() {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Pending Reports</span>
                 <span className="font-bold text-yellow-500">{stats?.pendingReports || 0}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Sub Wishlist</span>
+                <span className="font-bold">{stats?.subscriptionWishlist || 0}</span>
               </div>
             </div>
           </CardContent>
@@ -731,7 +961,6 @@ function PayoutsTab() {
                     {p.status === "pending" && (
                       <Button
                         size="sm"
-                        variant="primary"
                         className="text-xs gap-1"
                         disabled={markPaid.isPending}
                         onClick={() => markPaid.mutate(p.id)}
