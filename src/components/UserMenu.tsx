@@ -131,7 +131,7 @@ export function UserMenu() {
         <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
           <Link to="/watchlist">
             <Bookmark className="w-4 h-4" />
-            <span>{t("user.myWatchlist")}</span>
+            <span>My Library</span>
           </Link>
         </DropdownMenuItem>
         
