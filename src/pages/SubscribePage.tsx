@@ -95,9 +95,9 @@ export default function SubscribePage() {
             <p className="text-muted-foreground text-sm tracking-wide">
               {plan.period}
             </p>
-            {"monthly" in plan && (
+            {"perMonth" in plan && (
               <p className="text-xs text-primary mt-1.5 font-medium">
-                ${(plan as any).monthly.toFixed(2)}/mo — save vs monthly
+                ${plan.perMonth.toFixed(2)}/mo — save ${plan.save.toFixed(2)} vs monthly
               </p>
             )}
           </div>
