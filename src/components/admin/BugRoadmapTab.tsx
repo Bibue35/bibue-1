@@ -56,6 +56,33 @@ export function BugRoadmapTab() {
   const { data: bugs = [], isLoading } = useBugReports();
   const [selected, setSelected] = useState<any>(null);
   const [replyMsg, setReplyMsg] = useState("");
+  const [showAdd, setShowAdd] = useState(false);
+  const [newSubject, setNewSubject] = useState("");
+  const [newSeverity, setNewSeverity] = useState("minor");
+  const [newDescription, setNewDescription] = useState("");
+
+  const addBug = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("support_tickets").insert({
+        user_id: user!.id,
+        subject: `[BUG] ${newSubject.trim()}`.slice(0, 200),
+        category: "bug",
+        message: `Severity: ${newSeverity}\n\n${newDescription.trim()}`.slice(0, 5000),
+        status: "open",
+        is_creator_priority: false,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-bugs"] });
+      toast.success("Bug added");
+      setShowAdd(false);
+      setNewSubject("");
+      setNewSeverity("minor");
+      setNewDescription("");
+    },
+    onError: () => toast.error("Failed to add bug"),
+  });
   const { data: replies = [], isLoading: repliesLoading } = useTicketReplies(selected?.id);
 
   const updateStatus = useMutation({
