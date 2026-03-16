@@ -330,7 +330,7 @@ export default function SupportPage() {
             Help Center
           </Badge>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-sacred tracking-wide leading-tight mb-4">
-            Support
+            Bibue Support
           </h1>
           <p className="text-lg text-muted-foreground">
             How can we help?
