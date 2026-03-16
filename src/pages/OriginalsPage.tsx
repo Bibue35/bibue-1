@@ -116,16 +116,10 @@ export default function OriginalsPage() {
               <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
                 <Upload className="w-10 h-10 text-primary" />
               </div>
-              <h2 className="text-2xl font-bold mb-3">Be One of the First</h2>
+              <h2 className="text-2xl font-bold mb-3">Coming Soon</h2>
               <p className="text-muted-foreground mb-8 leading-relaxed">
-                No series yet — be one of the first Founding Creators to publish on bibue.net and earn your permanent badge.
+                Original series are on their way. Check back soon for fresh manga, manhwa &amp; manhua by independent creators.
               </p>
-              <Button asChild size="lg" className="gap-2">
-                <Link to="/studio">
-                  <Upload className="w-5 h-5" />
-                  Submit Your Series
-                </Link>
-              </Button>
             </div>
           )}
         </div>

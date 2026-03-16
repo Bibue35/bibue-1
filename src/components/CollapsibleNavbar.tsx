@@ -23,7 +23,6 @@ export function CollapsibleNavbar() {
     { href: "/manga", label: "Browse" },
     ...(user ? [
       { href: "/originals", label: "Originals" },
-      { href: "/studio", label: "Studio" },
     ] : []),
     { href: "/community", label: "Community" },
   ];

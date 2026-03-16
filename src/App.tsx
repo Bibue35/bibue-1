@@ -161,7 +161,7 @@ const App = () => (
                           <Route path="/party/:code" element={<WatchPartyPage />} />
                           <Route path="/compare" element={<ComparePage />} />
                           <Route path="/seek" element={<Navigate to="/manga" replace />} />
-                          <Route path="/for-creators" element={<ForCreatorsPage />} />
+                          <Route path="/for-creators" element={<Navigate to="/studio" replace />} />
                           <Route path="/originals" element={<OriginalsPage />} />
                           <Route path="/originals/:id" element={<OriginalSeriesDetail />} />
                           <Route path="/studio" element={<StudioPage />} />
