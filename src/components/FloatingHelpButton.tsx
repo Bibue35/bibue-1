@@ -1,18 +1,17 @@
 import { Link, useLocation } from "react-router-dom";
-import { HelpCircle } from "lucide-react";
+import bibueIcon from "@/assets/bibue-tower.png";
 
 export function FloatingHelpButton() {
   const location = useLocation();
-  // Don't show on support page itself, admin, or reader
   if (location.pathname === "/support" || location.pathname === "/admin") return null;
 
   return (
     <Link
       to="/support"
-      className="fixed bottom-6 left-6 z-40 w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-110 transition-all duration-200"
+      className="fixed bottom-6 left-6 z-40 w-12 h-12 rounded-full bg-card border border-border/50 flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-200"
       aria-label="Help & Support"
     >
-      <HelpCircle className="w-5 h-5 text-[hsl(0,0%,4%)]" />
+      <img src={bibueIcon} alt="" className="w-6 h-6" loading="lazy" />
     </Link>
   );
 }
