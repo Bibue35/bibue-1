@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
+import bibueIcon from "@/assets/bibue-tower.png";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -65,8 +66,8 @@ export default function SubscribePage() {
         <div className="container mx-auto px-4 max-w-lg">
           {/* Header */}
           <div className="text-center mb-10">
-            <h1 className="text-3xl sm:text-4xl font-sacred font-bold tracking-wide mb-2">
-              Subscribe to Bibue
+            <h1 className="text-3xl sm:text-4xl font-sacred font-bold tracking-wide mb-2 flex items-center justify-center gap-3">
+              Subscribe to <img src={bibueIcon} alt="Bibue" className="inline-block w-8 h-8 sm:w-10 sm:h-10" />
             </h1>
           </div>
 
