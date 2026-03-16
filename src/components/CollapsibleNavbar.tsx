@@ -6,6 +6,7 @@ import { SearchModal } from "./SearchModal";
 import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsOwnerOrAdmin } from "@/hooks/useAdminData";
 import bibueTower from "@/assets/bibue-tower.png";
 const AuthModal = lazy(() => import("./AuthModal").then(m => ({ default: m.AuthModal })));
 
@@ -18,6 +19,7 @@ export function CollapsibleNavbar() {
   const location = useLocation();
   const scrollRef = useRef(0);
   const { user } = useAuth();
+  const { data: isAdmin } = useIsOwnerOrAdmin();
 
   const navLinks = [
     { href: "/manga", label: "Browse" },
