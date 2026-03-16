@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect, useRef } from "react";
+import { useIsOwnerOrAdmin } from "@/hooks/useAdminData";
 
 const NAV_ITEMS = [
   { href: "/originals", label: "Originals" },
@@ -11,6 +12,7 @@ const NAV_ITEMS = [
 export function MobileBottomNav() {
   const location = useLocation();
   const { user } = useAuth();
+  const { data: isAdmin } = useIsOwnerOrAdmin();
   const [isVisible, setIsVisible] = useState(true);
   const scrollRef = useRef(0);
 
@@ -48,6 +50,18 @@ export function MobileBottomNav() {
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         <div className="flex items-stretch justify-around">
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className={cn(
+                "flex items-center justify-center py-3 px-2 min-h-[48px] text-[11px] font-medium tracking-widest uppercase",
+                "transition-all duration-200 touch-manipulation btn-press",
+                location.pathname === "/admin" ? "text-primary" : "text-muted-foreground"
+              )}
+            >
+              Dashboard
+            </Link>
+          )}
           {NAV_ITEMS.filter(item => !('requiresAuth' in item && item.requiresAuth) || user).map((item) => {
             const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/");
             return (
