@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 // ─── Owner / Admin access check ───
-const OWNER_EMAILS = ["owner@bibue.net"]; // Add your email here
+const OWNER_EMAILS = ["ltenantdelatour@gmail.com", "louis.tenantdelatour@gmail.com", "ltdlt@bibue.net"];
 
 export function useIsOwnerOrAdmin() {
   const { user } = useAuth();
