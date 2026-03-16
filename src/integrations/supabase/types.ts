@@ -1600,6 +1600,27 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_wishlist: {
+        Row: {
+          created_at: string
+          id: string
+          preferred_plan: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          preferred_plan?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          preferred_plan?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           canceled_at: string | null
