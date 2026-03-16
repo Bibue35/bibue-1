@@ -169,13 +169,6 @@ export function UserMenu() {
         </DropdownMenuItem>
 
         <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
-          <Link to="/support">
-            <HelpCircle className="w-4 h-4" />
-            <span>Support</span>
-          </Link>
-        </DropdownMenuItem>
-
-        <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
           <Link to="/subscribe">
             <CreditCard className="w-4 h-4" />
             <span>Subscribe</span>
