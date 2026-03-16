@@ -221,7 +221,10 @@ export default function WatchlistPage() {
                 <Button
                   variant={["manga", "manhwa", "manhua"].includes(filter) ? "default" : "ghost"}
                   size="sm"
-                  onClick={() => setFilter(filter === "manga" || filter === "manhwa" || filter === "manhua" ? "manga" : "manga")}
+                  onClick={() => {
+                    if (!["manga", "manhwa", "manhua"].includes(filter)) setFilter("manga");
+                    setMangaSubOpen(!mangaSubOpen);
+                  }}
                   className={cn(
                     "rounded-full gap-1",
                     !["manga", "manhwa", "manhua"].includes(filter) && "glass-button"
