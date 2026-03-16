@@ -5,12 +5,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
-import { Bug, Loader2, Send, ArrowLeft, AlertCircle, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Bug, Loader2, Send, ArrowLeft, AlertCircle, Clock, CheckCircle, XCircle, Plus } from "lucide-react";
 
 const COLUMNS = [
   { status: "open", label: "Open", icon: AlertCircle, color: "text-primary" },
@@ -56,6 +59,33 @@ export function BugRoadmapTab() {
   const { data: bugs = [], isLoading } = useBugReports();
   const [selected, setSelected] = useState<any>(null);
   const [replyMsg, setReplyMsg] = useState("");
+  const [showAdd, setShowAdd] = useState(false);
+  const [newSubject, setNewSubject] = useState("");
+  const [newSeverity, setNewSeverity] = useState("minor");
+  const [newDescription, setNewDescription] = useState("");
+
+  const addBug = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("support_tickets").insert({
+        user_id: user!.id,
+        subject: `[BUG] ${newSubject.trim()}`.slice(0, 200),
+        category: "bug",
+        message: `Severity: ${newSeverity}\n\n${newDescription.trim()}`.slice(0, 5000),
+        status: "open",
+        is_creator_priority: false,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-bugs"] });
+      toast.success("Bug added");
+      setShowAdd(false);
+      setNewSubject("");
+      setNewSeverity("minor");
+      setNewDescription("");
+    },
+    onError: () => toast.error("Failed to add bug"),
+  });
   const { data: replies = [], isLoading: repliesLoading } = useTicketReplies(selected?.id);
 
   const updateStatus = useMutation({
@@ -154,10 +184,15 @@ export function BugRoadmapTab() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold font-sacred mb-6 flex items-center gap-2">
-        <Bug className="w-6 h-6 text-primary" />
-        Bug Roadmap
-      </h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold font-sacred flex items-center gap-2">
+          <Bug className="w-6 h-6 text-primary" />
+          Bug Roadmap
+        </h1>
+        <Button onClick={() => setShowAdd(true)} className="gap-2">
+          <Plus className="w-4 h-4" /> Add Bug
+        </Button>
+      </div>
 
       {bugs.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
@@ -207,6 +242,41 @@ export function BugRoadmapTab() {
           })}
         </div>
       )}
+
+      <Dialog open={showAdd} onOpenChange={setShowAdd}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Bug className="w-5 h-5 text-primary" /> Add Bug
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={(e) => { e.preventDefault(); addBug.mutate(); }} className="space-y-4">
+            <div>
+              <Label>Summary</Label>
+              <Input value={newSubject} onChange={(e) => setNewSubject(e.target.value)} placeholder="Brief summary" maxLength={150} />
+            </div>
+            <div>
+              <Label>Severity</Label>
+              <Select value={newSeverity} onValueChange={setNewSeverity}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="minor">Minor</SelectItem>
+                  <SelectItem value="major">Major</SelectItem>
+                  <SelectItem value="critical">Critical</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Textarea value={newDescription} onChange={(e) => setNewDescription(e.target.value)} placeholder="Steps to reproduce, expected vs actual..." rows={4} maxLength={5000} />
+            </div>
+            <Button type="submit" className="w-full gap-2" disabled={addBug.isPending || !newSubject.trim() || !newDescription.trim()}>
+              {addBug.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+              Add Bug
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
