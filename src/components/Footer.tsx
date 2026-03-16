@@ -6,7 +6,6 @@ import { ReportBugDialog } from "@/components/ReportBugDialog";
 const FOOTER_LINKS = [
   { to: "/manga", label: "Browse" },
   { to: "/originals", label: "Originals" },
-  { to: "/studio", label: "Studio" },
   { to: "/community", label: "Community" },
   { to: "/terms", label: "Guidelines" },
   { to: "/privacy", label: "Legal" },

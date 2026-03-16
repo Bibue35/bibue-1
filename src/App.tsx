@@ -25,9 +25,7 @@ const OfflineBanner = lazy(() => import("@/components/OfflineBanner").then(m => 
 // Lazy load non-critical global components
 const MiniPlayer = lazy(() => import("@/components/MiniPlayer").then(m => ({ default: m.MiniPlayer })));
 const MessageNotificationProvider = lazy(() => import("@/components/MessageNotificationProvider").then(m => ({ default: m.MessageNotificationProvider })));
-const CreatorWelcomeModal = lazy(() => import("@/components/CreatorWelcomeModal").then(m => ({ default: m.CreatorWelcomeModal })));
 const PWAInstallPrompt = lazy(() => import("@/components/PWAInstallPrompt").then(m => ({ default: m.PWAInstallPrompt })));
-const FloatingUploadButton = lazy(() => import("@/components/FloatingUploadButton").then(m => ({ default: m.FloatingUploadButton })));
 
 const ContextualBottomStrip = lazy(() => import("@/components/ContextualBottomStrip").then(m => ({ default: m.ContextualBottomStrip })));
 
@@ -125,9 +123,7 @@ const App = () => (
                       <MiniPlayer />
                       <BackToTop />
                       <ContextualBottomStrip />
-                      <CreatorWelcomeModal />
                       <PWAInstallPrompt />
-                      <FloatingUploadButton />
                       
                     </MessageNotificationProvider>
                   </Suspense>
@@ -165,7 +161,7 @@ const App = () => (
                           <Route path="/party/:code" element={<WatchPartyPage />} />
                           <Route path="/compare" element={<ComparePage />} />
                           <Route path="/seek" element={<Navigate to="/manga" replace />} />
-                          <Route path="/for-creators" element={<ForCreatorsPage />} />
+                          <Route path="/for-creators" element={<Navigate to="/studio" replace />} />
                           <Route path="/originals" element={<OriginalsPage />} />
                           <Route path="/originals/:id" element={<OriginalSeriesDetail />} />
                           <Route path="/studio" element={<StudioPage />} />

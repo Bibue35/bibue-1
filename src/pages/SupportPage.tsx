@@ -317,7 +317,7 @@ export default function SupportPage() {
     <div className="min-h-screen bg-background">
       <SEO
         title="Support & Help Center | Bibue"
-        description="Get help with your Bibue account, uploads, payouts, and more. Priority support for creators."
+        description="Get help with your Bibue account, library, and more."
       />
       <CollapsibleNavbar />
 
@@ -335,7 +335,7 @@ export default function SupportPage() {
             </span>
           </h1>
           <p className="text-lg text-muted-foreground">
-            Fast help for creators &amp; readers
+            How can we help?
           </p>
         </div>
       </section>
