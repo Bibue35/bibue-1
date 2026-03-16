@@ -67,6 +67,15 @@ export default function AdminPage() {
   const { data: hasAccess, isLoading: roleLoading } = useIsOwnerOrAdmin();
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { tabBadges, clearCount } = useAdminRealtime();
+
+  const handleTabChange = (tab: Tab) => {
+    setActiveTab(tab);
+    // Clear badge when navigating to that tab
+    if (tab === "support") clearCount("newTickets");
+    if (tab === "moderation") { clearCount("newModeration"); clearCount("newReports"); }
+    if (tab === "studio") clearCount("newSubmissions");
+  };
 
   const isLoading = authLoading || roleLoading;
 
