@@ -26,18 +26,20 @@ const PLANS = [
   {
     key: "quarterly",
     label: "Quarterly",
-    price: 23.99,
+    price: 21.99,
     period: "/ 3 months",
     tagline: "Follow a full season of weekly releases.",
-    monthly: 7.99,
+    perMonth: 7.33,
+    save: 4.98,
   },
   {
     key: "annual",
     label: "Annual",
-    price: 85.99,
+    price: 74.99,
     period: "/ year",
     tagline: "Four seasons, one price — the best way to stay current.",
-    monthly: 7.16,
+    perMonth: 6.25,
+    save: 32.89,
   },
 ] as const;
 
