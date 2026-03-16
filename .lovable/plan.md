@@ -1,61 +1,116 @@
 
 
-## Admin Dashboard Overhaul Plan
+# "Seek" — AI-Powered Anime/Manga Discovery Tab
 
-### Problems Identified
+## Overview
 
-1. **Studio Submissions tab** queries `studio_submissions` but the admin user may not have the `admin` role in `user_roles` (only whitelisted by email), causing RLS to block the query. The `StudioSubmissionsTab` component has no error handling for failed queries.
-2. **DMCA requests** table exists but there's no admin tab to view/manage them.
-3. **Content Reports** tab (`ReportQueue`) exists as a component but is **not wired into the admin page tabs** at all.
-4. **Analytics tab** is mostly a placeholder with no real data visualization.
-5. **No "add" or "edit" capabilities** on Creators, Series, or Payouts tabs — they're read-only tables with no inline editing.
-6. Several tabs lack error state handling (queries fail silently or show infinite loading).
+Add a new **Seek** page (`/seek`) — a natural language discovery tool where users describe a vibe, mood, or trope and get 5-8 AI-powered recommendations with personalized, spoiler-free match reasons. Uses the existing Lovable AI gateway (no new API keys needed).
 
-### Plan
+---
 
-#### 1. Fix RLS / data loading issues
+## Architecture
 
-- The `useIsOwnerOrAdmin` hook checks owner emails OR `user_roles` admin role. But table RLS policies (e.g., `studio_submissions`, `content_moderation_queue`, `dmca_requests`) only check `has_role(auth.uid(), 'admin')`. **Solution**: Ensure the owner email accounts have the `admin` role in `user_roles` via a migration INSERT, OR create a database function `is_admin_or_owner` that checks both. The cleaner approach is to ensure admin role is assigned to owner accounts.
-- Add `onError` callbacks and error UI to all query hooks so failed fetches show an error message instead of infinite spinners.
+```text
+New files:
+  src/pages/SeekPage.tsx          — Main page component
+  supabase/functions/seek/index.ts — Edge function for AI calls
 
-#### 2. Add missing tabs to the admin sidebar
+Modified files:
+  src/App.tsx                      — Add /seek route
+  src/components/CollapsibleNavbar.tsx — Add Seek to nav
+  src/components/FloatingNav.tsx       — Add Seek to nav
+  src/components/ContextualBottomStrip.tsx — Add Seek pill
+```
 
-- **Reports** tab — wire in the existing `ReportQueue` component (it's imported nowhere in AdminPage).
-- **DMCA** tab — create a new `DmcaTab` component to list/manage `dmca_requests` (approve, reject, add notes).
+---
 
-#### 3. Add CRUD capabilities to existing tabs
+## Implementation Steps (First Prompt — Steps 1-8)
 
-- **Creators tab**: Add inline status toggle (active/suspended), edit display name, and a "Create Payout" button per creator.
-- **Series tab**: Add inline status change (pending → approved/rejected), delete series, and click-to-view detail.
-- **Payouts tab**: Add "Create Payout" dialog (select creator, amount, method, notes) using the existing `useCreatePayout` hook which is already defined but never used in the UI.
-- **Studio Submissions tab**: Add admin notes field and inline edit capability.
+### 1. Edge Function: `supabase/functions/seek/index.ts`
 
-#### 4. Enhance Analytics tab
+- Accepts `{ prompt, watchlist, contentType, conversationHistory }` via POST
+- Calls the Lovable AI gateway (`ai.gateway.lovable.dev`) using `LOVABLE_API_KEY` with `google/gemini-2.5-flash` (fast, good reasoning, cost-effective)
+- Uses the full system prompt from the spec (opinionated recommendations, no spoilers, real titles only, JSON array output)
+- Appends user's watchlist as exclusion context and content type filter
+- Supports follow-up refinement by accepting conversation history
+- Returns parsed JSON array of recommendations
+- Error handling: rate limiting (429), credit exhaustion (402), JSON parse retry
 
-- Replace placeholder with actual data: top series by chapters, top creators by earnings, user signup trend (using `profiles.created_at` grouped by month), content breakdown pie (series by status).
-- Use simple CSS bar charts (no external charting library needed).
+### 2. Edge Function: `supabase/functions/seek-convince/index.ts`
 
-#### 5. Add DMCA management tab
+- Separate endpoint for "Convince me" calls (lighter, 300 max tokens)
+- Accepts `{ title, watchedContext }`
+- Returns a 3-4 sentence spoiler-free pitch
 
-- New component `src/components/admin/DmcaTab.tsx` querying `dmca_requests` table.
-- List with status filters (pending/approved/rejected), admin notes editing, status updates.
+### 3. Route + Navigation
 
-#### 6. Wire Reports tab
+- Add `/seek` route in `App.tsx` with lazy-loaded `SeekPage`
+- Add "Seek" link to `CollapsibleNavbar` desktop nav links (between Community and existing links)
+- Add "Seek" to `FloatingNav` desktop nav links
+- Add "Seek" pill to `ContextualBottomStrip`
 
-- Add `{ id: "reports", label: "Reports", icon: Flag }` to TABS array.
-- Import and render `ReportQueue` component.
+### 4. `SeekPage.tsx` — Layout
 
-#### 7. Error boundaries per tab
+**Top section:**
+- Large full-width text input styled as a prompt input (rounded, prominent, send arrow button on right)
+- Placeholder: `"cold blooded mc, dark fantasy with great art..."`
+- Input expands slightly on focus, sticky on mobile when scrolling results
+- Minimum 44px send button for mobile tap targets
 
-- Wrap each tab render in a try/catch or add `isError` handling from React Query to show actionable error messages.
+**Suggestion chips (two rows, horizontally scrollable):**
+- Row 1: Mood chips with emoji (larger) — randomly show 6-8 from the full set
+- Row 2: Trope chips (text only, smaller) — randomly show 6-8
+- Tapping a chip fills input and auto-submits
 
-### Files to modify
-- `src/pages/AdminPage.tsx` — Add reports/DMCA tabs, add CRUD dialogs to Creators/Series/Payouts tabs, enhance Analytics
-- `src/hooks/useAdminData.ts` — Add DMCA query hooks, add error handling
-- `src/components/admin/StudioSubmissionsTab.tsx` — Add admin notes editing, error state
-- `src/components/admin/DmcaTab.tsx` — New file for DMCA management
+**Recent searches:**
+- Stored in `localStorage` (last 5 searches with result count)
+- Tapping re-runs the search
 
-### Database changes
-- Migration to ensure owner accounts have admin role in `user_roles` (data insert, not schema change — use insert tool)
-- No schema changes needed; all tables already exist
+**Content type filter:**
+- Toggle pills: `[All] [Anime] [Manga] [Manhwa] [Manhua]`
+- When active, appended to the AI prompt
+
+**Empty state:**
+- "Tell me what you're in the mood for. I'll find it."
+
+### 5. Result Cards
+
+Each card shows:
+- Cover image fetched from existing AniList API (`searchAnime`/`searchManga` by title)
+- Gradient placeholder if no image found
+- Title, rating (star), year, episode/chapter count
+- Genre tags
+- Match reason (1-2 sentences, italic) — the core differentiator
+- Three action buttons:
+  - **"Convince me"** — calls `seek-convince` edge function, expands inline
+  - **"+ Save"** — uses existing `useWatchlist` hook's `addToWatchlist` mutation
+  - **"Details"** — navigates to `/anime/:id` or `/manga/:id`
+
+### 6. Cover Image Fetching
+
+After AI returns results, batch-fetch cover images by searching each title via `searchAnime(title)` or `searchManga(title)` from `src/lib/api.ts`. Match on the first result. If no match, show a gradient placeholder with the title text overlaid.
+
+### 7. Loading State
+
+- Skeleton card placeholders that pulse
+- Small "Seeking..." text below the input
+- Disable send button during loading
+
+### 8. Follow-up Refinement
+
+After results are displayed:
+- Change input placeholder to `"More like #3 but darker..." or "None of these — try something weird"`
+- Send full conversation history (original prompt + previous results + follow-up) to maintain context
+
+---
+
+## Technical Details
+
+- **AI Model**: `google/gemini-2.5-flash` via Lovable AI gateway — fast (2-3s), good reasoning, handles the structured JSON output well, no API key needed
+- **No Anthropic API**: The spec mentions Anthropic directly, but we'll use the Lovable AI gateway which is already configured and doesn't require additional setup
+- **No web search**: The Lovable AI gateway doesn't support Anthropic's `web_search` tool, but the model's training data covers anime/manga community knowledge extensively
+- **Cover images**: Reuse existing `searchAnime`/`searchManga` from `src/lib/api.ts` — no new API integration needed
+- **Save functionality**: Reuse existing `useWatchlist` hook
+- **Theme support**: Standard dark/light theme support using existing Tailwind classes (ink theme deferred to second prompt per spec)
+- **Mobile**: Input sticky at top, chip rows with horizontal scroll + momentum, full-width stacked cards, large tap targets
 
