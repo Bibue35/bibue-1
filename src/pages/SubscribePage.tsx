@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
@@ -6,22 +7,52 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useBridgeCredits";
 import { Check } from "lucide-react";
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 const FEATURES = [
   "Unlimited access to all licensed and bridged titles",
   "15 Bridge Credits every month to vote on new stories",
-  "Cancel anytime — no hidden fees, no tiers",
+  "Cancel anytime — no hidden fees",
 ];
+
+const PLANS = [
+  {
+    key: "monthly",
+    label: "Monthly",
+    price: 8.99,
+    period: "/ month",
+    tagline: "Perfect for binging a series or trying things out.",
+  },
+  {
+    key: "quarterly",
+    label: "Quarterly",
+    price: 23.99,
+    period: "/ 3 months",
+    tagline: "Follow a full season of weekly releases.",
+    monthly: 7.99,
+  },
+  {
+    key: "annual",
+    label: "Annual",
+    price: 85.99,
+    period: "/ year",
+    tagline: "Four seasons, one price — the best way to stay current.",
+    monthly: 7.16,
+  },
+] as const;
 
 export default function SubscribePage() {
   const { user } = useAuth();
   const { data: subscription } = useSubscription();
   const isSubscribed = !!subscription;
+  const [selected, setSelected] = useState<string>("monthly");
+
+  const plan = PLANS.find((p) => p.key === selected)!;
 
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Subscribe to Bibue — $8.99/mo"
+        title="Subscribe to Bibue"
         description="Unlimited manga reading and 15 Bridge Credits every month. Cancel anytime."
         url="/subscribe"
       />
@@ -30,17 +61,49 @@ export default function SubscribePage() {
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-4 max-w-lg">
           {/* Header */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-10">
             <h1 className="text-3xl sm:text-4xl font-sacred font-bold tracking-wide mb-2">
               Subscribe to Bibue
             </h1>
-            <p className="text-5xl sm:text-6xl font-bold text-foreground mt-6 mb-1">
-              $8.99
+          </div>
+
+          {/* Plan toggle */}
+          <div className="flex gap-1.5 p-1.5 rounded-xl bg-muted/50 mb-8">
+            {PLANS.map((p) => (
+              <button
+                key={p.key}
+                onClick={() => setSelected(p.key)}
+                className={cn(
+                  "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                  selected === p.key
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Price display */}
+          <div className="text-center mb-2">
+            <p className="text-5xl sm:text-6xl font-bold text-foreground mb-1 tabular-nums transition-all duration-200">
+              ${plan.price.toFixed(2)}
             </p>
             <p className="text-muted-foreground text-sm tracking-wide">
-              per month
+              {plan.period}
             </p>
+            {"monthly" in plan && (
+              <p className="text-xs text-primary mt-1.5 font-medium">
+                ${(plan as any).monthly.toFixed(2)}/mo — save vs monthly
+              </p>
+            )}
           </div>
+
+          {/* Tagline */}
+          <p className="text-center text-sm text-muted-foreground mb-10 min-h-[2.5rem] transition-all duration-200">
+            {plan.tagline}
+          </p>
 
           {/* Features */}
           <ul className="space-y-4 mb-10">
@@ -80,7 +143,7 @@ export default function SubscribePage() {
 
           {/* Fine print */}
           <p className="text-center text-[11px] text-muted-foreground/60 mt-6">
-            Cancel anytime. No hidden fees. No tiers.
+            Cancel anytime. No hidden fees.
           </p>
         </div>
       </main>
