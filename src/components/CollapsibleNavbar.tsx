@@ -20,11 +20,9 @@ export function CollapsibleNavbar() {
   const { user } = useAuth();
 
   const navLinks = [
-    { href: "/manga", label: "Browse" },
-    ...(user ? [
-      { href: "/originals", label: "Originals" },
-    ] : []),
+    { href: "/originals", label: "Originals" },
     { href: "/community", label: "Community" },
+    ...(user ? [{ href: "/watchlist", label: "Library" }] : []),
   ];
 
   useEffect(() => {
