@@ -79,14 +79,20 @@ export function CollapsibleNavbar() {
       <nav
         aria-label="Main navigation"
         className={cn(
-          "fixed top-0 left-0 right-0 transition-all duration-500 ease-out transform-gpu",
+          "fixed top-0 left-0 right-0 transform-gpu",
+          "transition-[transform,padding] duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)]",
           isMobileMenuOpen ? "z-[120]" : "z-50",
-          isScrolled
-            ? "bg-background/80 backdrop-blur-2xl py-3 navbar-shimmer-line"
-            : "bg-transparent py-5",
+          scrollOpacity > 0.05 ? "navbar-shimmer-line" : "",
           !isVisible && "-translate-y-full pointer-events-none"
         )}
-        style={{ willChange: "transform" }}
+        style={{
+          willChange: "transform",
+          backgroundColor: `hsl(var(--background) / ${scrollOpacity * 0.85})`,
+          backdropFilter: `blur(${scrollOpacity * 24}px)`,
+          WebkitBackdropFilter: `blur(${scrollOpacity * 24}px)`,
+          paddingTop: `${scrollOpacity > 0.5 ? 0.75 : 1.25}rem`,
+          paddingBottom: `${scrollOpacity > 0.5 ? 0.75 : 1.25}rem`,
+        }}
       >
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between">
