@@ -118,21 +118,29 @@ export default function AdminPage() {
         </div>
 
         <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
-                activeTab === tab.id
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              )}
-            >
-              <tab.icon className="w-4 h-4 shrink-0" />
-              {sidebarOpen && <span>{tab.label}</span>}
-            </button>
-          ))}
+          {TABS.map((tab) => {
+            const badgeCount = tabBadges[tab.id] || 0;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => handleTabChange(tab.id)}
+                className={cn(
+                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors relative",
+                  activeTab === tab.id
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )}
+              >
+                <tab.icon className="w-4 h-4 shrink-0" />
+                {sidebarOpen && <span className="flex-1 text-left">{tab.label}</span>}
+                {badgeCount > 0 && (
+                  <span className="bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 animate-pulse">
+                    {badgeCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </nav>
 
         <div className="p-3 border-t border-border/50 space-y-1">
