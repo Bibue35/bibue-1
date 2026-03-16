@@ -399,7 +399,6 @@ export default function SupportPage() {
                   <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-primary" /> Content reports</li>
                 </ul>
                 <Button
-                  variant="magenta"
                   className="w-full gap-2"
                   onClick={() => setShowForm(true)}
                 >
