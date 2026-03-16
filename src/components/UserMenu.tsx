@@ -1,6 +1,6 @@
 import { useState, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
-import { User, LogOut, Settings, EyeOff, Eye, Globe, Check, Bookmark, Heart, MessageCircle, Users, BarChart3, Sparkles, HelpCircle } from "lucide-react";
+import { User, LogOut, Settings, EyeOff, Eye, Globe, Check, Bookmark, Heart, MessageCircle, Users, BarChart3, Sparkles, HelpCircle, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -175,8 +175,14 @@ export function UserMenu() {
           </Link>
         </DropdownMenuItem>
 
+        <DropdownMenuItem asChild className="gap-3 cursor-pointer px-3">
+          <Link to="/subscribe">
+            <CreditCard className="w-4 h-4" />
+            <span>Subscribe</span>
+          </Link>
+        </DropdownMenuItem>
 
-        
+
         <DropdownMenuSeparator />
         
         <DropdownMenuLabel className="text-xs text-muted-foreground font-normal px-3">
