@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { SEO } from "@/components/SEO";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Library, Grid, List, Film, BookOpen, Trash2, Tag, BarChart3, Search, ArrowUpDown, BookmarkPlus } from "lucide-react";
+import { Library, Grid, List, Film, BookOpen, Trash2, Tag, BarChart3, Search, ArrowUpDown, BookmarkPlus, ChevronDown } from "lucide-react";
 import { QuickProgressButton } from "@/components/QuickProgressButton";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
@@ -51,6 +51,7 @@ export default function WatchlistPage() {
   const [filter, setFilter] = useState<"all" | "anime" | "manga" | "manhwa" | "manhua">(typeFromUrl || "all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [mangaSubOpen, setMangaSubOpen] = useState(false);
 
   const filteredWatchlist = useMemo(() => {
     let items = watchlist?.filter((item) => {
@@ -198,17 +199,63 @@ export default function WatchlistPage() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-2 flex-wrap">
-              {(["all", "anime", "manga"] as const).map((f) => (
+              <Button
+                variant={filter === "all" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setFilter("all")}
+                className={cn("rounded-full", filter !== "all" && "glass-button")}
+              >
+                {t("common.all")}
+              </Button>
+              <Button
+                variant={filter === "anime" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setFilter("anime")}
+                className={cn("rounded-full", filter !== "anime" && "glass-button")}
+              >
+                Anime
+              </Button>
+
+              {/* Manga collapsible group */}
+              <div className="relative">
                 <Button
-                  key={f}
-                  variant={filter === f ? "default" : "ghost"}
+                  variant={["manga", "manhwa", "manhua"].includes(filter) ? "default" : "ghost"}
                   size="sm"
-                  onClick={() => setFilter(f)}
-                  className={cn("rounded-full capitalize", filter !== f && "glass-button")}
+                  onClick={() => {
+                    if (!["manga", "manhwa", "manhua"].includes(filter)) setFilter("manga");
+                    setMangaSubOpen(!mangaSubOpen);
+                  }}
+                  className={cn(
+                    "rounded-full gap-1",
+                    !["manga", "manhwa", "manhua"].includes(filter) && "glass-button"
+                  )}
                 >
-                  {f === "all" ? t("common.all") : f.charAt(0).toUpperCase() + f.slice(1)}
+                  {filter === "manhwa" ? "Manhwa" : filter === "manhua" ? "Manhua" : "Manga"}
+                  <ChevronDown className={cn(
+                    "w-3 h-3 transition-transform duration-200",
+                    mangaSubOpen && "rotate-180"
+                  )} />
                 </Button>
-              ))}
+                {mangaSubOpen && (
+                  <div className="absolute top-full left-0 mt-1 z-20 bg-popover border border-border rounded-xl shadow-lg p-1 min-w-[120px]">
+                    {(["manga", "manhwa", "manhua"] as const).map((sub) => (
+                      <button
+                        key={sub}
+                        onClick={() => {
+                          setFilter(sub);
+                          setMangaSubOpen(false);
+                        }}
+                        className={cn(
+                          "w-full text-left px-3 py-1.5 text-sm rounded-lg transition-colors",
+                          filter === sub ? "bg-primary text-primary-foreground" : "hover:bg-accent"
+                        )}
+                      >
+                        {sub.charAt(0).toUpperCase() + sub.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-40 rounded-full">
