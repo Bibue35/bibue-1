@@ -15,31 +15,32 @@ const FEATURES = [
   "Cancel anytime — no hidden fees",
 ];
 
+const MONTHLY_RATE = 8.99;
+
 const PLANS = [
   {
     key: "monthly",
     label: "Monthly",
-    price: 8.99,
+    price: MONTHLY_RATE,
+    months: 1,
     period: "/ month",
-    tagline: "Perfect for binging a series or trying things out.",
+    tagline: "Perfect for quickly finishing a series.",
   },
   {
     key: "quarterly",
     label: "Quarterly",
-    price: 21.99,
+    price: MONTHLY_RATE * 3,
+    months: 3,
     period: "/ 3 months",
-    tagline: "Follow a full season of weekly releases.",
-    perMonth: 7.33,
-    save: 4.98,
+    tagline: "Best when you want one full season of reading.",
   },
   {
     key: "annual",
     label: "Annual",
-    price: 74.99,
+    price: MONTHLY_RATE * 12,
+    months: 12,
     period: "/ year",
-    tagline: "Four seasons, one price — the best way to stay current.",
-    perMonth: 6.25,
-    save: 32.89,
+    tagline: "Great if you want all 4 quarters covered.",
   },
 ] as const;
 
@@ -95,9 +96,9 @@ export default function SubscribePage() {
             <p className="text-muted-foreground text-sm tracking-wide">
               {plan.period}
             </p>
-            {"perMonth" in plan && (
-              <p className="text-xs text-primary mt-1.5 font-medium">
-                ${plan.perMonth.toFixed(2)}/mo — save ${plan.save.toFixed(2)} vs monthly
+            {plan.months > 1 && (
+              <p className="text-xs text-muted-foreground mt-1.5 font-medium">
+                Same rate: ${MONTHLY_RATE.toFixed(2)}/mo billed upfront
               </p>
             )}
           </div>
