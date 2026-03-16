@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
+import bibueIcon from "@/assets/bibue-tower.png";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
