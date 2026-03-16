@@ -172,6 +172,7 @@ const App = () => (
                           <Route path="/refer" element={<ReferAndEarnPage />} />
                           <Route path="/subscribe" element={<SubscribePage />} />
                           <Route path="/bridge" element={<ProtectedRoute><BridgePage /></ProtectedRoute>} />
+                          <Route path="/brand" element={<BrandPage />} />
                           <Route path="/support" element={<ProtectedRoute><SupportPage /></ProtectedRoute>} />
                           <Route path="/creator/dashboard" element={<ProtectedRoute><CreatorDashboard /></ProtectedRoute>} />
                           <Route path="/creator/:identifier" element={<CreatorProfile />} />
