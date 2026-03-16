@@ -25,9 +25,7 @@ const OfflineBanner = lazy(() => import("@/components/OfflineBanner").then(m => 
 // Lazy load non-critical global components
 const MiniPlayer = lazy(() => import("@/components/MiniPlayer").then(m => ({ default: m.MiniPlayer })));
 const MessageNotificationProvider = lazy(() => import("@/components/MessageNotificationProvider").then(m => ({ default: m.MessageNotificationProvider })));
-const CreatorWelcomeModal = lazy(() => import("@/components/CreatorWelcomeModal").then(m => ({ default: m.CreatorWelcomeModal })));
 const PWAInstallPrompt = lazy(() => import("@/components/PWAInstallPrompt").then(m => ({ default: m.PWAInstallPrompt })));
-const FloatingUploadButton = lazy(() => import("@/components/FloatingUploadButton").then(m => ({ default: m.FloatingUploadButton })));
 
 const ContextualBottomStrip = lazy(() => import("@/components/ContextualBottomStrip").then(m => ({ default: m.ContextualBottomStrip })));
 
