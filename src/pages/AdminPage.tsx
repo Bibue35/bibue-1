@@ -30,6 +30,7 @@ import { StudioSubmissionsTab } from "@/components/admin/StudioSubmissionsTab";
 import { BugRoadmapTab } from "@/components/admin/BugRoadmapTab";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { Bug, UserCog } from "lucide-react";
+import { useAdminRealtime } from "@/hooks/useAdminRealtime";
 
 type Tab = "overview" | "creators" | "series" | "moderation" | "comments" | "analytics" | "payouts" | "support" | "studio" | "bugs" | "users";
 
