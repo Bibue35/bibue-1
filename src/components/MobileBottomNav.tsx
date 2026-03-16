@@ -4,7 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect, useRef } from "react";
 
 const NAV_ITEMS = [
-  { href: "/manga", label: "Browse" },
   { href: "/originals", label: "Originals" },
   { href: "/watchlist", label: "Library", requiresAuth: true },
 ];
