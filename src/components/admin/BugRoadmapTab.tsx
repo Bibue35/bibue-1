@@ -184,12 +184,15 @@ export function BugRoadmapTab() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold font-sacred mb-6 flex items-center gap-2">
-        <Bug className="w-6 h-6 text-primary" />
-        Bug Roadmap
-      </h1>
-
-      {bugs.length === 0 ? (
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold font-sacred flex items-center gap-2">
+          <Bug className="w-6 h-6 text-primary" />
+          Bug Roadmap
+        </h1>
+        <Button onClick={() => setShowAdd(true)} className="gap-2">
+          <Plus className="w-4 h-4" /> Add Bug
+        </Button>
+      </div>
         <div className="text-center py-16 text-muted-foreground">
           <Bug className="w-12 h-12 mx-auto mb-3 opacity-30" />
           <p>No bug reports yet</p>
