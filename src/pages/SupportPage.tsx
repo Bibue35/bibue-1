@@ -335,7 +335,7 @@ export default function SupportPage() {
             </span>
           </h1>
           <p className="text-lg text-muted-foreground">
-            Fast help for creators &amp; readers
+            How can we help?
           </p>
         </div>
       </section>
