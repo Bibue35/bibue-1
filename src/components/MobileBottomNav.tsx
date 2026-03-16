@@ -43,7 +43,7 @@ export function MobileBottomNav() {
       <nav
         className={cn(
           "md:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-2xl border-t border-border/10",
-          "transition-transform duration-300 ease-out",
+          "transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)]",
           isVisible ? "translate-y-0" : "translate-y-full"
         )}
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}

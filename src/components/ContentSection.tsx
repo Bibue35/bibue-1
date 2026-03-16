@@ -66,7 +66,9 @@ export function ContentSection({
           </div>
         </div>
 
-        {children}
+        <div className={cn("transition-opacity duration-500", isInView ? "entrance-stagger opacity-100" : "opacity-0")}>
+          {children}
+        </div>
       </div>
     </section>
   );
