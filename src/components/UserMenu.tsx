@@ -63,10 +63,10 @@ export function UserMenu() {
     return (
       <>
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
           onClick={() => setAuthModalOpen(true)}
-          className="hidden md:flex rounded-full gap-2"
+          className="hidden md:flex rounded-full gap-2 bg-foreground text-background hover:bg-foreground/90 hover:text-background border-transparent font-medium px-5"
         >
           <User className="w-4 h-4" />
           <span className="hidden sm:inline">{t("auth.signIn")}</span>
