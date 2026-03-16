@@ -164,7 +164,7 @@ export default function AdminPage() {
       {/* Main content */}
       <main className={cn("flex-1 min-h-screen", sidebarOpen ? "md:ml-0 ml-16" : "ml-16")}>
         <div className="p-4 sm:p-6 lg:p-8 max-w-7xl">
-          {activeTab === "overview" && <OverviewTab onNavigate={setActiveTab} />}
+          {activeTab === "overview" && <OverviewTab onNavigate={handleTabChange} />}
           {activeTab === "studio" && <StudioSubmissionsTab />}
           {activeTab === "creators" && <CreatorsTab />}
           {activeTab === "series" && <SeriesTab />}
