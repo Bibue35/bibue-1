@@ -5,12 +5,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
-import { Bug, Loader2, Send, ArrowLeft, AlertCircle, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Bug, Loader2, Send, ArrowLeft, AlertCircle, Clock, CheckCircle, XCircle, Plus } from "lucide-react";
 
 const COLUMNS = [
   { status: "open", label: "Open", icon: AlertCircle, color: "text-primary" },
