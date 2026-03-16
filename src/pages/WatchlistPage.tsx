@@ -51,6 +51,7 @@ export default function WatchlistPage() {
   const [filter, setFilter] = useState<"all" | "anime" | "manga" | "manhwa" | "manhua">(typeFromUrl || "all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [mangaSubOpen, setMangaSubOpen] = useState(false);
 
   const filteredWatchlist = useMemo(() => {
     let items = watchlist?.filter((item) => {
