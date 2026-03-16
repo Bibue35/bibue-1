@@ -79,12 +79,11 @@ export function CinematicHero() {
   if (isLoading && !items.length) return <HeroSkeleton variant="full" />;
 
   const current = items[idx];
-  const parallaxOffset = scrollY * 0.3;
 
   return (
     <section aria-label="Featured manga" className="relative min-h-[90vh] sm:min-h-[92vh] flex flex-col overflow-hidden">
-      {/* Background with parallax */}
-      <div className="absolute inset-0 z-0" style={{ transform: `translateY(${parallaxOffset}px)`, willChange: 'transform' }}>
+      {/* Background */}
+      <div className="absolute inset-0 z-0">
         {current && items.map((item, i) => {
           const next = (idx + 1) % items.length;
           if (i !== idx && i !== next) return null;
