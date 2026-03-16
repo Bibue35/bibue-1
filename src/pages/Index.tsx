@@ -132,24 +132,7 @@ const Index = () => {
 
       <CinematicHero />
 
-      {/* For Creators — subtle text link for logged-in users */}
-      {user && (
-        <section className="container mx-auto px-4 sm:px-6 pt-12">
-          <Link
-            to="/studio"
-            className="group flex items-center justify-between py-4 border-b border-border/10 hover:border-border/30 transition-colors duration-300"
-          >
-            <div>
-              <p className="text-sm font-medium">Are you a creator?</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Upload your manga & earn up to 80% revenue</p>
-            </div>
-            <span className="text-xs font-medium tracking-wide uppercase text-muted-foreground group-hover:text-foreground transition-colors">
-              Learn more
-              <span className="inline-block ml-2 w-4 h-px bg-muted-foreground group-hover:w-6 group-hover:bg-foreground transition-all duration-300 align-middle" />
-            </span>
-          </Link>
-        </section>
-      )}
+
 
       {/* Continue Reading */}
       <ContinueReadingRow />
