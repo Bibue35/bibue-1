@@ -13,9 +13,7 @@ export function useIsOwnerOrAdmin() {
     queryKey: ["owner-admin-check", user?.id],
     queryFn: async (): Promise<boolean> => {
       if (!user?.id) return false;
-      // Check owner email
       if (user.email && OWNER_EMAILS.includes(user.email)) return true;
-      // Check admin role
       const { data } = await supabase
         .from("user_roles")
         .select("role")
@@ -28,23 +26,38 @@ export function useIsOwnerOrAdmin() {
   });
 }
 
-// ─── Overview stats ───
+// ─── Enhanced Overview stats — all parallel ───
 export function useAdminOverview() {
   return useQuery({
     queryKey: ["admin-overview"],
     queryFn: async () => {
-      const [creators, series, chapters, reports, payouts, wishlist] = await Promise.all([
+      const [
+        creators, series, chapters, reports, payouts, wishlist,
+        totalUsers, discussions, tickets, follows, watchlistItems,
+        recentUsers, recentSeries, recentTickets, dmcaRequests
+      ] = await Promise.all([
         supabase.from("creator_profiles").select("id", { count: "exact", head: true }),
         supabase.from("series").select("id", { count: "exact", head: true }),
         supabase.from("chapters").select("id", { count: "exact", head: true }),
         supabase.from("content_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("payouts").select("amount, status"),
         supabase.from("subscription_wishlist").select("id", { count: "exact", head: true }),
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("discussions").select("id", { count: "exact", head: true }),
+        supabase.from("support_tickets").select("id, status", { count: "exact" }),
+        supabase.from("user_follows").select("id", { count: "exact", head: true }),
+        supabase.from("watchlist").select("id", { count: "exact", head: true }),
+        supabase.from("profiles").select("user_id, username, display_name, avatar_url, created_at").order("created_at", { ascending: false }).limit(8),
+        supabase.from("series").select("id, title, status, cover_image_url, created_at, creator_profiles!series_creator_id_fkey(display_name)").order("created_at", { ascending: false }).limit(6),
+        supabase.from("support_tickets").select("id, subject, status, category, is_creator_priority, created_at").order("created_at", { ascending: false }).limit(5),
+        supabase.from("dmca_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
       ]);
 
       const pendingPayouts = payouts.data?.filter(p => p.status === "pending") || [];
       const totalPending = pendingPayouts.reduce((sum, p) => sum + Number(p.amount), 0);
       const totalPaid = (payouts.data?.filter(p => p.status === "paid") || []).reduce((sum, p) => sum + Number(p.amount), 0);
+
+      const openTickets = (tickets.data || []).filter(t => t.status === "open" || t.status === "in-progress").length;
 
       return {
         totalCreators: creators.count || 0,
@@ -54,8 +67,19 @@ export function useAdminOverview() {
         pendingPayoutAmount: totalPending,
         totalPaid,
         subscriptionWishlist: wishlist.count || 0,
+        totalUsers: totalUsers.count || 0,
+        totalDiscussions: discussions.count || 0,
+        totalTickets: tickets.count || 0,
+        openTickets,
+        totalFollows: follows.count || 0,
+        totalWatchlistItems: watchlistItems.count || 0,
+        pendingDMCA: dmcaRequests.count || 0,
+        recentUsers: recentUsers.data || [],
+        recentSeries: recentSeries.data || [],
+        recentTickets: recentTickets.data || [],
       };
     },
+    staleTime: 30_000, // Cache for 30s to avoid re-fetching on tab switches
   });
 }
 
@@ -77,7 +101,6 @@ export function useAdminCreators(search?: string) {
       const { data, error } = await query;
       if (error) throw error;
 
-      // Get profiles for email (we can't access auth.users, but we have user_id)
       const userIds = (data || []).map(c => c.user_id);
       const { data: profiles } = await supabase
         .from("profiles")
@@ -92,6 +115,7 @@ export function useAdminCreators(search?: string) {
         seriesCount: c.series?.[0]?.count || 0,
       }));
     },
+    staleTime: 30_000,
   });
 }
 
@@ -119,6 +143,7 @@ export function useAdminSeries(search?: string) {
         chaptersCount: s.chapters?.[0]?.count || 0,
       }));
     },
+    staleTime: 30_000,
   });
 }
 
@@ -140,7 +165,6 @@ export function useAdminModeration(statusFilter: string = "pending") {
       const { data, error } = await query;
       if (error) throw error;
 
-      // Get creator names
       const creatorIds = [...new Set((data || []).map(d => d.creator_id))];
       const { data: profiles } = await supabase
         .from("creator_profiles")
@@ -154,6 +178,7 @@ export function useAdminModeration(statusFilter: string = "pending") {
         creatorName: nameMap.get(item.creator_id) || "Unknown",
       }));
     },
+    staleTime: 15_000,
   });
 }
 
@@ -173,6 +198,7 @@ export function useAdminModerationCounts() {
         total: (pending.count || 0) + (approved.count || 0) + (rejected.count || 0),
       };
     },
+    staleTime: 30_000,
   });
 }
 
@@ -216,7 +242,6 @@ export function useApproveModerationItem() {
         .eq("id", itemId);
       if (error) throw error;
 
-      // If it's a chapter, publish it
       if (chapterId) {
         await supabase
           .from("chapters")
@@ -262,7 +287,6 @@ export function useAdminPayouts() {
         .order("created_at", { ascending: false });
       if (error) throw error;
 
-      // Get creator names
       const creatorIds = [...new Set((data || []).map(p => p.creator_id))];
       const { data: profiles } = await supabase
         .from("creator_profiles")
@@ -276,6 +300,7 @@ export function useAdminPayouts() {
         creatorName: nameMap.get(p.creator_id) || "Unknown",
       }));
     },
+    staleTime: 30_000,
   });
 }
 
