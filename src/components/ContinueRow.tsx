@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Play, BookOpen } from "lucide-react";
+import { Play, BookOpen, X } from "lucide-react";
 import { useWatchlist, WatchlistItem } from "@/hooks/useWatchlist";
 import { useAuth } from "@/contexts/AuthContext";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
@@ -9,12 +9,18 @@ import { QuickProgressButton } from "@/components/QuickProgressButton";
 import { Progress } from "@/components/ui/progress";
 
 function ContinueCard({ item }: { item: WatchlistItem }) {
+  const { updateStatus } = useWatchlist();
   const isAnime = item.media_type === "anime";
   const current = isAnime ? (item.episodes_watched || 0) : (item.chapters_read || 0);
-  // We don't have total stored in watchlist, so show what we have
   const label = isAnime
     ? `Episode ${current}`
     : `Chapter ${current}`;
+
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    updateStatus.mutate({ mal_id: item.mal_id, media_type: item.media_type, status: "on_hold" });
+  };
 
   return (
     <div
@@ -56,6 +62,14 @@ function ContinueCard({ item }: { item: WatchlistItem }) {
               <span className="text-[10px] sm:text-xs font-medium">{label}</span>
             </div>
           </div>
+          {/* Remove button */}
+          <button
+            onClick={handleRemove}
+            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm rounded-full p-0.5 hover:bg-destructive hover:text-destructive-foreground"
+            aria-label={`Remove ${item.title}`}
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
       </Link>
 
