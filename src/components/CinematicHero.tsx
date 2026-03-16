@@ -55,20 +55,6 @@ export function CinematicHero() {
     return () => clearInterval(t);
   }, [items.length]);
 
-  // Parallax scroll tracking
-  useEffect(() => {
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        setScrollY(window.scrollY);
-        ticking = false;
-      });
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   // Preload next image
   const preloadRef = useRef<HTMLLinkElement | null>(null);
