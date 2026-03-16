@@ -24,7 +24,7 @@ export function CinematicHero() {
   const isMobile = useIsMobile();
   const [activeFilter, setActiveFilter] = useState<MediaFilter>("manga");
   const [idx, setIdx] = useState(0);
-  const [scrollY, setScrollY] = useState(0);
+  
   const [transitioning, setTransitioning] = useState(false);
 
   const { data: mangaData, isLoading } = useTopManga(1, activeFilter, "popularity");
@@ -55,20 +55,6 @@ export function CinematicHero() {
     return () => clearInterval(t);
   }, [items.length]);
 
-  // Parallax scroll tracking
-  useEffect(() => {
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        setScrollY(window.scrollY);
-        ticking = false;
-      });
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   // Preload next image
   const preloadRef = useRef<HTMLLinkElement | null>(null);
@@ -93,12 +79,11 @@ export function CinematicHero() {
   if (isLoading && !items.length) return <HeroSkeleton variant="full" />;
 
   const current = items[idx];
-  const parallaxOffset = scrollY * 0.3;
 
   return (
     <section aria-label="Featured manga" className="relative min-h-[90vh] sm:min-h-[92vh] flex flex-col overflow-hidden">
-      {/* Background with parallax */}
-      <div className="absolute inset-0 z-0" style={{ transform: `translateY(${parallaxOffset}px)`, willChange: 'transform' }}>
+      {/* Background */}
+      <div className="absolute inset-0 z-0">
         {current && items.map((item, i) => {
           const next = (idx + 1) % items.length;
           if (i !== idx && i !== next) return null;
