@@ -243,7 +243,6 @@ export function CollapsibleNavbar() {
           <div className="flex-1 flex flex-col">
             <div className="flex-1">
               {[
-                { href: "/manga", label: "Browse", sub: "Discover manga" },
                 { href: "/originals", label: "Originals", sub: "Bibue exclusives" },
                 { href: "/watchlist", label: "Library", sub: "Your bookmarks", requiresAuth: true },
                 { href: "/community", label: "Community", sub: "Discuss & connect" },
