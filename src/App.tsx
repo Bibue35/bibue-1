@@ -68,6 +68,7 @@ const StudioPage = lazy(() => import("./pages/StudioPage"));
 const ReferAndEarnPage = lazy(() => import("./pages/ReferAndEarnPage"));
 const SubscribePage = lazy(() => import("./pages/SubscribePage"));
 const BridgePage = lazy(() => import("./pages/BridgePage"));
+const BrandPage = lazy(() => import("./pages/BrandPage"));
 
 // Minimal loading fallback for route transitions
 const PageLoader = () => (
@@ -171,6 +172,7 @@ const App = () => (
                           <Route path="/refer" element={<ReferAndEarnPage />} />
                           <Route path="/subscribe" element={<SubscribePage />} />
                           <Route path="/bridge" element={<ProtectedRoute><BridgePage /></ProtectedRoute>} />
+                          <Route path="/brand" element={<BrandPage />} />
                           <Route path="/support" element={<ProtectedRoute><SupportPage /></ProtectedRoute>} />
                           <Route path="/creator/dashboard" element={<ProtectedRoute><CreatorDashboard /></ProtectedRoute>} />
                           <Route path="/creator/:identifier" element={<CreatorProfile />} />
