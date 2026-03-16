@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Play, BookOpen } from "lucide-react";
+import { Play, BookOpen, X } from "lucide-react";
 import { useWatchlist, WatchlistItem } from "@/hooks/useWatchlist";
 import { useAuth } from "@/contexts/AuthContext";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
