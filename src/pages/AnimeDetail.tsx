@@ -4,6 +4,8 @@ import { SEO, creativeWorkJsonLd } from "@/components/SEO";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Star, Bookmark, MessageCircle, Send, User, ThumbsUp, ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, Play, Bell } from "lucide-react";
+import { useUserScore } from "@/hooks/useUserScore";
+import { RatingPopover } from "@/components/RatingPopover";
 import { EpisodeCountdown } from "@/components/EpisodeCountdown";
 import { WhereToWatch } from "@/components/WhereToWatch";
 import { ShareButton } from "@/components/ShareButton";
@@ -46,7 +48,9 @@ export default function AnimeDetailPage() {
 
   const translatedSynopsis = useTranslatedText(anime?.synopsis);
   const { logView } = useViewingHistory();
+  const { score: userScore, rate: rateMedia } = useUserScore(Number(id), "anime");
   const isBookmarked = isInWatchlist(Number(id), "anime");
+  const [likeAnimatingId, setLikeAnimatingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (anime && id) {
@@ -305,6 +309,9 @@ export default function AnimeDetailPage() {
                   <Bookmark className={cn("w-3.5 h-3.5", isBookmarked && "fill-current")} />
                   {isBookmarked ? "In List" : "Add to List"}
                 </Button>
+                {user && (
+                  <RatingPopover currentScore={userScore} onRate={rateMedia} />
+                )}
                 <ShareButton title={anime?.title || ""} url={`/anime/${id}`} />
                 {anime && (
                   <NotificationToggle
@@ -561,14 +568,18 @@ export default function AnimeDetailPage() {
                             </div>
                             <p className="text-sm text-muted-foreground mb-1.5">{comment.content}</p>
                             <button
-                              onClick={() => likeMutation.mutate(comment.id)}
+                              onClick={() => {
+                                setLikeAnimatingId(comment.id);
+                                setTimeout(() => setLikeAnimatingId(null), 300);
+                                likeMutation.mutate(comment.id);
+                              }}
                               disabled={!user || likeMutation.isPending}
                               className={cn(
                                 "flex items-center gap-1 text-xs transition-colors",
                                 hasLiked ? "text-primary" : "text-muted-foreground hover:text-foreground"
                               )}
                             >
-                              <ThumbsUp className={cn("w-3 h-3", hasLiked && "fill-current")} />
+                              <ThumbsUp className={cn("w-3 h-3 transition-transform", hasLiked && "fill-current", likeAnimatingId === comment.id && "animate-like-pop")} />
                               <span>{comment.likes || 0}</span>
                             </button>
                           </div>

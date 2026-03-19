@@ -1,9 +1,10 @@
-import { Bell, BellOff } from "lucide-react";
+import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNotificationPreference } from "@/hooks/useNotifications";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -22,10 +23,14 @@ export function NotificationToggle({ mediaId, mediaType, title, className }: Not
   const { user } = useAuth();
   const { toast } = useToast();
   const { isEnabled, toggle } = useNotificationPreference(mediaId, mediaType);
+  const [animating, setAnimating] = useState(false);
 
   if (!user) return null;
 
   const handleToggle = () => {
+    setAnimating(true);
+    setTimeout(() => setAnimating(false), 400);
+
     toggle.mutate(undefined, {
       onSuccess: () => {
         toast({
@@ -46,14 +51,16 @@ export function NotificationToggle({ mediaId, mediaType, title, className }: Not
             size="icon"
             onClick={handleToggle}
             disabled={toggle.isPending}
-            className={cn("rounded-full h-9 w-9", className)}
+            className={cn("rounded-full h-9 w-9 transition-transform duration-200", animating && "scale-125", className)}
             aria-label={isEnabled ? "Disable notifications" : "Enable notifications"}
           >
-            {isEnabled ? (
-              <Bell className="w-4 h-4 fill-primary text-primary" />
-            ) : (
-              <Bell className="w-4 h-4 text-muted-foreground" />
-            )}
+            <Bell
+              className={cn(
+                "w-4 h-4 transition-all duration-200",
+                isEnabled ? "fill-primary text-primary" : "text-muted-foreground",
+                animating && "animate-[bell-ring_0.4s_ease-in-out]"
+              )}
+            />
           </Button>
         </TooltipTrigger>
         <TooltipContent>
