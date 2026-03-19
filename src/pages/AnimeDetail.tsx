@@ -568,14 +568,18 @@ export default function AnimeDetailPage() {
                             </div>
                             <p className="text-sm text-muted-foreground mb-1.5">{comment.content}</p>
                             <button
-                              onClick={() => likeMutation.mutate(comment.id)}
+                              onClick={() => {
+                                setLikeAnimatingId(comment.id);
+                                setTimeout(() => setLikeAnimatingId(null), 300);
+                                likeMutation.mutate(comment.id);
+                              }}
                               disabled={!user || likeMutation.isPending}
                               className={cn(
                                 "flex items-center gap-1 text-xs transition-colors",
                                 hasLiked ? "text-primary" : "text-muted-foreground hover:text-foreground"
                               )}
                             >
-                              <ThumbsUp className={cn("w-3 h-3", hasLiked && "fill-current")} />
+                              <ThumbsUp className={cn("w-3 h-3 transition-transform", hasLiked && "fill-current", likeAnimatingId === comment.id && "animate-like-pop")} />
                               <span>{comment.likes || 0}</span>
                             </button>
                           </div>
