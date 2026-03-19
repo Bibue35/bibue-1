@@ -410,7 +410,15 @@ export default function MangaPage() {
                 ? `Top ${typeFilter ? typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1) + " " : ""}${genreName}`
                 : typeFilter
                   ? `Top ${typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}`
-                  : t("manga.topManga")}
+                  : filters.sort === "updated"
+                    ? "Recently Updated"
+                    : filters.sort === "trending"
+                      ? "Trending"
+                      : filters.sort === "score"
+                        ? "Top Rated"
+                        : filters.sort === "newest"
+                          ? "Newest"
+                          : t("manga.topManga")}
           </h2>
 
           {isSearching && gridLoading ? (
