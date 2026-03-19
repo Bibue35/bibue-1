@@ -14,7 +14,7 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import { CinematicHero } from "@/components/CinematicHero";
 import { useTopManga, useTrendingManhwa, useTrendingManhua, useRecentlyUpdatedManga, useAllTimeTopManga } from "@/hooks/useAnimeData";
 import { CardSkeletonRow } from "@/components/skeletons";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ContinueReadingRow } from "@/components/ContinueRow";
 import { ViewToggle, ViewMode } from "@/components/ViewToggle";
 import { useNotificationGenerator } from "@/hooks/useNotificationGenerator";
