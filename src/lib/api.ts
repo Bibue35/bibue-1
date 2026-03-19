@@ -1001,6 +1001,7 @@ function buildSortValue(sort?: string): string {
     newest: "START_DATE_DESC",
     oldest: "START_DATE",
     alpha: "TITLE_ROMAJI",
+    updated: "UPDATED_AT_DESC",
   };
   return map[sort || "popularity"] || "POPULARITY_DESC";
 }
