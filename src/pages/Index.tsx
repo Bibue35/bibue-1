@@ -14,7 +14,7 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import { CinematicHero } from "@/components/CinematicHero";
 import { useTopManga, useTrendingManhwa, useTrendingManhua, useRecentlyUpdatedManga, useAllTimeTopManga } from "@/hooks/useAnimeData";
 import { CardSkeletonRow } from "@/components/skeletons";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ContinueReadingRow } from "@/components/ContinueRow";
 import { ViewToggle, ViewMode } from "@/components/ViewToggle";
 import { useNotificationGenerator } from "@/hooks/useNotificationGenerator";
@@ -25,39 +25,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useDeferredSection } from "@/hooks/useDeferredSection";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Manga } from "@/lib/api";
-import { cn } from "@/lib/utils";
 
 const Footer = lazy(() => import("@/components/Footer").then(m => ({ default: m.Footer })));
-
-const CONTENT_TYPES = ['manga', 'manhwa', 'manhua'] as const;
-type ContentTypeFilter = typeof CONTENT_TYPES[number];
-
-const TYPE_LABELS: Record<ContentTypeFilter, string> = {
-  manga: 'Manga',
-  manhwa: 'Manhwa',
-  manhua: 'Manhua',
-};
-
-function ContentTypeSwitcher({ value, onChange }: { value: ContentTypeFilter; onChange: (v: ContentTypeFilter) => void }) {
-  return (
-    <div className="flex gap-1 rounded-full bg-muted/50 p-0.5">
-      {CONTENT_TYPES.map((type) => (
-        <button
-          key={type}
-          onClick={() => onChange(type)}
-          className={cn(
-            "px-3 py-1 text-xs font-medium rounded-full transition-all duration-200",
-            value === type
-              ? "bg-foreground text-background shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          {TYPE_LABELS[type]}
-        </button>
-      ))}
-    </div>
-  );
-}
 
 function MangaGrid({ items }: { items: Manga[] }) {
   return (
@@ -103,11 +72,9 @@ const Index = () => {
   };
 
   const [trendingPeriod, setTrendingPeriod] = useState<TrendingPeriod>("daily");
-  const [topType, setTopType] = useState<ContentTypeFilter>('manga');
-  const [recentType, setRecentType] = useState<ContentTypeFilter>('manga');
 
-  const { data: topManga, isLoading: topMangaLoading, isError: topMangaError, refetch: refetchTopManga } = useTopManga(1, topType, 'popularity');
-  const { data: recentManga, isLoading: recentLoading, isError: recentError, refetch: refetchRecent } = useRecentlyUpdatedManga(1, true, recentType);
+  const { data: trendingManga, isLoading: trendingMangaLoading, isError: trendingMangaError, refetch: refetchTrendingManga } = useTopManga(1, 'manga', 'trending');
+  const { data: recentManga, isLoading: recentLoading, isError: recentError, refetch: refetchRecent } = useRecentlyUpdatedManga(1, true);
 
   const manhwaSection = useDeferredSection("400px");
   const manhuaSection = useDeferredSection("400px");
@@ -211,27 +178,17 @@ const Index = () => {
       )}
 
       {/* Recently Updated */}
-      <ContentSection title={`Recently Updated ${TYPE_LABELS[recentType]}`} linkTo={`/manga?sort=updated${recentType !== 'manga' ? `&filter=${recentType}` : ''}`} headerExtra={
-        <div className="flex items-center gap-2">
-          <ContentTypeSwitcher value={recentType} onChange={setRecentType} />
-          {viewToggle}
-        </div>
-      }>
+      <ContentSection title="Recently Updated" linkTo="/manga?sort=updated" headerExtra={viewToggle}>
         {recentError ? (
           <SectionError onRetry={() => refetchRecent()} />
         ) : renderMangaSection(recentManga, recentLoading)}
       </ContentSection>
 
-      {/* Top Manga/Manhwa/Manhua */}
-      <ContentSection title={`Top ${TYPE_LABELS[topType]}`} linkTo={`/manga?sort=popularity${topType !== 'manga' ? `&filter=${topType}` : ''}`} headerExtra={
-        <div className="flex items-center gap-2">
-          <ContentTypeSwitcher value={topType} onChange={setTopType} />
-          {viewToggle}
-        </div>
-      }>
-        {topMangaError ? (
-          <SectionError onRetry={() => refetchTopManga()} />
-        ) : renderMangaSection(topManga, topMangaLoading)}
+      {/* Trending Manga */}
+      <ContentSection title="Trending Manga" linkTo="/manga?sort=trending" headerExtra={viewToggle}>
+        {trendingMangaError ? (
+          <SectionError onRetry={() => refetchTrendingManga()} />
+        ) : renderMangaSection(trendingManga, trendingMangaLoading)}
       </ContentSection>
 
       <style>{`.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 400px; }`}</style>
