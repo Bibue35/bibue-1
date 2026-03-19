@@ -1,10 +1,9 @@
-import { Heart, Loader2 } from "lucide-react";
+import { Bookmark, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
-import { useState, lazy, Suspense } from "react";
+import { useState, lazy, Suspense, useRef } from "react";
 
 const AuthModal = lazy(() => import("./AuthModal").then(m => ({ default: m.AuthModal })));
 
@@ -30,12 +29,12 @@ export function WatchlistButton({
   className,
 }: WatchlistButtonProps) {
   const { user } = useAuth();
-  const { t } = useLanguage();
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [animating, setAnimating] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   const inWatchlist = user ? isInWatchlist(mal_id, media_type) : false;
-  const isLoading = addToWatchlist.isPending || removeFromWatchlist.isPending;
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -46,19 +45,37 @@ export function WatchlistButton({
       return;
     }
 
-    if (inWatchlist) {
-      removeFromWatchlist.mutate({ mal_id, media_type });
-    } else {
-      addToWatchlist.mutate({
-        mal_id,
-        media_type,
-        title,
-        title_japanese,
-        image_url,
-        score,
-      });
-    }
+    // Trigger micro-animation
+    setAnimating(true);
+    setTimeout(() => setAnimating(false), 300);
+
+    // Debounce rapid clicks
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      if (inWatchlist) {
+        removeFromWatchlist.mutate({ mal_id, media_type });
+      } else {
+        addToWatchlist.mutate({
+          mal_id,
+          media_type,
+          title,
+          title_japanese,
+          image_url,
+          score,
+        });
+      }
+    }, 150);
   };
+
+  const bookmarkIcon = (
+    <Bookmark
+      className={cn(
+        "w-4 h-4 transition-all duration-200",
+        inWatchlist && "fill-primary text-primary",
+        animating && "scale-125"
+      )}
+    />
+  );
 
   if (variant === "full") {
     return (
@@ -67,15 +84,15 @@ export function WatchlistButton({
           variant={inWatchlist ? "secondary" : "outline"}
           size="sm"
           onClick={handleClick}
-          disabled={isLoading}
-          className={cn("gap-2", className)}
-        >
-          {isLoading ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Heart className={cn("w-4 h-4", inWatchlist && "fill-current")} />
+          className={cn(
+            "gap-2 transition-all duration-200",
+            inWatchlist && "text-primary border-primary/30",
+            animating && "scale-95",
+            className
           )}
-          {inWatchlist ? t("status.inWatchlist") : t("status.addToWatchlist")}
+        >
+          {bookmarkIcon}
+          {inWatchlist ? "Bookmarked" : "Bookmark"}
         </Button>
         {authModalOpen && (
           <Suspense fallback={null}>
@@ -92,19 +109,15 @@ export function WatchlistButton({
         variant="ghost"
         size="icon"
         onClick={handleClick}
-        disabled={isLoading}
-        aria-label={inWatchlist ? `Remove ${title} from watchlist` : `Add ${title} to watchlist`}
+        aria-label={inWatchlist ? `Remove ${title} from bookmarks` : `Bookmark ${title}`}
         className={cn(
-          "rounded-full h-8 w-8",
-          inWatchlist && "text-destructive hover:text-destructive/80",
+          "rounded-full h-8 w-8 transition-all duration-200",
+          inWatchlist && "text-primary hover:text-primary/80",
+          animating && "scale-110",
           className
         )}
       >
-        {isLoading ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
-        ) : (
-          <Heart className={cn("w-4 h-4", inWatchlist && "fill-current")} />
-        )}
+        {bookmarkIcon}
       </Button>
       {authModalOpen && (
         <Suspense fallback={null}>
