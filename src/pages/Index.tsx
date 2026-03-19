@@ -210,8 +210,25 @@ const Index = () => {
         </ContentSection>
       )}
 
-      {/* Top Manga */}
-      <ContentSection title={t("section.topManga") || "Top Manga"} linkTo="/manga?sort=popularity" headerExtra={viewToggle}>
+      {/* Recently Updated */}
+      <ContentSection title={`Recently Updated ${TYPE_LABELS[recentType]}`} linkTo={`/manga?sort=updated${recentType !== 'manga' ? `&filter=${recentType}` : ''}`} headerExtra={
+        <div className="flex items-center gap-2">
+          <ContentTypeSwitcher value={recentType} onChange={setRecentType} />
+          {viewToggle}
+        </div>
+      }>
+        {recentError ? (
+          <SectionError onRetry={() => refetchRecent()} />
+        ) : renderMangaSection(recentManga, recentLoading)}
+      </ContentSection>
+
+      {/* Top Manga/Manhwa/Manhua */}
+      <ContentSection title={`Top ${TYPE_LABELS[topType]}`} linkTo={`/manga?sort=popularity${topType !== 'manga' ? `&filter=${topType}` : ''}`} headerExtra={
+        <div className="flex items-center gap-2">
+          <ContentTypeSwitcher value={topType} onChange={setTopType} />
+          {viewToggle}
+        </div>
+      }>
         {topMangaError ? (
           <SectionError onRetry={() => refetchTopManga()} />
         ) : renderMangaSection(topManga, topMangaLoading)}
@@ -240,17 +257,6 @@ const Index = () => {
             <SectionError onRetry={() => refetchTrendingManhua()} />
           ) : renderMangaSection(trendingManhua, trendingManhuaLoading)}
         </ContentSection>
-      </div>
-
-      {/* Recently Updated */}
-      <div ref={recentSection.ref} className="cv-auto">
-        {recentSection.isVisible ? (
-          <ContentSection title="Recently Updated" linkTo="/manga?sort=updated" headerExtra={viewToggle}>
-            {recentError ? (
-              <SectionError onRetry={() => refetchRecent()} />
-            ) : renderMangaSection(recentManga, recentLoading)}
-          </ContentSection>
-        ) : <div className="py-10" />}
       </div>
 
       {/* All-Time Top */}
