@@ -334,11 +334,11 @@ export function useRecentlyUpdatedAnime(page = 1, enabled = true) {
   });
 }
 
-export function useRecentlyUpdatedManga(page = 1, enabled = true) {
+export function useRecentlyUpdatedManga(page = 1, enabled = true, filter?: 'manga' | 'manhwa' | 'manhua') {
   const { language } = useLanguage();
   return useQuery({
-    queryKey: ["recentlyUpdatedManga", page, language],
-    queryFn: () => getRecentlyUpdatedManga(page, 25, language as SupportedLanguage),
+    queryKey: ["recentlyUpdatedManga", page, filter, language],
+    queryFn: () => getRecentlyUpdatedManga(page, 25, language as SupportedLanguage, filter),
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 15,
     enabled,
