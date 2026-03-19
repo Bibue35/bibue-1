@@ -4,6 +4,8 @@ import { SEO, creativeWorkJsonLd } from "@/components/SEO";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Star, Bookmark, MessageCircle, Send, User, ThumbsUp, ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, Play, Bell } from "lucide-react";
+import { useUserScore } from "@/hooks/useUserScore";
+import { RatingPopover } from "@/components/RatingPopover";
 import { EpisodeCountdown } from "@/components/EpisodeCountdown";
 import { WhereToWatch } from "@/components/WhereToWatch";
 import { ShareButton } from "@/components/ShareButton";
