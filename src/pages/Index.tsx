@@ -209,27 +209,17 @@ const Index = () => {
       )}
 
       {/* Recently Updated */}
-      <ContentSection title={`Recently Updated ${TYPE_LABELS[recentType]}`} linkTo={`/manga?sort=updated${recentType !== 'manga' ? `&filter=${recentType}` : ''}`} headerExtra={
-        <div className="flex items-center gap-2">
-          <ContentTypeSwitcher value={recentType} onChange={setRecentType} />
-          {viewToggle}
-        </div>
-      }>
+      <ContentSection title="Recently Updated" linkTo="/manga?sort=updated" headerExtra={viewToggle}>
         {recentError ? (
           <SectionError onRetry={() => refetchRecent()} />
         ) : renderMangaSection(recentManga, recentLoading)}
       </ContentSection>
 
-      {/* Top Manga/Manhwa/Manhua */}
-      <ContentSection title={`Top ${TYPE_LABELS[topType]}`} linkTo={`/manga?sort=popularity${topType !== 'manga' ? `&filter=${topType}` : ''}`} headerExtra={
-        <div className="flex items-center gap-2">
-          <ContentTypeSwitcher value={topType} onChange={setTopType} />
-          {viewToggle}
-        </div>
-      }>
-        {topMangaError ? (
-          <SectionError onRetry={() => refetchTopManga()} />
-        ) : renderMangaSection(topManga, topMangaLoading)}
+      {/* Trending Manga */}
+      <ContentSection title="Trending Manga" linkTo="/manga?sort=trending" headerExtra={viewToggle}>
+        {trendingMangaError ? (
+          <SectionError onRetry={() => refetchTrendingManga()} />
+        ) : renderMangaSection(trendingManga, trendingMangaLoading)}
       </ContentSection>
 
       <style>{`.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 400px; }`}</style>
