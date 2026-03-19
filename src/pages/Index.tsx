@@ -29,36 +29,6 @@ import { cn } from "@/lib/utils";
 
 const Footer = lazy(() => import("@/components/Footer").then(m => ({ default: m.Footer })));
 
-const CONTENT_TYPES = ['manga', 'manhwa', 'manhua'] as const;
-type ContentTypeFilter = typeof CONTENT_TYPES[number];
-
-const TYPE_LABELS: Record<ContentTypeFilter, string> = {
-  manga: 'Manga',
-  manhwa: 'Manhwa',
-  manhua: 'Manhua',
-};
-
-function ContentTypeSwitcher({ value, onChange }: { value: ContentTypeFilter; onChange: (v: ContentTypeFilter) => void }) {
-  return (
-    <div className="flex gap-1 rounded-full bg-muted/50 p-0.5">
-      {CONTENT_TYPES.map((type) => (
-        <button
-          key={type}
-          onClick={() => onChange(type)}
-          className={cn(
-            "px-3 py-1 text-xs font-medium rounded-full transition-all duration-200",
-            value === type
-              ? "bg-foreground text-background shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          {TYPE_LABELS[type]}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 function MangaGrid({ items }: { items: Manga[] }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5 entrance-stagger">
