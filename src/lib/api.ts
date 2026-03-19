@@ -455,18 +455,23 @@ export async function getRecentlyUpdatedAnime(page = 1, limit = 25, language: Su
 }
 
 // Get recently updated manga (currently releasing, sorted by trending to show truly active content)
-export async function getRecentlyUpdatedManga(page = 1, limit = 25, language: SupportedLanguage = "en"): Promise<Manga[]> {
+export async function getRecentlyUpdatedManga(page = 1, limit = 25, language: SupportedLanguage = "en", filter?: 'manga' | 'manhwa' | 'manhua'): Promise<Manga[]> {
+  let countryOfOrigin: string | undefined;
+  if (filter === "manga") countryOfOrigin = "JP";
+  else if (filter === "manhwa") countryOfOrigin = "KR";
+  else if (filter === "manhua") countryOfOrigin = "CN";
+
   const query = `
-    query ($page: Int, $perPage: Int) {
+    query ($page: Int, $perPage: Int, $countryOfOrigin: CountryCode) {
       Page(page: $page, perPage: $perPage) {
-        media(type: MANGA, status: RELEASING, sort: [TRENDING_DESC, POPULARITY_DESC], isAdult: false) {
+        media(type: MANGA, status: RELEASING, sort: [TRENDING_DESC, POPULARITY_DESC], countryOfOrigin: $countryOfOrigin, isAdult: false) {
           ${MEDIA_FRAGMENT}
         }
       }
     }
   `;
 
-  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit });
+  const data = await anilistQuery<{ Page: { media: AniListMedia[] } }>(query, { page, perPage: limit, countryOfOrigin });
   return data.Page.media.map(m => toManga(m, language));
 }
 
