@@ -25,7 +25,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useDeferredSection } from "@/hooks/useDeferredSection";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Manga } from "@/lib/api";
-import { cn } from "@/lib/utils";
 
 const Footer = lazy(() => import("@/components/Footer").then(m => ({ default: m.Footer })));
 
