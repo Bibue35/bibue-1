@@ -12,7 +12,7 @@ const GENRES = [
   "Mystery", "Romance", "Sci-Fi", "Slice of Life", "Thriller",
   "Supernatural", "Psychological", "Sports", "Historical",
   "Isekai", "Shounen", "Shoujo", "Seinen", "Josei",
-  "School", "Military",
+  "School", "Military", "Mecha", "Music", "Ecchi", "Mahou Shoujo",
 ];
 
 const YEARS = [

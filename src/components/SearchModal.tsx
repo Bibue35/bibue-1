@@ -165,6 +165,9 @@ function useVoiceInput(onResult: (text: string) => void) {
 const FILTER_GENRES = [
   "Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror",
   "Mystery", "Romance", "Sci-Fi", "Slice of Life", "Thriller", "Supernatural",
+  "Psychological", "Sports", "Historical", "Isekai", "Shounen", "Shoujo",
+  "Seinen", "Josei", "Mecha", "Music", "School", "Military",
+  "Ecchi", "Mahou Shoujo",
 ];
 const FILTER_YEARS = ["2026", "2025", "2024", "2023", "2020s", "2010s", "classic"];
 const FILTER_STATUSES = [
@@ -301,10 +304,24 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     if (!items) return items;
     let filtered = items;
     if (filterGenre) filtered = filtered.filter(i => i.genres?.some(g => g.name === filterGenre));
-    if (filterStatus) filtered = filtered.filter(i => i.status === filterStatus);
+    if (filterStatus) filtered = filtered.filter(i => {
+      // Map display status values to AniList status strings
+      if (filterStatus === "RELEASING") return i.status === "RELEASING" || i.status === "Currently Airing" || i.status === "Currently Publishing";
+      if (filterStatus === "FINISHED") return i.status === "FINISHED" || i.status === "Finished Airing" || i.status === "Finished";
+      if (filterStatus === "NOT_YET_RELEASED") return i.status === "NOT_YET_RELEASED" || i.status === "Not yet aired" || i.status === "Not yet published";
+      return i.status === filterStatus;
+    });
     if (filterYear) {
       const y = filterYear;
-      if (/^\d{4}$/.test(y)) filtered = filtered.filter(i => i.year === parseInt(y));
+      if (/^\d{4}$/.test(y)) {
+        filtered = filtered.filter(i => i.year === parseInt(y));
+      } else if (y === "2020s") {
+        filtered = filtered.filter(i => i.year && i.year >= 2020 && i.year <= 2029);
+      } else if (y === "2010s") {
+        filtered = filtered.filter(i => i.year && i.year >= 2010 && i.year <= 2019);
+      } else if (y === "classic") {
+        filtered = filtered.filter(i => i.year && i.year < 2010);
+      }
     }
     return filtered;
   };
