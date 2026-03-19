@@ -49,6 +49,7 @@ export default function AnimeDetailPage() {
   const translatedSynopsis = useTranslatedText(anime?.synopsis);
   const { logView } = useViewingHistory();
   const { score: userScore, rate: rateMedia } = useUserScore(Number(id), "anime");
+  const isBookmarked = isInWatchlist(Number(id), "anime");
   const [likeAnimatingId, setLikeAnimatingId] = useState<string | null>(null);
 
   useEffect(() => {
