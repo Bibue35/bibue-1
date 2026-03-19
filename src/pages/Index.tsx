@@ -103,11 +103,9 @@ const Index = () => {
   };
 
   const [trendingPeriod, setTrendingPeriod] = useState<TrendingPeriod>("daily");
-  const [topType, setTopType] = useState<ContentTypeFilter>('manga');
-  const [recentType, setRecentType] = useState<ContentTypeFilter>('manga');
 
-  const { data: topManga, isLoading: topMangaLoading, isError: topMangaError, refetch: refetchTopManga } = useTopManga(1, topType, 'popularity');
-  const { data: recentManga, isLoading: recentLoading, isError: recentError, refetch: refetchRecent } = useRecentlyUpdatedManga(1, true, recentType);
+  const { data: trendingManga, isLoading: trendingMangaLoading, isError: trendingMangaError, refetch: refetchTrendingManga } = useTopManga(1, 'manga', 'trending');
+  const { data: recentManga, isLoading: recentLoading, isError: recentError, refetch: refetchRecent } = useRecentlyUpdatedManga(1, true);
 
   const manhwaSection = useDeferredSection("400px");
   const manhuaSection = useDeferredSection("400px");
