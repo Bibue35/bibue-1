@@ -309,6 +309,9 @@ export default function AnimeDetailPage() {
                   <Bookmark className={cn("w-3.5 h-3.5", isBookmarked && "fill-current")} />
                   {isBookmarked ? "In List" : "Add to List"}
                 </Button>
+                {user && (
+                  <RatingPopover currentScore={userScore} onRate={rateMedia} />
+                )}
                 <ShareButton title={anime?.title || ""} url={`/anime/${id}`} />
                 {anime && (
                   <NotificationToggle
