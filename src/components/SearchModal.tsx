@@ -165,6 +165,9 @@ function useVoiceInput(onResult: (text: string) => void) {
 const FILTER_GENRES = [
   "Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror",
   "Mystery", "Romance", "Sci-Fi", "Slice of Life", "Thriller", "Supernatural",
+  "Psychological", "Sports", "Historical", "Isekai", "Shounen", "Shoujo",
+  "Seinen", "Josei", "Mecha", "Music", "School", "Military",
+  "Ecchi", "Mahou Shoujo",
 ];
 const FILTER_YEARS = ["2026", "2025", "2024", "2023", "2020s", "2010s", "classic"];
 const FILTER_STATUSES = [
