@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main, next-migration]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci --legacy-peer-deps
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
+          NEXT_TELEMETRY_DISABLED: "1"
+
+      - name: Detect duplicated closing tags
+        run: |
+          if grep -rnE '</([a-zA-Z][a-zA-Z0-9]*)>\1>' src/; then
+            echo "::error::Corruption pattern </tag>tag> detected"
+            exit 1
+          fi

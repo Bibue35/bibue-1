@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+set -e
+
+echo "▶ typecheck"
+npm run typecheck
+
+echo "▶ grep for duplicated closing tags (JSX corruption pattern)"
+if grep -rnE '</([a-zA-Z][a-zA-Z0-9]*)>\1>' src/ 2>/dev/null; then
+  echo "✗ CORRUPTION PATTERN: </tag>tag> found above. Fix before committing."
+  exit 1
+fi
+
+echo "▶ grep for secret patterns in staged code"
+STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx|json|md|sh|yml|yaml)$' || true)
+if [ -n "$STAGED" ]; then
+  if echo "$STAGED" | xargs grep -nE '(sk_live_[A-Za-z0-9]{20,}|sk_test_51[A-Za-z0-9]{20,}|pk_live_[A-Za-z0-9]{20,}|GOCSPX-[A-Za-z0-9_-]{20,}|xoxb-[A-Za-z0-9-]{20,})' 2>/dev/null; then
+    echo "✗ SECRET IN STAGED CHANGE. Remove it. Rotate the key. Never commit."
+    exit 1
+  fi
+fi
+
+echo "✓ pre-commit passed"
