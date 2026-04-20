@@ -22,6 +22,7 @@ const config: NextConfig = {
       { protocol: 'https', hostname: '**.ytimg.com' },
       { protocol: 'https', hostname: 'i.imgur.com' },
       { protocol: 'https', hostname: '**.googleusercontent.com' },
+      { protocol: 'https', hostname: 'picsum.photos' }, // Phase 1 placeholder host — remove in Phase 2
     ],
   },
   async headers() {
