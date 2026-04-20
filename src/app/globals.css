@@ -1,0 +1,153 @@
+@import "tailwindcss";
+
+/* ════════════════════════════════════════════════════════════
+   Bibue design tokens — faithful port from bibue.net (Lovable UI)
+   Primary: amber/gold.  Background: cream.  Fonts: Inter + Cinzel.
+   ════════════════════════════════════════════════════════════ */
+
+@layer base {
+  :root {
+    --background: 40 30% 95%;
+    --foreground: 30 10% 8%;
+    --card: 38 25% 97%;
+    --card-foreground: 30 10% 8%;
+    --popover: 38 25% 97%;
+    --popover-foreground: 30 10% 8%;
+    --primary: 42 100% 50%;
+    --primary-foreground: 30 10% 8%;
+    --secondary: 36 18% 90%;
+    --secondary-foreground: 30 10% 15%;
+    --muted: 36 18% 90%;
+    --muted-foreground: 30 8% 38%;
+    --accent: 36 18% 90%;
+    --accent-foreground: 30 10% 15%;
+    --destructive: 0 80% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 36 15% 85%;
+    --input: 36 15% 85%;
+    --ring: 42 100% 50%;
+    --radius: 0.75rem;
+    --glow-color: 42 100% 50%;
+    --glow-opacity: 0.15;
+  }
+
+  .dark {
+    --background: 0 0% 2%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 217 80% 56%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 88%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 88%;
+    --destructive: 0 80% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 217 80% 56%;
+    --glow-color: 217 80% 56%;
+    --glow-opacity: 0.12;
+  }
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --font-sans: var(--font-inter), Inter, system-ui, sans-serif;
+  --font-editorial: var(--font-cinzel), Cinzel, Georgia, serif;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Motion utilities ─── */
+@layer utilities {
+  .entrance-stagger > * {
+    opacity: 0;
+    transform: translateY(8px);
+    animation: enter 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .entrance-stagger > *:nth-child(1) { animation-delay: 0ms; }
+  .entrance-stagger > *:nth-child(2) { animation-delay: 40ms; }
+  .entrance-stagger > *:nth-child(3) { animation-delay: 80ms; }
+  .entrance-stagger > *:nth-child(4) { animation-delay: 120ms; }
+  .entrance-stagger > *:nth-child(5) { animation-delay: 160ms; }
+  .entrance-stagger > *:nth-child(6) { animation-delay: 200ms; }
+  .entrance-stagger > *:nth-child(7) { animation-delay: 240ms; }
+  .entrance-stagger > *:nth-child(8) { animation-delay: 280ms; }
+  .entrance-stagger > *:nth-child(n+9) { animation-delay: 320ms; }
+  @keyframes enter { to { opacity: 1; transform: translateY(0); } }
+
+  .masonry-grid { column-count: 2; column-gap: 1rem; }
+  @media (min-width: 640px)  { .masonry-grid { column-count: 3; } }
+  @media (min-width: 768px)  { .masonry-grid { column-count: 4; } }
+  @media (min-width: 1024px) { .masonry-grid { column-count: 5; } }
+  @media (min-width: 1280px) { .masonry-grid { column-count: 6; } }
+  .masonry-grid > * { break-inside: avoid; margin-bottom: 1rem; }
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 9999px; border: 2px solid hsl(var(--background)); }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+::selection {
+  background: hsl(var(--primary) / 0.9);
+  color: hsl(var(--primary-foreground));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .entrance-stagger > * { opacity: 1; transform: none; }
+}
+
+.ambient-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 30%,
+    hsl(var(--glow-color) / var(--glow-opacity)),
+    transparent 60%
+  );
+}
