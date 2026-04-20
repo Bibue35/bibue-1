@@ -59,7 +59,7 @@ export default function MangaCard({
           transition={{ duration: 0.5, ease: EASE }}
           className={cn(
             'relative overflow-hidden rounded-xl bg-muted shadow-[0_4px_20px_-8px_rgba(0,0,0,0.15)] transition-shadow duration-500 group-hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.35)]',
-            isMasonry ? 'h-auto' : 'aspect-[2/3]',
+            isMasonry ? 'h-auto' : 'aspect-[3/4]',
           )}
           style={{
             backgroundColor: coverColor ?? undefined,

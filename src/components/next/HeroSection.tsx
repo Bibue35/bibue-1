@@ -1,237 +1,269 @@
 'use client';
 
-import { useRef } from 'react';
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useReducedMotion,
-  type Variants,
-} from 'framer-motion';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Eye } from 'lucide-react';
+import { useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-const HEADLINE = 'Read the next chapter';
-const SUBHEAD =
-  'A quiet home for manga, manhwa, and manhua. Editorial picks, curated shelves, and the stories you will remember.';
+/**
+ * Cinematic hero — ported from v1 /src/components/CinematicHero.tsx.
+ * Full-bleed background crossfade between 6 featured titles, auto-cycling every 8s.
+ * Category switcher (Manga · Manhwa · Manhua) driven by countryOfOrigin.
+ * Real manga title is the display heading (not a marketing tagline).
+ *
+ * Data-layer-agnostic: consumer passes items as props. Migration wiring will
+ * fetch from AniList via RSC in Phase 2 and pass into here.
+ */
 
-const containerVariants: Variants = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.15,
-    },
-  },
+export interface HeroItem {
+  id: string;
+  title: string;
+  href: string;
+  coverUrl: string;
+  synopsis?: string | null;
+  score?: number | null;
+  viewCount?: number | null;
+  genres?: string[] | null;
+  status?: string | null;
+  countryOfOrigin?: 'JP' | 'KR' | 'CN' | null;
+}
+
+interface Props {
+  items: HeroItem[];
+}
+
+type MediaFilter = 'manga' | 'manhwa' | 'manhua';
+
+const COUNTRY_TO_FILTER: Record<NonNullable<HeroItem['countryOfOrigin']>, MediaFilter> = {
+  JP: 'manga',
+  KR: 'manhwa',
+  CN: 'manhua',
 };
 
-const wordVariants: Variants = {
-  hidden: { opacity: 0, y: 18 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.7,
-      ease: [0.22, 1, 0.36, 1],
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, ' ').trim();
+}
+
+function formatScore(score: number): string {
+  return score.toFixed(1);
+}
+
+function formatViewCount(n: number | null | undefined): string {
+  if (!n) return '—';
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return String(n);
+}
+
+export default function HeroSection({ items }: Props) {
+  const reduced = useReducedMotion();
+  const [activeFilter, setActiveFilter] = useState<MediaFilter>('manga');
+  const [idx, setIdx] = useState(0);
+  const [transitioning, setTransitioning] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // Which filters are actually represented in the data
+  const availableFilters = useMemo<MediaFilter[]>(() => {
+    const s = new Set<MediaFilter>();
+    for (const it of items) {
+      const f = it.countryOfOrigin ? COUNTRY_TO_FILTER[it.countryOfOrigin] : 'manga';
+      s.add(f);
+    }
+    const order: MediaFilter[] = ['manga', 'manhwa', 'manhua'];
+    return order.filter((f) => s.has(f));
+  }, [items]);
+
+  const filtered = useMemo(() => {
+    return items
+      .filter((it) => {
+        const f = it.countryOfOrigin ? COUNTRY_TO_FILTER[it.countryOfOrigin] : 'manga';
+        return f === activeFilter;
+      })
+      .slice(0, 6);
+  }, [items, activeFilter]);
+
+  // Reset index when filter changes AFTER fade-out finishes
+  const handleFilterChange = useCallback(
+    (filter: MediaFilter) => {
+      if (filter === activeFilter) return;
+      setTransitioning(true);
+      window.setTimeout(() => {
+        setActiveFilter(filter);
+        setIdx(0);
+        setTransitioning(false);
+      }, 300);
     },
-  },
-};
+    [activeFilter],
+  );
 
-const fadeUpVariants: Variants = {
-  hidden: { opacity: 0, y: 14 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.75,
-      ease: [0.22, 1, 0.36, 1],
-      delay: 0.55,
-    },
-  },
-};
+  // Auto-cycle every 8s
+  useEffect(() => {
+    if (reduced) return; // honor user preference
+    if (filtered.length <= 1) return;
+    const t = setInterval(() => setIdx((p) => (p + 1) % filtered.length), 8000);
+    return () => clearInterval(t);
+  }, [filtered.length, reduced]);
 
-export default function HeroSection() {
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const reducedMotion = useReducedMotion();
+  // Keyboard arrows
+  useEffect(() => {
+    if (filtered.length <= 1) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') setIdx((p) => (p - 1 + filtered.length) % filtered.length);
+      if (e.key === 'ArrowRight') setIdx((p) => (p + 1) % filtered.length);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [filtered.length]);
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start start', 'end start'],
-  });
+  if (filtered.length === 0) {
+    return <section aria-label="Featured manga" className="min-h-[90vh] sm:min-h-[92vh]" />;
+  }
 
-  // Parallax: heading floats upward, glow dims as user scrolls
-  const headingY = useTransform(scrollYProgress, [0, 1], ['0%', '-22%']);
-  const glowOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-  const glowScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
-
-  const words = HEADLINE.split(' ');
+  const current = filtered[idx];
+  const nextIdx = (idx + 1) % filtered.length;
 
   return (
     <section
       ref={sectionRef}
-      aria-label="Bibue hero"
-      className="relative isolate flex min-h-[85vh] w-full items-center justify-center overflow-hidden bg-background"
+      aria-label="Featured manga"
+      className="relative min-h-[90vh] sm:min-h-[92vh] flex flex-col overflow-hidden"
     >
-      {/* Ambient glow — scroll-driven fade */}
-      <motion.div
-        aria-hidden="true"
-        style={reducedMotion ? undefined : { opacity: glowOpacity, scale: glowScale }}
-        className="ambient-glow"
-      />
-
-      {/* Faint manga-panel decoration (pure CSS) */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-0">
-        {/* Stacked card silhouettes, upper-right */}
-        <div className="absolute right-[6%] top-[14%] hidden md:block">
-          <div className="relative h-64 w-44 rotate-6 rounded-lg border border-border/60 bg-muted/40 shadow-sm" />
-          <div className="absolute -left-8 -top-4 h-64 w-44 -rotate-3 rounded-lg border border-border/50 bg-muted/25" />
-          <div className="absolute -left-16 -top-8 h-64 w-44 -rotate-12 rounded-lg border border-border/40 bg-muted/15" />
-        </div>
-
-        {/* Lower-left diagonal gutter — evokes a manga panel break */}
-        <div className="absolute bottom-[12%] left-[-4%] hidden h-px w-[38%] rotate-[-8deg] bg-gradient-to-r from-transparent via-border to-transparent md:block" />
-
-        {/* Soft gold bloom, lower-right */}
-        <div className="absolute bottom-[-10%] right-[-10%] h-[36rem] w-[36rem] rounded-full bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.18),transparent_65%)] blur-2xl" />
-
-        {/* Dotted tone — cheap halftone feel */}
-        <div
-          className="absolute inset-0 opacity-[0.05] mix-blend-multiply"
-          style={{
-            backgroundImage:
-              'radial-gradient(hsl(var(--foreground)) 1px, transparent 1px)',
-            backgroundSize: '22px 22px',
-          }}
-        />
+      {/* Background — crossfade between current and next, everything else hidden */}
+      <div className="absolute inset-0 z-0">
+        {filtered.map((item, i) => {
+          if (i !== idx && i !== nextIdx) return null;
+          const isActive = i === idx && !transitioning;
+          return (
+            <Image
+              key={item.id}
+              src={item.coverUrl}
+              alt=""
+              aria-hidden
+              fill
+              sizes="100vw"
+              priority={i === idx}
+              className={cn(
+                'absolute inset-0 object-cover transition-opacity duration-[1500ms] ease-in-out',
+                isActive ? 'opacity-100' : 'opacity-0',
+              )}
+            />
+          );
+        })}
+        {/* Gradient overlays */}
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/60" />
       </div>
+
+      {/* SR-only h1 for SEO */}
+      <h1 className="sr-only">Discover Peak Manga, Manhwa & Manhua on Bibue</h1>
 
       {/* Content */}
-      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center px-6 text-center sm:px-10">
-        <motion.div
-          style={reducedMotion ? undefined : { y: headingY }}
-          className="w-full"
-        >
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-5 text-[11px] font-medium uppercase tracking-[0.35em] text-muted-foreground sm:text-xs"
-          >
-            Bibue — the quiet reader
-          </motion.p>
-
-          <motion.h1
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-            className="font-editorial text-[clamp(2.75rem,8.5vw,7rem)] font-semibold leading-[0.95] tracking-tight text-foreground"
-          >
-            {words.map((word, i) => (
-              <motion.span
-                key={`${word}-${i}`}
-                variants={wordVariants}
-                className="mr-[0.22em] inline-block will-change-transform"
-              >
-                {word}
-              </motion.span>
-            ))}
-          </motion.h1>
-
-          <motion.p
-            variants={fadeUpVariants}
-            initial="hidden"
-            animate="show"
-            className="mx-auto mt-7 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base"
-          >
-            {SUBHEAD}
-          </motion.p>
-
-          <motion.div
-            variants={fadeUpVariants}
-            initial="hidden"
-            animate="show"
-            className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4"
-          >
-            <a
-              href="/catalog"
-              className={cn(
-                'group inline-flex items-center justify-center gap-2 rounded-full bg-primary px-7 py-3',
-                'text-sm font-semibold tracking-wide text-primary-foreground',
-                'shadow-sm transition-all duration-300 ease-out',
-                'hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/40',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-              )}
-            >
-              Start reading
-              <span
-                aria-hidden="true"
-                className="inline-block transition-transform duration-300 group-hover:translate-x-0.5"
-              >
-                →
-              </span>
-            </a>
-
-            <a
-              href="/browse"
-              className={cn(
-                'group relative inline-flex items-center justify-center overflow-hidden rounded-full px-7 py-3',
-                'border border-border text-sm font-semibold tracking-wide text-foreground',
-                'transition-colors duration-300 ease-out hover:text-primary-foreground',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-              )}
-            >
-              <span
-                aria-hidden="true"
-                className={cn(
-                  'absolute inset-0 -z-10 origin-left scale-x-0 bg-foreground',
-                  'transition-transform duration-[400ms] ease-out group-hover:scale-x-100',
-                )}
-              />
-              Browse catalog
-            </a>
-          </motion.div>
-        </motion.div>
-      </div>
-
-      {/* Scroll indicator */}
-      <motion.div
-        aria-hidden="true"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.4, duration: 0.8 }}
-        style={reducedMotion ? undefined : { opacity: glowOpacity }}
-        className="absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 text-muted-foreground"
+      <div
+        className={cn(
+          'relative z-10 flex-1 flex items-end pb-16 sm:pb-24 pt-32 sm:pt-40 transition-opacity duration-300',
+          transitioning ? 'opacity-0' : 'opacity-100',
+        )}
       >
-        <span className="text-[10px] uppercase tracking-[0.3em]">Scroll</span>
-        <motion.span
-          animate={
-            reducedMotion
-              ? undefined
-              : {
-                  y: [0, 6, 0],
-                  opacity: [0.4, 1, 0.4],
-                }
-          }
-          transition={{
-            duration: 1.8,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="block"
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </motion.span>
-      </motion.div>
+        <div className="container mx-auto px-4 sm:px-6">
+          {/* Category switcher */}
+          {availableFilters.length > 1 && (
+            <div className="flex items-center gap-1 mb-4 sm:mb-6">
+              {availableFilters.map((f, i) => {
+                const label = f === 'manga' ? 'Manga' : f === 'manhwa' ? 'Manhwa' : 'Manhua';
+                return (
+                  <span key={f} className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleFilterChange(f)}
+                      className={cn(
+                        'text-[11px] sm:text-xs tracking-[0.3em] uppercase font-medium transition-all duration-300',
+                        activeFilter === f
+                          ? 'text-foreground'
+                          : 'text-muted-foreground hover:text-foreground/70',
+                      )}
+                    >
+                      {label}
+                    </button>
+                    {i < availableFilters.length - 1 && (
+                      <span className="text-[11px] sm:text-xs text-muted-foreground/40 mx-1">·</span>
+                    )}
+                  </span>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Eyebrow */}
+          <p className="font-editorial text-base sm:text-lg md:text-xl text-muted-foreground/80 mb-2">
+            Discover
+          </p>
+
+          {/* Giant title */}
+          <h2 className="font-editorial font-bold leading-[0.92] tracking-tight max-w-4xl text-[clamp(2.5rem,8vw,7rem)]">
+            {current.title}
+          </h2>
+
+          {/* Synopsis */}
+          {current.synopsis && (
+            <p className="mt-6 sm:mt-8 text-sm sm:text-base text-muted-foreground/70 leading-relaxed max-w-lg line-clamp-2">
+              {stripHtml(current.synopsis)}
+            </p>
+          )}
+
+          {/* Metadata row */}
+          <div className="mt-6 sm:mt-8 flex flex-wrap items-center gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground">
+            {current.score != null && (
+              <span className="font-medium text-foreground">{formatScore(current.score)}</span>
+            )}
+            {current.viewCount != null && (
+              <span className="flex items-center gap-1">
+                <Eye className="w-3.5 h-3.5" strokeWidth={1.75} />
+                {formatViewCount(current.viewCount)}
+              </span>
+            )}
+            {current.genres?.slice(0, 3).map((g) => (
+              <span key={g}>{g}</span>
+            ))}
+            {current.status && <span>{current.status}</span>}
+          </div>
+
+          {/* CTA — text link with growing underline */}
+          <div className="mt-8 sm:mt-10">
+            <Link
+              href={current.href}
+              className="group inline-flex items-center gap-3 text-sm sm:text-base font-medium tracking-wide uppercase text-foreground hover:text-primary transition-colors duration-300"
+            >
+              Start Reading
+              <span className="inline-block w-8 h-px bg-foreground transition-all duration-300 group-hover:w-12 group-hover:bg-primary" />
+            </Link>
+          </div>
+
+          {/* Progress indicators */}
+          {filtered.length > 1 && (
+            <div className="mt-12 sm:mt-16 flex items-center gap-2">
+              {filtered.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setIdx(i)}
+                  aria-label={`Go to slide ${i + 1}`}
+                  className={cn(
+                    'transition-all duration-500',
+                    i === idx
+                      ? 'w-8 h-px bg-foreground'
+                      : 'w-3 h-px bg-foreground/20 hover:bg-foreground/50',
+                  )}
+                />
+              ))}
+              <span className="ml-3 text-[10px] text-muted-foreground tabular-nums">
+                {String(idx + 1).padStart(2, '0')} / {String(filtered.length).padStart(2, '0')}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
     </section>
   );
 }

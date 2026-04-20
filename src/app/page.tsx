@@ -71,6 +71,25 @@ const rotate = <T,>(arr: T[], n: number): T[] => {
   return [...arr.slice(offset), ...arr.slice(0, offset)];
 };
 
+// Hero uses a curated 6-item slice with landscape-y placeholder covers + metadata.
+// Real data will come from AniList via RSC in Phase 2.
+const HERO_ITEMS = PLACEHOLDER_MANGA.slice(0, 6).map((m) => {
+  const slug = slugify(m.title);
+  return {
+    id: slug,
+    title: m.title,
+    href: m.href,
+    // Hero wants landscape/large — use picsum landscape seed
+    coverUrl: `https://picsum.photos/seed/${slug}-hero/1600/900`,
+    synopsis: `${m.title} is an acclaimed ${m.genre.toLowerCase()} series by ${m.author}. Follow its ${m.chapters} chapters of unforgettable storytelling.`,
+    score: m.score,
+    viewCount: Math.round(m.score * 120_000),
+    genres: [m.genre],
+    status: 'Publishing',
+    countryOfOrigin: 'JP' as const,
+  };
+});
+
 const TRENDING = PLACEHOLDER_MANGA;
 const TOP_RATED = [...PLACEHOLDER_MANGA].sort((a, b) => b.score - a.score);
 const RECENTLY_UPDATED = rotate(PLACEHOLDER_MANGA, 3);
@@ -98,7 +117,7 @@ export default async function HomePage() {
       <Nav user={navUser} />
 
       <main>
-        <HeroSection />
+        <HeroSection items={HERO_ITEMS} />
 
         <FadeInSection className="py-12 sm:py-16">
           <MangaCarousel title="Trending this week" items={TRENDING} />
