@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { IncognitoProvider } from "@/contexts/IncognitoContext";
 import { SpoilerFreeProvider } from "@/contexts/SpoilerFreeContext";
@@ -67,6 +67,7 @@ const ReferAndEarnPage = lazy(() => import("./pages/ReferAndEarnPage"));
 const SubscribePage = lazy(() => import("./pages/SubscribePage"));
 const BridgePage = lazy(() => import("./pages/BridgePage"));
 const BrandPage = lazy(() => import("./pages/BrandPage"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
 
 // Minimal loading fallback for route transitions
 const PageLoader = () => (
@@ -103,6 +104,14 @@ function AnimeRedirect() {
   return <Navigate to={`/manga/${id}`} replace />;
 }
 
+// Root route: logged-out visitors see the marketing landing, signed-in users
+// get the reader homepage.
+function RootRoute() {
+  const { user, loading } = useAuth();
+  if (loading) return <PageLoader />;
+  return user ? <Index /> : <LandingPage />;
+}
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -131,7 +140,7 @@ const App = () => (
                     <SwipeNavigationWrapper>
                       <AnimatedRoutes>
                         <Routes>
-                          <Route path="/" element={<Index />} />
+                          <Route path="/" element={<RootRoute />} />
                           <Route path="/anime" element={<Navigate to="/manga" replace />} />
                           <Route path="/anime/:id" element={<AnimeRedirect />} />
                           <Route path="/manga" element={<MangaPage />} />
