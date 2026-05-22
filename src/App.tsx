@@ -67,6 +67,7 @@ const ReferAndEarnPage = lazy(() => import("./pages/ReferAndEarnPage"));
 const SubscribePage = lazy(() => import("./pages/SubscribePage"));
 const BridgePage = lazy(() => import("./pages/BridgePage"));
 const BrandPage = lazy(() => import("./pages/BrandPage"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
 
 // Minimal loading fallback for route transitions
 const PageLoader = () => (
