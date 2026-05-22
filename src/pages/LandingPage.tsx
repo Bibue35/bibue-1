@@ -11,7 +11,7 @@
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { SEO } from "@/components/SEO";
-import Footer from "@/components/Footer";
+import { Footer } from "@/components/Footer";
 import { PRICING, REVENUE_SHARE, WEDGE, TIERS, formatPct } from "@/lib/pricing/tiers";
 import heroFigure from "@/assets/brand-hero-reader.jpg";
 
