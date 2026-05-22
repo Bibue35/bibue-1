@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+
 import { CollapsibleNavbar } from "@/components/CollapsibleNavbar";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
@@ -138,11 +138,7 @@ export default function BrandPage() {
         {/* ─── HERO ─── */}
         <section className="py-24 sm:py-32 md:py-40">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            >
+            <div className="animate-fade-up-spring">
               <Eyebrow gold>Bibue — Brand System 2.0</Eyebrow>
               <h1 className="mt-6 font-sacred font-bold tracking-tight leading-[0.95] text-5xl sm:text-6xl md:text-7xl lg:text-8xl">
                 A quiet system
@@ -155,7 +151,7 @@ export default function BrandPage() {
                 first day of publication. A majority of the revenue returned to the
                 people who made the work.
               </p>
-            </motion.div>
+            </div>
           </div>
         </section>
 
